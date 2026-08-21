@@ -23,3 +23,4 @@
 3. 実行後、実行ログで `Started InternshipApplication`を確認する
 4. `http://localhost:8083/investmentTrust` にブラウザでアクセス
 
+commit test
