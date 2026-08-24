@@ -14,7 +14,7 @@ public class BankLoanForm {
     @NonNull //この変数や引数には null（空っぽの状態）が入ることを許さない
     private String bankName;  //金融機関名　string 文字列
     @NonNull
-    private Integer bankAccountNum; //口座番号　　Integer 整数
+    private Integer bankAccountNum; //口座番号　　Inte　整数
 
     private String branchName;   // 支店名
     private String accountType;  // 科目名
