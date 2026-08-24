@@ -49,7 +49,7 @@ public class BankLoanController {
 
 //確認画面で『申込』ボタンが押されたとき、ローンの申込処理を実行して完了画面を表示する
     @PostMapping("/bankLoanCompletion")
-    public String completion(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
+    public String completion(@ModelAttribute BankLoanForm bankLoanForm) {
         applyBankLoanService.applyBankLoan(bankLoanForm);
         return "bankLoanCompletion";
     }

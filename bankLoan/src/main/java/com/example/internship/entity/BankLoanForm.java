@@ -1,3 +1,4 @@
+// package このファイルはcom.example.internship.controllerの中に含まれる
 package com.example.internship.entity;
 
 import lombok.Data;
