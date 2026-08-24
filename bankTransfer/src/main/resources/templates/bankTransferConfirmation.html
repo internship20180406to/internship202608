@@ -8,8 +8,18 @@
 <h1>銀行振込確認画面</h1>
 <form action="#" th:action="@{/bankTransferCompletion}" th:object="${bankTransferApplication}" method="post">
     <p>金融機関名: <span th:text="*{bankName}"></span></p>
+    <p>支店名: <span th:text="*{branchname}"></span></p>
+    <p>科目名: <span th:text="*{Accountname}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
+    <p>口座名義: <span th:text="*{Accountholder}"></span></p>
+    <p>金額: <span th:text="*{Amount}"></span></p>
+    <p>振込指定日: <span th:text="*{Scheduledtransfer}"></span></p>
+    <input type="hidden" name="Scheduledtransfer" th:value="*{Scheduledtransfer}"/>
+    <input type="hidden" name="Amount" th:value="*{Amount}"/>
+    <input type="hidden" name="Accountholder" th:value="*{Accountholder}"/>
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
+    <input type="hidden" name="accountName" th:value="*{accountName}"/>
+    <input type="hidden" name="branchName" th:value="*{branchName}"/>
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
     <p>
         <input type="submit" id="submit" value="振込"/>

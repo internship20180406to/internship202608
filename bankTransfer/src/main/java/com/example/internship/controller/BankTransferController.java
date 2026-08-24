@@ -27,7 +27,12 @@ public class BankTransferController {
     public String confirmation(@ModelAttribute BankTransferForm bankTransferForm, Model model) {
         bankTransferForm.setBankName("ながれぼし銀行");
         model.addAttribute("bankName", bankTransferForm.getBankName());
+        model.addAttribute("branchname", bankTransferForm.getBranchname());
+        model.addAttribute("Accountname", bankTransferForm.getAccountname());
         model.addAttribute("bankAccountNum", bankTransferForm.getBankAccountNum());
+        model.addAttribute("Accountholder", bankTransferForm.getAccountholder());
+        model.addAttribute("Amount", bankTransferForm.getAmount());
+        model.addAttribute("Scheduledtransfer", bankTransferForm.getScheduledtransfer());
         model.addAttribute("bankTransferApplication", bankTransferForm);
         return "bankTransferConfirmation";
     }
