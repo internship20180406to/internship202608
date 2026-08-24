@@ -109,12 +109,7 @@
 
         <!--振込画面 -->
         <p><label class="ml-1">口座名義: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{name}" class="form-control">
-                <option th:each="option : ${nameOptionsBankName}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select></p>
+            <input type="text" th:field="*{name}" class="form-control" placeholder="Furikomi Taro"/></p>
 
         <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
             <input type="number" th:field="*{money}" class="form-control" placeholder="10000"/></p>

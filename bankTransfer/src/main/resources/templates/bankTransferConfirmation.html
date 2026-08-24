@@ -13,7 +13,7 @@
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
 
     <p>口座名義: <span th:text="*{name}"></span></p>
-    <p>金額: <span th:text="*{money}"></span></p>
+    <p>金額: <span th:text="*{money}"></span>円</p>
     <p>振込指定日: <span th:text="*{transferDateTime}"></span></p>
 
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
@@ -21,9 +21,9 @@
     <input type="hidden" name="bankAccountType" th:value="*{bankAccountType}"/>
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
 
-    <input type="hidden" name="branchName" th:value="*{name}"/>
-    <input type="hidden" name="bankAccountType" th:value="*{money}"/>
-    <input type="hidden" name="bankAccountNum" th:value="*{transferDateTime}"/>
+    <input type="hidden" name="name" th:value="*{name}"/>
+    <input type="hidden" name="money" th:value="*{money}"/>
+    <input type="hidden" name="transferDateTime" th:value="*{transferDateTime}"/>
 
 
     <p>

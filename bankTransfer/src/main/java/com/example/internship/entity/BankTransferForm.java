@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+
 import java.time.LocalDate;
 
 @Data
@@ -80,7 +81,7 @@ public class BankTransferForm {
         return transferDateTime;
     }
 
-    public void setTransferDateTime(LocalDate TransferDateTime) {
+    public void setTransferDateTime(LocalDate transferDateTime) {
         this.transferDateTime = transferDateTime;
     }
 
