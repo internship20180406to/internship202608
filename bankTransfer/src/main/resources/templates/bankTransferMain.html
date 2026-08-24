@@ -56,7 +56,6 @@
         .form-clear-button:hover {
             background-color: #CCCCCC;
         }
-
     </style>
 </head>
 <body>
@@ -71,10 +70,14 @@
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
-            </select></p>
+            </select>
+            <span class="text-danger" th:if="${#fields.hasErrors('bankName')}"
+                  th:errors="*{bankName}"></span></p>
 
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{branchName}" class="form-control" placeholder="本店"/></p>
+            <input type="text" th:field="*{branchName}" class="form-control" placeholder="本店"/>
+            <span class="text-danger" th:if="${#fields.hasErrors('branchName')}"
+                  th:errors="*{branchName}"></span></p>
 
         <p><label class="ml-1">科目: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankAccountType}" class="form-control">
@@ -82,20 +85,30 @@
                 <option value="普通">普通</option>
                 <option value="当座">当座</option>
                 <option value="貯蓄">貯蓄</option>
-            </select></p>
+            </select>
+            <span class="text-danger" th:if="${#fields.hasErrors('bankAccountType')}"
+                  th:errors="*{bankAccountType}"></span></p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="text" th:field="*{bankAccountNum}" class="form-control"
-                   maxlength="7" placeholder="1234567"/></p>
+                   maxlength="7" placeholder="1234567"/>
+            <span class="text-danger" th:if="${#fields.hasErrors('bankAccountNum')}"
+                  th:errors="*{bankAccountNum}"></span></p>
 
         <p><label class="ml-1">口座名義: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="ヤマダ タロウ"/></p>
+            <input type="text" th:field="*{name}" class="form-control" placeholder="ヤマダ タロウ"/>
+            <span class="text-danger" th:if="${#fields.hasErrors('name')}"
+                  th:errors="*{name}"></span></p>
 
         <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{money}" class="form-control" min="1" placeholder="10000"/></p>
+            <input type="number" th:field="*{money}" class="form-control" min="1" placeholder="10000"/>
+            <span class="text-danger" th:if="${#fields.hasErrors('money')}"
+                  th:errors="*{money}"></span></p>
 
         <p><label class="ml-1">振込指定日: <small class="text-danger ml-1">※</small></label><br>
-            <input type="date" th:field="*{transferDateTime}" class="form-control"/></p>
+            <input type="date" th:field="*{transferDateTime}" class="form-control"/>
+            <span class="text-danger" th:if="${#fields.hasErrors('transferDateTime')}"
+                  th:errors="*{transferDateTime}"></span></p>
 
         <p style="text-align: center;"><input type="submit" value="確認"
                                               class="form-control-button form-confirmation-button"/>
@@ -103,5 +116,4 @@
     </form>
 </div>
 </body>
-
 </html>
