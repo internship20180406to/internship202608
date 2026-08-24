@@ -66,7 +66,7 @@
 
         <p><label class="ml-1">債務者名: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
-                   th:field="*{debtorName}"
+                   th:field="*{name}"
                    class="form-control"
                    placeholder="債務者名を入力してください">
         </p>
@@ -81,14 +81,14 @@
 
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
-                   th:field="*{bankBranchName}"
+                   th:field="*{branchName}"
                    class="form-control"
                    placeholder="支店名を入力してください">
         </p>
 
         <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
-                   th:field="*{subjectName}"
+                   th:field="*{bankAccountType}"
                    class="form-control"
                    placeholder="科目名を入力してください">
         </p>

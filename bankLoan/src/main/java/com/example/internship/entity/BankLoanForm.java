@@ -14,13 +14,13 @@ public class BankLoanForm {
     @NonNull
     private String bankName;
     @NonNull
-    private String bankBranchName;
+    private String branchName;
     @NonNull
-    private String subjectName;
+    private String bankAccountType;
     @NonNull
     private Integer bankAccountNum;
     @NonNull
-    private String debtorName;
+    private String name;
     @NonNull
     private Integer loanAmount;
     @NonNull
@@ -39,20 +39,20 @@ public class BankLoanForm {
         this.bankName = bankName;
     }
 
-    public String getBankBranchName() {
-        return bankBranchName;
+    public String getBranchName() {
+        return branchName;
     }
 
-    public void setBankBranchName(String bankBranchName) {
-        this.bankBranchName = bankBranchName;
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
     }
 
-    public String getSubjectName() {
-        return subjectName;
+    public String getBankAccountType() {
+        return bankAccountType;
     }
 
-    public void setSubjectName(String subjectName) {
-        this.subjectName = subjectName;
+    public void setBankAccountType(String bankAccountType) {
+        this.bankAccountType = bankAccountType;
     }
 
     public Integer getBankAccountNum() {
@@ -63,12 +63,12 @@ public class BankLoanForm {
         this.bankAccountNum = bankAccountNum;
     }
 
-    public String getDebtorName() {
-        return debtorName;
+    public String getName() {
+        return name;
     }
 
-    public void setDebtorName(String debtorName) {
-        this.debtorName = debtorName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Integer getLoanAmount() {
