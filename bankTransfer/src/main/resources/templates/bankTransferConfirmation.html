@@ -3,19 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <title>銀行振込確認画面</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 85vh;
+            overflow: auto;
+        }
+        .content {
+            background-color: #ffffff;
+            width: 80%;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-height: 50vh;
+            overflow: auto;
+        }
+        .form-control-button {
+            width: 110px;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .form-confirmation-button {
+            color: white;
+            background-color: #2185D0;
+        }
+        .form-confirmation-button:hover {
+            background-color: #1678c2;
+        }
+        .form-clear-button {
+            color: black;
+            background-color: #E0E1E2;
+        }
+        .form-clear-button:hover {
+            background-color: #CCCCCC;
+        }
+    </style>
 </head>
 <body>
-<h1>銀行振込確認画面</h1>
-<form action="#" th:action="@{/bankTransferCompletion}" th:object="${bankTransferApplication}" method="post">
-    <p>金融機関名: <span th:text="*{bankName}"></span></p>
-    <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
-    <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
-    <input type="hidden" name="bankName" th:value="*{bankName}"/>
-    <p>
-        <input type="submit" id="submit" value="振込"/>
-        <input type="button" value="キャンセル" onclick="window.location='/bankTransfer';"/>
-    </p>
-</form>
+<div class="content">
+    <h1>銀行振込確認画面</h1>
+    <form action="#" th:action="@{/bankTransferCompletion}" th:object="${bankTransferApplication}" method="post">
+
+        <p>金融機関名: <span th:text="*{bankName}"></span></p>
+        <p>支店名: <span th:text="*{branchName}"></span></p>
+        <p>科目: <span th:text="*{bankAccountType}"></span></p>
+        <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
+        <p>口座名義: <span th:text="*{name}"></span></p>
+        <p>金額: <span th:text="*{money}"></span>円</p>
+        <p>振込指定日: <span th:text="*{transferDateTime}"></span></p>
+
+        <input type="hidden" name="bankName"         th:value="*{bankName}"/>
+        <input type="hidden" name="branchName"       th:value="*{branchName}"/>
+        <input type="hidden" name="bankAccountType"  th:value="*{bankAccountType}"/>
+        <input type="hidden" name="bankAccountNum"   th:value="*{bankAccountNum}"/>
+        <input type="hidden" name="name"             th:value="*{name}"/>
+        <input type="hidden" name="money"            th:value="*{money}"/>
+        <input type="hidden" name="transferDateTime" th:value="*{transferDateTime}"/>
+
+        <p>
+            <input type="submit" id="submit" value="振込"
+                   class="form-control-button form-confirmation-button"/>
+            <input type="button" value="キャンセル"
+                   class="form-control-button form-clear-button"
+                   onclick="window.location='/bankTransfer';"/>
+        </p>
+    </form>
+</div>
 <script th:inline="javascript" src="/js/bankTransferConfirmation.js"></script>
 </body>
 </html>

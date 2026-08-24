@@ -3,32 +3,24 @@ package com.example.internship.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 //入力内容を格納するクラスを定義
 public class BankTransferForm {
-    @NonNull
-    private String bankName;
-    @NonNull
-    private String bankAccountNum;//口座番号の型をInteger=>Stringに変更
 
-    public String getBankName() {
-        return bankName;
-    }
+    private String bankName;          // 金融機関名
+    private String branchName;        // 支店名
+    private String bankAccountType;   // 科目
+    private String bankAccountNum;    // 口座番号（型をInteger=>Stringに変更）
+    private String name;              // 口座名義
+    private Integer money;            // 金額
 
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
-    }
-
-    public String getBankAccountNum() {
-        return bankAccountNum;
-    }
-
-    public void setBankAccountNum(String bankAccountNum) {
-        this.bankAccountNum = bankAccountNum;
-    }
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)//これがget/setの役割を担う
+    private LocalDate transferDateTime;   // 振込指定日
 }
+
