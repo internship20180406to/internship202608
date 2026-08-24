@@ -65,13 +65,20 @@
     <form action="#" th:action="@{/bankLoanConfirmation}" th:object="${bankLoanApplication}" method="post">
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}" class="form-control">
+                <option value="">選択してください</option>
                 <option th:each="option : ${nameOptions}"
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
             </select></p>
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{branchName}" class="form-control" placeholder="福岡支店"/></p>
+            <select th:field="*{branchName}" class="form-control">
+                <option value="">選択してください</option>
+                <option th:each="option : ${branchOptions}"
+                        th:value="${option}"
+                        th:text="${option}">選択肢
+                </option>
+            </select>
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
         <p><label class="ml-1">債務者名: <small class="text-danger ml-1">※</small></label><br>

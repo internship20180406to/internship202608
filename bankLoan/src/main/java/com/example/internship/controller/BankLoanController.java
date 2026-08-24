@@ -20,6 +20,7 @@ public class BankLoanController {
     public String bankTransfer(Model model) {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
         model.addAttribute("nameOptions", "山陰共同銀行");
+        model.addAttribute("branchOptions", new String[]{"本店営業部", "福岡支店", "博多支店"});
         return "bankLoanMain";
     }
 
