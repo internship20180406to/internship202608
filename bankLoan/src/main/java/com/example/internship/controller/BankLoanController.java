@@ -1,7 +1,7 @@
-// package このファイルはcom.example.internship.controllerの中に含まれる
+// package このファイルはcom.example.internship.controllerの中に含まれる。
 package com.example.internship.controller;
 
-// import 別のパッケージ（フォルダ）にある BankLoanForm クラスを使えるように読み込む
+// import 別のパッケージ（フォルダ）にある BankLoanForm クラスを使えるように読み込む。
 import com.example.internship.entity.BankLoanForm;
 import com.example.internship.service.ApplyBankLoanService;
 
