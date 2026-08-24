@@ -72,6 +72,8 @@
             </select></p>
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
+        <p><label class="ml-1">債務者名: <small class="text-danger ml-1">※</small></label><br>
+            <input type="text" th:field="*{debtorName}" class="form-control" placeholder="山田 太郎"/></p>
         <p style="text-align: center;"><input type="submit" value="確認"
                                               class="form-control-button form-confirmation-button"/>
             <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>

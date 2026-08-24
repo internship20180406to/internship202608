@@ -11,6 +11,8 @@ import lombok.NonNull;
 public class BankLoanForm {
     @NonNull
     private String bankName;
+
+    private String debtorName;
     @NonNull
     private Integer bankAccountNum;
 
