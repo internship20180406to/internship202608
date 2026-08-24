@@ -28,13 +28,8 @@ public class BankLoanController {
     public String confirmation(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
         bankLoanForm.setBankName("ながれぼし銀行");
         model.addAttribute("bankName", bankLoanForm.getBankName());
-        model.addAttribute("branchName", bankLoanForm.getBranchName());
-        model.addAttribute("bankAccountType", bankLoanForm.getBankAccountType());
         model.addAttribute("bankAccountNum", bankLoanForm.getBankAccountNum());
 
-        model.addAttribute("name", bankLoanForm.getName());
-        model.addAttribute("money", bankLoanForm.getMoney());
-        model.addAttribute("transferDatetime", bankLoanForm.getTransferDateTime());
 
         model.addAttribute("bankLoanApplication", bankLoanForm);
         return "bankLoanConfirmation";
