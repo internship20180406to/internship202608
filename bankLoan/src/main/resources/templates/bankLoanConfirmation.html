@@ -9,8 +9,12 @@
 <form action="#" th:action="@{/bankLoanCompletion}" th:object="${bankLoanApplication}" method="post">
     <p>金融機関名: <span th:text="*{bankName}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
+    <p>金額: <span th:text="*{amount}"></span> 円</p>
+    <p>振込指定日: <span th:text="*{transferDate}"></span></p>
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
+    <input type="hidden" name="amount" th:value="*{amount}"/>
+    <input type="hidden" name="transferDate" th:value="*{transferDate}"/>
     <p>
         <input type="submit" id="submit" value="申込"/>
         <input type="button" value="キャンセル" onclick="window.location='/bankLoan';"/>

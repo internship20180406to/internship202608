@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +16,7 @@ public class BankLoanForm {
     private String bankName;
     @NonNull
     private Integer bankAccountNum;
+
 
     public String getBankName() {
         return bankName;
