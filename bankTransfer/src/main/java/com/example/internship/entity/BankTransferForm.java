@@ -8,11 +8,13 @@ import lombok.NonNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+
+//入力内容を格納するクラスを定義
 public class BankTransferForm {
     @NonNull
     private String bankName;
     @NonNull
-    private Integer bankAccountNum;
+    private String bankAccountNum;//口座番号の型をInteger=>Stringに変更
 
     public String getBankName() {
         return bankName;
@@ -22,11 +24,11 @@ public class BankTransferForm {
         this.bankName = bankName;
     }
 
-    public Integer getBankAccountNum() {
+    public String getBankAccountNum() {
         return bankAccountNum;
     }
 
-    public void setBankAccountNum(Integer bankAccountNum) {
+    public void setBankAccountNum(String bankAccountNum) {
         this.bankAccountNum = bankAccountNum;
     }
 }
