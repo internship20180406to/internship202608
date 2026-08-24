@@ -12,6 +12,8 @@ public class BankLoanForm {
     @NonNull
     private String bankName;
 
+    private String branchName;
+
     private String debtorName;
     @NonNull
     private Integer bankAccountNum;
