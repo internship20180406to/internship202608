@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>借入内容入力画面</title>
+
+    <style>
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 85vh;
+        }
+
+        .content {
+            background-color: #ffffff;
+            width: 80%;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+
+        .text-danger {
+            color: red;
+        }
+
+        .button-area {
+            text-align: center;
+        }
+
+        .form-button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .next-button {
+            color: white;
+            background-color: #2185D0;
+        }
+
+        .back-button {
+            color: black;
+            background-color: #E0E1E2;
+        }
+    </style>
+</head>
+
+<body>
+<div class="content">
+    <h1>借入内容入力</h1>
+
+    <form th:action="@{/bankLoanConfirmation}"
+          th:object="${bankLoanApplication}"
+          method="post">
+
+        <!-- 1ページ目の情報を保持 -->
+        <input type="hidden" th:field="*{bankName}"/>
+        <input type="hidden" th:field="*{branchName}"/>
+        <input type="hidden" th:field="*{bankAccountNum}"/>
+        <input type="hidden" th:field="*{debtorLastName}"/>
+        <input type="hidden" th:field="*{debtorFirstName}"/>
+
+        <p>
+            <label>
+                借入希望金額:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <input type="number"
+                   th:field="*{desiredLoanAmount}"
+                   class="form-control"
+                   min="1"
+                   placeholder="300"/>
+            <span>万円</span>
+        </p>
+
+        <p class="button-area">
+            <input type="button"
+                   value="戻る"
+                   class="form-button back-button"
+                   onclick="history.back()"/>
+
+            <input type="submit"
+                   value="次へ"
+                   class="form-button next-button"/>
+        </p>
+    </form>
+</div>
+</body>
+</html>

@@ -24,6 +24,15 @@ public class BankLoanController {
         return "bankLoanMain";
     }
 
+    @PostMapping("/bankLoanDetails")
+    public String details(
+            @ModelAttribute BankLoanForm bankLoanForm,
+            Model model) {
+
+        model.addAttribute("bankLoanApplication", bankLoanForm);
+        return "bankLoanDetails";
+    }
+
     @PostMapping("/bankLoanConfirmation")
     public String confirmation(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
         bankLoanForm.setDebtorName(

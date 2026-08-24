@@ -17,8 +17,12 @@ public class BankLoanForm {
     private String debtorName;
     private String debtorLastName;
     private String debtorFirstName;
+
+    private String debtorBirth;
     @NonNull
     private Integer bankAccountNum;
+
+    private Integer desiredLoanAmount;
 
     public String getBankName() {
         return bankName;
