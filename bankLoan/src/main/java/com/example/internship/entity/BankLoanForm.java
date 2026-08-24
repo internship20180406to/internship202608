@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.DecimalMax;
 
 @Data
 @AllArgsConstructor
@@ -19,6 +21,15 @@ public class BankLoanForm {
     private Integer bankAccountNum;
     @NonNull
     private String debtorName;
+    @NonNull
+    private Integer loanAmount;
+    @NonNull
+    private Integer annualIncome;
+    @NonNull
+    @DecimalMin("0.0")
+    @DecimalMax("20.0")
+    private Double interestRate;
+
 
     public String getBankName() {
         return bankName;
