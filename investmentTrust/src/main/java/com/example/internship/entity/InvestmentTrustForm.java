@@ -8,11 +8,14 @@ import lombok.NonNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class InvestmentTrustForm {
     @NonNull
     private String bankName;
     @NonNull
     private Integer bankAccountNum;
+    private String purchaserName;
+    private String investmentTrustName;
 
     public String getBankName() {
         return bankName;
