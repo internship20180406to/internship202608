@@ -71,7 +71,7 @@
 <div class="content">
     <h1>ローン申込情報入力</h1>
 
-    <form action="#" th:action="@{/bankLoanConfirmation}" th:object="${bankLoanApplication}" method="post">
+    <form action="#" th:action="@{/bankLoanDetails}" th:object="${bankLoanApplication}" method="post">
         <p><label class="ml-1">お名前: <small class="text-danger ml-1">※</small></label><br>
             <input type="text" th:field="*{debtorLastName}" class="form-control" placeholder="姓"/></p>
         <input type="text" th:field="*{debtorFirstName}" class="form-control" placeholder="名"/></p>
