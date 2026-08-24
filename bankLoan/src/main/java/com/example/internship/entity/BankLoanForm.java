@@ -12,9 +12,13 @@ public class BankLoanForm {
     @NonNull
     private String bankName;
     @NonNull
-    private String bankbranchName;
+    private String bankBranchName;
+    @NonNull
+    private String subjectName;
     @NonNull
     private Integer bankAccountNum;
+    @NonNull
+    private String debtorName;
 
     public String getBankName() {
         return bankName;
