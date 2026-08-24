@@ -31,6 +31,14 @@
             margin: 5px 0;
             box-sizing: border-box;
         }
+        .name-inputs {
+            display: flex;
+            gap: 10px;
+        }
+        .name-inputs .form-control {
+            flex: 1;
+            min-width: 0;
+        }
         .text-danger {
         color: red;
         }
@@ -81,8 +89,9 @@
             </select>
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
-        <p><label class="ml-1">債務者名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{debtorName}" class="form-control" placeholder="山田 太郎"/></p>
+        <p><label class="ml-1">お名前: <small class="text-danger ml-1">※</small></label><br>
+            <input type="text" th:field="*{debtorLastName}" class="form-control" placeholder="姓"/></p>
+            <input type="text" th:field="*{debtorFirstName}" class="form-control" placeholder="名"/></p>
         <p style="text-align: center;"><input type="submit" value="確認"
                                               class="form-control-button form-confirmation-button"/>
             <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
