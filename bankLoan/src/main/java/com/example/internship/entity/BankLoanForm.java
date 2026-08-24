@@ -15,13 +15,15 @@ public class BankLoanForm {
     @NonNull
     private Integer bankAccountNum;
 
-    // ▼ 金額と振込指定日（ここが必要です）
+    private String branchName;   // 支店名
+    private String accountType;  // 科目名
+    private String accountHolder;// 口座名義
+
     private Long amount;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate transferDate;
 
-    // --- 既存の Getter / Setter ---
     public String getBankName() {
         return bankName;
     }
@@ -38,7 +40,7 @@ public class BankLoanForm {
         this.bankAccountNum = bankAccountNum;
     }
 
-    // --- 追加分 Getter / Setter（ここが必要です） ---
+
     public Long getAmount() {
         return amount;
     }
@@ -53,5 +55,29 @@ public class BankLoanForm {
 
     public void setTransferDate(LocalDate transferDate) {
         this.transferDate = transferDate;
+    }
+
+    public String getBranchName() {
+        return branchName;
+    }
+
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
+
+    public String getAccountHolder() {
+        return accountHolder;
+    }
+
+    public void setAccountHolder(String accountHolder) {
+        this.accountHolder = accountHolder;
     }
 }
