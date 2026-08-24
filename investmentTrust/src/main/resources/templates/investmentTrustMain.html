@@ -72,11 +72,17 @@
             </select></p>
         <p><label class="ml-1">支店名:<small class="text-danger ml-1">※</small></label><br>
            <select th:field=*"{bankName}" class="from-control">
-               <option> </option>
+               <option th:each="option : ${nameOptions}"
+                       th:value=$"{option}"
+                       th:text=$"{option}">選択肢
+               </option>
            </select></p>
         <p><label class="ml-1">科目名:<small class="text-danger ml-1">※</small></label><br>
            <select th:field=*"{subject}" class="from-control">
-               <option> </option>
+               <option th:each="option : ${nameOptions}"
+                       th:value=$"{option}"
+                       th:text=$"{option}">選択肢
+               </option>
            </select></p>
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
