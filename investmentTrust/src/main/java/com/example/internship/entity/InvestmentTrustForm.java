@@ -10,9 +10,13 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class InvestmentTrustForm {
     @NonNull
-    private String bankName;
+    private String bankName;//金融機関名
     @NonNull
-    private Integer bankAccountNum;
+    private String BranchName;//支店名
+    @NonNull
+    private String SubjectName;//科目名
+    @NonNull
+    private Integer bankAccountNum;//口座番号
 
     public String getBankName() {
         return bankName;
@@ -21,6 +25,10 @@ public class InvestmentTrustForm {
     public void setBankName(String bankName) {
         this.bankName = bankName;
     }
+
+    /*public String getBranchName() { return branchName; }
+
+    public void setBranchName(String branchName) { this.branchName = branchName; }*/
 
     public Integer getBankAccountNum() {
         return bankAccountNum;
