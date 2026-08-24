@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
-
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 
 @Controller
 public class BankLoanController {
@@ -25,11 +26,17 @@ public class BankLoanController {
         return "bankLoanMain";
     }
 
-    @PostMapping("/bankLoanConfirmation")
-    public String confirmation(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
-        model.addAttribute("bankName", bankLoanForm.getBankName());
-        model.addAttribute("bankAccountNum", bankLoanForm.getBankAccountNum());
-        model.addAttribute("bankLoanApplication", bankLoanForm);
+    @PostMapping("/bankLoan/confirmation")
+    public String confirmation(
+            @Valid BankLoanForm bankLoanForm,
+            BindingResult bindingResult,
+            Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "bankLoan";
+        }
+
+        model.addAttribute("bankLoanForm", bankLoanForm);
         return "bankLoanConfirmation";
     }
 

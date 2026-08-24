@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.DecimalMax;
 
@@ -11,21 +13,21 @@ import jakarta.validation.constraints.DecimalMax;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BankLoanForm {
-    @NonNull
+    @NotBlank(message = "金融機関名を入力してください")
     private String bankName;
-    @NonNull
+    @NotBlank(message = "支店名を入力してください")
     private String branchName;
-    @NonNull
+    @NotBlank(message = "科目を選択してください")
     private String bankAccountType;
-    @NonNull
+    @NotBlank(message = "口座番号を入力してください")
     private Integer bankAccountNum;
-    @NonNull
+    @NotBlank(message = "債務者名を入力してください")
     private String name;
-    @NonNull
+    @NotNull(message = "借入金額を入力してください")
     private Integer loanAmount;
-    @NonNull
+    @NotNull(message = "年収を入力してください")
     private Integer annualIncome;
-    @NonNull
+    @NotNull(message = "金利を入力してください")
     @DecimalMin("0.0")
     @DecimalMax("20.0")
     private Double interestRate;
