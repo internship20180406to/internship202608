@@ -87,10 +87,11 @@
         </p>
 
         <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text"
-                   th:field="*{bankAccountType}"
-                   class="form-control"
-                   placeholder="科目名を入力してください">
+            <select th:field="*{bankAccountType}" class="form-control">
+                <option value="">選択してください</option>
+                <option value="普通預金">普通預金</option>
+                <option value="当座預金">当座預金</option>
+            </select>
         </p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
