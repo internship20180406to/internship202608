@@ -39,11 +39,59 @@ public class BankLoanForm {
         this.bankName = bankName;
     }
 
+    public String getBankBranchName() {
+        return bankBranchName;
+    }
+
+    public void setBankBranchName(String bankBranchName) {
+        this.bankBranchName = bankBranchName;
+    }
+
+    public String getSubjectName() {
+        return subjectName;
+    }
+
+    public void setSubjectName(String subjectName) {
+        this.subjectName = subjectName;
+    }
+
     public Integer getBankAccountNum() {
         return bankAccountNum;
     }
 
     public void setBankAccountNum(Integer bankAccountNum) {
         this.bankAccountNum = bankAccountNum;
+    }
+
+    public String getDebtorName() {
+        return debtorName;
+    }
+
+    public void setDebtorName(String debtorName) {
+        this.debtorName = debtorName;
+    }
+
+    public Integer getLoanAmount() {
+        return loanAmount;
+    }
+
+    public void setLoanAmount(Integer loanAmount) {
+        this.loanAmount = loanAmount;
+    }
+
+    public Integer getAnnualIncome() {
+        return annualIncome;
+    }
+
+    public void setAnnualIncome(Integer annualIncome) {
+        this.annualIncome = annualIncome;
+    }
+
+    public Double getInterestRate() {
+        return interestRate;
+    }
+
+    public void setInterestRate(Double interestRate) {
+        this.interestRate = interestRate;
     }
 }

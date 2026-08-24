@@ -8,9 +8,22 @@
 <h1>ローン申込確認画面</h1>
 <form action="#" th:action="@{/bankLoanCompletion}" th:object="${bankLoanApplication}" method="post">
     <p>金融機関名: <span th:text="*{bankName}"></span></p>
+    <p>支店名: <span th:text="*{bankBranchName}"></span></p>
+    <p>科目名: <span th:text="*{subjectName}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
-    <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
+    <p>債務者名: <span th:text="*{debtorName}"></span></p>
+    <p>借入金額: <span th:text="*{loanAmount}"></span></p>
+    <p>年収: <span th:text="*{annualIncome}"></span></p>
+    <p>金利: <span th:text="*{interestRate}"></span>％</p>
+
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
+    <input type="hidden" name="bankBranchName" th:value="*{bankBranchName}"/>
+    <input type="hidden" name="subjectName" th:value="*{subjectName}"/>
+    <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
+    <input type="hidden" name="debtorName" th:value="*{debtorName}"/>
+    <input type="hidden" name="loanAmount" th:value="*{loanAmount}"/>
+    <input type="hidden" name="annualIncome" th:value="*{annualIncome}"/>
+    <input type="hidden" name="interestRate" th:value="*{interestRate}"/>
     <p>
         <input type="submit" id="submit" value="申込"/>
         <input type="button" value="キャンセル" onclick="window.location='/bankLoan';"/>
