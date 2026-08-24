@@ -11,8 +11,8 @@ public class BankTransferRepository {
     JdbcTemplate jdbcTemplate;
 
     public void create(BankTransferForm bankTransferForm) {
-        String sql = "INSERT INTO bankTransfer_table(bankName, bankAccountNum) VALUES(?, ?)";
-        jdbcTemplate.update(sql, bankTransferForm.getBankName(), bankTransferForm.getBankAccountNum());
+        String sql = "INSERT INTO bankTransfer_table(bankName, branchName, bankAccountType, bankAccountNum,name,money,tranferDateTime) VALUES(?, ?, ?, ?, ?, ? , ?)";
+        jdbcTemplate.update(sql, bankTransferForm.getBankName(), bankTransferForm.getBranchName(), bankTransferForm.getBankAccountType(), bankTransferForm.getBankAccountNum(), bankTransferForm.getName(), bankTransferForm.getMoney(), bankTransferForm.getTransferDateTime());
     }
 
 }
