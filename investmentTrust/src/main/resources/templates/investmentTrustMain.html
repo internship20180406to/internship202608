@@ -65,7 +65,21 @@
     <form action="#" th:action="@{/investmentTrustConfirmation}" th:object="${investmentTrustApplication}" method="post">
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}" class="form-control">
-                <option th:each="option : ${nameOptions}"
+                <option th:each="option : ${bankNameOptions}"
+                        th:value="${option}"
+                        th:text="${option}">選択肢
+                </option>
+            </select></p>
+        <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
+            <select th:field="*{branchName}" class="form-control">
+                <option th:each="option : ${branchNameOptions}"
+                        th:value="${option}"
+                        th:text="${option}">選択肢
+                </option>
+            </select>
+        <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
+            <select th:field="*{bankAccountTypeName}" class="form-control">
+                <option th:each="option : ${bankAccountTypeOptions}"
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>

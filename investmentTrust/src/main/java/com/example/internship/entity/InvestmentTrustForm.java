@@ -12,11 +12,17 @@ public class InvestmentTrustForm {
     @NonNull
     private String bankName;//金融機関名
     @NonNull
-    private String BranchName;//支店名
+    private String branchName;//支店名
     @NonNull
-    private String SubjectName;//科目名
+    private String bankAccountTypeName;//科目名
     @NonNull
     private Integer bankAccountNum;//口座番号
+    @NonNull
+    private String name;//購入者名
+    @NonNull
+    private String select;//銘柄選択
+    @NonNull
+    private Integer money;//購入金額
 
     public String getBankName() {
         return bankName;
@@ -26,9 +32,13 @@ public class InvestmentTrustForm {
         this.bankName = bankName;
     }
 
-    /*public String getBranchName() { return branchName; }
+    public String getBranchName() { return branchName; }
 
-    public void setBranchName(String branchName) { this.branchName = branchName; }*/
+    public void setBranchName(String branchName) { this.branchName = branchName; }
+
+    public String getBankAccountTypeName() { return bankAccountTypeName; }
+
+    public void setBankAccountTypeName(String bankAccountTypeName) { this.bankAccountTypeName = bankAccountTypeName; }
 
     public Integer getBankAccountNum() {
         return bankAccountNum;
@@ -36,5 +46,29 @@ public class InvestmentTrustForm {
 
     public void setBankAccountNum(Integer bankAccountNum) {
         this.bankAccountNum = bankAccountNum;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSelect() {
+        return select;
+    }
+
+    public void setSelect(String select) {
+        this.select = select;
+    }
+
+    public Integer getMoney() {
+        return money;
+    }
+
+    public void setMoney(Integer money) {
+        this.money = money;
     }
 }

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.List;
+
 
 @Controller
 public class InvestmentTrustController {
@@ -19,13 +21,32 @@ public class InvestmentTrustController {
     @GetMapping("/investmentTrust")
     public String bankTransfer(Model model) {
         model.addAttribute("investmentTrustApplication", new InvestmentTrustForm());
-        model.addAttribute("nameOptions", "山陰共同銀行");//例
+        List<String> bankNameOptions = List.of(
+                "山陰共同銀行",
+                "ながれぼし銀行",
+                "その他"
+        );
+
+        List<String> branchNameOptions = List.of(
+                "本店",
+                "福岡支店",
+                "その他"
+        );
+
+        List<String> bankAccountTypeOptions = List.of(
+                "普通",
+                "当座",
+                "貯蓄"
+        );
+        model.addAttribute("bankNameOptions", bankNameOptions);
+        model.addAttribute("branchNameOptions", branchNameOptions);
+        model.addAttribute("bankAccountTypeOptions", bankAccountTypeOptions);
         return "investmentTrustMain";
     }
 
     @PostMapping("/investmentTrustConfirmation")
     public String confirmation(@ModelAttribute InvestmentTrustForm investmentTrustForm, Model model) {
-        investmentTrustForm.setBankName("ながれぼし銀行");
+        //investmentTrustForm.setBankName("ここをBankNameにしたい");
         model.addAttribute("bankName", investmentTrustForm.getBankName());
         model.addAttribute("bankAccountNum", investmentTrustForm.getBankAccountNum());
         model.addAttribute("investmentTrustApplication", investmentTrustForm);
