@@ -25,7 +25,6 @@ public class BankTransferController {
 
     @PostMapping("/bankTransferConfirmation")
     public String confirmation(@ModelAttribute BankTransferForm bankTransferForm, Model model) {
-        bankTransferForm.setBankName("ながれぼし銀行");
         model.addAttribute("bankName", bankTransferForm.getBankName());
         model.addAttribute("bankAccountNum", bankTransferForm.getBankAccountNum());
         model.addAttribute("bankTransferApplication", bankTransferForm);

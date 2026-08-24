@@ -21,13 +21,12 @@ public class BankLoanController {
     @GetMapping("/bankLoan")
     public String bankTransfer(Model model) {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
-        model.addAttribute("nameOptions", List.of("山陰共同銀行", "なないろ銀行" ));
+        model.addAttribute("nameOptions", List.of("山陰共同銀行", "なないろ銀行", "あおぞら銀行","桜中央銀行","みなと未来信用銀行","つばさ中央銀行"));
         return "bankLoanMain";
     }
 
     @PostMapping("/bankLoanConfirmation")
     public String confirmation(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
-        bankLoanForm.setBankName("ながれぼし銀行");
         model.addAttribute("bankName", bankLoanForm.getBankName());
         model.addAttribute("bankAccountNum", bankLoanForm.getBankAccountNum());
         model.addAttribute("bankLoanApplication", bankLoanForm);
