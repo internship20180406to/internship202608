@@ -8,6 +8,8 @@
 <h1>投資信託注文確認画面</h1>
 <form action="#" th:action="@{/investmentTrustCompletion}" th:object="${investmentTrustApplication}" method="post">
     <p>金融機関名: <span th:text="*{bankName}"></span></p>
+    <p>支店名:<span th:text="*{bankName}"></span></p>
+    <p>科目名:<span th:text="*{subjectName}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
