@@ -104,6 +104,37 @@
             <span>万円</span>
         </p>
 
+        <p>
+            <label>
+                金利タイプ:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <select id="interestType"
+                    th:field="*{interestType}"
+                    class="form-control"
+                    required>
+
+                <option value="">選択してください</option>
+
+                <option th:each="rateEntry : ${rateOptions}"
+                        th:value="${rateEntry.key}"
+                        th:text="|${rateEntry.key}（年${rateEntry.value}%）|"
+                        th:attr="data-rate=${rateEntry.value}">
+                </option>
+            </select>
+        </p>
+
+        <p>
+            <label>適用予定金利:</label><br>
+
+            <input type="text"
+                   id="interestRateDisplay"
+                   class="form-control"
+                   readonly
+                   placeholder="金利タイプを選択してください"/>
+        </p>
+
         <p class="button-area">
             <input type="button"
                    value="戻る"
@@ -116,5 +147,25 @@
         </p>
     </form>
 </div>
+<script>
+    const interestType =
+        document.getElementById("interestType");
+
+    const interestRateDisplay =
+        document.getElementById("interestRateDisplay");
+
+    interestType.addEventListener("change", () => {
+        const selectedOption =
+            interestType.options[interestType.selectedIndex];
+
+        const rate = selectedOption.dataset.rate;
+
+        if (rate) {
+            interestRateDisplay.value = "年" + rate + "%";
+        } else {
+            interestRateDisplay.value = "";
+        }
+    });
+</script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package com.example.internship.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -32,6 +33,9 @@ public class BankLoanForm {
     private Integer desiredLoanAmount;
 
     private Integer annualIncome;
+
+    private String interestType;
+    private BigDecimal interestRate;
 
     public String getBankName() {
         return bankName;
