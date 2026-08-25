@@ -1,0 +1,21 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- ここまでに決まった振込先の控え。
+     読むだけの情報なので、入力欄やボタンと同じ「塗り＋枠」は与えない -->
+<div class="recap" th:fragment="recap(input)">
+    <p class="recap-title">振込先</p>
+    <p class="recap-line">
+        <span th:text="|${input.bankName}（${input.bankCode}）|">銀行</span>
+        <span th:if="${input.branchCode != null}"
+              th:text="|${input.branchName}（${input.branchCode}）|">支店</span>
+    </p>
+    <p class="recap-line" th:if="${input.bankAccountNum != null}">
+        <span th:text="|${input.bankAccountType} ${input.bankAccountNum}|">科目 口座番号</span>
+        <span th:text="${input.name}">名義</span>
+    </p>
+</div>
+
+</body>
+</html>

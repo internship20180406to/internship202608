@@ -1,38 +1,60 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>銀行振込確認画面</title>
-    <link rel="stylesheet" href="/css/bankTransfer.css"/>
-</head>
+<head th:replace="~{fragments/head :: head('振込内容の確認')}"></head>
 <body>
 <div class="content">
-    <div th:replace="~{fragments/stepper :: stepper(2)}"></div>
-    <h1>銀行振込確認画面</h1>
-    <form action="#" th:action="@{/bankTransferCompletion}" th:object="${bankTransferApplication}" method="post">
+    <div th:replace="~{fragments/stepper :: stepper(5)}"></div>
+    <h1>振込内容の確認</h1>
+    <p class="lead">内容をご確認のうえ、「振込」を押してください。</p>
 
-        <p>金融機関名: <span th:text="*{bankName}"></span></p>
-        <p>支店名: <span th:text="*{branchName}"></span></p>
-        <p>科目: <span th:text="*{bankAccountType}"></span></p>
-        <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
-        <p>口座名義: <span th:text="*{name}"></span></p>
-        <p>金額: <span th:text="${#numbers.formatInteger(bankTransferApplication.money, 1, 'COMMA')}"></span>円</p>
-        <p>振込指定日: <span th:text="*{transferDateTime}"></span></p>
+    <dl class="summary" th:object="${input}">
+        <div class="summary-row">
+            <dt>金融機関</dt>
+            <dd th:text="|*{bankName}（*{bankCode}）|">AAA銀行（0001）</dd>
+            <a class="link-edit" th:href="@{/bankTransfer}">変更</a>
+        </div>
+        <div class="summary-row">
+            <dt>支店</dt>
+            <dd th:text="|*{branchName}（*{branchCode}）|">A1支店（001）</dd>
+            <a class="link-edit" th:href="@{/bankTransfer/branch}">変更</a>
+        </div>
+        <div class="summary-row">
+            <dt>科目</dt>
+            <dd th:text="*{bankAccountType}">普通</dd>
+            <a class="link-edit" th:href="@{/bankTransfer/account}">変更</a>
+        </div>
+        <div class="summary-row">
+            <dt>口座番号</dt>
+            <dd th:text="*{bankAccountNum}">1234567</dd>
+            <a class="link-edit" th:href="@{/bankTransfer/account}">変更</a>
+        </div>
+        <div class="summary-row">
+            <dt>口座名義</dt>
+            <dd th:text="*{name}">ﾔﾏﾀﾞ ﾀﾛｳ</dd>
+            <a class="link-edit" th:href="@{/bankTransfer/account}">変更</a>
+        </div>
+        <div class="summary-row is-amount">
+            <dt>金額</dt>
+            <dd><span th:text="${#numbers.formatInteger(input.money, 1, 'COMMA')}">1,234,567</span><span
+                    class="unit">円</span></dd>
+            <a class="link-edit" th:href="@{/bankTransfer/amount}">変更</a>
+        </div>
+        <div class="summary-row">
+            <dt>振込指定日</dt>
+            <dd th:text="*{transferDateTime}">2026-08-27</dd>
+            <a class="link-edit" th:href="@{/bankTransfer/amount}">変更</a>
+        </div>
+    </dl>
 
-
+    <form th:action="@{/bankTransfer/completion}" method="post">
         <!-- 二重送信防止用のワンタイムトークン -->
         <input type="hidden" name="transferToken" th:value="${transferToken}"/>
-
-        <p>
-            <input type="submit" id="submit" value="振込"
-                   class="form-control-button form-confirmation-button"/>
-            <input type="button" value="キャンセル"
-                   class="form-control-button form-clear-button"
-                   onclick="window.location='/bankTransfer';"/>
-        </p>
+        <div class="actions">
+            <a class="form-control-button form-clear-button" th:href="@{/bankTransfer/amount}">戻る</a>
+            <button class="form-control-button form-confirmation-button" type="submit" id="submit">振込</button>
+        </div>
     </form>
 </div>
-<script th:inline="javascript" src="/js/bankTransferConfirmation.js"></script>
+<script src="/js/bankTransferConfirmation.js"></script>
 </body>
 </html>

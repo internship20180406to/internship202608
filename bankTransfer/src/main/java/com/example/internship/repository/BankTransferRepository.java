@@ -1,6 +1,6 @@
 package com.example.internship.repository;
 
-import com.example.internship.entity.BankTransferForm;
+import com.example.internship.entity.BankTransferInput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -10,21 +10,23 @@ public class BankTransferRepository {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    public void create(BankTransferForm bankTransferForm) {
+    public void create(BankTransferInput input) {
         String sql = """
         INSERT INTO bankTransfer_table
-            (bankName, branchName, bankAccountType, bankAccountNum,
-             name, money, transferDateTime)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+            (bankCode, bankName, branchCode, branchName, bankAccountType,
+             bankAccountNum, name, money, transferDateTime)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
         jdbcTemplate.update(sql,
-                bankTransferForm.getBankName(),
-                bankTransferForm.getBranchName(),
-                bankTransferForm.getBankAccountType(),
-                bankTransferForm.getBankAccountNum(),
-                bankTransferForm.getName(),
-                bankTransferForm.getMoney(),
-                bankTransferForm.getTransferDateTime());
+                input.getBankCode(),
+                input.getBankName(),
+                input.getBranchCode(),
+                input.getBranchName(),
+                input.getBankAccountType(),
+                input.getBankAccountNum(),
+                input.getName(),
+                input.getMoney(),
+                input.getTransferDateTime());
     }
 
 }

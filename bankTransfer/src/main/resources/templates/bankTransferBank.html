@@ -1,0 +1,27 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('金融機関の選択')}"></head>
+<body>
+<div class="content">
+    <div th:replace="~{fragments/stepper :: stepper(1)}"></div>
+    <h1>金融機関の選択</h1>
+
+    <!-- 行そのものが送信ボタン。JSが無くても選べる -->
+    <form th:action="@{/bankTransfer/bank}" method="post">
+        <h2 class="section-title">金融機関一覧</h2>
+        <div class="picklist-head">
+            <span>コード</span><span>金融機関名</span><span></span>
+        </div>
+        <ul class="picklist">
+            <li th:each="bank : ${banks}">
+                <button class="picklist-row" type="submit" name="bankCode" th:value="${bank.bankCode()}">
+                    <span class="picklist-code" th:text="${bank.bankCode()}">0001</span>
+                    <span th:text="${bank.bankName()}">AAA銀行</span>
+                    <span class="picklist-chevron" aria-hidden="true">›</span>
+                </button>
+            </li>
+        </ul>
+    </form>
+</div>
+</body>
+</html>

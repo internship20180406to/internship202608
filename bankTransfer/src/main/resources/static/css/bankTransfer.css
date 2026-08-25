@@ -329,6 +329,13 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     flex: 1;
 }
 
+/* 「戻る」はページ遷移なので <a> で書く。ボタンと同じ見た目に揃える */
+a.form-control-button {
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+}
+
 .form-control-button {
     font-family: var(--font);
     font-size: var(--size-body);

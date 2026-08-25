@@ -1,0 +1,46 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('金額と振込指定日')}"></head>
+<body>
+<div class="content">
+    <div th:replace="~{fragments/stepper :: stepper(4)}"></div>
+    <h1>金額と振込指定日</h1>
+    <div th:replace="~{fragments/recap :: recap(${input})}"></div>
+
+    <form th:action="@{/bankTransfer/amount}" th:object="${amountForm}" method="post">
+
+        <div class="field">
+            <label class="field-label" for="money">金額</label>
+            <span class="input-with-unit">
+                <input class="form-control" id="money" type="text" th:field="*{money}"
+                       th:classappend="${#fields.hasErrors('money')} ? 'has-error'"
+                       inputmode="numeric" placeholder="10,000"/>
+                <span class="unit">円</span>
+            </span>
+            <span class="text-danger" th:if="${#fields.hasErrors('money')}" th:errors="*{money}"></span>
+        </div>
+
+        <div class="field">
+            <label class="field-label" for="transferDateTime">振込指定日</label>
+            <input class="form-control" id="transferDateTime" type="date" th:field="*{transferDateTime}"
+                   th:classappend="${#fields.hasErrors('transferDateTime')} ? 'has-error'"
+                   th:min="${today}"/>
+            <div class="chips">
+                <button class="chip" type="button" data-days="0">本日</button>
+                <button class="chip" type="button" data-days="1">明日</button>
+                <button class="chip" type="button" data-days="7">1週間後</button>
+            </div>
+            <span class="hint" th:unless="${#fields.hasErrors('transferDateTime')}">本日以降の日付を指定してください</span>
+            <span class="text-danger" th:if="${#fields.hasErrors('transferDateTime')}"
+                  th:errors="*{transferDateTime}"></span>
+        </div>
+
+        <div class="actions">
+            <a class="form-control-button form-clear-button" th:href="@{/bankTransfer/account}">戻る</a>
+            <button class="form-control-button form-confirmation-button" type="submit">確認</button>
+        </div>
+    </form>
+</div>
+<script src="/js/bankTransferAmount.js"></script>
+</body>
+</html>

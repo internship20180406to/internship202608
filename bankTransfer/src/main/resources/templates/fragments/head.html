@@ -1,0 +1,14 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- 6画面で共通の head。viewport が無いと端末が980px幅として描画してしまい、
+     狭い幅向けのCSSが一度も適用されない -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${title}">銀行振込</title>
+    <link rel="stylesheet" href="/css/bankTransfer.css"/>
+</head>
+
+<body></body>
+</html>

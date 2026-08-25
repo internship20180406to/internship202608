@@ -1,8 +1,14 @@
 package com.example.internship.controller;
 
-import com.example.internship.entity.BankTransferForm;
+import com.example.internship.entity.BankTransferInput;
+import com.example.internship.master.Bank;
+import com.example.internship.master.BankMasterRepository;
+import com.example.internship.master.Branch;
+import com.example.internship.master.BranchMasterRepository;
 import com.example.internship.service.ApplyBankTransferService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,16 +16,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
@@ -29,184 +36,289 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 // Web層だけを起動する。DataSourceは読み込まれないのでMySQLが動いていなくても実行できる。
+// マスタとDB登録は差し替え、画面の流れとガードだけを見る。
 @WebMvcTest(BankTransferController.class)
-@DisplayName("BankTransferController の画面遷移")
+@DisplayName("振込6画面の流れ")
 class BankTransferControllerTest {
 
     private static final String TOKEN_KEY = "transferToken";
-    private static final String FORM_NAME = "bankTransferApplication";
-    private static final String INPUT_SESSION_KEY = "bankTransferInput";
+    private static final String INPUT_KEY = "bankTransferInput";
+
+    private static final Bank BANK = new Bank("0001", "AAA銀行");
+    private static final Branch BRANCH = new Branch("0001", "001", "A1支店");
 
     @Autowired
     private MockMvc mockMvc;
 
-    // DBへ書き込む処理は差し替える。呼ばれたかどうかだけを見る
     @MockitoBean
     private ApplyBankTransferService applyBankTransferService;
 
-    // すべての項目が正しい状態。壊したい項目だけ set で上書きして使う
-    private MultiValueMap<String, String> validParams() {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("bankName", "ながれぼし銀行");
-        params.add("branchName", "本店");
-        params.add("bankAccountType", "普通");
-        params.add("bankAccountNum", "1234567");
-        params.add("name", "ﾔﾏﾀﾞ ﾀﾛｳ");
-        params.add("money", "1000");
-        params.add("transferDateTime", LocalDate.now().plusDays(1).toString());
-        return params;
+    @MockitoBean
+    private BankMasterRepository bankMasterRepository;
+
+    @MockitoBean
+    private BranchMasterRepository branchMasterRepository;
+
+    @BeforeEach
+    void setUpMaster() {
+        when(bankMasterRepository.findAll()).thenReturn(List.of(BANK));
+        when(bankMasterRepository.findByCode("0001")).thenReturn(Optional.of(BANK));
+        when(bankMasterRepository.findByCode("9999")).thenReturn(Optional.empty());
+        when(branchMasterRepository.findByBankCode("0001")).thenReturn(List.of(BRANCH));
+        when(branchMasterRepository.find("0001", "001")).thenReturn(Optional.of(BRANCH));
+        when(branchMasterRepository.find("0001", "999")).thenReturn(Optional.empty());
     }
 
-    // 確認画面まで進めて、発行されたトークンを取り出す
-    private String startTransfer(MockHttpSession session) throws Exception {
-        mockMvc.perform(post("/bankTransferConfirmation").params(validParams()).session(session))
+    private String tomorrow() {
+        return LocalDate.now().plusDays(1).toString();
+    }
+
+    // 画面1から画面4までを順に通し、確認画面で発行されたトークンを返す
+    private String walkToConfirmation(MockHttpSession session) throws Exception {
+        mockMvc.perform(post("/bankTransfer/bank").param("bankCode", "0001").session(session))
+                .andExpect(redirectedUrl("/bankTransfer/branch"));
+        mockMvc.perform(post("/bankTransfer/branch").param("branchCode", "001").session(session))
+                .andExpect(redirectedUrl("/bankTransfer/account"));
+        mockMvc.perform(post("/bankTransfer/account").session(session)
+                        .param("bankAccountType", "普通")
+                        .param("bankAccountNum", "1234567")
+                        .param("name", "ﾔﾏﾀﾞ ﾀﾛｳ"))
+                .andExpect(redirectedUrl("/bankTransfer/amount"));
+        mockMvc.perform(post("/bankTransfer/amount").session(session)
+                        .param("money", "1000")
+                        .param("transferDateTime", tomorrow()))
+                .andExpect(redirectedUrl("/bankTransfer/confirmation"));
+        mockMvc.perform(get("/bankTransfer/confirmation").session(session))
                 .andExpect(view().name("bankTransferConfirmation"));
+
         Object token = session.getAttribute(TOKEN_KEY);
         assertThat(token).as("確認画面でトークンが発行されること").isNotNull();
         return token.toString();
     }
 
-    @Test
-    @DisplayName("入力画面が表示され、選択肢と本日の日付が渡される")
-    void 入力画面の表示() throws Exception {
-        mockMvc.perform(get("/bankTransfer"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("bankTransferMain"))
-                .andExpect(model().attributeExists(FORM_NAME, "nameOptions", "accountTypeOptions", "today"));
+    @Nested
+    @DisplayName("画面の表示と選択")
+    class Screens {
+
+        @Test
+        @DisplayName("画面1に金融機関の一覧が出る")
+        void 金融機関の選択画面() throws Exception {
+            mockMvc.perform(get("/bankTransfer"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("bankTransferBank"))
+                    .andExpect(model().attributeExists("banks"));
+        }
+
+        @Test
+        @DisplayName("金融機関を選ぶと支店の選択へ進む")
+        void 金融機関を選ぶ() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+
+            mockMvc.perform(post("/bankTransfer/bank").param("bankCode", "0001").session(session))
+                    .andExpect(redirectedUrl("/bankTransfer/branch"));
+
+            BankTransferInput input = (BankTransferInput) session.getAttribute(INPUT_KEY);
+            assertThat(input.getBankName()).isEqualTo("AAA銀行");
+        }
+
+        @Test
+        @DisplayName("一覧に無い金融機関コードは受け付けない")
+        void 存在しない金融機関() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+
+            mockMvc.perform(post("/bankTransfer/bank").param("bankCode", "9999").session(session))
+                    .andExpect(redirectedUrl("/bankTransfer"));
+
+            BankTransferInput input = (BankTransferInput) session.getAttribute(INPUT_KEY);
+            assertThat(input == null || input.getBankCode() == null).isTrue();
+        }
+
+        @Test
+        @DisplayName("その銀行の支店でないコードは受け付けない")
+        void 別の銀行の支店() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            mockMvc.perform(post("/bankTransfer/bank").param("bankCode", "0001").session(session));
+
+            mockMvc.perform(post("/bankTransfer/branch").param("branchCode", "999").session(session))
+                    .andExpect(redirectedUrl("/bankTransfer/branch"));
+
+            BankTransferInput input = (BankTransferInput) session.getAttribute(INPUT_KEY);
+            assertThat(input.getBranchCode()).isNull();
+        }
+
+        @Test
+        @DisplayName("金融機関を選び直すと支店は取り消される")
+        void 金融機関を変えると支店が外れる() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            mockMvc.perform(post("/bankTransfer/bank").param("bankCode", "0001").session(session));
+            mockMvc.perform(post("/bankTransfer/branch").param("branchCode", "001").session(session));
+
+            mockMvc.perform(post("/bankTransfer/bank").param("bankCode", "0001").session(session));
+
+            BankTransferInput input = (BankTransferInput) session.getAttribute(INPUT_KEY);
+            assertThat(input.getBranchCode()).isNull();
+        }
     }
 
-    @Test
-    @DisplayName("入力が正しければ確認画面へ進み、トークンが発行される")
-    void 確認画面への遷移() throws Exception {
-        MockHttpSession session = new MockHttpSession();
+    @Nested
+    @DisplayName("順番を飛ばしたアクセスへのガード")
+    class Guards {
 
-        mockMvc.perform(post("/bankTransferConfirmation").params(validParams()).session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("bankTransferConfirmation"))
-                .andExpect(model().attributeExists(TOKEN_KEY));
+        @Test
+        @DisplayName("金融機関が未選択なら支店の画面は開けない")
+        void 支店画面への直接アクセス() throws Exception {
+            mockMvc.perform(get("/bankTransfer/branch"))
+                    .andExpect(redirectedUrl("/bankTransfer"));
+        }
 
-        assertThat(session.getAttribute(TOKEN_KEY)).isNotNull();
+        @Test
+        @DisplayName("支店が未選択なら口座情報の画面は開けない")
+        void 口座画面への直接アクセス() throws Exception {
+            mockMvc.perform(get("/bankTransfer/account"))
+                    .andExpect(redirectedUrl("/bankTransfer"));
+        }
+
+        @Test
+        @DisplayName("口座情報が未入力なら金額の画面は開けない")
+        void 金額画面への直接アクセス() throws Exception {
+            mockMvc.perform(get("/bankTransfer/amount"))
+                    .andExpect(redirectedUrl("/bankTransfer"));
+        }
+
+        @Test
+        @DisplayName("入力が揃っていなければ確認画面は開けない")
+        void 確認画面への直接アクセス() throws Exception {
+            mockMvc.perform(get("/bankTransfer/confirmation"))
+                    .andExpect(redirectedUrl("/bankTransfer"));
+        }
+
+        @Test
+        @DisplayName("完了画面に直接アクセスすると入力画面へ戻される")
+        void 完了画面への直接アクセス() throws Exception {
+            mockMvc.perform(get("/bankTransfer/completion"))
+                    .andExpect(redirectedUrl("/bankTransfer"));
+        }
+
+        @Test
+        @DisplayName("口座情報が一部しか埋まっていなければ金額の画面は開けない")
+        void 口座情報が欠けている() throws Exception {
+            // 口座番号だけ入っていて名義が無い、という中途半端な状態を直接作る
+            BankTransferInput input = new BankTransferInput();
+            input.setBankCode("0001");
+            input.setBankName("AAA銀行");
+            input.setBranchCode("001");
+            input.setBranchName("A1支店");
+            input.setBankAccountNum("1234567");
+
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute(INPUT_KEY, input);
+
+            mockMvc.perform(get("/bankTransfer/amount").session(session))
+                    .andExpect(redirectedUrl("/bankTransfer"));
+        }
     }
 
-    @Test
-    @DisplayName("入力に誤りがあれば入力画面に留まり、トークンは発行されない")
-    void 入力エラー時は進まない() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        MultiValueMap<String, String> params = validParams();
-        params.set("money", "0");
+    @Nested
+    @DisplayName("入力チェック")
+    class Validation {
 
-        mockMvc.perform(post("/bankTransferConfirmation").params(params).session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("bankTransferMain"))
-                .andExpect(model().attributeHasFieldErrors(FORM_NAME, "money"));
+        @Test
+        @DisplayName("口座情報に誤りがあればその画面に留まる")
+        void 口座情報のエラー() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            mockMvc.perform(post("/bankTransfer/bank").param("bankCode", "0001").session(session));
+            mockMvc.perform(post("/bankTransfer/branch").param("branchCode", "001").session(session));
 
-        assertThat(session.getAttribute(TOKEN_KEY)).isNull();
+            mockMvc.perform(post("/bankTransfer/account").session(session)
+                            .param("bankAccountType", "普通")
+                            .param("bankAccountNum", "12345678")
+                            .param("name", "ﾔﾏﾀﾞ"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("bankTransferAccount"))
+                    .andExpect(model().attributeHasFieldErrors("accountForm", "bankAccountNum"));
+        }
+
+        @Test
+        @DisplayName("金額に誤りがあればその画面に留まる")
+        void 金額のエラー() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            mockMvc.perform(post("/bankTransfer/bank").param("bankCode", "0001").session(session));
+            mockMvc.perform(post("/bankTransfer/branch").param("branchCode", "001").session(session));
+            mockMvc.perform(post("/bankTransfer/account").session(session)
+                    .param("bankAccountType", "普通")
+                    .param("bankAccountNum", "1234567")
+                    .param("name", "ﾔﾏﾀﾞ"));
+
+            mockMvc.perform(post("/bankTransfer/amount").session(session)
+                            .param("money", "0")
+                            .param("transferDateTime", tomorrow()))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("bankTransferAmount"))
+                    .andExpect(model().attributeHasFieldErrors("amountForm", "money"));
+        }
     }
 
-    @Test
-    @DisplayName("正しいトークンを添えると登録され、完了画面へリダイレクトする")
-    void 申し込みの確定() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        String token = startTransfer(session);
+    @Nested
+    @DisplayName("申し込みの確定")
+    class Completion {
 
-        MultiValueMap<String, String> params = validParams();
-        params.add(TOKEN_KEY, token);
+        @Test
+        @DisplayName("最後まで通すと登録され、コードも一緒に保存される")
+        void 正常系() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            String token = walkToConfirmation(session);
 
-        mockMvc.perform(post("/bankTransferCompletion").params(params).session(session))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/bankTransferCompletion"))
-                .andExpect(flash().attributeExists(FORM_NAME));
+            mockMvc.perform(post("/bankTransfer/completion").param(TOKEN_KEY, token).session(session))
+                    .andExpect(redirectedUrl("/bankTransfer/completion"))
+                    .andExpect(flash().attributeExists("bankTransferResult"));
 
-        verify(applyBankTransferService, times(1)).applyBankTransfer(any(BankTransferForm.class));
-        assertThat(session.getAttribute(TOKEN_KEY)).as("使ったトークンは破棄されること").isNull();
-    }
+            ArgumentCaptor<BankTransferInput> captor = ArgumentCaptor.forClass(BankTransferInput.class);
+            verify(applyBankTransferService).applyBankTransfer(captor.capture());
 
-    @Test
-    @DisplayName("同じトークンで2回送っても登録は1回だけ（ブラウザバックからの再送信を防ぐ）")
-    void 二重送信は登録されない() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        String token = startTransfer(session);
+            BankTransferInput saved = captor.getValue();
+            assertThat(saved.getBankCode()).isEqualTo("0001");
+            assertThat(saved.getBankName()).isEqualTo("AAA銀行");
+            assertThat(saved.getBranchCode()).isEqualTo("001");
+            assertThat(saved.getBranchName()).isEqualTo("A1支店");
+            assertThat(saved.getMoney()).isEqualTo(1000);
+        }
 
-        MultiValueMap<String, String> params = validParams();
-        params.add(TOKEN_KEY, token);
+        @Test
+        @DisplayName("同じトークンで2回送っても登録は1回だけ")
+        void 二重送信は登録されない() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            String token = walkToConfirmation(session);
 
-        mockMvc.perform(post("/bankTransferCompletion").params(params).session(session))
-                .andExpect(redirectedUrl("/bankTransferCompletion"));
+            mockMvc.perform(post("/bankTransfer/completion").param(TOKEN_KEY, token).session(session))
+                    .andExpect(redirectedUrl("/bankTransfer/completion"));
+            mockMvc.perform(post("/bankTransfer/completion").param(TOKEN_KEY, token).session(session))
+                    .andExpect(redirectedUrl("/bankTransfer"));
 
-        mockMvc.perform(post("/bankTransferCompletion").params(params).session(session))
-                .andExpect(redirectedUrl("/bankTransfer"));
+            verify(applyBankTransferService, times(1)).applyBankTransfer(any(BankTransferInput.class));
+        }
 
-        verify(applyBankTransferService, times(1)).applyBankTransfer(any(BankTransferForm.class));
-    }
+        @Test
+        @DisplayName("トークンが無ければ登録されない")
+        void トークン無し() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            walkToConfirmation(session);
 
-    @Test
-    @DisplayName("トークンが無ければ登録されない（確認画面を経由しない直接送信）")
-    void トークン無しの直接送信() throws Exception {
-        mockMvc.perform(post("/bankTransferCompletion").params(validParams()).session(new MockHttpSession()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/bankTransfer"));
+            mockMvc.perform(post("/bankTransfer/completion").session(session))
+                    .andExpect(redirectedUrl("/bankTransfer"));
 
-        verify(applyBankTransferService, never()).applyBankTransfer(any(BankTransferForm.class));
-    }
+            verify(applyBankTransferService, never()).applyBankTransfer(any(BankTransferInput.class));
+        }
 
-    @Test
-    @DisplayName("完了処理はセッションの内容だけを登録し、送られてきた値は無視する")
-    void 送信値ではなくセッションの内容を登録する() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        String token = startTransfer(session);
+        @Test
+        @DisplayName("登録が済むとセッションの入力内容は破棄される")
+        void 登録後の後片付け() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            String token = walkToConfirmation(session);
 
-        // 確認画面では 1000 円で進んだのに、送信時だけ金額と口座番号をすり替えてみる
-        MultiValueMap<String, String> tampered = validParams();
-        tampered.set("money", "9999999");
-        tampered.set("bankAccountNum", "7654321");
-        tampered.add(TOKEN_KEY, token);
+            mockMvc.perform(post("/bankTransfer/completion").param(TOKEN_KEY, token).session(session));
 
-        mockMvc.perform(post("/bankTransferCompletion").params(tampered).session(session))
-                .andExpect(redirectedUrl("/bankTransferCompletion"));
-
-        ArgumentCaptor<BankTransferForm> captor = ArgumentCaptor.forClass(BankTransferForm.class);
-        verify(applyBankTransferService).applyBankTransfer(captor.capture());
-
-        assertThat(captor.getValue().getMoney()).isEqualTo(1000);
-        assertThat(captor.getValue().getBankAccountNum()).isEqualTo("1234567");
-    }
-
-    @Test
-    @DisplayName("セッションが切れて入力内容が消えていれば登録しない")
-    void セッション切れ() throws Exception {
-        // トークンだけ残っていて入力内容が無い状態を作る
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(TOKEN_KEY, "dummy-token");
-
-        mockMvc.perform(post("/bankTransferCompletion")
-                        .param(TOKEN_KEY, "dummy-token")
-                        .session(session))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/bankTransfer"));
-
-        verify(applyBankTransferService, never()).applyBankTransfer(any(BankTransferForm.class));
-    }
-
-    @Test
-    @DisplayName("登録が済むとセッションの入力内容は破棄される")
-    void 登録後にセッションを片付ける() throws Exception {
-        MockHttpSession session = new MockHttpSession();
-        String token = startTransfer(session);
-        assertThat(session.getAttribute(INPUT_SESSION_KEY)).isNotNull();
-
-        MultiValueMap<String, String> params = validParams();
-        params.add(TOKEN_KEY, token);
-        mockMvc.perform(post("/bankTransferCompletion").params(params).session(session))
-                .andExpect(redirectedUrl("/bankTransferCompletion"));
-
-        assertThat(session.getAttribute(INPUT_SESSION_KEY)).isNull();
-    }
-
-    @Test
-    @DisplayName("完了画面に直接アクセスすると入力画面へ戻される")
-    void 完了画面への直接アクセス() throws Exception {
-        mockMvc.perform(get("/bankTransferCompletion"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/bankTransfer"));
+            assertThat(session.getAttribute(INPUT_KEY)).isNull();
+            assertThat(session.getAttribute(TOKEN_KEY)).isNull();
+        }
     }
 }

@@ -55,3 +55,31 @@ document.addEventListener('DOMContentLoaded', () => {
         moneyInput.value = moneyInput.value.replace(/,/g, '');
     });
 });
+
+// よく使う日付の近道。カレンダーを開かずに指定できるようにする
+document.addEventListener('DOMContentLoaded', () => {
+    const dateInput = document.getElementById('transferDateTime');
+    if (dateInput === null) {
+        return;
+    }
+
+    // 欄のどこを押してもカレンダーが開くようにする（小さいアイコンを狙わせない）
+    dateInput.addEventListener('click', () => {
+        if (typeof dateInput.showPicker === 'function') {
+            try {
+                dateInput.showPicker();
+            } catch (err) {
+                // 対応していない場合はブラウザ既定の動作に任せる
+            }
+        }
+    });
+
+    document.querySelectorAll('.chip[data-days]').forEach((chip) => {
+        chip.addEventListener('click', () => {
+            const date = new Date();
+            date.setDate(date.getDate() + Number(chip.dataset.days));
+            const pad = (n) => String(n).padStart(2, '0');
+            dateInput.value = date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+        });
+    });
+});
