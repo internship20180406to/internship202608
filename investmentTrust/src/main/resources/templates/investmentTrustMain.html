@@ -35,12 +35,19 @@
         color: red;
         }
         .form-control-button {
-        width: 300px;
-        padding: 10px 20px;
-        margin-top: 10px;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
+            width: 300px;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid black;
+            background-color: #FFFFFF;
+            color: black;
+        }
+        .step-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
         }
         .form-confirmation-button{
         color: black;
@@ -54,7 +61,26 @@
         background-color: #E0E1E2;
         }
         .form-clear-button:hover {
-        background-color: #CCCCCC;
+            background-color: #CCCCCC;
+        }
+        .next-button {
+            background-color: #2185D0;
+            color: black;
+            border: 1px solid black;
+        }
+        .progress-container {
+            width: 100%;
+            height: 15px;
+            background-color: #E0E0E0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.3s;
         }
 
     </style>
@@ -62,6 +88,9 @@
 <body>
 <div class="content">
     <h1>投資信託注文情報入力</h1>
+    <div class="progress-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
     <div th:if="${error}" class="text-danger">
         <p th:text="${error}"></p>
     </div>
@@ -76,10 +105,12 @@
                 </option>
             </select>
             </p>
+            <div class="step-buttons">
             <input type="button"
                    value="次へ"
-                   class="form-control-button"
+                   class="form-control-button next-button"
                    onclick="nextStep(1)">
+        </div>
         </div>
 
         <div id="step2" style="display: none;">
@@ -92,6 +123,7 @@
                 </option>
             </select>
             </p>
+            <div class="step-buttons">
                 <input type="button"
                        value="戻る"
                        class="form-control-button"
@@ -99,8 +131,9 @@
 
                 <input type="button"
                        value="次へ"
-                       class="form-control-button"
+                       class="form-control-button next-button"
                        onclick="nextStep(2)">
+        </div>
         </div>
 
         <div id="step3" style="display: none;">
@@ -113,6 +146,7 @@
                 </option>
             </select>
             </p>
+            <div class="step-buttons">
                 <input type="button"
                        value="戻る"
                        class="form-control-button"
@@ -120,8 +154,9 @@
 
                 <input type="button"
                        value="次へ"
-                       class="form-control-button"
+                       class="form-control-button next-button"
                        onclick="nextStep(3)">
+        </div>
         </div>
 
         <div id="step4" style="display: none;">
@@ -140,6 +175,7 @@
                       style="display: none;">
                 </span>
             </p>
+            <div class="step-buttons">
             <input type="button"
                    value="戻る"
                    class="form-control-button"
@@ -147,8 +183,9 @@
 
             <input type="button"
                    value="次へ"
-                   class="form-control-button"
+                   class="form-control-button next-button"
                    onclick="validateBankAccountNum()">
+        </div>
         </div>
 
         <div id="step5" style="display: none;">
@@ -165,6 +202,7 @@
                       style="display: none;">
                 </span>
             </p>
+            <div class="step-buttons">
             <input type="button"
                    value="戻る"
                    class="form-control-button"
@@ -172,34 +210,69 @@
 
             <input type="button"
                    value="次へ"
-                   class="form-control-button"
+                   class="form-control-button next-button"
                    onclick="validateName()">
-            </p>
+        </div>
         </div>
 
         <div id="step6" style="display: none;">
+
             <p>
-                <label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{fundName}" class="form-control">
-                <!--<option value="">選択してください</option>-->
-                <option th:each="option : ${fundNameOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select>
+                <label class="ml-1">
+                    銘柄選択:
+                    <small class="text-danger ml-1">※</small>
+                </label>
+                <br>
+
+                <select id="fundName"
+                        th:field="*{fundName}"
+                        class="form-control"
+                        onchange="updatePrice()">
+
+                    <option value="">選択してください</option>
+
+                    <option value="A株式会社">A株式会社</option>
+                    <option value="B株式会社">B株式会社</option>
+                    <option value="C株式会社">C株式会社</option>
+                    <option value="D株式会社">D株式会社</option>
+
+                </select>
             </p>
-                <input type="button"
-                       value="戻る"
-                       class="form-control-button"
-                       onclick="prevStep(6)">
 
-                <input type="button"
-                       value="次へ"
-                       class="form-control-button"
-                       onclick="nextStep(6)">
-        </div>
 
-        <div id="step7" style="display: none;">
+            <p>
+                <label class="ml-1">
+                    1口の価格:
+                </label>
+                <br>
+
+                <input type="text"
+                       id="unitPrice"
+                       class="form-control"
+                       readonly>
+            </p>
+
+
+            <p>
+                <label class="ml-1">
+                    口数:
+                    <small class="text-danger ml-1">※</small>
+                </label>
+                <br>
+
+                <input type="number"
+                       id="quantity"
+                       class="form-control"
+                       placeholder="口数を入力してください"
+                       oninput="calculateMoney()">
+
+                <span id="quantityError"
+                      class="text-danger"
+                      style="display: none;">
+        </span>
+            </p>
+
+
             <p>
                 <label class="ml-1">
                     購入金額:
@@ -211,27 +284,30 @@
                        id="money"
                        th:field="*{money}"
                        class="form-control"
-                       placeholder="1234567">
+                       placeholder="購入金額を入力してください"
+                       oninput="calculateQuantity()">
 
                 <span id="moneyError"
                       class="text-danger"
                       style="display: none;">
-                </span>
+        </span>
             </p>
 
-            <p style="text-align: center;">
+
+            <div class="step-buttons">
 
                 <input type="button"
                        value="戻る"
-                       class="form-control-button form-clear-button"
-                       onclick="prevStep(7)">
+                       class="form-control-button"
+                       onclick="prevStep(6)">
 
                 <input type="button"
                        value="確認"
                        class="form-control-button form-confirmation-button"
-                       onclick="validateMoney()">
+                       onclick="validateInvestment()">
 
-            </p>
+            </div>
+
         </div>
 
 <script>
@@ -241,14 +317,26 @@
         document.getElementById("step" + currentStep).style.display = "none";
 
         document.getElementById("step" + (currentStep + 1)).style.display = "block";
-    }
 
+        updateProgress(currentStep);
+    }
 
     function prevStep(currentStep) {
 
         document.getElementById("step" + currentStep).style.display = "none";
 
         document.getElementById("step" + (currentStep - 1)).style.display = "block";
+
+        updateProgress(currentStep - 2);
+    }
+
+    function updateProgress(step) {
+
+        const progressBar = document.getElementById("progressBar");
+
+        const progress = (step / 7) * 100;
+
+        progressBar.style.width = progress + "%";
     }
 
     function validateBankAccountNum() {
@@ -329,15 +417,139 @@
 
             return;
         }
+        document.querySelector("form").submit();
+    }
 
+    function updatePrice() {
 
-        // 入力されている場合
-        // 確認画面へ送信
+        const fundName =
+            document.getElementById("fundName").value;
+
+        const unitPrice =
+            document.getElementById("unitPrice");
+
+        const prices = {
+            "A株式会社": 100,
+            "B株式会社": 200,
+            "C株式会社": 300,
+            "D株式会社": 400
+        };
+
+        if (fundName === "") {
+            unitPrice.value = "";
+            return;
+        }
+
+        unitPrice.value = prices[fundName] + "円";
+    }
+    function calculateMoney() {
+
+        const quantity =
+            document.getElementById("quantity").value;
+
+        const unitPrice =
+            getUnitPrice();
+
+        const money =
+            document.getElementById("money");
+
+        if (quantity === "" || unitPrice === 0) {
+            return;
+        }
+
+        money.value = quantity * unitPrice;
+    }
+
+    function calculateQuantity() {
+
+        const money =
+            document.getElementById("money").value;
+
+        const unitPrice =
+            getUnitPrice();
+
+        const quantity =
+            document.getElementById("quantity");
+
+        if (money === "" || unitPrice === 0) {
+            return;
+        }
+
+        quantity.value = Math.floor(money / unitPrice);
+    }
+
+    function getUnitPrice() {
+
+        const fundName =
+            document.getElementById("fundName").value;
+
+        const prices = {
+            "A株式会社": 100,
+            "B株式会社": 200,
+            "C株式会社": 300,
+            "D株式会社": 400
+        };
+
+        return prices[fundName] || 0;
+    }
+
+    function validateInvestment() {
+
+        const fundName =
+            document.getElementById("fundName").value;
+
+        const quantity =
+            document.getElementById("quantity").value;
+
+        const money =
+            document.getElementById("money").value;
+
+        const moneyError =
+            document.getElementById("moneyError");
+
+        const quantityError =
+            document.getElementById("quantityError");
+
+        moneyError.style.display = "none";
+        moneyError.textContent = "";
+
+        quantityError.style.display = "none";
+        quantityError.textContent = "";
+
+        if (fundName === "") {
+            return;
+        }
+
+        if (quantity === "" && money === "") {
+
+            quantityError.textContent =
+                "口数または購入金額を入力してください。";
+
+            quantityError.style.display = "block";
+            return;
+        }
+
+        if (quantity === "") {
+            calculateQuantity();
+        } else if (money === "") {
+            calculateMoney();
+        }
+        const finalQuantity =
+            document.getElementById("quantity").value;
+
+        const finalUnitPrice =
+            getUnitPrice();
+
+        const finalMoney =
+            document.getElementById("money");
+
+        finalMoney.value = finalQuantity * finalUnitPrice;
         document.querySelector("form").submit();
     }
 
 </script>
-
+    </form>
+</div>
 </body>
 
 </html>
