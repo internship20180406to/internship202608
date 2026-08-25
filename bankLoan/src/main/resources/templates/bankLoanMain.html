@@ -69,6 +69,11 @@
                    th:field="*{name}"
                    class="form-control"
                    placeholder="債務者名を入力してください">
+
+            <span class="text-danger"
+                  th:if="${#fields.hasErrors('name')}"
+                  th:errors="*{name}">
+            </span>
         </p>
 
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
@@ -77,13 +82,25 @@
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
-            </select></p>
+            </select>
 
-        <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
+            <span class="text-danger"
+                  th:if="${#fields.hasErrors('bankName')}"
+                  th:errors="*{bankName}">
+            </span>
+        </p>
+
+        <p>
+            <label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
                    th:field="*{branchName}"
                    class="form-control"
                    placeholder="支店名を入力してください">
+
+            <span class="text-danger"
+                  th:if="${#fields.hasErrors('branchName')}"
+                  th:errors="*{branchName}">
+            </span>
         </p>
 
         <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
@@ -92,16 +109,36 @@
                 <option value="普通預金">普通預金</option>
                 <option value="当座預金">当座預金</option>
             </select>
+
+            <span class="text-danger"
+                  th:if="${#fields.hasErrors('bankAccountType')}"
+                  th:errors="*{bankAccountType}">
+            </span>
         </p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
+            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/>
+            <span class="text-danger"
+                  th:if="${#fields.hasErrors('bankAccountNum')}"
+                  th:errors="*{bankAccountNum}">
+            </span>
+        </p>
 
         <p><label class="ml-1">借入金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{loanAmount}" class="form-control" placeholder="100000"/></p>
+            <input type="number" th:field="*{loanAmount}" class="form-control" placeholder="100000"/>
+            <span class="text-danger"
+                  th:if="${#fields.hasErrors('loanAmount')}"
+                  th:errors="*{loanAmount}">
+            </span>
+        </p>
 
         <p><label class="ml-1">借入年収: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{annualIncome}" class="form-control" placeholder="100000"/></p>
+            <input type="number" th:field="*{annualIncome}" class="form-control" placeholder="100000"/>
+            <span class="text-danger"
+                  th:if="${#fields.hasErrors('annualIncome')}"
+                  th:errors="*{annualIncome}">
+            </span>
+        </p>
 
         <p><label class="ml-1">金利: <small class="text-danger ml-1">※</small></label><br>
             <input type="number"
@@ -110,7 +147,12 @@
                max="20"
                step="0.01"
                class="form-control"
-               placeholder="2.50"></p>
+               placeholder="2.50">
+            <span class="text-danger"
+                  th:if="${#fields.hasErrors('interestRate')}"
+                  th:errors="*{interestRate}">
+            </span>
+        </p>
 
         <p style="text-align: center;"><input type="submit" value="確認"
                                               class="form-control-button form-confirmation-button"/>

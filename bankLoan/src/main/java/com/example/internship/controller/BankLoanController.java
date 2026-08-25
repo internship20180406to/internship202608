@@ -19,29 +19,43 @@ public class BankLoanController {
     @Autowired
     private ApplyBankLoanService applyBankLoanService;
 
+    @ModelAttribute("nameOptions")
+    public List<String> nameOptions() {
+        return List.of(
+                "山陰共同銀行",
+                "なないろ銀行",
+                "桜中央銀行",
+                "みなと未来信用銀行",
+                "つばさ中央銀行"
+        );
+    }
+
     @GetMapping("/bankLoan")
-    public String bankTransfer(Model model) {
+    public String bankLoan(Model model) {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
-        model.addAttribute("nameOptions", List.of("山陰共同銀行", "なないろ銀行", "あおぞら銀行","桜中央銀行","みなと未来信用銀行","つばさ中央銀行"));
+
         return "bankLoanMain";
     }
 
-    @PostMapping("/bankLoan/confirmation")
+    @PostMapping("/bankLoanConfirmation")
     public String confirmation(
-            @Valid BankLoanForm bankLoanForm,
+            @Valid @ModelAttribute("bankLoanApplication") BankLoanForm bankLoanForm,
             BindingResult bindingResult,
             Model model) {
 
         if (bindingResult.hasErrors()) {
-            return "bankLoan";
+
+            return "bankLoanMain";
+
         }
 
-        model.addAttribute("bankLoanForm", bankLoanForm);
         return "bankLoanConfirmation";
     }
 
     @PostMapping("/bankLoanCompletion")
-    public String completion(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
+    public String completion(
+            @ModelAttribute("bankLoanApplication") BankLoanForm bankLoanForm,
+            Model model) {
         applyBankLoanService.applyBankLoan(bankLoanForm);
         return "bankLoanCompletion";
     }

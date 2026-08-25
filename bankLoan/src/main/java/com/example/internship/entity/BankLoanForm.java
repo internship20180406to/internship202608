@@ -19,7 +19,7 @@ public class BankLoanForm {
     private String branchName;
     @NotBlank(message = "科目を選択してください")
     private String bankAccountType;
-    @NotBlank(message = "口座番号を入力してください")
+    @NotNull(message = "口座番号を入力してください")
     private Integer bankAccountNum;
     @NotBlank(message = "債務者名を入力してください")
     private String name;
@@ -92,7 +92,6 @@ public class BankLoanForm {
     public Double getInterestRate() {
         return interestRate;
     }
-
     public void setInterestRate(Double interestRate) {
         this.interestRate = interestRate;
     }
