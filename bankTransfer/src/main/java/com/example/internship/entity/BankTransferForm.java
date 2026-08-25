@@ -32,16 +32,14 @@ public class BankTransferForm {
         this.bankName = bankName;
     }
 
-    public String getBranchname() {return branchName; }
+    public String getBranchName() {return branchName; }
 
-    public void setBranchname(String branchname) {this.branchName = branchName; }
+    public void setBranchName(String branchName) {this.branchName = branchName; }
 
-    public String getAccountname() {
-        return Accountname;
-    }
+    public String getBankAccountType() {return bankAccountType;}
 
-    public void setAccountname(String Accountname) {
-        this.Accountname = Accountname;
+    public void setBankAccountType(String bankAccountType) {
+        this.bankAccountType = bankAccountType;
     }
 
     public Integer getBankAccountNum() {
@@ -52,24 +50,24 @@ public class BankTransferForm {
         this.bankAccountNum = bankAccountNum;
     }
 
-    public String getAccountholder() {
-        return Accountholder;
+    public String getName() {
+        return name;
     }
 
-    public void setAccountholder(String Accountholder) {
-        this.Accountholder = Accountholder;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Integer getAmount() {
-        return Amount;
+    public Integer getMoney() {
+        return money;
     }
 
-    public void setAmount(Integer Amount) {
-        this.Amount = Amount;
+    public void setMoney(Integer money) {
+        this.money = money;
     }
 
-    public java.time.LocalDate getScheduledtransfer() {return Scheduledtransfer; }
+    public java.time.LocalDate getTransferDateTime() {return transferDateTime; }
 
-    public void setScheduledtransfer( java.time.LocalDate  Scheduledtransfer) { this.Scheduledtransfer = Scheduledtransfer;
+    public void setTransferDateTime( java.time.LocalDate  transferDateTime) { this.transferDateTime = transferDateTime;
     }
 }

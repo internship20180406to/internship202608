@@ -1,12 +1,267 @@
 <!doctype html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <title>振込完了画面</title>
-</head>
-<body>
-<h1>振込完了</h1>
-<p><input type="button" value="振込に戻る" onclick="window.location='/bankTransfer';"/></p>
-</body>
 
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f4f7f9;
+            color: #333;
+            font-family: "Noto Sans JP", "Yu Gothic", sans-serif;
+        }
+
+        .completion-container {
+            width: 90%;
+            max-width: 650px;
+            margin: 70px auto;
+        }
+
+        .completion-card {
+            background: white;
+            border-radius: 16px;
+            padding: 50px;
+
+            text-align: center;
+
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        }
+
+        .complete-icon {
+            width: 80px;
+            height: 80px;
+
+            margin: 0 auto 25px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #0b6b57;
+            color: white;
+
+            border-radius: 50%;
+
+            font-size: 45px;
+            font-weight: bold;
+
+            box-shadow: 0 6px 15px rgba(11, 107, 87, 0.25);
+        }
+
+        .completion-card h1 {
+            margin: 0 0 15px;
+
+            font-size: 30px;
+            font-weight: 700;
+
+            letter-spacing: 0.04em;
+        }
+
+        .completion-message {
+            margin: 0 0 30px;
+
+            color: #777;
+
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+
+        /* =========================
+           振込明細
+           ========================= */
+
+        .transfer-details {
+            width: 100%;
+            margin: 0 auto 30px;
+
+            background: #f8faf9;
+
+            border-radius: 14px;
+
+            /* 浮き出ている感じ */
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+
+            overflow: hidden;
+
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+
+            min-height: 52px;
+
+            border-bottom: 1px solid #e5ebe8;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            width: 42%;
+
+            padding: 14px 18px;
+
+            box-sizing: border-box;
+
+            color: #777;
+
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            width: 58%;
+
+            padding: 14px 18px;
+
+            box-sizing: border-box;
+
+            color: #333;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            word-break: break-all;
+        }
+
+
+        /* =========================
+           戻るボタン
+           ========================= */
+
+        .back-button {
+            width: 220px;
+            height: 52px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: #0b6b57;
+            color: white;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            box-shadow: 0 5px 12px rgba(11, 107, 87, 0.25);
+
+            transition: 0.2s;
+        }
+
+        .back-button:hover {
+            background: #095746;
+            transform: translateY(-2px);
+        }
+
+
+        /* =========================
+           注意書き
+           ========================= */
+
+        .note {
+            margin-top: 20px;
+
+            color: #999;
+
+            font-size: 12px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="completion-container">
+
+    <div class="completion-card">
+
+        <div class="complete-icon">
+            ✓
+        </div>
+
+        <h1>振込が完了しました</h1>
+
+        <p class="completion-message">
+            振込処理が正常に完了しました。
+        </p>
+
+
+        <!-- 振込明細 -->
+        <div class="transfer-details">
+
+            <div class="detail-row">
+                <div class="detail-label">金融機関名</div>
+                <div class="detail-value"
+                     th:text="${bankTransferApplication.bankName}">
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">支店名</div>
+                <div class="detail-value"
+                     th:text="${bankTransferApplication.branchName}">
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">科目名</div>
+                <div class="detail-value"
+                     th:text="${bankTransferApplication.bankAccountType}">
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">口座番号</div>
+                <div class="detail-value"
+                     th:text="${bankTransferApplication.bankAccountNum}">
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">口座名義</div>
+                <div class="detail-value"
+                     th:text="${bankTransferApplication.name}">
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">振込金額</div>
+                <div class="detail-value">
+                    ¥<span th:text="${bankTransferApplication.money}"></span>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">振込指定日</div>
+                <div class="detail-value"
+                     th:text="${bankTransferApplication.transferDateTime}">
+                </div>
+            </div>
+
+        </div>
+
+
+        <input
+                type="button"
+                class="back-button"
+                value="振込に戻る"
+                onclick="window.location='/bankTransfer';"
+        />
+
+        <p class="note">
+            この画面を閉じても問題ありません。
+        </p>
+
+    </div>
+
+</div>
+
+</body>
 </html>
