@@ -70,7 +70,7 @@
                    class="form-control"
                    placeholder="債務者名を入力してください">
 
-            <span class="text-danger"
+            <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('name')}"
                   th:errors="*{name}">
             </span>
@@ -84,7 +84,7 @@
                 </option>
             </select>
 
-            <span class="text-danger"
+            <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('bankName')}"
                   th:errors="*{bankName}">
             </span>
@@ -97,7 +97,7 @@
                    class="form-control"
                    placeholder="支店名を入力してください">
 
-            <span class="text-danger"
+            <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('branchName')}"
                   th:errors="*{branchName}">
             </span>
@@ -110,7 +110,7 @@
                 <option value="当座預金">当座預金</option>
             </select>
 
-            <span class="text-danger"
+            <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('bankAccountType')}"
                   th:errors="*{bankAccountType}">
             </span>
@@ -123,7 +123,7 @@
                    inputmode="numeric"
                    class="form-control"
                    placeholder="1234567"/>
-            <span class="text-danger"
+            <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('bankAccountNum')}"
                   th:errors="*{bankAccountNum}">
             </span>
@@ -137,7 +137,7 @@
                    pattern="[0-9]*"
                    class="form-control"
                    placeholder="300"/>
-            <span class="text-danger"
+            <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('loanAmount')}"
                   th:errors="*{loanAmount}">
             </span>
@@ -151,7 +151,7 @@
                    pattern="[0-9]*"
                    class="form-control"
                    placeholder="500"/>
-            <span class="text-danger"
+            <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('annualIncome')}"
                   th:errors="*{annualIncome}">
             </span>
@@ -165,7 +165,7 @@
                step="0.01"
                class="form-control"
                placeholder="2.50">
-            <span class="text-danger"
+            <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('interestRate')}"
                   th:errors="*{interestRate}">
             </span>
@@ -195,5 +195,27 @@
         form.querySelectorAll('select').forEach(select => {
             select.selectedIndex = 0;
         });
+
+        form.querySelectorAll('.validation-error').forEach(error => {
+            error.style.display = 'none';
+        });
     }
+
+    document.querySelectorAll('input, select').forEach(element => {
+        element.addEventListener('input', function () {
+            const error = this.closest('p').querySelector('.validation-error');
+
+            if (error) {
+                error.style.display = 'none';
+            }
+        });
+
+        element.addEventListener('change', function () {
+            const error = this.closest('p').querySelector('.validation-error');
+
+            if (error) {
+                error.style.display = 'none';
+            }
+        });
+    });
 </script>
