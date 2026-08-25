@@ -1,10 +1,32 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <link rel="stylesheet"
+          th:href="@{js/css/bankTransferConfirmation.css}"/>
     <meta charset="UTF-8">
     <title>銀行振込確認画面</title>
 </head>
 <body>
+
+<div class="content">
+
+    <div class="progress-steps step-2">
+        <div class="step">
+            <span class="step-number">1</span>
+            <span class="step-label">銀行振込入力</span>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <span class="step-label">振込内容確認</span>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <span class="step-label">振込完了</span>
+        </div>
+    </div>
+
 <h1>銀行振込確認画面</h1>
 <form action="#" th:action="@{/bankTransferCompletion}" th:object="${bankTransferApplication}" method="post">
     <p>金融機関名: <span th:text="*{bankName}"></span></p>
@@ -13,7 +35,7 @@
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
 
     <p>口座名義: <span th:text="*{name}"></span></p>
-    <p>金額: <span th:text="*{money}"></span>円</p>
+    <p>金額:<span><span th:text="*{money}"></span>円</span></p>
     <p>振込指定日: <span th:text="*{transferDateTime}"></span></p>
 
     <input type="hidden" name="bankName" th:value="*{bankName}"/>

@@ -1,12 +1,33 @@
 <!doctype html>
 <html>
 <head>
+    <link rel="stylesheet"
+          th:href="@{/js/css/bankTransferCompletion.css}"/>
     <meta charset="UTF-8"/>
     <title>振込完了画面</title>
 </head>
 <body>
-<h1>振込完了</h1>
-<p><input type="button" value="振込に戻る" onclick="window.location='/bankTransfer';"/></p>
-</body>
+<div class="content">
+    <div class="progress-steps step-3">
+        <div class="step">
+            <span class="step-number">1</span>
+            <span class="step-label">銀行振込入力</span>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <span class="step-label">振込内容確認</span>
+        </div>
 
+        <div class="step">
+            <span class="step-number">3</span>
+            <span class="step-label">振込完了</span>
+        </div>
+    </div>
+
+    <h1>振込完了</h1>
+    <p class="completion-message">振込の受付が完了しました。</p>
+    <p><input type="button" value="振込に戻る" onclick="window.location='/bankTransfer';"/></p>
+
+</div>
+</body>
 </html>

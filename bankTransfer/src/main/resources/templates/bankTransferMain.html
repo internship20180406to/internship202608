@@ -1,66 +1,32 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
+    <link rel="stylesheet"
+          th:href="@{/js/css/bankTransferMain.css}">
     <meta charset="UTF-8"/>
     <title>銀行振込情報入力画面</title>
-    <style>
-        body {
-        backkoground-color: #f0f0f0;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        padding-top: 40px;
-        padding-bottom: 40px;
-        justify-content: center;
-        align-items: center;
-        min-height: 85vh;
-        overflow: auto;
-        }
-        .content {
-         background-color: #ffffff;
-         width: 80%;
-         padding: 20px;
-         border-radius: 10px;
-         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-         min-height: 50vh;
-         overflow: auto;
-        }
-        .form-control {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            box-sizing: border-box;
-        }
-        .text-danger {
-        color: red;
-        }
-        .form-control-button {
-        width: 80px;
-        padding: 10px 20px;
-        margin-top: 10px;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-        }
-        .form-confirmation-button{
-        color: white;
-        background-color: #2185D0;
-        }
-        .form-confirmation-button:hover {
-        background-color: #1678c2;
-        }
-        .form-clear-button{
-        color: black;
-        background-color: #E0E1E2;
-        }
-        .form-clear-button:hover {
-        background-color: #CCCCCC;
-        }
-
-    </style>
 </head>
 <body>
+
 <div class="content">
+    <div class="progress-steps step-1">
+        <div class="step">
+            <span class="step-number">1</span>
+            <span class="step-label">銀行振込入力</span>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <span class="step-label">振込内容確認</span>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <span class="step-label">振込完了</span>
+        </div>
+    </div>
+
     <h1>銀行振込情報入力</h1>
     <form action="#" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post">
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>

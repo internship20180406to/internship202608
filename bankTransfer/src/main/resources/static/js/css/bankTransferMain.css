@@ -1,0 +1,398 @@
+:root {
+    --page-bg: #f3f7f9;
+    --surface: #ffffff;
+    --surface-subtle: #f7fafc;
+    --primary: #279bc9;
+    --primary-dark: #187ca5;
+    --primary-soft: #eaf7fc;
+    --primary-border: #b9dfed;
+    --text-primary: #24313a;
+    --text-secondary: #667680;
+    --border: #dce6eb;
+    --border-strong: #b9cbd4;
+    --danger: #d94841;
+    --focus-ring: rgba(39, 155, 201, 0.18);
+    --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Noto Sans JP", "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    background: var(--page-bg);
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 36px 18px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-x: hidden;
+    color: var(--text-primary);
+    background: var(--page-bg);
+    font-family: var(--font-system);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+.content {
+    width: min(100%, 760px);
+    min-height: auto;
+    padding: 30px 38px 34px;
+    overflow: visible;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: 0 8px 24px rgba(43, 72, 87, 0.08);
+}
+
+/* 入力・確認・完了の現在地 */
+.progress-steps {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+    width: 100%;
+    margin: 0 0 28px;
+    padding: 0 4px 22px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* 全体の薄い線 */
+.progress-steps::before,
+.progress-steps::after {
+    position: absolute;
+    top: 17px;
+    left: 16.6667%;
+    z-index: 0;
+    width: 66.6667%;
+    height: 2px;
+    content: "";
+}
+
+.progress-steps::before {
+    background: #e7ecef;
+}
+
+/* 完了した範囲の水色の線 */
+.progress-steps::after {
+    background: var(--primary);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 180ms ease;
+}
+
+.progress-steps.step-2::after {
+    transform: scaleX(0.5);
+}
+
+.progress-steps.step-3::after {
+    transform: scaleX(1);
+}
+
+.step {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    color: var(--text-secondary);
+}
+
+.step-number {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    color: #9ca7ad;
+    background: #eef1f3;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.step-label {
+    margin-top: 9px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* 現在地までの丸と文字を水色にする */
+.progress-steps.step-1 .step:nth-of-type(1),
+.progress-steps.step-2 .step:nth-of-type(-n + 2),
+.progress-steps.step-3 .step,
+.step.active {
+    color: var(--primary);
+}
+
+.progress-steps.step-1 .step:nth-of-type(1) .step-number,
+.progress-steps.step-2 .step:nth-of-type(-n + 2) .step-number,
+.progress-steps.step-3 .step-number,
+.step.active .step-number {
+    color: #ffffff;
+    background: var(--primary);
+}
+
+/* HTMLに残っている矢印は表示しない */
+.step-arrow {
+    display: none;
+}
+
+h1 {
+    margin: 0;
+    padding: 0 0 18px;
+    border-bottom: 3px solid var(--primary);
+    color: var(--text-primary);
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+}
+
+form {
+    display: block;
+    margin-top: 4px;
+}
+
+/* 入力項目は縦並びにし、項目ごとに薄い線で区切る */
+form > p {
+    margin: 0;
+    padding: 18px 2px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+form > p > .ml-1 {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0 8px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.text-danger {
+    margin-left: 5px;
+    color: var(--danger);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.form-control {
+    width: 100%;
+    height: 46px;
+    margin: 0;
+    padding: 0 13px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    outline: none;
+    color: var(--text-primary);
+    background: var(--surface);
+    box-shadow: inset 0 1px 2px rgba(43, 72, 87, 0.04);
+    font: inherit;
+    font-size: 15px;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.form-control:hover {
+    border-color: #94b8c7;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.form-control:focus:invalid {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(217, 72, 65, 0.13);
+}
+
+.form-control::placeholder {
+    color: #9aa8b0;
+    opacity: 1;
+}
+
+select.form-control,
+input[type="date"].form-control {
+    cursor: pointer;
+}
+
+select.form-control option {
+    color: var(--text-primary);
+    background: var(--surface);
+}
+
+/* 科目名のラジオボタン */
+form > p:nth-of-type(3) > label:not(.ml-1) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 38px;
+    margin: 2px 12px 2px 0;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text-primary);
+    background: var(--surface-subtle);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+form > p:nth-of-type(3) > label:not(.ml-1):hover {
+    border-color: var(--primary-border);
+    background: var(--primary-soft);
+}
+
+input[type="radio"] {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+input[type="radio"]:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+form > p > small:not(.text-danger) {
+    display: block;
+    margin-top: 7px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* 操作ボタン */
+form > p:last-of-type {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px 2px 0;
+    border-bottom: 0;
+}
+
+.form-control-button {
+    width: auto;
+    min-width: 130px;
+    height: 44px;
+    margin: 0;
+    padding: 0 22px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-system);
+    font-size: 14px;
+    font-weight: 650;
+    transition: background-color 150ms ease, border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.form-confirmation-button {
+    color: #ffffff;
+    background: var(--primary);
+    box-shadow: 0 3px 8px rgba(39, 155, 201, 0.2);
+}
+
+.form-confirmation-button:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 4px 10px rgba(39, 155, 201, 0.25);
+}
+
+.form-clear-button {
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+    background: #eef3f5;
+}
+
+.form-clear-button:hover {
+    border-color: #97aeb8;
+    background: #e3ebef;
+}
+
+.form-control-button:active {
+    box-shadow: none;
+}
+
+.form-control-button:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 16px 10px;
+    }
+
+    .content {
+        padding: 22px 18px 26px;
+        border-radius: 8px;
+    }
+
+    .progress-steps {
+        margin-bottom: 22px;
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .step-label {
+        font-size: 11px;
+    }
+
+    h1 {
+        font-size: 21px;
+    }
+
+    form > p {
+        padding: 16px 0 18px;
+    }
+}
+
+@media (max-width: 390px) {
+    .progress-steps {
+        padding-bottom: 18px;
+    }
+
+    .step-number {
+        width: 32px;
+        height: 32px;
+    }
+
+    .step-label {
+        font-size: 10px;
+        white-space: normal;
+    }
+
+    .progress-steps::before,
+    .progress-steps::after {
+        top: 15px;
+    }
+
+    form > p:last-of-type {
+        flex-direction: column;
+    }
+
+    .form-control-button {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+    }
+}
