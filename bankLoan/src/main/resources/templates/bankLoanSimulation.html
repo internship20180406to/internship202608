@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>住宅ローン返済シミュレーション</title>
+
+    <style>
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+            min-height: 85vh;
+        }
+
+        .content {
+            background-color: #ffffff;
+            width: 80%;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+
+        .text-danger {
+            color: red;
+        }
+
+        .button-area {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .simulation-button,
+        .application-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .simulation-button {
+            color: white;
+            background-color: #2185D0;
+        }
+
+        .simulation-button:hover {
+            background-color: #1678c2;
+        }
+
+        .application-button {
+            color: black;
+            background-color: #E0E1E2;
+        }
+
+        .application-button:hover {
+            background-color: #cccccc;
+        }
+
+        .result-area {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f7fbff;
+            border: 1px solid #b8d9f2;
+            border-radius: 8px;
+        }
+
+        .result-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #174d73;
+        }
+
+        .stress-result {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #b8d9f2;
+        }
+
+        .notice {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #555555;
+        }
+
+        .application-guide {
+            margin: 20px 0 35px;
+            padding: 25px;
+            text-align: center;
+            background-color: #f0f8ff;
+            border: 1px solid #b8d9f2;
+            border-radius: 8px;
+        }
+
+        .application-guide p {
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .main-application-button {
+            display: inline-block;
+            padding: 14px 30px;
+            color: white;
+            background-color: #2185D0;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .main-application-button:hover {
+            background-color: #1678c2;
+        }
+
+        .simulation-title {
+            margin-top: 35px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2185D0;
+
+    </style>
+</head>
+
+<body>
+<div class="content">
+
+    <h1>カウカウ銀行の住宅ローン</h1>
+
+    <div class="application-guide">
+        <p>Webでかんたんお申込みはこちら</p>
+
+        <a th:href="@{/bankLoan}"
+           class="main-application-button">
+            住宅ローンを申し込む
+        </a>
+    </div>
+
+    <h2 class="simulation-title">
+        住宅ローン返済シミュレーション
+    </h2>
+
+    <p>
+        借入条件を入力すると、毎月の返済額などを試算できます。
+    </p>
+    <form id="simulationForm">
+
+        <p>
+            <label>
+                借入希望金額:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <input type="number"
+                   id="loanAmount"
+                   class="form-control"
+                   min="1"
+                   step="1"
+                   placeholder="3000"
+                   title="借入希望額は1万円以上で入力してください"
+                   required>
+            <span>万円</span>
+        </p>
+
+        <p>
+            <label>
+                借入年数:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <select id="loanYears"
+                    class="form-control"
+                    required>
+
+                <option value="">選択してください</option>
+
+                <option th:each="year : ${#numbers.sequence(1, 40)}"
+                        th:value="${year}"
+                        th:text="|${year}年|">
+                </option>
+            </select>
+        </p>
+
+        <p>
+            <label>
+                金利タイプ:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <select id="interestType"
+                    class="form-control"
+                    required>
+
+                <option value="">選択してください</option>
+
+                <option th:each="rateEntry : ${rateOptions}"
+                        th:value="${rateEntry.key}"
+                        th:text="|${rateEntry.key}（年${rateEntry.value}%）|"
+                        th:attr="data-rate=${rateEntry.value}">
+                </option>
+            </select>
+        </p>
+
+        <p>
+            <strong>返済方法：</strong>元利均等返済
+        </p>
+
+        <div class="button-area">
+            <button type="submit"
+                    class="simulation-button">
+                シミュレーション
+            </button>
+        </div>
+    </form>
+
+    <section id="resultArea"
+             class="result-area"
+             aria-live="polite">
+
+        <h2>シミュレーション結果</h2>
+
+        <p>
+            毎月の返済額：
+            <span id="monthlyPayment"
+                  class="result-value"></span>
+        </p>
+
+        <p>
+            総返済額：
+            <span id="totalPayment"
+                  class="result-value"></span>
+        </p>
+
+        <p>
+            利息総額：
+            <span id="totalInterest"
+                  class="result-value"></span>
+        </p>
+
+        <div id="stressResult"
+             class="stress-result">
+
+            <h2>金利上昇ケース</h2>
+
+            <p id="stressDescription"></p>
+
+            <p>
+                金利上昇後の毎月返済額：
+                <span id="stressMonthlyPayment"
+                      class="result-value"></span>
+            </p>
+
+            <p>
+                金利上昇ケースの総返済額：
+                <span id="stressTotalPayment"
+                      class="result-value"></span>
+            </p>
+        </div>
+
+        <div class="notice">
+            <p>
+                ※選択した金利が借入期間中変わらないものとして計算した参考値です。
+            </p>
+            <p>
+                ※金利上昇ケースは将来の金利を予測するものではありません。
+            </p>
+            <p>
+                ※元利均等返済・ボーナス返済なしで計算しています。
+            </p>
+            <p>
+                ※手数料や金融機関ごとの返済額見直しルールは考慮していません。
+            </p>
+        </div>
+    </section>
+
+
+</div>
+
+<script>
+    const simulationForm =
+        document.getElementById("simulationForm");
+
+    const resultArea =
+        document.getElementById("resultArea");
+
+    const stressResult =
+        document.getElementById("stressResult");
+
+    // 元利均等返済の毎月返済額を計算
+    function calculateMonthlyPayment(
+        principal,
+        annualRate,
+        numberOfMonths
+    ) {
+        const monthlyRate =
+            annualRate / 100 / 12;
+
+        // 金利が0%の場合
+        if (monthlyRate === 0) {
+            return principal / numberOfMonths;
+        }
+
+        const power =
+            Math.pow(1 + monthlyRate, numberOfMonths);
+
+        return principal
+            * monthlyRate
+            * power
+            / (power - 1);
+    }
+
+    // 指定回数返済した後のローン残高を計算
+    function calculateRemainingBalance(
+        principal,
+        annualRate,
+        monthlyPayment,
+        paidMonths
+    ) {
+        const monthlyRate =
+            annualRate / 100 / 12;
+
+        if (monthlyRate === 0) {
+            return principal
+                - monthlyPayment * paidMonths;
+        }
+
+        const power =
+            Math.pow(1 + monthlyRate, paidMonths);
+
+        return principal * power
+            - monthlyPayment
+            * (power - 1)
+            / monthlyRate;
+    }
+
+    function formatYen(value) {
+        return Math.round(value)
+            .toLocaleString("ja-JP") + "円";
+    }
+
+    simulationForm.addEventListener(
+        "submit",
+        (event) => {
+            event.preventDefault();
+
+            if (!simulationForm.checkValidity()) {
+                simulationForm.reportValidity();
+                return;
+            }
+
+            const loanAmount =
+                Number(
+                    document.getElementById("loanAmount").value
+                ) * 10000;
+
+            const loanYears =
+                Number(
+                    document.getElementById("loanYears").value
+                );
+
+            const interestType =
+                document.getElementById("interestType");
+
+            const selectedOption =
+                interestType.options[
+                    interestType.selectedIndex
+                    ];
+
+            const annualRate =
+                Number(selectedOption.dataset.rate);
+
+            const numberOfMonths =
+                loanYears * 12;
+
+            const monthlyPayment =
+                calculateMonthlyPayment(
+                    loanAmount,
+                    annualRate,
+                    numberOfMonths
+                );
+
+            const totalPayment =
+                monthlyPayment * numberOfMonths;
+
+            const totalInterest =
+                totalPayment - loanAmount;
+
+            document.getElementById(
+                "monthlyPayment"
+            ).textContent =
+                formatYen(monthlyPayment);
+
+            document.getElementById(
+                "totalPayment"
+            ).textContent =
+                formatYen(totalPayment);
+
+            document.getElementById(
+                "totalInterest"
+            ).textContent =
+                formatYen(totalInterest);
+
+            resultArea.style.display = "block";
+
+            const selectedType =
+                interestType.value;
+
+            let changeYear = null;
+
+            if (selectedType === "変動金利") {
+                changeYear = 5;
+            } else if (
+                selectedType === "固定金利10年"
+            ) {
+                changeYear = 10;
+            }
+
+            // 全期間固定、または金利変更前に完済する場合
+            if (
+                changeYear === null
+                || loanYears <= changeYear
+            ) {
+                stressResult.style.display = "none";
+                return;
+            }
+
+            const paidMonths =
+                changeYear * 12;
+
+            const remainingMonths =
+                numberOfMonths - paidMonths;
+
+            const remainingBalance =
+                calculateRemainingBalance(
+                    loanAmount,
+                    annualRate,
+                    monthlyPayment,
+                    paidMonths
+                );
+
+            // 金利が1.00ポイント上昇したと仮定
+            const increasedRate =
+                annualRate + 1.00;
+
+            const increasedMonthlyPayment =
+                calculateMonthlyPayment(
+                    remainingBalance,
+                    increasedRate,
+                    remainingMonths
+                );
+
+            const stressTotalPayment =
+                monthlyPayment * paidMonths
+                + increasedMonthlyPayment
+                * remainingMonths;
+
+            document.getElementById(
+                "stressDescription"
+            ).textContent =
+                changeYear
+                + "年後から金利が年"
+                + increasedRate.toFixed(2)
+                + "%に上昇した場合";
+
+            document.getElementById(
+                "stressMonthlyPayment"
+            ).textContent =
+                formatYen(increasedMonthlyPayment);
+
+            document.getElementById(
+                "stressTotalPayment"
+            ).textContent =
+                formatYen(stressTotalPayment);
+
+            stressResult.style.display = "block";
+        }
+    );
+</script>
+
+</head>
+<body>
+
+</body>
+</html>

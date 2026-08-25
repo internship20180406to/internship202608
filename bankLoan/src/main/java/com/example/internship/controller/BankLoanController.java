@@ -40,6 +40,12 @@ public class BankLoanController {
     @Autowired
     private ApplyBankLoanService applyBankLoanService;
 
+    @GetMapping("/bankLoanSimulation")
+    public String simulation(Model model) {
+        model.addAttribute("rateOptions", INTEREST_RATE_OPTIONS);
+        return "bankLoanSimulation";
+    }
+
     @GetMapping("/bankLoan")
     public String bankTransfer(Model model) {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
