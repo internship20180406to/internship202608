@@ -5,7 +5,8 @@ const inputMoney = document.getElementById("money");
 const name_error = document.getElementById("name_error");
 const accountnum_error_null = document.getElementById("accountnum_error_null");
 const accountnum_error_digit = document.getElementById("accountnum_error_digit");
-const money_error = document.getElementById("money_error");
+const money_error_null = document.getElementById("money_error_null");
+//const money_error =
 
     confirmButton.addEventListener('click', (e) => {
         if (inputName.value === "") {
@@ -28,9 +29,9 @@ const money_error = document.getElementById("money_error");
             accountnum_error_digit.setAttribute('hidden', '');
         }
         if (inputMoney.value === "") {
-            money_error.removeAttribute('hidden');
+            money_error_null.removeAttribute('hidden');
             e.preventDefault();
         } else {
-            money_error.setAttribute('hidden', '');
+            money_error_null.setAttribute('hidden', '');
         }
 })

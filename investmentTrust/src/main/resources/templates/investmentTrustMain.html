@@ -128,7 +128,8 @@
 
         <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
             <input type="number" id="money" th:field="*{money}" class="form-control" placeholder="1234567"/>
-            <span class="form_error" id="money_error" hidden>金額を入力してください。</span></p>
+            <span class="form_error" id="money_error_null" hidden>金額を入力してください。</span>
+            <span class="form_error" id="money_error"></span></p>
 
         <p style="text-align: center;"><input type="submit" id="confirm" value="確認"
                                               class="form-control-button form-confirmation-button"/>
