@@ -24,7 +24,7 @@ public class BankTransferForm {
     @NonNull
     private String name;
     @NonNull
-    private Long money;
+    private Integer money;
     @NonNull
     private LocalDate transferDateTime;
 
@@ -69,11 +69,11 @@ public class BankTransferForm {
         this.name = name;
     }
 
-    public Long getMoney() {
+    public Integer getMoney() {
         return money;
     }
 
-    public void setMoney(Long money) {
+    public void setMoney(Integer money) {
         this.money = money;
     }
 

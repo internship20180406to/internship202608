@@ -5,7 +5,7 @@
     <title>銀行振込情報入力画面</title>
     <style>
         body {
-        background-color: #f0f0f0;
+        backkoground-color: #f0f0f0;
         margin: 0;
         padding: 0;
         display: flex;
@@ -64,14 +64,16 @@
     <h1>銀行振込情報入力</h1>
     <form action="#" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post">
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}" class="form-control">
+            <select th:field="*{bankName}" class="form-control" required>
+                <option value="">選択してください</option>
                 <option th:each="option : ${nameOptionsBankName}"
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
             </select></p>
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{branchName}" class="form-control">
+            <select th:field="*{branchName}" class="form-control" required>
+                <option value="">選択してください</option>
                 <option th:each="option : ${nameOptionsBranchName}"
                         th:value="${option}"
                         th:text="${option}">選択肢
@@ -82,7 +84,7 @@
             <label>
                 <input type="radio"
                        th:field="*{bankAccountType}"
-                       value="普通"/>普通
+                       value="普通" required/>普通
             </label>
             <label>
                 <input type="radio"
@@ -104,20 +106,30 @@
         </p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
+            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" required/></p>
 
 
         <!--振込画面 -->
         <p><label class="ml-1">口座名義: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="Furikomi Taro"/></p>
+            <input type="text" th:field="*{name}" class="form-control" placeholder="フリコミ　タロウ"  pattern="[ァ-ヶーｦ-ﾟ 　]+" maxlength="20"
+                   title="口座名義は全角または半角カタカナで入力してください"
+                   required/>
+            <small>全角または半角カタカナで入力してください。</small>
+        </p>
 
         <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{money}" class="form-control" placeholder="10000"/></p>
+            <input type="number" th:field="*{money}" class="form-control" placeholder="10000" min="1" step="1"
+                   oninvalid="
+           if (this.value === '') {
+               this.setCustomValidity('振込金額を入力してください');
+           } else {
+               this.setCustomValidity('振込金額は1円以上で入力してください');
+           }
+            "
+                   oninput="this.setCustomValidity('')" required/></p>
 
         <p><label class="ml-1">振込指定日: <small class="text-danger ml-1">※</small></label><br>
-            <input type="date" th:field="*{transferDateTime}" class="form-control">
-
-            </input></p>
+            <input type="date" th:field="*{transferDateTime}" th:attr="min=${today}" class="form-control" required/></p>
 
         <!--ボタン -->
         <p style="text-align: center;"><input type="submit" value="次へ"
@@ -129,3 +141,4 @@
 </body>
 
 </html>
+

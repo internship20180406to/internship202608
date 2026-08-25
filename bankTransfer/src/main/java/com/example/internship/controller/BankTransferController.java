@@ -8,6 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import java.time.LocalDate;
+
+import java.util.List;
 
 
 @Controller
@@ -19,8 +22,9 @@ public class BankTransferController {
     @GetMapping("/bankTransfer")
     public String bankTransfer(Model model) {
         model.addAttribute("bankTransferApplication", new BankTransferForm());
-        model.addAttribute("nameOptionsBankName", "山陰共同銀行");
-        model.addAttribute("nameOptionsBranchName", "山陰共同支店");
+        model.addAttribute("nameOptionsBankName", List.of( "山陰共同銀行", "ながれぼし銀行", "青空銀行"));
+        model.addAttribute("nameOptionsBranchName",  List.of("山陰共同支店", "本店", "中央支店"));
+        model.addAttribute("today", LocalDate.now());
         return "bankTransferMain";
     }
 
