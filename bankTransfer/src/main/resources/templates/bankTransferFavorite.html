@@ -227,22 +227,22 @@
     <h1 class="form-title">振込先登録</h1>
     <div class="form-container">
         <form action="/bankTransfer/favorite" method="post">
-            <p><label class="form-label">金融機関名<span class="required">※必須</span></label>
+            <p><label class="form-label">金融機関名<span class="required">※</span></label>
                 <select name="bankName" class="form-control">
                     <option>山陰共同銀行</option> <option>さくら未来銀行</option> <option>ながれぼし銀行</option> <option>ひかり中央</option> <option>ほしぞら銀行</option>
                 </select></p>
             <p><label class="form-label">
-                支店名<span class="required">※必須</span></label>
+                支店名<span class="required">※</span></label>
                 <select name="branchName" class="form-control">
                     <option>博多支店</option> <option>天神支店</option> <option>小倉支店</option> <option>久留米支店</option> <option>八女支店</option>
                 </select></p>
-            <p><label class="form-label">科目名<span class="required">※必須</span></label>
+            <p><label class="form-label">科目名<span class="required">※</span></label>
                 <select name="bankAccountType" class="form-control">
                     <option>普通預金</option> <option>当座預金</option> <option>貯蓄預金</option> <option>定期預金</option>
                 </select></p>
-            <p><label class="form-label">口座番号<span class="required">※必須</span></label>
+            <p><label class="form-label">口座番号<span class="required">※</span></label>
                 <input type="number" name="bankAccountNum" class="form-control" placeholder="1234567"/></p>
-            <p><label class="form-label">口座名義<span class="required">※必須</span></label>
+            <p><label class="form-label">口座名義<span class="required">※</span></label>
                 <input type="text" name="name" class="form-control" placeholder="山田　太郎"/></p>
             <p style="text-align: center;">
                 <input type="submit" value="振込先を登録" class="form-control-button form-register-button"/>

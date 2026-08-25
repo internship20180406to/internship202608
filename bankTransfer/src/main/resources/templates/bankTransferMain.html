@@ -160,35 +160,35 @@
     <h1 class="form-title">銀行振込情報入力</h1>
     <div class="form-container">
     <form action="#" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post">
-        <p><label class="form-label">金融機関名 <span class="required">※必須</span></label><br>
+        <p><label class="form-label">金融機関名 <span class="required">※</span></label><br>
             <select th:field="*{bankName}" class="form-control">
                 <option th:each="option : ${nameOptions}"
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
             </select></p>
-        <p><label class="form-label">支店名 <span class="required">※必須</span></label><br>
+        <p><label class="form-label">支店名 <span class="required">※</span></label><br>
             <select th:field="*{branchName}" class="form-control">
                 <option th:each="option : ${branchNameOptions}"
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
             </select></p>
-        <p><label class="form-label">科目名 <span class="required">※必須</span></label><br>
+        <p><label class="form-label">科目名 <span class="required">※</span></label><br>
             <select th:field="*{bankAccountType}" class="form-control">
                 <option th:each="option : ${accountTypeOptions}"
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
             </select></p>
-        <p><label class="form-label">口座番号 <span class="required">※必須</span></label><br>
+        <p><label class="form-label">口座番号 <span class="required">※</span></label><br>
             <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
-        <p><label class="form-label">口座名義 <span class="required">※必須</span></label><br>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="山田　太郎"/><p>
-        <p><label class="form-label">金額 <span class="required">※必須</span></label><br>
-            <input type="number" th:field="*{money}" class="form-control" placeholder="10,000" min="1" max="1000000" required/>
+        <p><label class="form-label">口座名義 <span class="required">※</span></label><br>
+            <input type="text" th:field="*{name}" class="form-control" placeholder="ヤマダ　タロウ"/><p>
+        <p><label class="form-label">金額 <span class="required">※</span></label><br>
+            <input type="number" th:field="*{money}" class="form-control" placeholder="10000" min="1" max="1000000" required/>
             <span th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger"></span></p>
-        <p><label class="form-label">振込指定日 <span class="required">※必須</span></label><br>
+        <p><label class="form-label">振込指定日 <span class="required">※</span></label><br>
             <input type="date" th:field="*{transferDateTime}" class="form-control"/></p>
         <p style="text-align: center;"><input type="submit" value="確認"
                                               class="form-control-button form-confirmation-button"/>
