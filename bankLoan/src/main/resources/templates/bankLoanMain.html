@@ -125,10 +125,10 @@
                 <input type="text" th:field="*{branchName}" class="form-control" placeholder="福岡支店"/>
             </div>
 
-            <!-- ★ 追加: 口座の科目（預金種別） -->
+            <!-- 預金種別 (★ depositType -> bankAccountType) -->
             <div class="form-group">
                 <label>預金種別 <small class="text-danger">※</small></label>
-                <select th:field="*{depositType}" class="form-control">
+                <select th:field="*{bankAccountType}" class="form-control">
                     <option value="">-- 選択してください --</option>
                     <option th:each="option : ${depositTypeOptions}"
                             th:value="${option}"
@@ -143,10 +143,10 @@
                 <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/>
             </div>
 
-            <!-- 債務者名 -->
+            <!-- 債務者名 (★ debtorName -> name) -->
             <div class="form-group">
                 <label>債務者名 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{debtorName}" class="form-control" placeholder="山田 太郎"/>
+                <input type="text" th:field="*{name}" class="form-control" placeholder="山田 太郎"/>
             </div>
         </fieldset>
 
@@ -166,10 +166,10 @@
                 </select>
             </div>
 
-            <!-- 借入金額 -->
+            <!-- 借入金額 (★ borrowingAmount -> loanAmount) -->
             <div class="form-group">
                 <label>借入金額（円） <small class="text-danger">※</small></label>
-                <input type="number" th:field="*{borrowingAmount}" class="form-control" placeholder="1000000"/>
+                <input type="number" th:field="*{loanAmount}" class="form-control" placeholder="1000000"/>
             </div>
 
             <!-- 借入年収 -->

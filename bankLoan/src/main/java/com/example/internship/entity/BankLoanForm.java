@@ -4,11 +4,11 @@ public class BankLoanForm {
 
     private String bankName;         // 金融機関名
     private String branchName;       // 支店名
-    private String depositType;      // 預金種別（普通預金・当座預金など）
-    private String accountType;      // ローン種類（住宅ローン・マイカーローンなど）
+    private String bankAccountType;  // 預金種別（depositType ➔ bankAccountType）
+    private String accountType;      // ローン種類
     private Integer bankAccountNum;  // 口座番号
-    private String debtorName;       // 債務者名
-    private Integer borrowingAmount; // 借入金額
+    private String name;             // 債務者名（debtorName ➔ name）
+    private Integer loanAmount;      // 借入金額（borrowingAmount ➔ loanAmount）
     private Integer annualIncome;    // 借入年収
     private Double interestRate;     // 金利
 
@@ -28,11 +28,11 @@ public class BankLoanForm {
         this.branchName = branchName;
     }
 
-    public String getDepositType() {
-        return depositType;
+    public String getBankAccountType() {
+        return bankAccountType;
     }
-    public void setDepositType(String depositType) {
-        this.depositType = depositType;
+    public void setBankAccountType(String bankAccountType) {
+        this.bankAccountType = bankAccountType;
     }
 
     public String getAccountType() {
@@ -49,18 +49,18 @@ public class BankLoanForm {
         this.bankAccountNum = bankAccountNum;
     }
 
-    public String getDebtorName() {
-        return debtorName;
+    public String getName() {
+        return name;
     }
-    public void setDebtorName(String debtorName) {
-        this.debtorName = debtorName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Integer getBorrowingAmount() {
-        return borrowingAmount;
+    public Integer getLoanAmount() {
+        return loanAmount;
     }
-    public void setBorrowingAmount(Integer borrowingAmount) {
-        this.borrowingAmount = borrowingAmount;
+    public void setLoanAmount(Integer loanAmount) {
+        this.loanAmount = loanAmount;
     }
 
     public Integer getAnnualIncome() {

@@ -106,7 +106,6 @@
     <h1>ローン申込内容の確認</h1>
     <p class="confirm-lead">入力内容をご確認のうえ、「申込」ボタンを押してください。</p>
 
-    <!-- ★ onsubmit を削除して元に戻す（重複防止） -->
     <form action="#" th:action="@{/bankLoanCompletion}" th:object="${bankLoanApplication}" method="post">
 
         <!-- 表示項目 -->
@@ -125,7 +124,8 @@
             </tr>
             <tr>
                 <th>預金種別</th>
-                <td><span th:text="*{depositType}"></span></td>
+                <!-- ★ bankAccountType に変更 -->
+                <td><span th:text="*{bankAccountType}"></span></td>
             </tr>
             <tr>
                 <th>口座番号</th>
@@ -133,7 +133,8 @@
             </tr>
             <tr>
                 <th>債務者名</th>
-                <td><span th:text="*{debtorName}"></span></td>
+                <!-- ★ name に変更 -->
+                <td><span th:text="*{name}"></span></td>
             </tr>
             <tr>
                 <th>ローン種類</th>
@@ -141,7 +142,8 @@
             </tr>
             <tr>
                 <th>借入金額</th>
-                <td><span th:text="*{#numbers.formatInteger(borrowingAmount, 1, 'COMMA')}">1,000,000</span> 円</td>
+                <!-- ★ loanAmount に変更 -->
+                <td><span th:text="*{#numbers.formatInteger(loanAmount, 1, 'COMMA')}">1,000,000</span> 円</td>
             </tr>
             <tr>
                 <th>借入年収</th>
@@ -156,11 +158,12 @@
         <!-- 次の画面へ引き継ぐhiddenデータ -->
         <input type="hidden" th:field="*{bankName}"/>
         <input type="hidden" th:field="*{branchName}"/>
-        <input type="hidden" th:field="*{depositType}"/>
+        <!-- ★ 新しいフィールド名に合わせて書き換え -->
+        <input type="hidden" th:field="*{bankAccountType}"/>
         <input type="hidden" th:field="*{bankAccountNum}"/>
-        <input type="hidden" th:field="*{debtorName}"/>
+        <input type="hidden" th:field="*{name}"/>
         <input type="hidden" th:field="*{accountType}"/>
-        <input type="hidden" th:field="*{borrowingAmount}"/>
+        <input type="hidden" th:field="*{loanAmount}"/>
         <input type="hidden" th:field="*{annualIncome}"/>
         <input type="hidden" th:field="*{interestRate}"/>
 

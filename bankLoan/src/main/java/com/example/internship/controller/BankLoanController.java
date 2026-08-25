@@ -25,7 +25,7 @@ public class BankLoanController {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
         model.addAttribute("nameOptions", "山陰共同銀行");
 
-        // ★ 1. リストの定義
+        // リストの定義
         List<String> accountTypeOptions = List.of(
                 "住宅ローン",
                 "マイカーローン",
@@ -33,11 +33,9 @@ public class BankLoanController {
                 "フリーローン",
                 "カードローン"
         );
-
-        // ★ 2. Modelへ登録
         model.addAttribute("accountTypeOptions", accountTypeOptions);
 
-        // ★ 預金種別（口座の科目）の選択肢を設定
+        // 預金種別の選択肢を設定
         List<String> depositTypeOptions = List.of(
                 "普通預金",
                 "当座預金",
@@ -45,19 +43,18 @@ public class BankLoanController {
         );
         model.addAttribute("depositTypeOptions", depositTypeOptions);
 
-        // ★ 3. return は最後に書く
         return "bankLoanMain";
     }
 
     // 2. 確認画面の表示
     @PostMapping("/bankLoanConfirmation")
     public String confirmation(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
-        // 債務者名（旧：口座名義）が未入力の場合のデフォルト値設定
-        if (bankLoanForm.getDebtorName() == null || bankLoanForm.getDebtorName().isEmpty()) {
-            bankLoanForm.setDebtorName("ながれぼし銀行");
+        // ★ getName() と setName() に変更
+        if (bankLoanForm.getName() == null || bankLoanForm.getName().isEmpty()) {
+            bankLoanForm.setName("ながれぼし銀行");
         }
 
-        // ★ 確認画面表示時の日時を自動生成してModelに登録
+        // 確認画面表示時の日時を自動生成してModelに登録
         String applicationDate = getNowDateTime();
         model.addAttribute("applicationDate", applicationDate);
 
@@ -68,7 +65,7 @@ public class BankLoanController {
     // 3. 申込完了処理
     @PostMapping("/bankLoanCompletion")
     public String completion(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
-        // ★ 申込確定時の日時を自動生成してModelに登録
+        // 申込確定時の日時を自動生成してModelに登録
         String applicationDate = getNowDateTime();
         model.addAttribute("applicationDate", applicationDate);
 
@@ -76,7 +73,7 @@ public class BankLoanController {
         return "bankLoanCompletion";
     }
 
-    // ★ 現在日時を「yyyy/MM/dd HH:mm:ss」形式で取得する共通メソッド
+    // 現在日時を「yyyy/MM/dd HH:mm:ss」形式で取得する共通メソッド
     private String getNowDateTime() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
