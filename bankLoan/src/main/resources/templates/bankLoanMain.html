@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
 <head>
     <meta charset="UTF-8"/>
     <title>ローン申込情報入力画面</title>
@@ -8,10 +8,8 @@
             /* 全体の背景を爽やかな薄いブルーのグラデーションに */
             background: linear-gradient(135deg, #f4f8fc, #e1ecf7);
             margin: 0;
-            padding: 0;
             display: flex;
-            padding-top: 40px;
-            padding-bottom: 40px;
+            padding: 40px 0;
             justify-content: center;
             align-items: center;
             min-height: 85vh;
@@ -92,18 +90,7 @@
             white-space: nowrap;
         }
 
-        /* 未入力エラー時の赤枠 */
-        .is-invalid {
-            border: 2px solid #e53e3e !important;
-            background-color: #fff5f5 !important;
-        }
-        .error-msg {
-            color: #e53e3e;
-            font-size: 12px;
-            margin-top: 4px;
-            display: block;
-            font-weight: bold;
-        }
+        /* 未入力エラー時の赤枠とエラーメッセージの共通スタイル */
 
         .text-danger {
             color: #e53e3e;
@@ -148,7 +135,9 @@
             <!-- 金融機関名 -->
             <div class="form-group">
                 <label>金融機関名 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{bankName}" list="bankNameOptions" class="form-control" placeholder="例: 山陰共同銀行 （選択または直接入力）" required/>
+                <label style="display: block; width: 100%;">
+                    <input type="text" th:field="*{bankName}" list="bankNameOptions" class="form-control" placeholder="例: 山陰共同銀行 （選択または直接入力）" required/>
+                </label>
                 <datalist id="bankNameOptions">
                     <option th:each="option : ${nameOptions}" th:value="${option}"></option>
                 </datalist>
@@ -157,25 +146,31 @@
             <!-- 支店名 -->
             <div class="form-group">
                 <label>支店名 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{branchName}" class="form-control" placeholder="福岡支店" required/>
+                <label style="display: block; width: 100%;">
+                    <input type="text" th:field="*{branchName}" class="form-control" placeholder="福岡支店" required/>
+                </label>
             </div>
 
             <!-- 預金種別 -->
             <div class="form-group">
                 <label>預金種別 <small class="text-danger">※</small></label>
-                <select th:field="*{bankAccountType}" class="form-control" required>
-                    <option value="">-- 選択してください --</option>
-                    <option th:each="option : ${depositTypeOptions}"
-                            th:value="${option}"
-                            th:text="${option}">選択肢
-                    </option>
-                </select>
+                <label style="display: block; width: 100%;">
+                    <select th:field="*{bankAccountType}" class="form-control" required>
+                        <option value="">-- 選択してください --</option>
+                        <option th:each="option : ${depositTypeOptions}"
+                                th:value="${option}"
+                                th:text="${option}">選択肢
+                        </option>
+                    </select>
+                </label>
             </div>
 
             <!-- 口座番号 -->
             <div class="form-group">
                 <label>口座番号 <small class="text-danger">※</small></label>
-                <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" required/>
+                <label style="display: block; width: 100%;">
+                    <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" required/>
+                </label>
             </div>
         </fieldset>
 
@@ -187,7 +182,9 @@
             <div class="form-group">
                 <label>債務者名 <small class="text-danger">※</small></label>
                 <div class="input-group">
-                    <input type="text" th:field="*{name}" class="form-control" placeholder="山田 太郎" autocomplete="name" required/>
+                    <label style="flex: 1;">
+                        <input type="text" th:field="*{name}" class="form-control" placeholder="山田 太郎" autocomplete="name" required/>
+                    </label>
                     <span class="input-suffix">様</span>
                 </div>
             </div>
@@ -196,39 +193,47 @@
             <div class="form-group">
                 <label>フリガナ <small class="text-danger">※</small></label>
                 <div class="input-group">
-                    <input type="text" th:field="*{nameKana}" class="form-control" placeholder="ヤマダ タロウ" autocomplete="name" required/>
+                    <label style="flex: 1;">
+                        <input type="text" th:field="*{nameKana}" class="form-control" placeholder="ヤマダ タロウ" autocomplete="name" required/>
+                    </label>
                     <span class="input-suffix">様</span>
                 </div>
             </div>
 
             <!-- 生年月日 -->
             <div class="form-group">
-                <label>生年月日 <small class="text-danger">※</small></label>
-                <input type="date" id="birthDate" th:field="*{birthDate}" class="form-control" autocomplete="bday" required/>
+                <label for="birthDate">生年月日 <small class="text-danger">※</small></label>
+                <input type="date" id="birthDate" th:field="*{birthDate}" class="form-control" autocomplete="day" required/>
             </div>
 
             <!-- 電話番号（自動ハイフン対応） -->
             <div class="form-group">
-                <label>電話番号 <small class="text-danger">※</small></label>
+                <label for="phoneNumber">電話番号 <small class="text-danger">※</small></label>
                 <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="090-1234-5678" autocomplete="tel" required/>
             </div>
 
             <!-- メールアドレス -->
             <div class="form-group">
                 <label>メールアドレス <small class="text-danger">※</small></label>
-                <input type="email" th:field="*{email}" class="form-control" placeholder="example@email.com" autocomplete="email" required/>
+                <label style="display: block; width: 100%;">
+                    <input type="email" th:field="*{email}" class="form-control" placeholder="example@email.com" autocomplete="email" required/>
+                </label>
             </div>
 
             <!-- 郵便番号 -->
             <div class="form-group">
                 <label>郵便番号 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{postalCode}" class="form-control" placeholder="810-0001" autocomplete="postal-code" required/>
+                <label style="display: block; width: 100%;">
+                    <input type="text" th:field="*{postalCode}" class="form-control" placeholder="810-0001" autocomplete="postal-code" required/>
+                </label>
             </div>
 
             <!-- 住所 -->
             <div class="form-group">
                 <label>住所 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{address}" class="form-control" placeholder="福岡県福岡市中央区天神1-1-1" autocomplete="street-address" required/>
+                <label style="display: block; width: 100%;">
+                    <input type="text" th:field="*{address}" class="form-control" placeholder="福岡県福岡市中央区天神1-1-1" autocomplete="street-address" required/>
+                </label>
             </div>
         </fieldset>
 
@@ -238,7 +243,7 @@
 
             <!-- ローン種類 -->
             <div class="form-group">
-                <label>ローン種類 <small class="text-danger">※</small></label>
+                <label for="accountType">ローン種類 <small class="text-danger">※</small></label>
                 <select id="accountType" th:field="*{accountType}" class="form-control" required>
                     <option value="">-- 選択してください --</option>
                     <option th:each="option : ${accountTypeOptions}"
@@ -250,19 +255,19 @@
 
             <!-- 借入年収 -->
             <div class="form-group">
-                <label>借入年収（万円） <small class="text-danger">※</small></label>
+                <label for="annualIncome">借入年収（万円） <small class="text-danger">※</small></label>
                 <input type="number" id="annualIncome" th:field="*{annualIncome}" class="form-control" placeholder="400" required/>
             </div>
 
             <!-- 借入金額 -->
             <div class="form-group">
-                <label>借入金額（円） <small class="text-danger">※</small></label>
+                <label for="loanAmount">借入金額（円） <small class="text-danger">※</small></label>
                 <input type="text" id="loanAmount" th:field="*{loanAmount}" class="form-control" placeholder="1,000,000" required/>
             </div>
 
             <!-- 金利 -->
             <div class="form-group">
-                <label>金利（％） <small class="text-danger">※</small></label>
+                <label for="interestRate">金利（％） <small class="text-danger">※</small></label>
                 <input type="number" step="0.01" id="interestRate" th:field="*{interestRate}" class="form-control" placeholder="1.5" required/>
             </div>
         </fieldset>
