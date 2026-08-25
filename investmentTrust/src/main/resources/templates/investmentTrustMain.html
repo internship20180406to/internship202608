@@ -34,6 +34,9 @@
         .text-danger {
         color: red;
         }
+        .form_error {
+            color: red;
+        }
         .form-control-button {
         width: 80px;
         padding: 10px 20px;
@@ -56,6 +59,9 @@
         .form-clear-button:hover {
         background-color: #CCCCCC;
         }
+        .hidden{
+            display: none;
+        }
 
     </style>
 </head>
@@ -76,7 +82,8 @@
             </select></p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
+            <input type="number" id="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/>
+            <span class="form_error" id="accountnum_error" hidden>口座番号を入力してください。</span></p>
 
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{BranchName}" class="form-control">
@@ -103,7 +110,8 @@
             </select></p>
 
         <p><label class="ml-1">購入者名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="フルネーム"/></p>
+            <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="フルネーム"/>
+            <span class="form_error" id="name_error" hidden>お名前を入力してください。</span></p>
 
         <p><label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{fundName}" class="form-control">
@@ -118,13 +126,15 @@
             </select></p>
 
         <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{money}" class="form-control" placeholder="1234567"/></p>
+            <input type="number" id="money" th:field="*{money}" class="form-control" placeholder="1234567"/>
+            <span class="form_error" id="money_error" hidden>金額を入力してください。</span></p>
 
-        <p style="text-align: center;"><input type="submit" value="確認"
+        <p style="text-align: center;"><input type="submit" id="confirm" value="確認"
                                               class="form-control-button form-confirmation-button"/>
             <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
     </form>
+    <script th:inline="javascript" src="/js/inputConfirmation.js"></script>
+
 </div>
 </body>
-
 </html>
