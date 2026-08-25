@@ -129,31 +129,34 @@
             </span>
         </p>
 
+        <p><label class="ml-1">借入年収（万円）: <small class="text-danger ml-1">※</small></label><br>
+            <input type="text"
+                   th:field="*{annualIncome}"
+                   inputmode="numeric"
+                   maxlength="7"
+                   class="form-control"
+                   placeholder="500"/>
+            <span class="text-danger validation-error"
+                  th:if="${#fields.hasErrors('annualIncome')}"
+                  th:errors="*{annualIncome}">
+            </span>
+            <span id="loanLimit"></span>
+        </p>
+
         <p><label class="ml-1">借入金額（万円）: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
                    th:field="*{loanAmount}"
                    inputmode="numeric"
                    maxlength="6"
-                   pattern="[0-9]*"
                    class="form-control"
                    placeholder="300"/>
             <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('loanAmount')}"
                   th:errors="*{loanAmount}">
             </span>
-        </p>
-
-        <p><label class="ml-1">借入年収（万円）: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text"
-                   th:field="*{annualIncome}"
-                   inputmode="numeric"
-                   maxlength="7"
-                   pattern="[0-9]*"
-                   class="form-control"
-                   placeholder="500"/>
             <span class="text-danger validation-error"
-                  th:if="${#fields.hasErrors('annualIncome')}"
-                  th:errors="*{annualIncome}">
+                  th:if="${#fields.hasErrors('loanAmountWithinLimit')}"
+                  th:errors="*{loanAmountWithinLimit}">
             </span>
         </p>
 
@@ -217,5 +220,52 @@
                 error.style.display = 'none';
             }
         });
+    });
+
+    const loanAmount = document.getElementById('loanAmount');
+    const interestRate = document.getElementById('interestRate');
+
+    loanAmount.addEventListener('input', function () {
+        const amount = Number(this.value);
+
+        if (amount >= 10 && amount <= 100) {
+        interestRate.value = 14.5;
+        } else if (amount > 100 && amount <= 200) {
+        interestRate.value = 12.0;
+        } else if (amount > 200 && amount <= 300) {
+        interestRate.value = 10.0;
+        } else if (amount > 300 && amount <= 400) {
+        interestRate.value = 8.0;
+        } else if (amount > 400 && amount <= 500) {
+        interestRate.value = 7.0;
+        } else if (amount > 500 && amount <= 600) {
+        interestRate.value = 6.0;
+        } else if (amount > 600 && amount <= 700) {
+        interestRate.value = 5.0;
+        } else if (amount > 700 && amount <= 800) {
+        interestRate.value = 4.0;
+        } else if (amount > 800 && amount <= 1000) {
+        interestRate.value = 0.95;
+        } else {
+        interestRate.value = '';
+    }
+
+        interestRate.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    const annualIncome = document.getElementById('annualIncome');
+    const loanLimit = document.getElementById('loanLimit');
+
+    annualIncome.addEventListener('input', function () {
+        const income = Number(this.value);
+
+        if (this.value === '') {
+            loanLimit.textContent = '';
+            return;
+        }
+
+        const limit = Math.floor(income * 0.5);
+
+        loanLimit.textContent = '借入限度額：' + limit + '万円';
     });
 </script>
