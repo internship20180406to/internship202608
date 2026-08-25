@@ -94,8 +94,12 @@
     <form action="#" th:action="@{/bankLoanDetails}" th:object="${bankLoanApplication}" method="post"
           class="needs-validation">
         <p><label class="ml-1">お名前: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{debtorLastName}" class="form-control" placeholder="姓" required/></p>
-        <input type="text" th:field="*{debtorFirstName}" class="form-control" placeholder="名" required/></p>
+            <input type="text" th:field="*{debtorLastName}" class="form-control" placeholder="姓"
+                   minlength="1" maxlength="20" pattern="[^0-9０-９]*[^0-9０-９\s][^0-9０-９]*"
+                   title="姓は数字や空白だけでは入力できません" autocomplete="family-name"required/></p>
+            <input type="text" th:field="*{debtorFirstName}" class="form-control" placeholder="名"
+                   minlength="1" maxlength="20" pattern="[^0-9０-９]*[^0-9０-９\s][^0-9０-９]*"
+                   title="名は数字や空白だけでは入力できません" autocomplete="given-name"required/></p>
         <p>
             <label class="ml-1">
                 生年月日:
@@ -118,8 +122,10 @@
             <input type="number"
                    th:field="*{annualIncome}"
                    class="form-control"
-                   min="0"
+                   min="200"
                    placeholder="500"
+                   step="1"
+                   title="年収は200万円以上で入力してください"
                    required/>
             <span>万円</span>
         </p>

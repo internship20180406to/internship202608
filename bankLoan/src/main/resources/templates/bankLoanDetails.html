@@ -107,7 +107,10 @@
                    th:field="*{desiredLoanAmount}"
                    class="form-control"
                    min="1"
-                   placeholder="300" required/>
+                   step="1"
+                   placeholder="3000"
+                   title="借入希望額は1万円以上の整数で入力してください"
+                   required/>
             <span>万円</span>
         </p>
 
@@ -117,14 +120,17 @@
                 <small class="text-danger">※</small>
             </label><br>
 
-            <input type="number"
-                   th:field="*{loanYears}"
-                   class="form-control"
-                   min="1"
-                   max="40"
-                   placeholder="35"
-                   required/>
-            <span>年</span>
+            <select th:field="*{loanYears}"
+                    class="form-control"
+                    required>
+
+                <option value="">選択してください</option>
+
+                <option th:each="year : ${#numbers.sequence(1, 40)}"
+                        th:value="${year}"
+                        th:text="|${year}年|">
+                </option>
+            </select>
         </p>
 
         <p>
