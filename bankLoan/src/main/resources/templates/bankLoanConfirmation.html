@@ -9,16 +9,19 @@
 <form action="#" th:action="@{/bankLoanCompletion}" th:object="${bankLoanApplication}" method="post">
     <p>お名前: <span th:text="*{debtorLastName}"></span>
               <span th:text="*{debtorFirstName}"></span></p>
+    <p>生年月日:<span th:text="*{birthDate}"></span></p>
     <p>金融機関名: <span th:text="*{bankName}"></span></p>
     <p>支店名: <span th:text="*{branchName}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
-
+    <p>借入希望額:<span th:text="*{desiredLoanAmount}"></span>万円</p>
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
     <input type="hidden" name="branchName" th:value="*{branchName}"/>
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
     <input type="hidden" name="debtorLastName" th:value="*{debtorLastName}"/>
     <input type="hidden" name="debtorFirstName" th:value="*{debtorFirstName}"/>
     <input type="hidden" name="debtorName" th:value="*{debtorName}"/>
+    <input type="hidden" name="desiredLoanAmount" th:value="*{desiredLoanAmount}"/>
+    <input type="hidden" th:field="*{birthDate}"/>
 
     <p>
         <input type="submit" id="submit" value="申込"/>

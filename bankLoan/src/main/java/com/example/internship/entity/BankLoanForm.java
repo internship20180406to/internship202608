@@ -1,5 +1,8 @@
 package com.example.internship.entity;
 
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +21,9 @@ public class BankLoanForm {
     private String debtorLastName;
     private String debtorFirstName;
 
-    private String debtorBirth;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate birthDate;
+
     @NonNull
     private Integer bankAccountNum;
 
