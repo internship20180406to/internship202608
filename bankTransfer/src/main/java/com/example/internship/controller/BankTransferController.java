@@ -8,28 +8,37 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import java.time.LocalDate;
 
 import java.util.List;
 
 
 @Controller
-public class BankTransferController {
+    @SessionAttributes("bankTransferApplication")
+    public class BankTransferController {
 
     @Autowired
     private ApplyBankTransferService applyBankTransferService;
 
+    // セッションにデータがないときだけ、新しいフォームを作る
+    @ModelAttribute("bankTransferApplication")
+    public BankTransferForm createBankTransferForm() {
+        return new BankTransferForm();
+    }
+
     @GetMapping("/bankTransfer")
     public String bankTransfer(Model model) {
-        model.addAttribute("bankTransferApplication", new BankTransferForm());
         model.addAttribute("nameOptionsBankName", List.of( "山陰共同銀行", "ながれぼし銀行", "青空銀行"));
         model.addAttribute("nameOptionsBranchName",  List.of("山陰共同支店", "本店", "中央支店"));
         model.addAttribute("today", LocalDate.now());
+        model.addAttribute("recentTransfers", applyBankTransferService.getRecentTransfers());
         return "bankTransferMain";
     }
 
     @PostMapping("/bankTransferConfirmation")
-    public String confirmation(@ModelAttribute BankTransferForm bankTransferForm, Model model) {
+    public String confirmation(@ModelAttribute("bankTransferApplication") BankTransferForm bankTransferForm, Model model){
         model.addAttribute("bankName", bankTransferForm.getBankName());
         model.addAttribute("branchName", bankTransferForm.getBranchName());
         model.addAttribute("subjectName", bankTransferForm.getBankAccountType());
@@ -45,9 +54,25 @@ public class BankTransferController {
     }
 
     @PostMapping("/bankTransferCompletion")
-    public String completion(@ModelAttribute BankTransferForm bankTransferForm, Model model) {
+    public String completion(
+                             @ModelAttribute("bankTransferApplication")
+                             BankTransferForm bankTransferForm,
+                             Model model,
+                             SessionStatus sessionStatus) {
         applyBankTransferService.applyBankTransfer(bankTransferForm);
+
+        // 振込完了後に、セッションに保存した入力内容を削除する
+        sessionStatus.setComplete();
+
         return "bankTransferCompletion";
+    }
+
+    @PostMapping("/bankTransferClear")
+    public String clear(SessionStatus sessionStatus) {
+
+        sessionStatus.setComplete();
+
+        return "redirect:/bankTransfer";
     }
 
 }

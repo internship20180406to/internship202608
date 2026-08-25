@@ -7,6 +7,7 @@
     <meta charset="UTF-8"/>
     <title>銀行振込情報入力画面</title>
 </head>
+<script th:src="@{/js/bankTransferMain.js}"></script>
 <body>
 
 <div class="content">
@@ -28,6 +29,48 @@
     </div>
 
     <h1>銀行振込情報入力</h1>
+    <section class="recent-transfers"
+             th:if="${not #lists.isEmpty(recentTransfers)}">
+
+        <h2>最近の振込先</h2>
+        <p class="recent-transfers-description">
+            選択すると振込先情報が自動入力されます
+        </p>
+
+        <div class="recent-transfer-list">
+            <button type="button"
+                    class="recent-transfer-card"
+                    th:each="transfer : ${recentTransfers}"
+                    th:attr="
+                    data-bank-name=${transfer.bankName},
+                    data-branch-name=${transfer.branchName},
+                    data-account-type=${transfer.bankAccountType},
+                    data-account-num=${transfer.bankAccountNum},
+                    data-account-name=${transfer.name}">
+
+                <strong th:text="${transfer.name}">
+                    口座名義
+                </strong>
+
+                <span th:text="${transfer.bankName + '　' + transfer.branchName}">
+                金融機関名　支店名
+            </span>
+
+                <span th:text="${transfer.bankAccountType + '　' + transfer.bankAccountNum}">
+                科目名　口座番号
+            </span>
+            </button>
+        </div>
+    </section>
+
+    <div class="new-transfer-heading">
+        <div class="choice-separator" th:if="${not #lists.isEmpty(recentTransfers)}">
+            <span>または</span>
+        </div>
+        <h2>新しい振込先を入力</h2>
+        <p>振込先情報と振込内容を入力してください</p>
+    </div>
+
     <form action="#" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post">
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}" class="form-control" required>
@@ -72,7 +115,10 @@
         </p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" required/></p>
+            <input type="text" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" inputmode="numeric" pattern="[0-9]{1,7}" maxlength="7"
+                   title="口座番号は半角数字7桁以内で入力してください" required/>
+
+        </p>
 
 
         <!--振込画面 -->
@@ -100,7 +146,7 @@
         <!--ボタン -->
         <p style="text-align: center;"><input type="submit" value="次へ"
                                               class="form-control-button form-confirmation-button"/>
-            <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
+            <input type="reset" value="クリア" th:formaction="@{/bankTransferClear}" formmethod="post" class="form-control-button form-clear-button"/></p>
 
     </form>
 </div>

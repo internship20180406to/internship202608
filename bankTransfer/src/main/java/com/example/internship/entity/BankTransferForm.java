@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -19,13 +19,14 @@ public class BankTransferForm {
     @NonNull
     private String bankAccountType;
     @NonNull
-    private Integer bankAccountNum;
+    private String bankAccountNum;
 
     @NonNull
     private String name;
     @NonNull
     private Integer money;
     @NonNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate transferDateTime;
 
     public String getBankName() {
@@ -52,12 +53,16 @@ public class BankTransferForm {
         this.bankAccountType = bankAccountType;
     }
 
-    public Integer getBankAccountNum() {
+    public String getBankAccountNum() {
         return bankAccountNum;
     }
 
-    public void setBankAccountNum(Integer bankAccountNum) {
-        this.bankAccountNum = bankAccountNum;
+    public void setBankAccountNum(String bankAccountNum) {
+        if (bankAccountNum != null && bankAccountNum.matches("[0-9]{1,7}")) {
+            this.bankAccountNum = "0".repeat(7 - bankAccountNum.length()) + bankAccountNum;
+        } else {
+            this.bankAccountNum = bankAccountNum;
+        }
     }
 
     //振込画面側
