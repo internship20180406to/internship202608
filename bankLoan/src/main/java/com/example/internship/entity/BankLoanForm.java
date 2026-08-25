@@ -28,12 +28,12 @@ public class BankLoanForm {
     private String name;
     @NotNull(message = "借入金額を入力してください")
     @Min(value = 1, message = "借入金額は1万円以上で入力してください")
-    @Max(value = 100000000, message = "借入金額が上限を超えています")
-    private Long loanAmount;
+    @Max(value = 1000, message = "借入金額が上限を超えています")
+    private Integer loanAmount;
     @NotNull(message = "年収を入力してください")
     @Min(value = 1, message = "年収は1万円以上で入力してください")
-    @Max(value = 1000000000, message = "年収が上限を超えています")
-    private Long annualIncome;
+    @Max(value = 100000, message = "年収が上限を超えています")
+    private Integer annualIncome;
     @NotNull(message = "金利を入力してください")
     @DecimalMin("0.0")
     @DecimalMax("20.0")
@@ -80,19 +80,19 @@ public class BankLoanForm {
         this.name = name;
     }
 
-    public Long getLoanAmount() {
+    public Integer getLoanAmount() {
         return loanAmount;
     }
 
-    public void setLoanAmount(Long loanAmount) {
+    public void setLoanAmount(Integer loanAmount) {
         this.loanAmount = loanAmount;
     }
 
-    public Long getAnnualIncome() {
+    public Integer getAnnualIncome() {
         return annualIncome;
     }
 
-    public void setAnnualIncome(Long annualIncome) {
+    public void setAnnualIncome(Integer annualIncome) {
         this.annualIncome = annualIncome;
     }
 

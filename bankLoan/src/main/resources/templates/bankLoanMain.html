@@ -130,10 +130,13 @@
         </p>
 
         <p><label class="ml-1">借入金額（万円）: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number"
+            <input type="text"
                    th:field="*{loanAmount}"
+                   inputmode="numeric"
+                   maxlength="6"
+                   pattern="[0-9]*"
                    class="form-control"
-                   placeholder="100"/>
+                   placeholder="300"/>
             <span class="text-danger"
                   th:if="${#fields.hasErrors('loanAmount')}"
                   th:errors="*{loanAmount}">
@@ -141,10 +144,13 @@
         </p>
 
         <p><label class="ml-1">借入年収（万円）: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number"
+            <input type="text"
                    th:field="*{annualIncome}"
+                   inputmode="numeric"
+                   maxlength="7"
+                   pattern="[0-9]*"
                    class="form-control"
-                   placeholder="1000"/>
+                   placeholder="500"/>
             <span class="text-danger"
                   th:if="${#fields.hasErrors('annualIncome')}"
                   th:errors="*{annualIncome}">
