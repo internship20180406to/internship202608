@@ -17,6 +17,8 @@ public class BankLoanForm {
 
     private String branchName;
 
+    private String subjectName;
+
     private String debtorName;
     private String debtorLastName;
     private String debtorFirstName;

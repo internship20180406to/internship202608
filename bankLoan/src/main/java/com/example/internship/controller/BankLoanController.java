@@ -21,6 +21,8 @@ public class BankLoanController {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
         model.addAttribute("nameOptions", "山陰共同銀行");
         model.addAttribute("branchOptions", new String[]{"本店営業部", "福岡支店", "博多支店"});
+        model.addAttribute("subjectOptions", new String[]{"普通預金", "当座預金", "貯蓄預金"}
+        );
         return "bankLoanMain";
     }
 

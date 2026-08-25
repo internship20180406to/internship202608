@@ -102,6 +102,19 @@
                         th:text="${option}">選択肢
                 </option>
             </select>
+        <p><label class="ml-1">科目名:<small class="text-danger ml-1">※</small></label><br>
+            <select th:field="*{subjectName}" class="form-control"
+                    required>
+                <option value="">選択してください</option>
+
+                <option th:each="subject : ${subjectOptions}"
+                        th:value="${subject}"
+                        th:text="${subject}">
+                </option>
+            </select>
+        </p>
+
+
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
 
