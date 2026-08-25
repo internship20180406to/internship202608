@@ -83,7 +83,8 @@
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="number" id="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/>
-            <span class="form_error" id="accountnum_error" hidden>口座番号を入力してください。</span></p>
+            <span class="form_error" id="accountnum_error_null" hidden>口座番号を入力してください。</span>
+            <span class="form_error" id="accountnum_error_digit" hidden>正しい口座番号を入力してください。</span></p>
 
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{BranchName}" class="form-control">
