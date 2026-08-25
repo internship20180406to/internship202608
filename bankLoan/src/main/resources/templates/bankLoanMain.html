@@ -16,35 +16,74 @@
             min-height: 85vh;
             overflow: auto;
         }
-
         .content {
             background-color: #ffffff;
             width: 80%;
-            max-width: 600px; /* ★幅が広がりすぎるのを防ぐ */
-            padding: 30px 40px; /* ★余白を広げて文字を端から離す */
-            box-sizing: border-box; /* ★余白を含めて幅を適切に計算する */
+            max-width: 600px;
+            padding: 30px 40px;
+            box-sizing: border-box;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             min-height: 50vh;
             overflow: auto;
         }
-
+        /* ★ 見出しのデザイン */
+        h1 {
+            font-size: 22px;
+            color: #333333;
+            margin-top: 0;
+            margin-bottom: 25px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #2185D0;
+            border-left: 6px solid #2185D0;
+            padding-left: 10px;
+        }
+        /* ★ グループ分け（fieldset）のスタイル */
+        fieldset {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 20px 10px 20px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+        legend {
+            font-weight: bold;
+            color: #2185D0;
+            padding: 0 8px;
+            font-size: 15px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #444444;
+        }
         .form-control {
             width: 100%;
-            padding: 8px;
-            margin: 5px 0;
+            padding: 8px 10px;
+            margin-top: 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
             box-sizing: border-box;
+            font-size: 14px;
+        }
+        .form-control:focus {
+            border-color: #2185D0;
+            outline: none;
         }
         .text-danger {
             color: red;
         }
         .form-control-button {
-            width: 80px;
-            padding: 10px 20px;
-            margin-top: 10px;
+            width: 110px;
+            padding: 10px 15px;
+            margin: 10px 5px 0 5px;
             border: none;
             cursor: pointer;
             border-radius: 5px;
+            font-size: 14px;
         }
         .form-confirmation-button {
             color: white;
@@ -66,52 +105,78 @@
 <div class="content">
     <h1>ローン申込情報入力</h1>
     <form action="#" th:action="@{/bankLoanConfirmation}" th:object="${bankLoanApplication}" method="post">
-        <!-- 金融機関名 -->
-        <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}" class="form-control">
-                <option th:each="option : ${nameOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select></p>
 
-        <!-- 支店名 -->
-        <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{branchName}" class="form-control" placeholder="福岡支店"/></p>
+        <!-- 口座情報グループ -->
+        <fieldset>
+            <legend>口座情報</legend>
 
-        <!-- 科目名（プルダウン選択） -->
-        <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{accountType}" class="form-control">
-                <option value="">-- 選択してください --</option>
-                <option th:each="option : ${accountTypeOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select></p>
+            <!-- 金融機関名 -->
+            <div class="form-group">
+                <label>金融機関名 <small class="text-danger">※</small></label>
+                <select th:field="*{bankName}" class="form-control">
+                    <option th:each="option : ${nameOptions}"
+                            th:value="${option}"
+                            th:text="${option}">選択肢
+                    </option>
+                </select>
+            </div>
 
-        <!-- 口座番号 -->
-        <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
+            <!-- 支店名 -->
+            <div class="form-group">
+                <label>支店名 <small class="text-danger">※</small></label>
+                <input type="text" th:field="*{branchName}" class="form-control" placeholder="福岡支店"/>
+            </div>
 
-        <!-- 債務者名（旧：口座名義） -->
-        <p><label class="ml-1">債務者名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{debtorName}" class="form-control" placeholder="山田 太郎"/></p>
+            <!-- 口座番号 -->
+            <div class="form-group">
+                <label>口座番号 <small class="text-danger">※</small></label>
+                <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/>
+            </div>
 
-        <!-- 借入金額（旧：金額） -->
-        <p><label class="ml-1">借入金額（円）: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{borrowingAmount}" class="form-control" placeholder="1000000"/></p>
+            <!-- 債務者名 -->
+            <div class="form-group">
+                <label>債務者名 <small class="text-danger">※</small></label>
+                <input type="text" th:field="*{debtorName}" class="form-control" placeholder="山田 太郎"/>
+            </div>
+        </fieldset>
 
-        <!-- 借入年収（追加） -->
-        <p><label class="ml-1">借入年収（万円）: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{annualIncome}" class="form-control" placeholder="400"/></p>
+        <!-- ローン条件グループ -->
+        <fieldset>
+            <legend>ローン条件</legend>
 
-        <!-- 金利（追加） -->
-        <p><label class="ml-1">金利（％）: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" step="0.01" th:field="*{interestRate}" class="form-control" placeholder="1.5"/></p>
+            <!-- ★ ローン種類（科目名から移動・名称変更） -->
+            <div class="form-group">
+                <label>ローン種類 <small class="text-danger">※</small></label>
+                <select th:field="*{accountType}" class="form-control">
+                    <option value="">-- 選択してください --</option>
+                    <option th:each="option : ${accountTypeOptions}"
+                            th:value="${option}"
+                            th:text="${option}">選択肢
+                    </option>
+                </select>
+            </div>
 
+            <!-- 借入金額 -->
+            <div class="form-group">
+                <label>借入金額（円） <small class="text-danger">※</small></label>
+                <input type="number" th:field="*{borrowingAmount}" class="form-control" placeholder="1000000"/>
+            </div>
+
+            <!-- 借入年収 -->
+            <div class="form-group">
+                <label>借入年収（万円） <small class="text-danger">※</small></label>
+                <input type="number" th:field="*{annualIncome}" class="form-control" placeholder="400"/>
+            </div>
+
+            <!-- 金利 -->
+            <div class="form-group">
+                <label>金利（％） <small class="text-danger">※</small></label>
+                <input type="number" step="0.01" th:field="*{interestRate}" class="form-control" placeholder="1.5"/>
+            </div>
+        </fieldset>
 
         <!-- 確認ボタン / クリアボタン -->
-        <p style="text-align: center;">
+        <p style="text-align: center; margin-top: 25px;">
             <input type="submit" value="確認" class="form-control-button form-confirmation-button"/>
             <input type="reset" value="クリア" class="form-control-button form-clear-button"/>
         </p>
