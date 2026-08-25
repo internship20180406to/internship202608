@@ -1,12 +1,137 @@
 <!doctype html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>申込完了画面</title>
+    <title>ローン申込完了画面</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            justify-content: center;
+            align-items: center;
+            min-height: 85vh;
+            overflow: auto;
+        }
+        .content {
+            background-color: #ffffff;
+            width: 80%;
+            max-width: 600px;
+            padding: 30px 40px 40px 40px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-height: 50vh;
+            overflow: auto;
+        }
+
+        /* 確認画面と統一した見出しデザイン */
+        h1 {
+            font-size: 22px;
+            color: #333333;
+            margin-top: 0;
+            margin-bottom: 25px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #2185D0;
+            border-left: 6px solid #2185D0;
+            padding-left: 10px;
+        }
+
+        /* 完了メッセージ領域（カード表示） */
+        .completion-card {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 35px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        /* チェックマークアイコン */
+        .complete-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #2185D0;
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: bold;
+            line-height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 15px auto;
+        }
+
+        .completion-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 12px;
+        }
+
+        .completion-text {
+            font-size: 14px;
+            color: #666666;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* 補足案内領域 */
+        .info-box {
+            background-color: #f0f0fc;
+            border-left: 4px solid #2185D0;
+            padding: 12px 15px;
+            font-size: 13px;
+            color: #444444;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        /* ボタンデザイン（確認画面のボタンと統一） */
+        .form-control-button {
+            width: 140px;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            color: white;
+            background-color: #2185D0;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .form-control-button:hover {
+            background-color: #1678c2;
+        }
+    </style>
 </head>
 <body>
-<h1>申込完了</h1>
-<p><input type="button" value="申込に戻る" onclick="window.location='/bankLoan';"/></p>
-</body>
+<div class="content">
+    <!-- 見出し -->
+    <h1>ローン申込完了</h1>
 
+    <!-- 完了通知カード -->
+    <div class="completion-card">
+        <div class="complete-icon">✓</div>
+        <div class="completion-title">お申し込みを受け付けました</div>
+        <p class="completion-text">
+            ローンのお申し込み手続きが正常に完了いたしました。<br/>
+            ご入力いただいた内容をもとに審査を進めさせていただきます。
+        </p>
+    </div>
+
+    <!-- 案内メッセージ -->
+    <div class="info-box">
+        ※ 審査結果につきましては、担当者より順次ご連絡いたします。今しばらくお待ちください。
+    </div>
+
+    <!-- 戻るボタン -->
+    <p style="text-align: center; margin-bottom: 0;">
+        <input type="button" value="申込に戻る" class="form-control-button" onclick="window.location='/bankLoan';"/>
+    </p>
+</div>
+</body>
 </html>

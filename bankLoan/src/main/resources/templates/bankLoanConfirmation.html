@@ -27,22 +27,55 @@
             min-height: 50vh;
             overflow: auto;
         }
+
+        /* 見出しのデザイン */
+        h1 {
+            font-size: 22px;
+            color: #333333;
+            margin-top: 0;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #2185D0;
+            border-left: 6px solid #2185D0;
+            padding-left: 10px;
+        }
+
+        /* 見出し下の補足メッセージ */
+        .confirm-lead {
+            font-size: 13px;
+            color: #666666;
+            margin-bottom: 25px;
+        }
+
+        /* テーブルのデザイン */
         .confirm-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin: 20px 0 30px 0;
+            border-top: 1px solid #e0e0e0;
         }
         .confirm-table th, .confirm-table td {
-            padding: 12px 8px;
+            padding: 12px 14px;
             border-bottom: 1px solid #eeeeee;
             text-align: left;
+            font-size: 14px;
         }
         .confirm-table th {
             width: 35%;
-            color: #555555;
+            color: #444444;
             font-weight: bold;
-            background-color: #fcfcfc;
+            background-color: #f8f9fa;
         }
+        .confirm-table td {
+            color: #333333;
+        }
+
+        /* 申込日時の行の背景色 */
+        .confirm-table tr.date-row th,
+        .confirm-table tr.date-row td {
+            background-color: #f0f7fc;
+        }
+
         .form-control-button {
             width: 110px;
             padding: 10px 15px;
@@ -70,11 +103,17 @@
 </head>
 <body>
 <div class="content">
-    <h1>ローン申込確認画面</h1>
+    <h1>ローン申込内容の確認</h1>
+    <p class="confirm-lead">入力内容をご確認のうえ、「申込」ボタンを押してください。</p>
+
     <form action="#" th:action="@{/bankLoanCompletion}" th:object="${bankLoanApplication}" method="post">
 
-        <!-- 表示項目（3桁カンマ区切り対応） -->
+        <!-- 表示項目 -->
         <table class="confirm-table">
+            <tr class="date-row">
+                <th>申込日時</th>
+                <td><span th:text="${applicationDate}">2026/08/25 10:00:00</span></td>
+            </tr>
             <tr>
                 <th>金融機関名</th>
                 <td><span th:text="*{bankName}"></span></td>
@@ -84,8 +123,8 @@
                 <td><span th:text="*{branchName}"></span></td>
             </tr>
             <tr>
-                <th>科目名</th>
-                <td><span th:text="*{accountType}"></span></td>
+                <th>預金種別</th>
+                <td><span th:text="*{depositType}"></span></td>
             </tr>
             <tr>
                 <th>口座番号</th>
@@ -94,6 +133,10 @@
             <tr>
                 <th>債務者名</th>
                 <td><span th:text="*{debtorName}"></span></td>
+            </tr>
+            <tr>
+                <th>ローン種類</th>
+                <td><span th:text="*{accountType}"></span></td>
             </tr>
             <tr>
                 <th>借入金額</th>
@@ -112,9 +155,10 @@
         <!-- 次の画面へ引き継ぐhiddenデータ -->
         <input type="hidden" th:field="*{bankName}"/>
         <input type="hidden" th:field="*{branchName}"/>
-        <input type="hidden" th:field="*{accountType}"/>
+        <input type="hidden" th:field="*{depositType}"/>
         <input type="hidden" th:field="*{bankAccountNum}"/>
         <input type="hidden" th:field="*{debtorName}"/>
+        <input type="hidden" th:field="*{accountType}"/>
         <input type="hidden" th:field="*{borrowingAmount}"/>
         <input type="hidden" th:field="*{annualIncome}"/>
         <input type="hidden" th:field="*{interestRate}"/>
@@ -123,6 +167,7 @@
         <p style="text-align: center;">
             <input type="submit" id="submit" value="申込" class="form-control-button form-confirmation-button"/>
             <input type="button" value="キャンセル" class="form-control-button form-clear-button" onclick="window.location='/bankLoan';"/>
+
         </p>
     </form>
 </div>

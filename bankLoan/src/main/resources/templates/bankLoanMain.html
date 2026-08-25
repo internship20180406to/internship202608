@@ -27,7 +27,6 @@
             min-height: 50vh;
             overflow: auto;
         }
-        /* ★ 見出しのデザイン */
         h1 {
             font-size: 22px;
             color: #333333;
@@ -38,7 +37,6 @@
             border-left: 6px solid #2185D0;
             padding-left: 10px;
         }
-        /* ★ グループ分け（fieldset）のスタイル */
         fieldset {
             border: 1px solid #e0e0e0;
             border-radius: 8px;
@@ -127,6 +125,18 @@
                 <input type="text" th:field="*{branchName}" class="form-control" placeholder="福岡支店"/>
             </div>
 
+            <!-- ★ 追加: 口座の科目（預金種別） -->
+            <div class="form-group">
+                <label>預金種別 <small class="text-danger">※</small></label>
+                <select th:field="*{depositType}" class="form-control">
+                    <option value="">-- 選択してください --</option>
+                    <option th:each="option : ${depositTypeOptions}"
+                            th:value="${option}"
+                            th:text="${option}">選択肢
+                    </option>
+                </select>
+            </div>
+
             <!-- 口座番号 -->
             <div class="form-group">
                 <label>口座番号 <small class="text-danger">※</small></label>
@@ -144,7 +154,7 @@
         <fieldset>
             <legend>ローン条件</legend>
 
-            <!-- ★ ローン種類（科目名から移動・名称変更） -->
+            <!-- ローン種類 -->
             <div class="form-group">
                 <label>ローン種類 <small class="text-danger">※</small></label>
                 <select th:field="*{accountType}" class="form-control">

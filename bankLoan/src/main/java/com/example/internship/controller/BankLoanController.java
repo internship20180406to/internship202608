@@ -1,5 +1,7 @@
 package com.example.internship.controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.example.internship.entity.BankLoanForm;
@@ -35,6 +37,14 @@ public class BankLoanController {
         // ★ 2. Modelへ登録
         model.addAttribute("accountTypeOptions", accountTypeOptions);
 
+        // ★ 預金種別（口座の科目）の選択肢を設定
+        List<String> depositTypeOptions = List.of(
+                "普通預金",
+                "当座預金",
+                "貯蓄預金"
+        );
+        model.addAttribute("depositTypeOptions", depositTypeOptions);
+
         // ★ 3. return は最後に書く
         return "bankLoanMain";
     }
@@ -47,6 +57,10 @@ public class BankLoanController {
             bankLoanForm.setDebtorName("ながれぼし銀行");
         }
 
+        // ★ 確認画面表示時の日時を自動生成してModelに登録
+        String applicationDate = getNowDateTime();
+        model.addAttribute("applicationDate", applicationDate);
+
         model.addAttribute("bankLoanApplication", bankLoanForm);
         return "bankLoanConfirmation";
     }
@@ -54,7 +68,18 @@ public class BankLoanController {
     // 3. 申込完了処理
     @PostMapping("/bankLoanCompletion")
     public String completion(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
+        // ★ 申込確定時の日時を自動生成してModelに登録
+        String applicationDate = getNowDateTime();
+        model.addAttribute("applicationDate", applicationDate);
+
         applyBankLoanService.applyBankLoan(bankLoanForm);
         return "bankLoanCompletion";
+    }
+
+    // ★ 現在日時を「yyyy/MM/dd HH:mm:ss」形式で取得する共通メソッド
+    private String getNowDateTime() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        return now.format(formatter);
     }
 }
