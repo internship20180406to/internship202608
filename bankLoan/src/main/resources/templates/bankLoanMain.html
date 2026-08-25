@@ -143,7 +143,7 @@
             <span id="loanLimit"></span>
         </p>
 
-        <p><label class="ml-1">借入金額（万円）: <small class="text-danger ml-1">※</small></label><br>
+        <p><label class="ml-1">希望借入金額（万円）: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
                    th:field="*{loanAmount}"
                    inputmode="numeric"
@@ -256,16 +256,20 @@
     const annualIncome = document.getElementById('annualIncome');
     const loanLimit = document.getElementById('loanLimit');
 
-    annualIncome.addEventListener('input', function () {
-        const income = Number(this.value);
+    function updateLoanLimit() {
+        const income = Number(annualIncome.value);
 
-        if (this.value === '') {
-            loanLimit.textContent = '';
+        if (this.value === '' || Number.isNaN(income)) {
+            loanLimit.textContent = '借入限度額：0万円';
             return;
         }
 
-        const limit = Math.floor(income * 0.5);
+        const limit = Math.floor((income * 0.5) / 10) * 10;
 
         loanLimit.textContent = '借入限度額：' + limit + '万円';
-    });
+    }
+
+    annualIncome.addEventListener('input', updateLoanLimit);
+
+    updateLoanLimit();
 </script>

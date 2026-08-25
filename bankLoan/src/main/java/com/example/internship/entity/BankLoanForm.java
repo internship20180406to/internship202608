@@ -10,6 +10,7 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.AssertTrue;
 
 @Data
 @AllArgsConstructor
@@ -27,13 +28,26 @@ public class BankLoanForm {
     @NotBlank(message = "債務者名を入力してください")
     private String name;
     @NotNull(message = "借入金額を入力してください")
-    @Min(value = 10, message = "借入金額は10万円以上で入力してください")
+    @Min(value = 1, message = "借入金額は1万円以上で入力してください")
     @Max(value = 1000, message = "借入金額が上限を超えています")
     private Integer loanAmount;
     @NotNull(message = "年収を入力してください")
     @Min(value = 1, message = "年収は1万円以上で入力してください")
     @Max(value = 100000, message = "年収が上限を超えています")
     private Integer annualIncome;
+
+    @AssertTrue(message = "借入限度額は年収の50％(10万単位)が上限になります")
+    public boolean isLoanAmountWithinLimit() {
+
+        if (loanAmount == null || annualIncome == null) {
+            return true;
+        }
+
+        int limit = (int) Math.floor((annualIncome * 0.5) / 10) * 10;
+
+        return loanAmount <= limit;
+    }
+
     @NotNull(message = "金利を入力してください")
     @DecimalMin("0.95")
     @DecimalMax("14.5")
