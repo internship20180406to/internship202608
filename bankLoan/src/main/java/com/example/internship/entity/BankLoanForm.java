@@ -3,11 +3,11 @@ package com.example.internship.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.Pattern;
 
 @Data
 @AllArgsConstructor
@@ -19,8 +19,9 @@ public class BankLoanForm {
     private String branchName;
     @NotBlank(message = "科目を選択してください")
     private String bankAccountType;
-    @NotNull(message = "口座番号を入力してください")
-    private Integer bankAccountNum;
+    @NotBlank(message = "口座番号を入力してください")
+    @Pattern(regexp = "[0-9]{7}", message = "口座番号は7桁の数字で入力してください")
+    private String bankAccountNum;
     @NotBlank(message = "債務者名を入力してください")
     private String name;
     @NotNull(message = "借入金額を入力してください")
@@ -57,11 +58,11 @@ public class BankLoanForm {
         this.bankAccountType = bankAccountType;
     }
 
-    public Integer getBankAccountNum() {
+    public String getBankAccountNum() {
         return bankAccountNum;
     }
 
-    public void setBankAccountNum(Integer bankAccountNum) {
+    public void setBankAccountNum(String bankAccountNum) {
         this.bankAccountNum = bankAccountNum;
     }
 

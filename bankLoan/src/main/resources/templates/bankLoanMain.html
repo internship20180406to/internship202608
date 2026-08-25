@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <title>ローン申込情報入力画面</title>
@@ -117,7 +117,12 @@
         </p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/>
+            <input type="text"
+                   th:field="*{bankAccountNum}"
+                   maxlength="7"
+                   inputmode="numeric"
+                   class="form-control"
+                   placeholder="1234567"/>
             <span class="text-danger"
                   th:if="${#fields.hasErrors('bankAccountNum')}"
                   th:errors="*{bankAccountNum}">
