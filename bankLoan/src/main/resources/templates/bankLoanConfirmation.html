@@ -3,8 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>ローン申込確認画面</title>
+    <style>
+        .step-progress {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 25px;
+        }
+
+        .progress-step {
+            padding: 10px 5px;
+            text-align: center;
+            background-color: #e0e1e2;
+            color: #555555;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .progress-step.active {
+            background-color: #2185D0;
+            color: white;
+            font-weight: bold;
+        }
+
+        .progress-step.completed {
+            background-color: #b8d9f2;
+            color: #174d73;
+        }
+    </style>
 </head>
 <body>
+<div class="step-progress">
+    <div class="progress-step completed">1. 基本情報</div>
+    <div class="progress-step completed">2. 借入条件</div>
+    <div class="progress-step active" aria-current="step">3. 内容確認</div>
+    <div class="progress-step">4. 申込完了</div>
+</div>
 <h1>ローン申込確認画面</h1>
 <form action="#" th:action="@{/bankLoanCompletion}" th:object="${bankLoanApplication}" method="post">
     <p>お名前: <span th:text="*{debtorLastName}"></span>
