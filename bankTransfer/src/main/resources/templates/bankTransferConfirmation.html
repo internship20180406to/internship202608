@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>銀行振込確認画面</title>
+    <link rel="stylesheet" href="/css/stepper.css"/>
     <style>
         body {
             background-color: #f0f0f0;
@@ -49,6 +50,7 @@
 </head>
 <body>
 <div class="content">
+    <div th:replace="~{fragments/stepper :: stepper(2)}"></div>
     <h1>銀行振込確認画面</h1>
     <form action="#" th:action="@{/bankTransferCompletion}" th:object="${bankTransferApplication}" method="post">
 

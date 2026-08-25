@@ -1,0 +1,63 @@
+/* 入力→確認→完了の進捗表示 */
+.stepper {
+    display: flex;
+    list-style: none;
+    margin: 0 0 24px 0;
+    padding: 0;
+}
+
+.stepper-item {
+    flex: 1;
+    position: relative;
+    text-align: center;
+    color: #9AA0A6;
+}
+
+/* ステップどうしをつなぐ線。先頭以外の左側に引き、前のステップの中心まで伸ばす */
+.stepper-item + .stepper-item::before {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: -50%;
+    width: 100%;
+    height: 2px;
+    background-color: #E0E1E2;
+}
+
+/* 番号を入れる丸。display:flexにしてmargin:autoで中央寄せすると、
+   行の高さに影響されず上端が揃うのでつなぎ線とずれない */
+.stepper-circle {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background-color: #E0E1E2;
+    color: #7A7A7A;
+    font-weight: bold;
+}
+
+.stepper-label {
+    display: block;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+/* ここまで進んだことを表す色。文字・丸・手前のつなぎ線に付く */
+.stepper-item.is-active {
+    color: #2185D0;
+}
+
+.stepper-item.is-active .stepper-circle {
+    background-color: #2185D0;
+    color: #FFFFFF;
+}
+
+/* 上のつなぎ線の指定と詳細度が同じなので、必ずこちらを後ろに書く */
+.stepper-item.is-active::before {
+    background-color: #2185D0;
+}

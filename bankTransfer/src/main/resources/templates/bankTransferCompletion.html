@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <title>振込完了画面</title>
+    <link rel="stylesheet" href="/css/stepper.css"/>
     <style>
         body {
             background-color: #f0f0f0;
@@ -42,6 +43,7 @@
 </head>
 <body>
 <div class="content">
+    <div th:replace="~{fragments/stepper :: stepper(3)}"></div>
     <h1>振込完了</h1>
     <p>以下の内容で振込を受け付けました。</p>
 
