@@ -1,23 +1,89 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>投資信託注文確認画面</title>
+    <title>投資信託注文情報確認画面</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            justify-content: center;
+            align-items: center;
+            min-height: 85vh;
+            overflow: auto;
+        }
+        .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-height: 50vh;
+            overflow: auto;
+            min-width: 400px;
+        }
+        .form-control-button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .form-confirmation-button {
+            color: white;
+            background-color: #2185D0;
+        }
+        .form-confirmation-button:hover {
+            background-color: #1678c2;
+        }
+        .form-clear-button {
+            color: black;
+            background-color: #E0E1E2;
+        }
+        .form-clear-button:hover {
+            background-color: #CCCCCC;
+        }
+    </style>
 </head>
 <body>
-<h1>投資信託注文確認画面</h1>
-<form action="#" th:action="@{/investmentTrustCompletion}" th:object="${investmentTrustApplication}" method="post">
-    <p>金融機関名: <span th:text="*{bankName}"></span></p>
-    <p>支店名:<span th:text="*{branchName}"></span></p>
-    <p>科目名:<span th:text="*{subjectName}"></span></p>
-    <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
-    <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
-    <input type="hidden" name="bankName" th:value="*{bankName}"/>
-    <p>
-        <input type="submit" id="submit" value="申込"/>
-        <input type="button" value="キャンセル" onclick="window.location='/investmentTrust';"/>
-    </p>
-</form>
-<script th:inline="javascript" src="/js/investmentTrustConfirmation.js"></script>
+<div class="content">
+    <h1>最終確認</h1>
+
+    <form th:action="@{/investmentTrustCompletion}" th:object="${investmentTrustApplication}" method="post">
+
+        <input type="hidden" th:field="*{bankCode}" />
+        <input type="hidden" th:field="*{branchName}" />
+        <input type="hidden" th:field="*{accountType}" />
+        <input type="hidden" th:field="*{bankAccountNum}" />
+        <input type="hidden" th:field="*{lastName}" />
+        <input type="hidden" th:field="*{firstName}" />
+        <input type="hidden" th:field="*{fundCode}" />
+        <input type="hidden" th:field="*{amount}" />
+        <input type="hidden" th:field="*{purchaseAmount}" />
+
+        <p>金融機関名:<span th:text="${bankName}"></span> （コード: <span th:text="*{bankCode}"></span>）</p>
+
+        <p>支店名: <span th:text="*{branchName}"></span></p>
+        <p>科目名: <span th:text="*{accountType}"></span></p>
+        <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
+        <p>購入者名: <span th:text="*{lastName} + ' ' + *{firstName}"></span></p>
+        <p>銘柄選択: <span th:text="*{fundCode}"></span></p>
+
+        <div th:if="*{amount != null && amount != ''}">
+            <p>購入金額（自由入力）: <span th:text="*{amount}"></span> 円</p>
+        </div>
+        <div th:if="*{purchaseAmount != null && purchaseAmount != ''}">
+            <p>購入金額（選択肢）: <span th:text="*{purchaseAmount}"></span> 円</p>
+        </div>
+
+        <p style="text-align: center;">
+            <input type="submit" value="注文を確定する" onclick="'http://localhost:63342/internship202608/internship%20(3)%20(com.example)/templates/investmentTrustCompletion.html?_ijt=t9mc6mklfpc5hue6pegsg50tlb&_ij_reload=RELOAD_ON_SAVE';" />
+            <input type="button" value="戻る" onclick="window.location='http://localhost:63342/internship202608/internship%20(3)%20(com.example)/templates/investmentTrustMain.html?_ijt=te73c6pl3upngaupovppsrqitt&_ij_reload=RELOAD_ON_SAVE';" />
+        </p>
+    </form>
+</div>
 </body>
 </html>

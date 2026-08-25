@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-
 @Controller
 public class InvestmentTrustController {
 
@@ -24,18 +23,17 @@ public class InvestmentTrustController {
     }
 
     @PostMapping("/investmentTrustConfirmation")
-    public String confirmation(@ModelAttribute InvestmentTrustForm investmentTrustForm, Model model) {
-        investmentTrustForm.setBankName("ながれぼし銀行");
-        model.addAttribute("bankName", investmentTrustForm.getBankCode());
+    public String confirmation(@ModelAttribute("investmentTrustApplication") InvestmentTrustForm investmentTrustForm, Model model) {
+
         model.addAttribute("bankAccountNum", investmentTrustForm.getBankAccountNum());
         model.addAttribute("investmentTrustApplication", investmentTrustForm);
+
         return "investmentTrustConfirmation";
     }
 
     @PostMapping("/investmentTrustCompletion")
-    public String completion(@ModelAttribute InvestmentTrustForm investmentTrustForm, Model model) {
+    public String completion(@ModelAttribute("investmentTrustApplication") InvestmentTrustForm investmentTrustForm, Model model) {
         orderInvestmentTrustService.orderInvestmentTrust(investmentTrustForm);
         return "investmentTrustCompletion";
     }
-
 }

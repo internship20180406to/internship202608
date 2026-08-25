@@ -12,7 +12,7 @@ public class InvestmentTrustForm {
     @NonNull
     private Integer bankCode;
     @NonNull
-    private Integer branchCode;
+    private Integer branchName;
 
     private String accountType;
 
@@ -36,9 +36,9 @@ public class InvestmentTrustForm {
         this.bankCode = bankCode;
     }
 
-    public Integer getBranchCode() {return branchCode;}
+    public Integer getBranchName() {return branchName;}
 
-    public void setBranchCode(Integer Code) {this.branchCode = branchCode;}
+    public void setBranchName(Integer Name) {this.branchName = branchName;}
 
     public String getAccountType() {
         return accountType;
