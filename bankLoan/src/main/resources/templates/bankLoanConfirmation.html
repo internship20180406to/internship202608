@@ -106,6 +106,7 @@
     <h1>ローン申込内容の確認</h1>
     <p class="confirm-lead">入力内容をご確認のうえ、「申込」ボタンを押してください。</p>
 
+    <!-- ★ onsubmit を削除して元に戻す（重複防止） -->
     <form action="#" th:action="@{/bankLoanCompletion}" th:object="${bankLoanApplication}" method="post">
 
         <!-- 表示項目 -->
@@ -167,7 +168,6 @@
         <p style="text-align: center;">
             <input type="submit" id="submit" value="申込" class="form-control-button form-confirmation-button"/>
             <input type="button" value="キャンセル" class="form-control-button form-clear-button" onclick="window.location='/bankLoan';"/>
-
         </p>
     </form>
 </div>
