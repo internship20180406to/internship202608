@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 
 @Data
 @AllArgsConstructor
@@ -25,9 +27,13 @@ public class BankLoanForm {
     @NotBlank(message = "債務者名を入力してください")
     private String name;
     @NotNull(message = "借入金額を入力してください")
-    private Integer loanAmount;
+    @Min(value = 1, message = "借入金額は1万円以上で入力してください")
+    @Max(value = 100000000, message = "借入金額が上限を超えています")
+    private Long loanAmount;
     @NotNull(message = "年収を入力してください")
-    private Integer annualIncome;
+    @Min(value = 1, message = "年収は1万円以上で入力してください")
+    @Max(value = 1000000000, message = "年収が上限を超えています")
+    private Long annualIncome;
     @NotNull(message = "金利を入力してください")
     @DecimalMin("0.0")
     @DecimalMax("20.0")
@@ -74,19 +80,19 @@ public class BankLoanForm {
         this.name = name;
     }
 
-    public Integer getLoanAmount() {
+    public Long getLoanAmount() {
         return loanAmount;
     }
 
-    public void setLoanAmount(Integer loanAmount) {
+    public void setLoanAmount(Long loanAmount) {
         this.loanAmount = loanAmount;
     }
 
-    public Integer getAnnualIncome() {
+    public Long getAnnualIncome() {
         return annualIncome;
     }
 
-    public void setAnnualIncome(Integer annualIncome) {
+    public void setAnnualIncome(Long annualIncome) {
         this.annualIncome = annualIncome;
     }
 

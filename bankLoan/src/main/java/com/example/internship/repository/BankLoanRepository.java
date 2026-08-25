@@ -21,8 +21,8 @@ public class BankLoanRepository {
                 bankLoanForm.getBankAccountType(),
                 bankLoanForm.getBankAccountNum(),
                 bankLoanForm.getName(),
-                bankLoanForm.getLoanAmount(),
-                bankLoanForm.getAnnualIncome(),
+                bankLoanForm.getLoanAmount() * 10000,
+                bankLoanForm.getAnnualIncome() *10000,
                 bankLoanForm.getInterestRate());
     }
 

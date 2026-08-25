@@ -129,23 +129,29 @@
             </span>
         </p>
 
-        <p><label class="ml-1">借入金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{loanAmount}" class="form-control" placeholder="100000"/>
+        <p><label class="ml-1">借入金額（万円）: <small class="text-danger ml-1">※</small></label><br>
+            <input type="number"
+                   th:field="*{loanAmount}"
+                   class="form-control"
+                   placeholder="100"/>
             <span class="text-danger"
                   th:if="${#fields.hasErrors('loanAmount')}"
                   th:errors="*{loanAmount}">
             </span>
         </p>
 
-        <p><label class="ml-1">借入年収: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{annualIncome}" class="form-control" placeholder="100000"/>
+        <p><label class="ml-1">借入年収（万円）: <small class="text-danger ml-1">※</small></label><br>
+            <input type="number"
+                   th:field="*{annualIncome}"
+                   class="form-control"
+                   placeholder="1000"/>
             <span class="text-danger"
                   th:if="${#fields.hasErrors('annualIncome')}"
                   th:errors="*{annualIncome}">
             </span>
         </p>
 
-        <p><label class="ml-1">金利: <small class="text-danger ml-1">※</small></label><br>
+        <p><label class="ml-1">金利（％）: <small class="text-danger ml-1">※</small></label><br>
             <input type="number"
                th:field="*{interestRate}"
                min="0"

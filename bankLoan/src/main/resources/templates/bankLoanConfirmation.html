@@ -12,8 +12,8 @@
     <p>科目名: <span th:text="*{bankAccountType}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
     <p>債務者名: <span th:text="*{name}"></span></p>
-    <p>借入金額: <span th:text="*{loanAmount}"></span></p>
-    <p>年収: <span th:text="*{annualIncome}"></span></p>
+    <p>借入金額: <span th:text="*{loanAmount}"></span>万円</p>
+    <p>借入年収: <span th:text="*{annualIncome}"></span>万円</p>
     <p>金利: <span th:text="*{interestRate}"></span>％</p>
 
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
