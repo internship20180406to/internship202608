@@ -35,7 +35,7 @@
         color: red;
         }
         .form-control-button {
-        width: 80px;
+        width: 300px;
         padding: 10px 20px;
         margin-top: 10px;
         border: none;
@@ -43,7 +43,7 @@
         border-radius: 5px;
         }
         .form-confirmation-button{
-        color: white;
+        color: black;
         background-color: #2185D0;
         }
         .form-confirmation-button:hover {
@@ -66,49 +66,278 @@
         <p th:text="${error}"></p>
     </div>
     <form action="#" th:action="@{/investmentTrustConfirmation}" th:object="${investmentTrustApplication}" method="post">
-        <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
+        <div id="step1">
+            <p>
+                <label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}" class="form-control">
                 <option th:each="option : ${bankNameOptions}"
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
-            </select></p>
-        <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
+            </select>
+            </p>
+            <input type="button"
+                   value="次へ"
+                   class="form-control-button"
+                   onclick="nextStep(1)">
+        </div>
+
+        <div id="step2" style="display: none;">
+            <p>
+                <label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{branchName}" class="form-control">
                 <option th:each="option : ${branchNameOptions}"
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
             </select>
-        <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
+            </p>
+                <input type="button"
+                       value="戻る"
+                       class="form-control-button"
+                       onclick="prevStep(2)">
+
+                <input type="button"
+                       value="次へ"
+                       class="form-control-button"
+                       onclick="nextStep(2)">
+        </div>
+
+        <div id="step3" style="display: none;">
+            <p>
+                <label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankAccountTypeName}" class="form-control">
                 <option th:each="option : ${bankAccountTypeOptions}"
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
-            </select></p>
-        <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
-        <p><label class="ml-1">購入者名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="購入者名を入力してください"/></p>
-            </select></p>
-        <p><label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
+            </select>
+            </p>
+                <input type="button"
+                       value="戻る"
+                       class="form-control-button"
+                       onclick="prevStep(3)">
+
+                <input type="button"
+                       value="次へ"
+                       class="form-control-button"
+                       onclick="nextStep(3)">
+        </div>
+
+        <div id="step4" style="display: none;">
+            <p>
+                <label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
+            <input type="text"
+                   id = "bankAccountNum"
+                   th:field="*{bankAccountNum}"
+                   class="form-control"
+                   placeholder="1234567"
+                   inputmode="numeric"
+                   maxlength="7">
+
+                <span id="bankAccountNumError"
+                      class="text-danger"
+                      style="display: none;">
+                </span>
+            </p>
+            <input type="button"
+                   value="戻る"
+                   class="form-control-button"
+                   onclick="prevStep(4)">
+
+            <input type="button"
+                   value="次へ"
+                   class="form-control-button"
+                   onclick="validateBankAccountNum()">
+        </div>
+
+        <div id="step5" style="display: none;">
+            <p>
+                <label class="ml-1">購入者名: <small class="text-danger ml-1">※</small></label><br>
+            <input type="text"
+                   id = "name"
+                   th:field="*{name}"
+                   class="form-control"
+                   placeholder="購入者名を入力してください"/>
+
+                <span id="nameError"
+                      class="text-danger"
+                      style="display: none;">
+                </span>
+            </p>
+            <input type="button"
+                   value="戻る"
+                   class="form-control-button"
+                   onclick="prevStep(5)">
+
+            <input type="button"
+                   value="次へ"
+                   class="form-control-button"
+                   onclick="validateName()">
+            </p>
+        </div>
+
+        <div id="step6" style="display: none;">
+            <p>
+                <label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{fundName}" class="form-control">
-                <option value="">選択してください</option>
+                <!--<option value="">選択してください</option>-->
                 <option th:each="option : ${fundNameOptions}"
                         th:value="${option}"
                         th:text="${option}">選択肢
                 </option>
-            </select></p>
-        <p><label class="ml-1">購入金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{money}" class="form-control" placeholder="1234567"/></p>
-        <!--<p><label class="ml-1">取引パスワード: <small class="text-danger ml-1">※</small></label><br>
-            <input type="password" th:field="*{transactionPassword}" class="form-control" placeholder="取引パスワードを入力してください"/></p>-->
-        <p style="text-align: center;"><input type="submit" value="確認"
-                                              class="form-control-button form-confirmation-button"/>
-            <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
-    </form>
-</div>
+            </select>
+            </p>
+                <input type="button"
+                       value="戻る"
+                       class="form-control-button"
+                       onclick="prevStep(6)">
+
+                <input type="button"
+                       value="次へ"
+                       class="form-control-button"
+                       onclick="nextStep(6)">
+        </div>
+
+        <div id="step7" style="display: none;">
+            <p>
+                <label class="ml-1">
+                    購入金額:
+                    <small class="text-danger ml-1">※</small>
+                </label>
+                <br>
+
+                <input type="number"
+                       id="money"
+                       th:field="*{money}"
+                       class="form-control"
+                       placeholder="1234567">
+
+                <span id="moneyError"
+                      class="text-danger"
+                      style="display: none;">
+                </span>
+            </p>
+
+            <p style="text-align: center;">
+
+                <input type="button"
+                       value="戻る"
+                       class="form-control-button form-clear-button"
+                       onclick="prevStep(7)">
+
+                <input type="button"
+                       value="確認"
+                       class="form-control-button form-confirmation-button"
+                       onclick="validateMoney()">
+
+            </p>
+        </div>
+
+<script>
+
+    function nextStep(currentStep) {
+
+        document.getElementById("step" + currentStep).style.display = "none";
+
+        document.getElementById("step" + (currentStep + 1)).style.display = "block";
+    }
+
+
+    function prevStep(currentStep) {
+
+        document.getElementById("step" + currentStep).style.display = "none";
+
+        document.getElementById("step" + (currentStep - 1)).style.display = "block";
+    }
+
+    function validateBankAccountNum() {
+
+        const bankAccountNum =
+            document.getElementById("bankAccountNum").value;
+
+        const error =
+            document.getElementById("bankAccountNumError");
+
+        error.style.display = "none";
+        error.textContent = "";
+
+        if (bankAccountNum === "") {
+
+            error.textContent = "口座番号が入力されていません。";
+            error.style.display = "block";
+
+            return;
+        }
+
+        if (!/^\d{7}$/.test(bankAccountNum)) {
+
+            error.textContent = "口座番号は7桁で入力してください。";
+            error.style.display = "block";
+
+            return;
+        }
+        nextStep(4);
+    }
+
+    function validateName() {
+
+        const name =
+            document.getElementById("name").value;
+
+        const error =
+            document.getElementById("nameError");
+
+
+        // エラーメッセージを一旦消す
+        error.style.display = "none";
+        error.textContent = "";
+
+
+        // 未入力チェック
+        if (name.trim() === "") {
+
+            error.textContent = "購入者名が入力されていません。";
+            error.style.display = "block";
+
+            return;
+        }
+
+
+        // 入力されている場合だけ次へ
+        nextStep(5);
+    }
+    function validateMoney() {
+
+        const money =
+            document.getElementById("money").value;
+
+        const error =
+            document.getElementById("moneyError");
+
+
+        // エラーメッセージを一旦消す
+        error.style.display = "none";
+        error.textContent = "";
+
+
+        // 未入力チェック
+        if (money === "") {
+
+            error.textContent = "購入金額が入力されていません。";
+            error.style.display = "block";
+
+            return;
+        }
+
+
+        // 入力されている場合
+        // 確認画面へ送信
+        document.querySelector("form").submit();
+    }
+
+</script>
+
 </body>
 
 </html>
