@@ -4,59 +4,199 @@
     <meta charset="UTF-8"/>
     <title>投資信託注文情報入力画面</title>
     <style>
-        body {
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        padding-top: 40px;
-        padding-bottom: 40px;
-        justify-content: center;
-        align-items: center;
-        min-height: 85vh;
-        overflow: auto;
-        }
-        .content {
-         background-color: #ffffff;
-         width: 80%;
-         padding: 20px;
-         border-radius: 10px;
-         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-         min-height: 50vh;
-         overflow: auto;
-        }
-        .form-control {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
+        * {
             box-sizing: border-box;
         }
-        .text-danger {
-        color: red;
-        }
-        .form-control-button {
-        width: 80px;
-        padding: 10px 20px;
-        margin-top: 10px;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-        }
-        .form-confirmation-button{
-        color: white;
-        background-color: #2185D0;
-        }
-        .form-confirmation-button:hover {
-        background-color: #1678c2;
-        }
-        .form-clear-button{
-        color: black;
-        background-color: #E0E1E2;
-        }
-        .form-clear-button:hover {
-        background-color: #CCCCCC;
+        /*全体*/
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f8fc;
+            font-family:
+                    /*フォント（）文字の書式設定・*/
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    "Noto Sans JP",
+                    sans-serif;
+            color: #333;
         }
 
+
+
+        .header-title {
+            max-width: 900px;
+            margin: 0 auto;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* メイン */
+        .content {
+            width: 90%;
+            max-width: 850px;
+            margin: 35px auto 50px;
+        }
+
+        /* ページタイトル */
+        h1 {
+            text-align: center;
+            color: #005bac;
+            font-size: 28px;
+            margin: 0 0 30px;
+            font-weight: 600;
+        }
+
+        /* セクション */
+        .form-section {
+            background-color: white;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            padding: 0 35px 30px;
+            box-shadow: 0 3px 12px rgba(0, 60, 120, 0.08);
+            border: 1px solid #e1eaf2;
+        }
+
+        /* セクションタイトル */
+        .section-title {
+            margin: 0 -35px 25px;
+            padding: 15px 25px;
+
+            color: white;
+            background-color: #005bac;
+            /*角マルク↓*/
+            border-radius: 12px 12px 0 0;
+
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        /* 入力項目 */
+
+
+        /* ラベル口座番号とか */
+        label {
+            display: block;
+
+
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* 必須マーク */
+        .text-danger {
+            color: #d60000;
+            font-size: 11px;
+            margin-left: 6px;
+            font-weight: normal;
+        }
+
+        /* 入力欄 */
+        .form-control {
+            width: 100%;
+            height: 44px;
+
+            padding: 10px 14px;
+
+            border: 1px solid #c7d5e2;
+            border-radius: 7px;
+
+            background-color: #fff;
+
+            font-size: 14px;
+            color: #333;
+
+            outline: none;
+
+            transition: all 0.2s ease;
+        }
+
+        /* フォーカス */
+        .form-control:focus {
+            border-color: #0072c6;
+
+            box-shadow:
+                    0 0 0 2px rgba(0, 114, 198, 0.15);
+        }
+
+        /* select 押したところを指さしで視覚的にわかりやすく*/
+        select.form-control {
+            cursor: pointer;
+        }
+
+        /* ボタンエリア */
+        .button-area {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        /* ボタン共通　 */
+        .form-control-button {
+            min-width: 140px;
+            height: 45px;
+            padding: 10px 25px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        /* 確認ボタン */
+        .form-confirmation-button {
+            color: white;
+            background-color: #0072c6;
+            /*ボタンに影をつけて浮いているように*/
+            box-shadow:
+                    0 3px 6px rgba(0, 114, 198, 0.25);
+        }
+        /*まうすをカーソルの上に乗せたときに見た目を変更する*/
+        .form-confirmation-button:hover {
+            background-color: #005bac;
+            transform: translateY(-1px);
+        }
+        /* クリア */
+        .form-clear-button {
+            color: #555;
+            background-color: #e7edf3;
+        }
+        .form-clear-button:hover {
+            background-color: #d8e1e9;
+        }
+        /* スマホ６００いかはここをしよう */
+  /*      @media (max-width: 600px) {    いったんいらない
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .content {
+                width: 95%;
+                margin-top: 25px;
+            }
+
+            .form-section {
+                padding: 0 20px 25px;
+            }
+
+            .section-title {
+                margin-left: -20px;
+                margin-right: -20px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+
+            .form-control-button {
+                width: 90%;
+                margin: 5px auto;
+            }
+        }*/
     </style>
 </head>
 <body>
@@ -64,11 +204,12 @@
     <h1>投資信託注文情報入力</h1>
     <form action="#" th:action="@{/investmentTrustConfirmation}" th:object="${investmentTrustApplication}" method="post">
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}" class="form-control">
-                <option th:each="option : ${nameOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
+            <select th:field="*{bankName}" class="form-control"required>
+                <option value="">選択してください</option>
+                <option value="海銀行">海銀行</option>
+                <option value="山陰共同銀行">山陰共同銀行</option>
+                <option value="流れ星銀行">流れ星銀行</option>
+                <option value="ハレルヤ銀行">ハレルヤ銀行</option>
             </select></p>
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" required></p>
@@ -104,16 +245,19 @@
             <label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
             <select id="investmentTrustName" th:field="*{investmentTrustName}" class="form-control" required>
             <option value="">選択してください</option>
-            <option value=""></option>
-            <option value=""></option>
-            <option value=""></option>
-            <option value=""></option>
+            <option value="モビリティ・イノベーション・ファンド">モビリティ・イノベーション・ファンド</option>
+            <option value="HSBCインドオープン">HSBCインドオープン</option>
+            <option value="新興国連続増配成長株オープン">新興国連続増配成長株オープン</option>
+            <option value="日本高配当リバランスオープン">日本高配当リバランスオープン</option>
+            <option value="損保ジャパン・グリーン・オープン 愛称：ぶなの森">損保ジャパン・グリーン・オープン 愛称：ぶなの森</option>
+            <option value="みずほ好配当日本株オープン">みずほ好配当日本株オープン</option>
             </select>
         </p>
         <!-------購入金額-------->
         <p>
+<!--      １００００以上になると大丈夫ですか？っていう警告を入れたいーー-->
             <label class="ml-1">購入金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" id="purchaseAmount" th:field="*{purchaseAmount}" class="form-control" placeholder="10000" min="1" required>
+            <input type="number" id="purchaseAmount" th:field="*{purchaseAmount}" class="form-control" placeholder="100000000000000" min="1000" required>
         </p>
         <p style="text-align: center;"><input type="submit" value="確認"
                                               class="form-control-button form-confirmation-button"/>

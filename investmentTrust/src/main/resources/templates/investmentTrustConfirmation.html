@@ -3,6 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <title>投資信託注文確認画面</title>
+
+    <style>
+        /* 全体 */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+
+            background-color: #f4f8fc;
+
+            font-family:
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    "Noto Sans JP",
+                    sans-serif;
+
+            color: #333;
+        }
+
+        /* メイン */
+        form {
+            width: 90%;
+            max-width: 850px;
+
+            margin: 35px auto 50px;
+
+            background-color: white;
+
+            padding: 35px;
+
+            border-radius: 12px;
+
+            box-shadow:
+                    0 3px 12px rgba(0, 60, 120, 0.08);
+
+            border: 1px solid #e1eaf2;
+        }
+
+        /* タイトル */
+        h1 {
+            width: 90%;
+            max-width: 850px;
+
+            margin: 35px auto 30px;
+
+            text-align: center;
+
+            color: #005bac;
+
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        /* 確認項目 */
+        form > p {
+            margin: 0;
+
+            padding: 16px 5px;
+
+            border-bottom: 1px solid #e1eaf2;
+
+            font-size: 14px;
+        }
+
+        /* 入力された値 */
+        form > p span {
+            font-size: 16px;
+            font-weight: normal;
+
+            color: #333;
+        }
+
+        /* 購入金額だけ目立たせる */
+        form > p:last-of-type span {
+            color: #005bac;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* ボタン部分 */
+        form p:last-child {
+            text-align: center;
+
+            border-bottom: none;
+
+            margin-top: 30px;
+        }
+
+        /* ボタン共通 */
+        input[type="submit"],
+        input[type="button"] {
+            min-width: 140px;
+            height: 45px;
+
+            padding: 10px 25px;
+            margin: 5px;
+
+            border: none;
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 15px;
+            font-weight: bold;
+
+            transition: 0.2s;
+        }
+
+        /* 申込ボタン */
+        input[type="submit"] {
+            color: white;
+
+            background-color: #0072c6;
+
+            box-shadow:
+                    0 3px 6px rgba(0, 114, 198, 0.25);
+        }
+
+        /* 申込ボタン hover */
+        input[type="submit"]:hover {
+            background-color: #005bac;
+
+            transform: translateY(-1px);
+        }
+
+        /* キャンセルボタン */
+        input[type="button"] {
+            color: #555;
+
+            background-color: #e7edf3;
+        }
+
+        /* キャンセル hover */
+        input[type="button"]:hover {
+            background-color: #d8e1e9;
+        }
+    </style>
 </head>
 <body>
 <h1>投資信託注文確認画面</h1>
@@ -10,15 +151,19 @@
     <p>金融機関名: <span th:text="*{bankName}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
     <p>支店名： <span th:text="*{branch}"></span></p>
-    <p>科目名： <span th:text="*{bankSubject}"></span></p>
+    <p>科目名： <span id="bankSubject" th:text="*{bankSubject}"></span></p>
     <p>購入者名： <span th:text="*{purchaserName}"></span></p>
-    <p>銘柄： <span th:text="*{investmentTrustName}"></span></p>
-    <p>購入金額 <span th:text="*{purchaseAmount}"></span></p>
+    <p>銘柄： <span id="investmentTrustName" th:text="*{investmentTrustName}"></span></p>
+    <p>購入金額： <span id="purchaseAmount" th:text="*{purchaseAmount}"></span></p>
+<!--javaにおくる？、-->
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
-<!--    <input type="hidden" name="branch" th:value="*{branch}">-->
-<!--    <input type="hidden" name="bankSubject" th:value="*{bankSubject}">-->
-<!--    <input  type="hidden" name="purchaserName" th:value="*{purchaseerName}">-->
+<!-- 未定   -->
+    <input type="hidden" name="branch" th:value="*{branch}"/>
+    <input type="hidden" name="bankSubject" th:value="*{bankSubject}"/>
+    <input  type="hidden" name="purchaserName" th:value="*{purchaserName}"/>
+    <input  type="hidden" name="investmentTrustName" th:value="*{investmentTrustName}"/>
+    <input  type="hidden" name="purchaseAmount" th:value="*{purchaseAmount}"/>
 
 
     <p>
