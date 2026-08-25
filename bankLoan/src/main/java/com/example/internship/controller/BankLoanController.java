@@ -50,6 +50,32 @@ public class BankLoanController {
         );
         return "bankLoanMain";
     }
+    // 確認画面から送られてきた入力内容をbankloanMainへ戻す
+    @PostMapping("/bankLoanEdit")
+    public String editBasicInformation(
+            @ModelAttribute BankLoanForm bankLoanForm,
+            Model model) {
+
+        model.addAttribute("bankLoanApplication", bankLoanForm);
+        model.addAttribute("today", LocalDate.now());
+
+        model.addAttribute(
+                "nameOptions",
+                new String[]{"山陰共同銀行", "カウカウ銀行", "流れ星銀行"}
+        );
+
+        model.addAttribute(
+                "branchOptions",
+                new String[]{"本店営業部", "福岡支店", "博多支店"}
+        );
+
+        model.addAttribute(
+                "subjectOptions",
+                new String[]{"普通預金", "当座預金", "貯蓄預金"}
+        );
+
+        return "bankLoanMain";
+    }
 
     @PostMapping("/bankLoanDetails")
     public String details(

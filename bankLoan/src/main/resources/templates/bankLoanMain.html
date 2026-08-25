@@ -114,7 +114,7 @@
 
     <div class="step-progress">
         <div class="progress-step active" aria-current="step">1. 基本情報</div>
-        <div class="progress-step">2. 借入条件</div>
+        <div class="progress-step">2. 借入内容</div>
         <div class="progress-step">3. 内容確認</div>
         <div class="progress-step">4. 申込完了</div>
     </div>
@@ -123,6 +123,11 @@
 
     <form action="#" th:action="@{/bankLoanDetails}" th:object="${bankLoanApplication}" method="post"
           class="needs-validation">
+        <!-- 確認画面から戻ったときに借入条件を保持する -->
+        <input type="hidden" th:field="*{desiredLoanAmount}"/>
+        <input type="hidden" th:field="*{loanYears}"/>
+        <input type="hidden" th:field="*{interestType}"/>
+        <input type="hidden" th:field="*{interestRate}"/>
         <p><label class="ml-1">お名前: <small class="text-danger ml-1">※</small></label><br>
             <input type="text" th:field="*{debtorLastName}" class="form-control" placeholder="姓"
                    minlength="1" maxlength="20" pattern="[^0-9０-９]*[^0-9０-９\s][^0-9０-９]*"
