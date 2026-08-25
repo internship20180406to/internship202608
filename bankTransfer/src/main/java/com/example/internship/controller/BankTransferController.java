@@ -28,6 +28,10 @@ public class BankTransferController {
     // 入力内容を画面へ渡すときのキー
     private static final String FORM_NAME = "bankTransferApplication";
 
+    // 入力途中の内容をセッションへ預けるときのキー。
+    // 画面をまたいで持ち回るのはブラウザではなくサーバ側の役目にする
+    private static final String INPUT_SESSION_KEY = "bankTransferInput";
+
     @Autowired
     private ApplyBankTransferService applyBankTransferService;
 
@@ -67,6 +71,8 @@ public class BankTransferController {
         if (bindingResult.hasErrors()) {
             return "bankTransferMain";
         }
+        // 検証を通った入力内容はサーバ側で預かる。画面には持ち回らせない
+        session.setAttribute(INPUT_SESSION_KEY, bankTransferForm);
         // 一度きり有効なトークンを発行し、セッションと画面(hidden)の両方に持たせる
         String token = UUID.randomUUID().toString();
         session.setAttribute(TRANSFER_TOKEN, token);
@@ -75,26 +81,26 @@ public class BankTransferController {
     }
 
     // 申し込みの確定（DBへ登録し完了画面へ）
-    // 確認画面を経由せず直接POSTされた場合に備え、ここでも入力値を検証する
+    // 登録するのはセッションに預けた内容だけで、この画面から送られた値は使わない。
+    // 検証は確認画面へ進む時点で済んでいるため、ここで再検証する必要はない
     // リロードによる二重登録を防ぐため、登録後はリダイレクトする（PRGパターン）
     // ブラウザバックからの再送信は、トークンを使い捨てにすることで防ぐ
     @PostMapping("/bankTransferCompletion")
-    public String completion(@Valid @ModelAttribute(FORM_NAME) BankTransferForm bankTransferForm,
-                             BindingResult bindingResult,
-                             @RequestParam(name = TRANSFER_TOKEN, required = false) String transferToken,
+    public String completion(@RequestParam(name = TRANSFER_TOKEN, required = false) String transferToken,
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            return "bankTransferMain";
-        }
+        BankTransferForm bankTransferForm = (BankTransferForm) session.getAttribute(INPUT_SESSION_KEY);
         // 照合前に取り出して消すことで、同じトークンでの2回目の登録を通さない
         Object savedToken = session.getAttribute(TRANSFER_TOKEN);
         session.removeAttribute(TRANSFER_TOKEN);
-        if (savedToken == null || !savedToken.equals(transferToken)) {
-            // 処理済み、またはトークンを持たない不正な送信なので登録しない
+
+        // 入力内容が無い（セッション切れ）、処理済み、トークンを持たない不正な送信のいずれか
+        if (bankTransferForm == null || savedToken == null || !savedToken.equals(transferToken)) {
             return "redirect:/bankTransfer";
         }
         applyBankTransferService.applyBankTransfer(bankTransferForm);
+        // 使い終わった入力内容は残さない
+        session.removeAttribute(INPUT_SESSION_KEY);
         // リダイレクトすると入力内容が失われるため、完了画面で表示する分をflash属性で引き継ぐ
         // flash属性は1回のリダイレクトでのみ有効で、読み込まれた時点で破棄される
         redirectAttributes.addFlashAttribute(FORM_NAME, bankTransferForm);

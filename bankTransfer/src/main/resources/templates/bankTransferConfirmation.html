@@ -62,13 +62,6 @@
         <p>金額: <span th:text="${#numbers.formatInteger(bankTransferApplication.money, 1, 'COMMA')}"></span>円</p>
         <p>振込指定日: <span th:text="*{transferDateTime}"></span></p>
 
-        <input type="hidden" name="bankName"         th:value="*{bankName}"/>
-        <input type="hidden" name="branchName"       th:value="*{branchName}"/>
-        <input type="hidden" name="bankAccountType"  th:value="*{bankAccountType}"/>
-        <input type="hidden" name="bankAccountNum"   th:value="*{bankAccountNum}"/>
-        <input type="hidden" name="name"             th:value="*{name}"/>
-        <input type="hidden" name="money"            th:value="*{money}"/>
-        <input type="hidden" name="transferDateTime" th:value="*{transferDateTime}"/>
 
         <!-- 二重送信防止用のワンタイムトークン -->
         <input type="hidden" name="transferToken" th:value="${transferToken}"/>

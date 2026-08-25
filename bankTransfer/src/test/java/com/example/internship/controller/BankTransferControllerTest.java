@@ -4,6 +4,7 @@ import com.example.internship.entity.BankTransferForm;
 import com.example.internship.service.ApplyBankTransferService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.mock.web.MockHttpSession;
@@ -34,6 +35,7 @@ class BankTransferControllerTest {
 
     private static final String TOKEN_KEY = "transferToken";
     private static final String FORM_NAME = "bankTransferApplication";
+    private static final String INPUT_SESSION_KEY = "bankTransferInput";
 
     @Autowired
     private MockMvc mockMvc;
@@ -148,21 +150,56 @@ class BankTransferControllerTest {
     }
 
     @Test
-    @DisplayName("完了処理でも入力チェックが働き、不正な値は登録されない")
-    void 完了処理での入力チェック() throws Exception {
+    @DisplayName("完了処理はセッションの内容だけを登録し、送られてきた値は無視する")
+    void 送信値ではなくセッションの内容を登録する() throws Exception {
         MockHttpSession session = new MockHttpSession();
         String token = startTransfer(session);
 
-        MultiValueMap<String, String> params = validParams();
-        params.set("bankAccountNum", "12345678");
-        params.add(TOKEN_KEY, token);
+        // 確認画面では 1000 円で進んだのに、送信時だけ金額と口座番号をすり替えてみる
+        MultiValueMap<String, String> tampered = validParams();
+        tampered.set("money", "9999999");
+        tampered.set("bankAccountNum", "7654321");
+        tampered.add(TOKEN_KEY, token);
 
-        mockMvc.perform(post("/bankTransferCompletion").params(params).session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("bankTransferMain"))
-                .andExpect(model().attributeHasFieldErrors(FORM_NAME, "bankAccountNum"));
+        mockMvc.perform(post("/bankTransferCompletion").params(tampered).session(session))
+                .andExpect(redirectedUrl("/bankTransferCompletion"));
+
+        ArgumentCaptor<BankTransferForm> captor = ArgumentCaptor.forClass(BankTransferForm.class);
+        verify(applyBankTransferService).applyBankTransfer(captor.capture());
+
+        assertThat(captor.getValue().getMoney()).isEqualTo(1000);
+        assertThat(captor.getValue().getBankAccountNum()).isEqualTo("1234567");
+    }
+
+    @Test
+    @DisplayName("セッションが切れて入力内容が消えていれば登録しない")
+    void セッション切れ() throws Exception {
+        // トークンだけ残っていて入力内容が無い状態を作る
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute(TOKEN_KEY, "dummy-token");
+
+        mockMvc.perform(post("/bankTransferCompletion")
+                        .param(TOKEN_KEY, "dummy-token")
+                        .session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/bankTransfer"));
 
         verify(applyBankTransferService, never()).applyBankTransfer(any(BankTransferForm.class));
+    }
+
+    @Test
+    @DisplayName("登録が済むとセッションの入力内容は破棄される")
+    void 登録後にセッションを片付ける() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        String token = startTransfer(session);
+        assertThat(session.getAttribute(INPUT_SESSION_KEY)).isNotNull();
+
+        MultiValueMap<String, String> params = validParams();
+        params.add(TOKEN_KEY, token);
+        mockMvc.perform(post("/bankTransferCompletion").params(params).session(session))
+                .andExpect(redirectedUrl("/bankTransferCompletion"));
+
+        assertThat(session.getAttribute(INPUT_SESSION_KEY)).isNull();
     }
 
     @Test

@@ -13,13 +13,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 //入力内容を格納するクラスを定義
-public class BankTransferForm {
+// セッションに預ける値なので Serializable にしておく。
+// 将来セッションを永続化・複製する構成にしたときに壊れないようにするため
+public class BankTransferForm implements Serializable {
 
     @NotBlank(message = "金融機関名を選択してください")//必須チェックを追加
     @Selectable(value = OptionList.BANK_NAME, message = "金融機関名が正しくありません")
