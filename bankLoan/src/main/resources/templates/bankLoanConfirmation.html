@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>ローン申込確認画面</title>
+
     <style>
         body {
-            background-color: #f0f0f0;
+            /* 1. 薄いブルーのグラデーションにして、全体をパッと明るくする */
+            background: linear-gradient(135deg, #f4f8fc, #e1ecf7);
             margin: 0;
             padding: 0;
             display: flex;
@@ -17,13 +19,14 @@
             overflow: auto;
         }
         .content {
+            /* 2. カードを純白にし、少しリッチで優しい影をつける */
             background-color: #ffffff;
             width: 80%;
             max-width: 600px;
             padding: 30px 40px;
             box-sizing: border-box;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(33, 133, 208, 0.1);
             min-height: 50vh;
             overflow: auto;
         }
@@ -31,19 +34,19 @@
         /* 見出しのデザイン */
         h1 {
             font-size: 22px;
-            color: #333333;
+            color: #1a365d;
             margin-top: 0;
             margin-bottom: 10px;
             padding-bottom: 8px;
-            border-bottom: 3px solid #2185D0;
-            border-left: 6px solid #2185D0;
+            border-bottom: 3px solid #3182ce;
+            border-left: 6px solid #3182ce;
             padding-left: 10px;
         }
 
         /* 見出し下の補足メッセージ */
         .confirm-lead {
             font-size: 13px;
-            color: #666666;
+            color: #4a5568;
             margin-bottom: 25px;
         }
 
@@ -52,54 +55,61 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0 30px 0;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid #edf2f7;
         }
         .confirm-table th, .confirm-table td {
             padding: 12px 14px;
-            border-bottom: 1px solid #eeeeee;
+            border-bottom: 1px solid #edf2f7;
             text-align: left;
             font-size: 14px;
         }
         .confirm-table th {
             width: 35%;
-            color: #444444;
-            font-weight: bold;
-            background-color: #f8f9fa;
+            color: #2d3748;
+            font-weight: 600;
+            /* 3. ヘッダーの背景を爽やかなごく薄いブルーグレーにする */
+            background-color: #f7fafc;
         }
         .confirm-table td {
-            color: #333333;
+            color: #2d3748;
         }
 
-        /* 申込日時の行の背景色 */
+        /* 申込日時の行の背景色（明るいブルー系でアクセント） */
         .confirm-table tr.date-row th,
         .confirm-table tr.date-row td {
-            background-color: #f0f7fc;
+            background-color: #ebf8ff;
+            color: #2b6cb0;
+            font-weight: 500;
         }
 
         .form-control-button {
-            width: 110px;
-            padding: 10px 15px;
+            width: 120px;
+            padding: 12px 15px;
             margin: 10px 8px 0 8px;
             border: none;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 6px;
             font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s ease;
         }
         .form-confirmation-button {
             color: white;
-            background-color: #2185D0;
+            background-color: #3182ce;
+            box-shadow: 0 4px 10px rgba(49, 130, 206, 0.3);
         }
         .form-confirmation-button:hover {
-            background-color: #1678c2;
+            background-color: #2b6cb0;
         }
         .form-clear-button {
-            color: black;
-            background-color: #E0E1E2;
+            color: #4a5568;
+            background-color: #edf2f7;
         }
         .form-clear-button:hover {
-            background-color: #CCCCCC;
+            background-color: #e2e8f0;
         }
     </style>
+
 </head>
 <body>
 <div class="content">
@@ -124,7 +134,6 @@
             </tr>
             <tr>
                 <th>預金種別</th>
-                <!-- ★ bankAccountType に変更 -->
                 <td><span th:text="*{bankAccountType}"></span></td>
             </tr>
             <tr>
@@ -133,8 +142,12 @@
             </tr>
             <tr>
                 <th>債務者名</th>
-                <!-- ★ name に変更 -->
                 <td><span th:text="*{name}"></span></td>
+            </tr>
+            <!-- ★ 追加：確認画面にフリガナを表示 -->
+            <tr>
+                <th>フリガナ</th>
+                <td><span th:text="*{nameKana}"></span></td>
             </tr>
             <tr>
                 <th>ローン種類</th>
@@ -142,7 +155,6 @@
             </tr>
             <tr>
                 <th>借入金額</th>
-                <!-- ★ loanAmount に変更 -->
                 <td><span th:text="*{#numbers.formatInteger(loanAmount, 1, 'COMMA')}">1,000,000</span> 円</td>
             </tr>
             <tr>
@@ -158,10 +170,11 @@
         <!-- 次の画面へ引き継ぐhiddenデータ -->
         <input type="hidden" th:field="*{bankName}"/>
         <input type="hidden" th:field="*{branchName}"/>
-        <!-- ★ 新しいフィールド名に合わせて書き換え -->
         <input type="hidden" th:field="*{bankAccountType}"/>
         <input type="hidden" th:field="*{bankAccountNum}"/>
         <input type="hidden" th:field="*{name}"/>
+        <!-- ★ 追加：次の完了処理へフリガナの値を引き継ぐ -->
+        <input type="hidden" th:field="*{nameKana}"/>
         <input type="hidden" th:field="*{accountType}"/>
         <input type="hidden" th:field="*{loanAmount}"/>
         <input type="hidden" th:field="*{annualIncome}"/>

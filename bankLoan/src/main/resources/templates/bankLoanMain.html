@@ -5,7 +5,8 @@
     <title>ローン申込情報入力画面</title>
     <style>
         body {
-            background-color: #f0f0f0;
+            /* 全体の背景を爽やかな薄いブルーのグラデーションに */
+            background: linear-gradient(135deg, #f4f8fc, #e1ecf7);
             margin: 0;
             padding: 0;
             display: flex;
@@ -17,36 +18,37 @@
             overflow: auto;
         }
         .content {
+            /* カードを純白にし、リッチで優しい影をつける */
             background-color: #ffffff;
             width: 80%;
             max-width: 600px;
             padding: 30px 40px;
             box-sizing: border-box;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(33, 133, 208, 0.1);
             min-height: 50vh;
             overflow: auto;
         }
         h1 {
             font-size: 22px;
-            color: #333333;
+            color: #1a365d;
             margin-top: 0;
             margin-bottom: 25px;
             padding-bottom: 8px;
-            border-bottom: 3px solid #2185D0;
-            border-left: 6px solid #2185D0;
+            border-bottom: 3px solid #3182ce;
+            border-left: 6px solid #3182ce;
             padding-left: 10px;
         }
         fieldset {
-            border: 1px solid #e0e0e0;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 15px 20px 10px 20px;
             margin-bottom: 20px;
-            background-color: #fafafa;
+            background-color: #f7fafc;
         }
         legend {
             font-weight: bold;
-            color: #2185D0;
+            color: #2b6cb0;
             padding: 0 8px;
             font-size: 15px;
         }
@@ -56,19 +58,21 @@
         .form-group label {
             font-size: 14px;
             font-weight: bold;
-            color: #444444;
+            color: #2d3748;
         }
         .form-control {
             width: 100%;
             padding: 8px 10px;
             margin-top: 4px;
-            border: 1px solid #ccc;
+            border: 1px solid #cbd5e0;
             border-radius: 4px;
             box-sizing: border-box;
             font-size: 14px;
+            background-color: #ffffff;
         }
         .form-control:focus {
-            border-color: #2185D0;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
             outline: none;
         }
 
@@ -84,17 +88,17 @@
         .input-suffix {
             font-size: 14px;
             font-weight: bold;
-            color: #444444;
+            color: #2d3748;
             white-space: nowrap;
         }
 
         /* 未入力エラー時の赤枠 */
         .is-invalid {
-            border: 2px solid #e74c3c !important;
-            background-color: #fdf2f2 !important;
+            border: 2px solid #e53e3e !important;
+            background-color: #fff5f5 !important;
         }
         .error-msg {
-            color: #e74c3c;
+            color: #e53e3e;
             font-size: 12px;
             margin-top: 4px;
             display: block;
@@ -102,7 +106,7 @@
         }
 
         .text-danger {
-            color: red;
+            color: #e53e3e;
         }
         .form-control-button {
             width: 110px;
@@ -110,22 +114,25 @@
             margin: 10px 5px 0 5px;
             border: none;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 6px;
             font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s ease;
         }
         .form-confirmation-button {
             color: white;
-            background-color: #2185D0;
+            background-color: #3182ce;
+            box-shadow: 0 4px 10px rgba(49, 130, 206, 0.3);
         }
         .form-confirmation-button:hover {
-            background-color: #1678c2;
+            background-color: #2b6cb0;
         }
         .form-clear-button {
-            color: black;
-            background-color: #E0E1E2;
+            color: #4a5568;
+            background-color: #edf2f7;
         }
         .form-clear-button:hover {
-            background-color: #CCCCCC;
+            background-color: #e2e8f0;
         }
     </style>
 </head>
@@ -172,7 +179,7 @@
             </div>
         </fieldset>
 
-        <!-- お客様情報グループ -->
+        <!-- お客様情報グループ（自動保存・オートフィル対応） -->
         <fieldset>
             <legend>お客様情報</legend>
 
@@ -180,45 +187,48 @@
             <div class="form-group">
                 <label>債務者名 <small class="text-danger">※</small></label>
                 <div class="input-group">
-                    <input type="text" th:field="*{name}" class="form-control" placeholder="山田 太郎" required/>
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="山田 太郎" autocomplete="name" required/>
                     <span class="input-suffix">様</span>
                 </div>
             </div>
 
-            <!-- フリガナ -->
+            <!-- フリガナ (右側に「様」を配置) -->
             <div class="form-group">
                 <label>フリガナ <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{nameKana}" class="form-control" placeholder="ヤマダ タロウ" required/>
+                <div class="input-group">
+                    <input type="text" th:field="*{nameKana}" class="form-control" placeholder="ヤマダ タロウ" autocomplete="name" required/>
+                    <span class="input-suffix">様</span>
+                </div>
             </div>
 
             <!-- 生年月日 -->
             <div class="form-group">
                 <label>生年月日 <small class="text-danger">※</small></label>
-                <input type="date" id="birthDate" th:field="*{birthDate}" class="form-control" required/>
+                <input type="date" id="birthDate" th:field="*{birthDate}" class="form-control" autocomplete="bday" required/>
             </div>
 
-            <!-- 電話番号 -->
+            <!-- 電話番号（自動ハイフン対応） -->
             <div class="form-group">
                 <label>電話番号 <small class="text-danger">※</small></label>
-                <input type="tel" th:field="*{phoneNumber}" class="form-control" placeholder="090-1234-5678" required/>
+                <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="090-1234-5678" autocomplete="tel" required/>
             </div>
 
             <!-- メールアドレス -->
             <div class="form-group">
                 <label>メールアドレス <small class="text-danger">※</small></label>
-                <input type="email" th:field="*{email}" class="form-control" placeholder="example@email.com" required/>
+                <input type="email" th:field="*{email}" class="form-control" placeholder="example@email.com" autocomplete="email" required/>
             </div>
 
             <!-- 郵便番号 -->
             <div class="form-group">
                 <label>郵便番号 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{postalCode}" class="form-control" placeholder="810-0001" required/>
+                <input type="text" th:field="*{postalCode}" class="form-control" placeholder="810-0001" autocomplete="postal-code" required/>
             </div>
 
             <!-- 住所 -->
             <div class="form-group">
                 <label>住所 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{address}" class="form-control" placeholder="福岡県福岡市中央区天神1-1-1" required/>
+                <input type="text" th:field="*{address}" class="form-control" placeholder="福岡県福岡市中央区天神1-1-1" autocomplete="street-address" required/>
             </div>
         </fieldset>
 
@@ -266,7 +276,6 @@
 </div>
 
 <script>
-    // ローン種類ごとのデフォルト金利の対応表（必要に応じて名称や数値を調整してください）
     const defaultInterestRates = {
         "住宅ローン": 0.85,
         "マイカーローン": 2.50,
@@ -275,7 +284,6 @@
         "カードローン": 14.00
     };
 
-    // ページ読み込み時の初期設定
     document.addEventListener('DOMContentLoaded', function() {
         const birthDateInput = document.getElementById('birthDate');
         if (birthDateInput) {
@@ -286,7 +294,6 @@
             birthDateInput.max = `${maxYear}-${maxMonth}-${maxDay}`;
         }
 
-        // 借入金額の初期値にカンマをつける（確認画面からの戻りなど）
         const loanAmountInput = document.getElementById('loanAmount');
         if (loanAmountInput && loanAmountInput.value) {
             let rawVal = loanAmountInput.value.replace(/,/g, '');
@@ -296,31 +303,40 @@
         }
     });
 
-    // ★ ローン種類を変更したときに、対応する金利を自動でセットする
+    // ★ 電話番号の自動ハイフン挿入処理
+    const phoneInput = document.getElementById('phoneNumber');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            let value = this.value.replace(/[^0-9]/g, '');
+            if (value.length > 3 && value.length <= 7) {
+                value = value.slice(0, 3) + '-' + value.slice(3);
+            } else if (value.length > 7) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7, 11);
+            }
+            this.value = value;
+        });
+    }
+
     const accountTypeSelect = document.getElementById('accountType');
     const interestRateInput = document.getElementById('interestRate');
 
     if (accountTypeSelect && interestRateInput) {
         accountTypeSelect.addEventListener('change', function() {
             const selectedType = this.value;
-            // 対応表に存在する場合、その金利を自動入力する
             if (defaultInterestRates.hasOwnProperty(selectedType)) {
                 interestRateInput.value = defaultInterestRates[selectedType];
             } else if (selectedType === "") {
-                // 未選択に戻された場合は空欄にする
                 interestRateInput.value = "";
             }
         });
     }
 
-    // 借入金額：フォーカスが当たったときはカンマを外して編集しやすくする
     const loanAmountInput = document.getElementById('loanAmount');
     if (loanAmountInput) {
         loanAmountInput.addEventListener('focus', function() {
             this.value = this.value.replace(/,/g, '');
         });
 
-        // 借入金額：フォーカスが外れたときに3桁区切りのカンマをつける
         loanAmountInput.addEventListener('blur', function() {
             let val = this.value.replace(/,/g, '');
             if (val !== '' && !isNaN(val)) {
@@ -333,11 +349,9 @@
         let isValid = true;
         const requiredInputs = this.querySelectorAll('[required]');
 
-        // 既存のエラー表示をクリア
         this.querySelectorAll('.error-msg').forEach(el => el.remove());
         requiredInputs.forEach(input => input.classList.remove('is-invalid'));
 
-        // 1. 未入力チェック
         requiredInputs.forEach(input => {
             if (!input.value.trim()) {
                 isValid = false;
@@ -355,7 +369,6 @@
             }
         });
 
-        // 2. 生年月日チェック（満20歳未満の申込を禁止）
         const birthDateInput = document.getElementById('birthDate');
         if (birthDateInput && birthDateInput.value) {
             const birthDate = new Date(birthDateInput.value);
@@ -373,14 +386,13 @@
             }
         }
 
-        // 3. 借入金額の下限・上限チェック
         const annualIncomeInput = document.getElementById('annualIncome');
 
         if (annualIncomeInput && loanAmountInput && annualIncomeInput.value && loanAmountInput.value) {
-            const incomeYen = parseFloat(annualIncomeInput.value) * 10000; // 万円 → 円
-            const loanAmountYen = parseFloat(loanAmountInput.value.replace(/,/g, '')); // カンマを除去して数値化
-            const maxLimit = Math.floor(incomeYen / 3); // 年収の3分の1
-            const minLimit = 10000; // 下限: 1万円
+            const incomeYen = parseFloat(annualIncomeInput.value) * 10000;
+            const loanAmountYen = parseFloat(loanAmountInput.value.replace(/,/g, ''));
+            const maxLimit = Math.floor(incomeYen / 3);
+            const minLimit = 10000;
 
             if (isNaN(loanAmountYen)) {
                 isValid = false;
@@ -409,12 +421,10 @@
             }
         }
 
-        // 送信直前に、借入金額に入っているカンマを自動で削除する
         if (loanAmountInput && loanAmountInput.value) {
             loanAmountInput.value = loanAmountInput.value.replace(/,/g, '');
         }
 
-        // バリデーションエラー時は送信を中断
         if (!isValid) {
             e.preventDefault();
             const firstInvalid = this.querySelector('.is-invalid');
@@ -424,7 +434,6 @@
         }
     });
 
-    // クリアボタンを押したときに赤枠メッセージを消去
     document.querySelector('.form-clear-button').addEventListener('click', function() {
         const form = document.getElementById('loanForm');
         form.querySelectorAll('.error-msg').forEach(el => el.remove());

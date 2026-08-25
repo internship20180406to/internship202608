@@ -15,9 +15,10 @@ public class BankLoanRepository {
 
     // 1. データの登録処理
     public void create(BankLoanForm bankLoanForm) {
+        // ★ name_kana を nameKana に変更
         String sql = "INSERT INTO bankLoan_table (" +
-                "bankName, branchName, bankAccountType, bankAccountNum, name, accountType, loanAmount, annualIncome, interestRate" +
-                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "bankName, branchName, bankAccountType, bankAccountNum, name, nameKana, accountType, loanAmount, annualIncome, interestRate" +
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(sql,
                 bankLoanForm.getBankName(),
@@ -25,6 +26,7 @@ public class BankLoanRepository {
                 bankLoanForm.getBankAccountType(),
                 bankLoanForm.getBankAccountNum(),
                 bankLoanForm.getName(),
+                bankLoanForm.getNameKana(),
                 bankLoanForm.getAccountType(),
                 bankLoanForm.getLoanAmount(),
                 bankLoanForm.getAnnualIncome(),
@@ -32,7 +34,7 @@ public class BankLoanRepository {
         );
     }
 
-    // ★ 2. 全件取得処理（追記）
+    // 2. 全件取得処理
     public List<BankLoanForm> findAll() {
         String sql = "SELECT * FROM bankLoan_table";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(BankLoanForm.class));
