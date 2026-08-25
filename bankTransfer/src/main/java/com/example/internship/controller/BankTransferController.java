@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,6 +24,9 @@ public class BankTransferController {
 
     // 二重送信防止用トークンをセッションへ格納するときのキー
     private static final String TRANSFER_TOKEN = "transferToken";
+
+    // 入力内容を画面へ渡すときのキー
+    private static final String FORM_NAME = "bankTransferApplication";
 
     @Autowired
     private ApplyBankTransferService applyBankTransferService;
@@ -49,13 +53,13 @@ public class BankTransferController {
     // 申し込み入力画面の表示
     @GetMapping("/bankTransfer")
     public String bankTransfer(Model model) {
-        model.addAttribute("bankTransferApplication", new BankTransferForm());
+        model.addAttribute(FORM_NAME, new BankTransferForm());
         return "bankTransferMain";
     }
 
     // 確認画面の表示（入力値の検証を行う）
     @PostMapping("/bankTransferConfirmation")
-    public String confirmation(@Valid @ModelAttribute("bankTransferApplication") BankTransferForm bankTransferForm,
+    public String confirmation(@Valid @ModelAttribute(FORM_NAME) BankTransferForm bankTransferForm,
                                BindingResult bindingResult,
                                HttpSession session,
                                Model model) {
@@ -75,10 +79,11 @@ public class BankTransferController {
     // リロードによる二重登録を防ぐため、登録後はリダイレクトする（PRGパターン）
     // ブラウザバックからの再送信は、トークンを使い捨てにすることで防ぐ
     @PostMapping("/bankTransferCompletion")
-    public String completion(@Valid @ModelAttribute("bankTransferApplication") BankTransferForm bankTransferForm,
+    public String completion(@Valid @ModelAttribute(FORM_NAME) BankTransferForm bankTransferForm,
                              BindingResult bindingResult,
                              @RequestParam(name = TRANSFER_TOKEN, required = false) String transferToken,
-                             HttpSession session) {
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "bankTransferMain";
         }
@@ -90,12 +95,19 @@ public class BankTransferController {
             return "redirect:/bankTransfer";
         }
         applyBankTransferService.applyBankTransfer(bankTransferForm);
+        // リダイレクトすると入力内容が失われるため、完了画面で表示する分をflash属性で引き継ぐ
+        // flash属性は1回のリダイレクトでのみ有効で、読み込まれた時点で破棄される
+        redirectAttributes.addFlashAttribute(FORM_NAME, bankTransferForm);
         return "redirect:/bankTransferCompletion";
     }
 
     // 完了画面の表示（リダイレクト先）
     @GetMapping("/bankTransferCompletion")
-    public String completionView() {
+    public String completionView(Model model) {
+        // リロードや直接アクセスではflash属性が無く表示する内容が無いので、入力画面へ戻す
+        if (!model.containsAttribute(FORM_NAME)) {
+            return "redirect:/bankTransfer";
+        }
         return "bankTransferCompletion";
     }
 }

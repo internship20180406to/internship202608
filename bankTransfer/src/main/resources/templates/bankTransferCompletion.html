@@ -1,12 +1,63 @@
 <!doctype html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <title>振込完了画面</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 85vh;
+            overflow: auto;
+        }
+        .content {
+            background-color: #ffffff;
+            width: 80%;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-height: 50vh;
+            overflow: auto;
+        }
+        .form-control-button {
+            width: 110px;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .form-clear-button {
+            color: black;
+            background-color: #E0E1E2;
+        }
+        .form-clear-button:hover {
+            background-color: #CCCCCC;
+        }
+    </style>
 </head>
 <body>
-<h1>振込完了</h1>
-<p><input type="button" value="振込に戻る" onclick="window.location='/bankTransfer';"/></p>
-</body>
+<div class="content">
+    <h1>振込完了</h1>
+    <p>以下の内容で振込を受け付けました。</p>
 
+    <div th:object="${bankTransferApplication}">
+        <p>金融機関名: <span th:text="*{bankName}"></span></p>
+        <p>支店名: <span th:text="*{branchName}"></span></p>
+        <p>科目: <span th:text="*{bankAccountType}"></span></p>
+        <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
+        <p>口座名義: <span th:text="*{name}"></span></p>
+        <p>金額: <span th:text="${#numbers.formatInteger(bankTransferApplication.money, 1, 'COMMA')}"></span>円</p>
+        <p>振込指定日: <span th:text="*{transferDateTime}"></span></p>
+    </div>
+
+    <p><input type="button" value="振込に戻る"
+              class="form-control-button form-clear-button"
+              onclick="window.location='/bankTransfer';"/></p>
+</div>
+</body>
 </html>
