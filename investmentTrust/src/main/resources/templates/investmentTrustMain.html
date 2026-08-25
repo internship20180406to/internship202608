@@ -88,7 +88,7 @@
             </p>
 
             <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
-                <select th:field="*{accountType}" class="form-control">
+                <select th:field="*{accountType}" class="form-control" required>
                     <option value="">選択してください</option>
                     <option value="普通預金">普通預金</option>
                     <option value="当座預金">当座預金</option>
@@ -135,9 +135,9 @@
             </div>
 
             <p><label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
-                <select th:field="*{fundCode}" class="form-control">
+                <select th:field="*{fundCode}" class="form-control" required>
                     <option value="">選択してください</option>
-                    <option value="　">　</option>
+                    <option value="">　</option>
                 </select>
             </p>
 

@@ -10,16 +10,44 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class InvestmentTrustForm {
     @NonNull
-    private String bankName;
+    private Integer bankCode;
     @NonNull
+    private Integer branchName;
+
+    private String accountType;
+
     private Integer bankAccountNum;
 
-    public String getBankName() {
-        return bankName;
+    private String lastName;
+
+    private String firstName;
+
+    private String fundCode;
+
+    private Integer amount;
+
+    private Integer purchaseAmount;
+
+    public Integer getBankCode() {
+        return bankCode;
     }
 
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
+    public void setBankCode(Integer bankCode) {
+        this.bankCode = bankCode;
+    }
+
+    public Integer getBranchName() {
+        return branchName;
+    }
+
+    public void setBranchName(Integer branchName) {this.branchName = branchName;}
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setBankName(String accountType) {
+        this.accountType = accountType;
     }
 
     public Integer getBankAccountNum() {
@@ -28,5 +56,43 @@ public class InvestmentTrustForm {
 
     public void setBankAccountNum(Integer bankAccountNum) {
         this.bankAccountNum = bankAccountNum;
+    }
+
+    public String getLastName() {return lastName;}
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getFundCode() {
+        return fundCode;
+    }
+
+    public void setFundCode(String fundCode) {
+        this.fundCode = fundCode;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
+    }
+
+    public Integer getPurchaseAmount() {
+        return purchaseAmount;
+    }
+
+    public void setPurchaseAmount(Integer purchaseAmount) {
+        this.purchaseAmount = purchaseAmount;
     }
 }
