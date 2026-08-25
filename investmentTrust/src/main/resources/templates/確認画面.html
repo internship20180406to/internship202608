@@ -7,24 +7,21 @@
 
 <h1><b>最終確認</b></h1>
 
-</head>
-<body>
-<p>金融機関名: <span th:text="*{bankName}"></span></p>
-<p>支店名:<span th:text="*{branchName}"></span></p>
-<p>科目名:<span th:text="*{subjectName}"></span></p>
-<p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
-<p>購入者名:</p>
-<p>銘柄選択:</p>
-<div th:if="${bankAccountNum != null && bankAccountNum != ''}">
-    <p><strong>購入金額（自由入力）：</strong> <span th:text="${bankAccountNum}"></span> 円</p>
-</div>
+    <body>
+            <p>金融機関名: <span th:text="*{bankCode}"></span></p>
+            <p>支店名: <span th:text="*{branchCode}"></span></p>
+            <p>科目名: <span th:text="*{accountType}"></span></p>
+            <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
+            <p>購入者名（姓）: <span th:text="*{lastName}"></span></p>
+            <p>購入者名（名）: <span th:text="*{firstName}"></span></p>
+            <p>銘柄選択: <span th:text="*{fundCode}"></span></p>
+        <div th:if="*{purchaseAmount != null && purchaseAmount != ''}">
+            <p>購入金額（自由入力）:<span th:text="*{purchaseAmount}"></span></p>
+        </div>
 
-<div th:if="${bankName != null && bankName != ''}">
-    <p><strong>購入金額（選択肢）：</strong> <span th:text="${bankName}"></span></p>
-</div>
-<p style="text-align: center;"><input type="submit" value="　"
-                                      class="form-control-button form-confirmation-button"/>
-    <input type="reset" value="　" class="form-control-button form-clear-button"/></p>
-</body>
+            <div th:unless="*{purchaseAmount != null && purchaseAmount != ''}" th:if="*{amount != null && amount != ''}">
+                <p>購入金額（選択肢）: <span th:text="*{amount}"></span> 円</p>
+            </div>
+    </body>
 
 </html>
