@@ -3,33 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <title>ローン申込確認画面</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            justify-content: center;
+            align-items: center;
+            min-height: 85vh;
+            overflow: auto;
+        }
+        .content {
+            background-color: #ffffff;
+            width: 80%;
+            max-width: 600px;
+            padding: 30px 40px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-height: 50vh;
+            overflow: auto;
+        }
+        .confirm-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .confirm-table th, .confirm-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #eeeeee;
+            text-align: left;
+        }
+        .confirm-table th {
+            width: 35%;
+            color: #555555;
+            font-weight: bold;
+            background-color: #fcfcfc;
+        }
+        .form-control-button {
+            width: 110px;
+            padding: 10px 15px;
+            margin: 10px 8px 0 8px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-confirmation-button {
+            color: white;
+            background-color: #2185D0;
+        }
+        .form-confirmation-button:hover {
+            background-color: #1678c2;
+        }
+        .form-clear-button {
+            color: black;
+            background-color: #E0E1E2;
+        }
+        .form-clear-button:hover {
+            background-color: #CCCCCC;
+        }
+    </style>
 </head>
 <body>
-<h1>ローン申込確認画面</h1>
-<form action="#" th:action="@{/bankLoanCompletion}" th:object="${bankLoanApplication}" method="post">
-    <!-- 表示項目 -->
-    <p>金融機関名: <span th:text="*{bankName}"></span></p>
-    <p>支店名: <span th:text="*{branchName}"></span></p>
-    <p>科目名: <span th:text="*{accountType}"></span></p>
-    <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
-    <p>口座名義: <span th:text="*{accountHolder}"></span></p>
-    <p>金額: <span th:text="*{amount}"></span> 円</p>
-    <p>振込指定日: <span th:text="*{transferDate}"></span></p>
+<div class="content">
+    <h1>ローン申込確認画面</h1>
+    <form action="#" th:action="@{/bankLoanCompletion}" th:object="${bankLoanApplication}" method="post">
 
-    <!-- 次の画面へ引き継ぐhiddenデータ -->
-    <input type="hidden" th:field="*{bankName}"/>
-    <input type="hidden" th:field="*{branchName}"/>
-    <input type="hidden" th:field="*{accountType}"/>
-    <input type="hidden" th:field="*{bankAccountNum}"/>
-    <input type="hidden" th:field="*{accountHolder}"/>
-    <input type="hidden" th:field="*{amount}"/>
-    <input type="hidden" th:field="*{transferDate}"/>
+        <!-- 表示項目（3桁カンマ区切り対応） -->
+        <table class="confirm-table">
+            <tr>
+                <th>金融機関名</th>
+                <td><span th:text="*{bankName}"></span></td>
+            </tr>
+            <tr>
+                <th>支店名</th>
+                <td><span th:text="*{branchName}"></span></td>
+            </tr>
+            <tr>
+                <th>科目名</th>
+                <td><span th:text="*{accountType}"></span></td>
+            </tr>
+            <tr>
+                <th>口座番号</th>
+                <td><span th:text="*{bankAccountNum}"></span></td>
+            </tr>
+            <tr>
+                <th>債務者名</th>
+                <td><span th:text="*{debtorName}"></span></td>
+            </tr>
+            <tr>
+                <th>借入金額</th>
+                <td><span th:text="*{#numbers.formatInteger(borrowingAmount, 1, 'COMMA')}">1,000,000</span> 円</td>
+            </tr>
+            <tr>
+                <th>借入年収</th>
+                <td><span th:text="*{#numbers.formatInteger(annualIncome, 1, 'COMMA')}">400</span> 万円</td>
+            </tr>
+            <tr>
+                <th>金利</th>
+                <td><span th:text="*{interestRate}"></span> ％</td>
+            </tr>
+        </table>
 
-    <p>
-        <input type="submit" id="submit" value="申込"/>
-        <input type="button" value="キャンセル" onclick="window.location='/bankLoan';"/>
-    </p>
-</form>
+        <!-- 次の画面へ引き継ぐhiddenデータ -->
+        <input type="hidden" th:field="*{bankName}"/>
+        <input type="hidden" th:field="*{branchName}"/>
+        <input type="hidden" th:field="*{accountType}"/>
+        <input type="hidden" th:field="*{bankAccountNum}"/>
+        <input type="hidden" th:field="*{debtorName}"/>
+        <input type="hidden" th:field="*{borrowingAmount}"/>
+        <input type="hidden" th:field="*{annualIncome}"/>
+        <input type="hidden" th:field="*{interestRate}"/>
+
+        <!-- ボタン配置 -->
+        <p style="text-align: center;">
+            <input type="submit" id="submit" value="申込" class="form-control-button form-confirmation-button"/>
+            <input type="button" value="キャンセル" class="form-control-button form-clear-button" onclick="window.location='/bankLoan';"/>
+        </p>
+    </form>
+</div>
 <script th:inline="javascript" src="/js/bankLoanConfirmation.js"></script>
 </body>
 </html>

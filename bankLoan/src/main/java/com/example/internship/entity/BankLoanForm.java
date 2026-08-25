@@ -1,67 +1,28 @@
-// package このファイルはcom.example.internship.controllerの中に含まれる
 package com.example.internship.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
-import java.time.LocalDate;
-import org.springframework.format.annotation.DateTimeFormat;
-
-@Data
-@NoArgsConstructor
 public class BankLoanForm {
-    @NonNull //この変数や引数には null（空っぽの状態）が入ることを許さない
-    private String bankName;  //金融機関名　string 文字列
-    @NonNull
-    private Integer bankAccountNum; //口座番号　　Inte　整数
 
-    private String branchName;   // 支店名
-    private String accountType;  // 科目名
-    private String accountHolder;// 口座名義
+    private String bankName;         // 金融機関名（★エラー解決のため追加）
+    private String branchName;       // 支店名
+    private String accountType;      // 科目名
+    private Integer bankAccountNum;  // 口座番号
+    private String debtorName;       // 債務者名（旧：accountHolder）
+    private Integer borrowingAmount; // 借入金額（旧：amount）
+    private Integer annualIncome;    // 借入年収
+    private Double interestRate;     // 金利
 
-    private Long amount;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate transferDate;
+    // --- Getter / Setter ---
 
     public String getBankName() {
         return bankName;
     }
-
     public void setBankName(String bankName) {
         this.bankName = bankName;
-    }
-
-    public Integer getBankAccountNum() {
-        return bankAccountNum;
-    }
-
-    public void setBankAccountNum(Integer bankAccountNum) {
-        this.bankAccountNum = bankAccountNum;
-    }
-
-
-    public Long getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Long amount) {
-        this.amount = amount;
-    }
-
-    public LocalDate getTransferDate() {
-        return transferDate;
-    }
-
-    public void setTransferDate(LocalDate transferDate) {
-        this.transferDate = transferDate;
     }
 
     public String getBranchName() {
         return branchName;
     }
-
     public void setBranchName(String branchName) {
         this.branchName = branchName;
     }
@@ -69,16 +30,42 @@ public class BankLoanForm {
     public String getAccountType() {
         return accountType;
     }
-
     public void setAccountType(String accountType) {
         this.accountType = accountType;
     }
 
-    public String getAccountHolder() {
-        return accountHolder;
+    public Integer getBankAccountNum() {
+        return bankAccountNum;
+    }
+    public void setBankAccountNum(Integer bankAccountNum) {
+        this.bankAccountNum = bankAccountNum;
     }
 
-    public void setAccountHolder(String accountHolder) {
-        this.accountHolder = accountHolder;
+    public String getDebtorName() {
+        return debtorName;
+    }
+    public void setDebtorName(String debtorName) {
+        this.debtorName = debtorName;
+    }
+
+    public Integer getBorrowingAmount() {
+        return borrowingAmount;
+    }
+    public void setBorrowingAmount(Integer borrowingAmount) {
+        this.borrowingAmount = borrowingAmount;
+    }
+
+    public Integer getAnnualIncome() {
+        return annualIncome;
+    }
+    public void setAnnualIncome(Integer annualIncome) {
+        this.annualIncome = annualIncome;
+    }
+
+    public Double getInterestRate() {
+        return interestRate;
+    }
+    public void setInterestRate(Double interestRate) {
+        this.interestRate = interestRate;
     }
 }

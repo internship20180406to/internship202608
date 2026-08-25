@@ -16,15 +16,19 @@
             min-height: 85vh;
             overflow: auto;
         }
+
         .content {
             background-color: #ffffff;
             width: 80%;
-            padding: 20px;
+            max-width: 600px; /* ★幅が広がりすぎるのを防ぐ */
+            padding: 30px 40px; /* ★余白を広げて文字を端から離す */
+            box-sizing: border-box; /* ★余白を含めて幅を適切に計算する */
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             min-height: 50vh;
             overflow: auto;
         }
+
         .form-control {
             width: 100%;
             padding: 8px;
@@ -73,23 +77,38 @@
 
         <!-- 支店名 -->
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{branchName}" class="form-control" placeholder="本店営業部"/></p>
+            <input type="text" th:field="*{branchName}" class="form-control" placeholder="福岡支店"/></p>
 
-        <!-- 科目名 -->
+        <!-- 科目名（プルダウン選択） -->
         <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{accountType}" class="form-control" placeholder="普通預金"/></p>
+            <select th:field="*{accountType}" class="form-control">
+                <option value="">-- 選択してください --</option>
+                <option th:each="option : ${accountTypeOptions}"
+                        th:value="${option}"
+                        th:text="${option}">選択肢
+                </option>
+            </select></p>
 
         <!-- 口座番号 -->
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
 
-        <!-- 金額 -->
-        <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{amount}" class="form-control" placeholder="100000"/></p>
+        <!-- 債務者名（旧：口座名義） -->
+        <p><label class="ml-1">債務者名: <small class="text-danger ml-1">※</small></label><br>
+            <input type="text" th:field="*{debtorName}" class="form-control" placeholder="山田 太郎"/></p>
 
-        <!-- 振込指定日 -->
-        <p><label class="ml-1">振込指定日: <small class="text-danger ml-1">※</small></label><br>
-            <input type="date" th:field="*{transferDate}" class="form-control"/></p>
+        <!-- 借入金額（旧：金額） -->
+        <p><label class="ml-1">借入金額（円）: <small class="text-danger ml-1">※</small></label><br>
+            <input type="number" th:field="*{borrowingAmount}" class="form-control" placeholder="1000000"/></p>
+
+        <!-- 借入年収（追加） -->
+        <p><label class="ml-1">借入年収（万円）: <small class="text-danger ml-1">※</small></label><br>
+            <input type="number" th:field="*{annualIncome}" class="form-control" placeholder="400"/></p>
+
+        <!-- 金利（追加） -->
+        <p><label class="ml-1">金利（％）: <small class="text-danger ml-1">※</small></label><br>
+            <input type="number" step="0.01" th:field="*{interestRate}" class="form-control" placeholder="1.5"/></p>
+
 
         <!-- 確認ボタン / クリアボタン -->
         <p style="text-align: center;">
