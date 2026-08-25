@@ -55,6 +55,27 @@
             color: black;
             background-color: #E0E1E2;
         }
+
+        .was-validated .form-control:invalid {
+            border: 2px solid #dc3545;
+            background-color: #fff5f5;
+            outline: none;
+        }
+
+        .was-validated .form-control:invalid:focus {
+            box-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
+        }
+
+        .form-control:user-invalid {
+            border: 2px solid #dc3545 !important;
+            background-color: #fff5f5;
+            outline: none;
+        }
+
+        .form-control:user-invalid:focus {
+            box-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
+        }
+
     </style>
 </head>
 
@@ -64,7 +85,7 @@
 
     <form th:action="@{/bankLoanConfirmation}"
           th:object="${bankLoanApplication}"
-          method="post">
+          method="post" class="needs-validation">
 
         <!-- 1ページ目の情報を保持 -->
         <input type="hidden" th:field="*{bankName}"/>
@@ -86,7 +107,7 @@
                    th:field="*{desiredLoanAmount}"
                    class="form-control"
                    min="1"
-                   placeholder="300"/>
+                   placeholder="300" required/>
             <span>万円</span>
         </p>
 

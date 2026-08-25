@@ -1,5 +1,6 @@
 package com.example.internship.controller;
 
+import java.time.LocalDate;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -42,6 +43,7 @@ public class BankLoanController {
     @GetMapping("/bankLoan")
     public String bankTransfer(Model model) {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
+        model.addAttribute("today", LocalDate.now());
         model.addAttribute("nameOptions", new String[]{"山陰共同銀行", "カウカウ銀行", "流れ星銀行"});
         model.addAttribute("branchOptions", new String[]{"本店営業部", "福岡支店", "博多支店"});
         model.addAttribute("subjectOptions", new String[]{"普通預金", "当座預金", "貯蓄預金"}

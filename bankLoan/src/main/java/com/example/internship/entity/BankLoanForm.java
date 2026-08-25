@@ -28,7 +28,7 @@ public class BankLoanForm {
     private LocalDate birthDate;
 
     @NonNull
-    private Integer bankAccountNum;
+    private String bankAccountNum;
 
     private Integer desiredLoanAmount;
 
@@ -47,11 +47,11 @@ public class BankLoanForm {
         this.bankName = bankName;
     }
 
-    public Integer getBankAccountNum() {
+    public String getBankAccountNum() {
         return bankAccountNum;
     }
 
-    public void setBankAccountNum(Integer bankAccountNum) {
+    public void setBankAccountNum(String bankAccountNum) {
         this.bankAccountNum = bankAccountNum;
     }
 }
