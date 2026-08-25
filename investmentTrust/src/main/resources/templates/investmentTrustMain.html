@@ -63,11 +63,27 @@
 <div class="content">
     <h1>投資信託注文情報入力</h1>
     <form action="#" th:action="@{/investmentTrustConfirmation}" th:object="${investmentTrustApplication}" method="post">
-        <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="9999"/></p>
+        <p><label class="ml-1">金融機関コード: <small class="text-danger ml-1">※</small></label><br>
+            <input type="text"
+                   th:field="*{bankAccountNum}"
+                   class="form-control"
+                   placeholder="9999"
+                   maxlength="4"
+                   pattern="[0-9]{4}"
+                   inputmode="numeric"
+                   title="4桁の半角数字で入力してください"
+                   required/>
         </p>
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="999"/></p>
+            <input type="text"
+                   th:field="*{bankAccountNum}"
+                   class="form-control"
+                   placeholder="999"
+                   maxlength="3"
+                   pattern="[0-9]{3}"
+                   inputmode="numeric"
+                   title="4桁の半角数字で入力してください"
+                   required/>
         </p>
         <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}" class="form-control">
@@ -83,7 +99,75 @@
             </select>
         </p>
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="9999999"/></p>
+            <input type="text"
+                   th:field="*{bankAccountNum}"
+                   class="form-control"
+                   placeholder="9999999"
+                   maxlength="7"
+                   pattern="[0-9]{7}"
+                   inputmode="numeric"
+                   title="4桁の半角数字で入力してください"
+                   required/>
+        </p>
+        <p><label class="ml-1">購入者名: <small class="text-danger ml-1">※</small></label><br>
+
+        <div class="row">
+            <!-- 苗字（姓） -->
+            <div class="col">
+                <input type="text"
+                       th:field="*{lastName}"
+                       class="form-control"
+                       placeholder="山田"
+                       maxlength="25"
+                       required/>
+            </div>
+            <!-- 名前（名） -->
+            <div class="col">
+                <input type="text"
+                       th:field="*{firstName}"
+                       class="form-control"
+                       placeholder="太郎"
+                       maxlength="25"
+                       required/>
+            </div>
+        </div>
+
+        </p>
+
+        <p><label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
+            <select th:field="*{bankName}" class="form-control">
+                <option value="　">　</option>
+
+            </select>
+        </p>
+        <p><label class="ml-1">購入金額:
+            <br>（自分で自由に投資をしたい方）<small class="text-danger ml-1">※</small></label><br>
+            <input type="text"
+                   th:field="*{bankAccountNum}"
+                   class="form-control"
+                   placeholder="9999999"
+                   maxlength="7"
+                   pattern="[0-9]{7}"
+                   inputmode="numeric"
+                   title="4桁の半角数字で入力してください"
+                   required/>
+        </p>
+        <p>（選択肢の中から選びたい方）
+        <label class="ml-1"><small class="text-danger ml-1">※</small></label><br>
+            <select th:field="*{bankName}" class="form-control">
+                <option value="　">　</option>
+
+            </select>
+        </p>
+        <form id="myForm" onsubmit="return checkFields()">
+            <!-- 入力欄1（※requiredは外しておきます） -->
+            <input type="text" id="phone1" class="form-control" placeholder="固定電話">
+
+            <!-- 入力欄2 -->
+            <input type="text" id="phone2" class="form-control" placeholder="携帯電話">
+
+            <button type="submit">次へ進む</button>
+        </form>
         <p style="text-align: center;"><input type="submit" value="確認"
                                               class="form-control-button form-confirmation-button"/>
             <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
