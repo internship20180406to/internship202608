@@ -8,15 +8,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.bind.support.SessionStatus;
+
 import java.time.LocalDate;
 
 import java.util.List;
 
 
 @Controller
-    @SessionAttributes("bankTransferApplication")
+
     public class BankTransferController {
 
     @Autowired
@@ -55,24 +54,14 @@ import java.util.List;
 
     @PostMapping("/bankTransferCompletion")
     public String completion(
-                             @ModelAttribute("bankTransferApplication")
-                             BankTransferForm bankTransferForm,
-                             Model model,
-                             SessionStatus sessionStatus) {
-        applyBankTransferService.applyBankTransfer(bankTransferForm);
+            @ModelAttribute("bankTransferApplication")
+            BankTransferForm bankTransferForm) {
 
-        // 振込完了後に、セッションに保存した入力内容を削除する
-        sessionStatus.setComplete();
+        applyBankTransferService.applyBankTransfer(bankTransferForm);
 
         return "bankTransferCompletion";
     }
 
-    @PostMapping("/bankTransferClear")
-    public String clear(SessionStatus sessionStatus) {
 
-        sessionStatus.setComplete();
-
-        return "redirect:/bankTransfer";
-    }
 
 }
