@@ -7,14 +7,41 @@
 <body>
 <h1>投資信託注文確認画面</h1>
 <form action="#" th:action="@{/investmentTrustCompletion}" th:object="${investmentTrustApplication}" method="post">
-    <p>金融機関名: <span th:text="*{bankName}"></span></p>
-    <p>支店名: <span th:text="*{branchName}"></span></p>
-    <p>科目名: <span th:text="*{bankAccountTypeName}"></span></p>
-    <p>口座番号: <span>********</span></p>
-    <p>購入者名: <span th:text="*{name}"></span></p>
-    <p>銘柄選択: <span th:text="*{fundName}"></span></p>
-    <p>購入金額: <span th:text="*{money}"></span></p>
-    <!--<p>取引パスワード: <span>********</span></p>-->
+    <p>金融機関名: <span th:text="*{bankName}"></span>
+        <!--<input type="button"
+               value="変更"
+               onclick="goBackToInput(1)">-->
+    </p>
+    <p>支店名: <span th:text="*{branchName}"></span>
+        <!--<input type="button"
+               value="変更"
+               onclick="goBackToInput(2)">-->
+    </p>
+    <p>科目名: <span th:text="*{bankAccountTypeName}"></span>
+        <!--<input type="button"
+               value="変更"
+               onclick="goBackToInput(3)">-->
+    </p>
+    <p>口座番号: <span>********</span>
+        <!--<input type="button"
+               value="変更"
+               onclick="goBackToInput(4)">-->
+    </p>
+    <p>購入者名: <span th:text="*{name}"></span>
+        <!--<input type="button"
+               value="変更"
+               onclick="goBackToInput(5)">-->
+    </p>
+    <p>銘柄選択: <span th:text="*{fundName}"></span>
+        <!--<input type="button"
+               value="変更"
+               onclick="goBackToInput(6)">-->
+    </p>
+    <p>購入金額: <span th:text="*{money}"></span>
+        <!--<input type="button"
+               value="変更"
+               onclick="goBackToInput(6)">-->
+    </p>
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
     <input type="hidden" name="branchName" th:value="*{branchName}"/>
     <input type="hidden" name="bankAccountTypeName" th:value="*{bankAccountTypeName}"/>
@@ -24,7 +51,7 @@
     <input type="hidden" name="money" th:value="*{money}"/>
     <!--<input type="hidden" name="transactionPassword" th:value="*{transactionPassword}"/>-->
     <p>
-        <input type="submit" id="submit" value="申込"/>
+        <input type="submit" id="submit" value="申込" onclick="return confirm('この内容で申し込みますか？');"/>
         <input type="button" value="キャンセル" onclick="window.location='/investmentTrust';"/>
     </p>
 </form>

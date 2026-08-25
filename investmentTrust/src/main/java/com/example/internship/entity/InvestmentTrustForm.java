@@ -23,8 +23,6 @@ public class InvestmentTrustForm {
     private String fundName;//銘柄選択
     @NonNull
     private Integer money;//購入金額
-    @NonNull
-    //private String transactionPassword;//取引パスワード
 
     public String getBankName() {
         return bankName;
@@ -71,8 +69,4 @@ public class InvestmentTrustForm {
     public void setMoney(Integer money) {
         this.money = money;
     }
-
-    /*public String getTransactionPassword() { return transactionPassword; }
-
-    public void setTransactionPassword(String transactionPassword) { this.transactionPassword = transactionPassword; }*/
 }
