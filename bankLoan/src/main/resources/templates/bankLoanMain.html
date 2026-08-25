@@ -70,10 +70,12 @@
                    class="form-control"
                    placeholder="債務者名を入力してください">
 
-            <span class="text-danger validation-error"
+            <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('name')}"
                   th:errors="*{name}">
             </span>
+            <span id="nameClientError"
+                  class="text-danger client-error"></span>
         </p>
 
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
@@ -88,7 +90,10 @@
                 </option>
             </select>
 
-            <span class="text-danger validation-error"
+            <span id="bankNameClientError"
+                  class="text-danger client-error">
+            </span>
+            <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('bankName')}"
                   th:errors="*{bankName}">
             </span>
@@ -114,10 +119,12 @@
                    id="selectedBranch"
                    th:value="*{branchName}">
 
-            <span class="text-danger validation-error"
+            <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('branchName')}"
                   th:errors="*{branchName}">
             </span>
+            <span id="branchNameClientError"
+                  class="text-danger client-error"></span>
         </p>
 
         <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
@@ -127,10 +134,11 @@
                 <option value="当座預金">当座預金</option>
             </select>
 
-            <span class="text-danger validation-error"
+            <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('bankAccountType')}"
                   th:errors="*{bankAccountType}">
             </span>
+
         </p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
@@ -140,7 +148,7 @@
                    inputmode="numeric"
                    class="form-control"
                    placeholder="1234567"/>
-            <span class="text-danger validation-error"
+            <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('bankAccountNum')}"
                   th:errors="*{bankAccountNum}">
             </span>
@@ -153,7 +161,7 @@
                    maxlength="7"
                    class="form-control"
                    placeholder="500"/>
-            <span class="text-danger validation-error"
+            <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('annualIncome')}"
                   th:errors="*{annualIncome}">
             </span>
@@ -164,10 +172,14 @@
             <input type="text"
                    th:field="*{loanAmount}"
                    inputmode="numeric"
-                   maxlength="6"
+                   maxlength="4"
                    class="form-control"
                    placeholder="300"/>
-            <span class="text-danger validation-error"
+
+            <span id="loanAmountClientError"
+                  class="text-danger">
+            </span>
+            <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('loanAmount')}"
                   th:errors="*{loanAmount}">
             </span>
@@ -185,7 +197,7 @@
                step="0.01"
                class="form-control"
                placeholder="2.50">
-            <span class="text-danger validation-error"
+            <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('interestRate')}"
                   th:errors="*{interestRate}">
             </span>
@@ -214,27 +226,9 @@
         });
 
         form.querySelectorAll('.validation-error').forEach(error => {
-            error.style.display = 'none';
+            error.textContent = '';
         });
     }
-
-    document.querySelectorAll('input, select').forEach(element => {
-        element.addEventListener('input', function () {
-            const error = this.closest('p').querySelector('.validation-error');
-
-            if (error) {
-                error.style.display = 'none';
-            }
-        });
-
-        element.addEventListener('change', function () {
-            const error = this.closest('p').querySelector('.validation-error');
-
-            if (error) {
-                error.style.display = 'none';
-            }
-        });
-    });
 
     const loanAmount = document.getElementById('loanAmount');
     const interestRate = document.getElementById('interestRate');
@@ -398,6 +392,79 @@
     const savedBranch = selectedBranchInput.value;
 
     updateBranchOptions(savedBranch);
+
+    const loanAmountInput = document.getElementById('loanAmount');
+    const loanAmountError = document.getElementById('loanAmountClientError');
+
+    function validateLoanAmount() {
+        clearServerError(loanAmountInput);
+
+        const value = loanAmountInput.value;
+
+        if (value === '') {
+            loanAmountError.textContent = '借入金額を入力してください';
+
+        } else if (!/^[0-9]+$/.test(value)) {
+            loanAmountError.textContent = '借入金額は数字で入力してください';
+
+        } else if (Number(value) < 1) {
+            loanAmountError.textContent = '借入金額は1万円以上で入力してください';
+
+        } else if (Number(value) > 1000) {
+            loanAmountError.textContent = '借入金額は1000万円以下で入力してください';
+
+        } else {
+            loanAmountError.textContent = '';
+        }
+    }
+
+    loanAmountInput.addEventListener('input', validateLoanAmount);
+    loanAmountInput.addEventListener('blur', validateLoanAmount);
+
+    const bankNameError = document.getElementById('bankNameClientError');
+
+    function validateBankName() {
+
+        clearServerError(bankNameSelect);
+
+        if (bankNameSelect.value === '') {
+            bankNameError.textContent =
+                '金融機関名を選択してください';
+        } else {
+            bankNameError.textContent = '';
+        }
+    }
+
+    bankNameSelect.addEventListener('change', validateBankName);
+    bankNameSelect.addEventListener('blur', validateBankName);
+
+    function clearServerError(element) {
+        const serverError = element.closest('p').querySelector('.server-error');
+
+        if (serverError) {
+            serverError.textContent = '';
+        }
+    }
+
+    const nameInput = document.getElementById('name');
+    const nameError = document.getElementById('nameClientError');
+
+    function validateName() {
+
+        clearServerError(nameInput);
+
+        const value = nameInput.value.trim();
+
+        if (value === '') {
+            nameError.textContent = '債務者名を入力してください';
+        } else {
+            nameError.textContent = '';
+        }
+    }
+
+    nameInput.addEventListener('input', validateName);
+    nameInput.addEventListener('blur', validateName);
+
 </script>
 
 </body>
