@@ -7,6 +7,7 @@ import com.example.internship.master.Bank;
 import com.example.internship.master.BankMasterRepository;
 import com.example.internship.master.Branch;
 import com.example.internship.master.BranchMasterRepository;
+import com.example.internship.master.Suggestion;
 import com.example.internship.service.ApplyBankTransferService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -18,9 +19,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -74,7 +77,7 @@ public class BankTransferController {
     @GetMapping("/bankTransfer")
     public String bankSelect(HttpSession session, Model model) {
         model.addAttribute("input", input(session));//戻った時リセットされないようにする
-        model.addAttribute("banks", bankMasterRepository.findAll());//データベースから銀行情報を取得
+        model.addAttribute("banks", bankMasterRepository.findMajor());//データベースから銀行情報を取得
         return "bankTransferBank";
     }
 
@@ -109,7 +112,6 @@ public class BankTransferController {
             return "redirect:/bankTransfer";
         }
         model.addAttribute("input", input);
-        model.addAttribute("branches", branchMasterRepository.findByBankCode(input.getBankCode()));
         return "bankTransferBranch";
     }
 
@@ -267,5 +269,31 @@ public class BankTransferController {
             return "redirect:/bankTransfer";
         }
         return "bankTransferCompletion";
+    }
+
+    // ============================================================
+    // 検索の候補を返す（画面には遷移せず、JSONだけを返す）
+    // 一覧に出ていない金融機関へは、ここを通してのみ到達できる
+    // ============================================================
+
+    @GetMapping("/bankTransfer/api/banks")
+    @ResponseBody
+    public List<Suggestion> searchBanks(@RequestParam(name = "q", defaultValue = "") String keyword) {
+        if (keyword.isBlank()) {
+            return List.of();
+        }
+        return bankMasterRepository.search(keyword).stream().map(Suggestion::of).toList();
+    }
+
+    @GetMapping("/bankTransfer/api/branches")
+    @ResponseBody
+    public List<Suggestion> searchBranches(@RequestParam(name = "q", defaultValue = "") String keyword,
+                                       HttpSession session) {
+        BankTransferInput input = input(session);
+        // 銀行が決まっていなければ支店は探せない。他行の支店が混ざらないようにする
+        if (!input.hasBank() || keyword.isBlank()) {
+            return List.of();
+        }
+        return branchMasterRepository.search(input.getBankCode(), keyword).stream().map(Suggestion::of).toList();
     }
 }

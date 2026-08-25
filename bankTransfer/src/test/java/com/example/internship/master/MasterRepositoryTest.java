@@ -82,6 +82,18 @@ class MasterRepositoryTest {
         }
 
         @Test
+        @DisplayName("一覧に出すのは主な金融機関だけ。残りは検索でのみ到達できる")
+        void 主な金融機関に絞る() {
+            assertThat(bankMasterRepository.findMajor())
+                    .extracting(Bank::bankName)
+                    .containsExactly("AAA銀行", "BBB銀行", "CCC銀行");
+
+            // 一覧に無いものも検索では見つかる
+            assertThat(bankMasterRepository.search("FFF"))
+                    .extracting(Bank::bankName).containsExactly("FFF銀行");
+        }
+
+        @Test
         @DisplayName("該当が無ければ空のリスト")
         void 該当なし() {
             assertThat(bankMasterRepository.search("ZZZ")).isEmpty();

@@ -18,9 +18,14 @@ public class BankMasterRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    // 一覧画面に出す分。件数が増えたら「主な金融機関」に絞る想定
     public List<Bank> findAll() {
         String sql = "SELECT bankCode, bankName FROM bank_master ORDER BY bankCode";
+        return jdbcTemplate.query(sql, ROW_MAPPER);
+    }
+
+    // 画面の一覧に出す分だけ。ここに出ないものは検索でのみ到達できる
+    public List<Bank> findMajor() {
+        String sql = "SELECT bankCode, bankName FROM bank_master WHERE isMajor = 1 ORDER BY bankCode";
         return jdbcTemplate.query(sql, ROW_MAPPER);
     }
 

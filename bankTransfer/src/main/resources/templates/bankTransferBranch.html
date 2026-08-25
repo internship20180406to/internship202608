@@ -8,19 +8,22 @@
     <div th:replace="~{fragments/recap :: recap(${input})}"></div>
 
     <form th:action="@{/bankTransfer/branch}" method="post">
-        <h2 class="section-title">支店一覧</h2>
-        <div class="picklist-head">
-            <span>コード</span><span>支店名</span><span></span>
+        <div class="field">
+            <label class="field-label" for="searchKeyword">支店名で検索</label>
+            <div class="search">
+                <svg class="search-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M10.8 10.8 L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+                <input class="form-control" id="searchKeyword" type="search"
+                       placeholder="例：A1支店" autocomplete="off"/>
+                <ul class="suggest" id="searchSuggest" hidden
+                    data-endpoint="/bankTransfer/api/branches"
+                    data-param-name="branchCode"
+                    data-no-hit="該当する支店が見つかりません"></ul>
+            </div>
+            <span class="hint">支店名または支店コードを入力すると候補が表示されます</span>
         </div>
-        <ul class="picklist">
-            <li th:each="branch : ${branches}">
-                <button class="picklist-row" type="submit" name="branchCode" th:value="${branch.branchCode()}">
-                    <span class="picklist-code" th:text="${branch.branchCode()}">001</span>
-                    <span th:text="${branch.branchName()}">A1支店</span>
-                    <span class="picklist-chevron" aria-hidden="true">›</span>
-                </button>
-            </li>
-        </ul>
     </form>
 
     <div class="actions">
@@ -28,5 +31,6 @@
         <span class="spacer"></span>
     </div>
 </div>
+<script src="/js/bankTransferSearch.js"></script>
 </body>
 </html>

@@ -12,6 +12,8 @@
 CREATE TABLE IF NOT EXISTS bank_master (
     bankCode CHAR(4)    NOT NULL,
     bankName VARCHAR(7) NOT NULL,
+    -- 画面の一覧に出すかどうか。出さないものは検索でのみ到達できる
+    isMajor  TINYINT(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (bankCode),
     UNIQUE KEY uk_bank_master_name (bankName)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
@@ -41,13 +43,13 @@ ALTER TABLE bankTransfer_table
 -- ------------------------------------------------------------
 -- 初期データ：銀行6行
 -- ------------------------------------------------------------
-INSERT INTO bank_master (bankCode, bankName) VALUES
-    ('0001', 'AAA銀行'),
-    ('0002', 'BBB銀行'),
-    ('0003', 'CCC銀行'),
-    ('0004', 'DDD銀行'),
-    ('0005', 'EEE銀行'),
-    ('0006', 'FFF銀行');
+INSERT INTO bank_master (bankCode, bankName, isMajor) VALUES
+    ('0001', 'AAA銀行', 1),
+    ('0002', 'BBB銀行', 1),
+    ('0003', 'CCC銀行', 1),
+    ('0004', 'DDD銀行', 0),
+    ('0005', 'EEE銀行', 0),
+    ('0006', 'FFF銀行', 0);
 
 -- ------------------------------------------------------------
 -- 初期データ：支店 各銀行9店（計54店）

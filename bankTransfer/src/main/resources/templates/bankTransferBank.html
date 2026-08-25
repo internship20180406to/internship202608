@@ -8,7 +8,23 @@
 
     <!-- 行そのものが送信ボタン。JSが無くても選べる -->
     <form th:action="@{/bankTransfer/bank}" method="post">
-        <h2 class="section-title">金融機関一覧</h2>
+        <div class="field">
+            <label class="field-label" for="searchKeyword">金融機関名で検索</label>
+            <div class="search">
+                <svg class="search-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M10.8 10.8 L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+                <input class="form-control" id="searchKeyword" type="search"
+                       placeholder="例：AAA銀行" autocomplete="off"/>
+                <ul class="suggest" id="searchSuggest" hidden
+                    data-endpoint="/bankTransfer/api/banks"
+                    data-param-name="bankCode"
+                    data-no-hit="該当する金融機関が見つかりません"></ul>
+            </div>
+            <span class="hint">一覧に無い金融機関はこちらから探せます</span>
+        </div>
+        <h2 class="section-title">主な金融機関</h2>
         <div class="picklist-head">
             <span>コード</span><span>金融機関名</span><span></span>
         </div>
@@ -23,5 +39,6 @@
         </ul>
     </form>
 </div>
+<script src="/js/bankTransferSearch.js"></script>
 </body>
 </html>
