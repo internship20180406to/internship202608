@@ -1,6 +1,8 @@
 package com.example.internship.controller;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import com.example.internship.service.ApplyBankLoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +26,7 @@ public class BankLoanController {
     @GetMapping("/bankLoan")
     public String bankTransfer(Model model) {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
-        model.addAttribute("nameOptions", "山陰共同銀行");
+        model.addAttribute("nameOptions", List.of("山陰共同銀行"));
 
         // リストの定義
         List<String> accountTypeOptions = List.of(
@@ -48,8 +51,52 @@ public class BankLoanController {
 
     // 2. 確認画面の表示
     @PostMapping("/bankLoanConfirmation")
-    public String confirmation(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
-        // ★ getName() と setName() に変更
+    public String confirmation(@ModelAttribute("bankLoanApplication") BankLoanForm bankLoanForm,
+                               BindingResult bindingResult,
+                               Model model) {
+
+        // ★ 1. サーバー側：生年月日チェック（満20歳未満かどうかの判定）
+        boolean hasAgeError = false;
+        if (bankLoanForm.getBirthDate() != null && !bankLoanForm.getBirthDate().isEmpty()) {
+            try {
+                LocalDate birthDate = LocalDate.parse(bankLoanForm.getBirthDate());
+                LocalDate today = LocalDate.now();
+                int age = Period.between(birthDate, today).getYears();
+
+                if (age < 20) {
+                    bindingResult.rejectValue("birthDate", "error.birthDate",
+                            "満20歳未満の方はローンを申し込むことができません。");
+                    hasAgeError = true;
+                }
+            } catch (Exception e) {
+                bindingResult.rejectValue("birthDate", "error.birthDate",
+                        "生年月日の形式が正しくありません。");
+                hasAgeError = true;
+            }
+        }
+
+        // ★ 2. サーバー側：借入金額が年収の3分の1を超えていないかチェック
+        boolean hasIncomeError = false;
+        if (bankLoanForm.getAnnualIncome() != null && bankLoanForm.getLoanAmount() != null) {
+            long incomeYen = bankLoanForm.getAnnualIncome() * 10000L; // 万円 → 円に換算
+            long maxLimit = incomeYen / 3;                            // 年収の3分の1
+
+            if (bankLoanForm.getLoanAmount() > maxLimit) {
+                bindingResult.rejectValue("loanAmount", "error.loanAmount",
+                        "借入金額は年収の3分の1（" + String.format("%,d", maxLimit) + "円）以下で入力してください。");
+                hasIncomeError = true;
+            }
+        }
+
+        // バリデーションエラー（未入力や各独自チェックのエラー）がある場合は、選択肢を再設定して入力画面に戻す
+        if (bindingResult.hasErrors() || hasAgeError || hasIncomeError) {
+            model.addAttribute("nameOptions", List.of("山陰共同銀行"));
+            model.addAttribute("accountTypeOptions", List.of("住宅ローン", "マイカーローン", "教育ローン", "フリーローン", "カードローン"));
+            model.addAttribute("depositTypeOptions", List.of("普通預金", "当座預金", "貯蓄預金"));
+
+            return "bankLoanMain";
+        }
+
         if (bankLoanForm.getName() == null || bankLoanForm.getName().isEmpty()) {
             bankLoanForm.setName("ながれぼし銀行");
         }

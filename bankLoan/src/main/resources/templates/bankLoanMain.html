@@ -141,12 +141,10 @@
             <!-- 金融機関名 -->
             <div class="form-group">
                 <label>金融機関名 <small class="text-danger">※</small></label>
-                <select th:field="*{bankName}" class="form-control" required>
-                    <option th:each="option : ${nameOptions}"
-                            th:value="${option}"
-                            th:text="${option}">選択肢
-                    </option>
-                </select>
+                <input type="text" th:field="*{bankName}" list="bankNameOptions" class="form-control" placeholder="例: 山陰共同銀行 （選択または直接入力）" required/>
+                <datalist id="bankNameOptions">
+                    <option th:each="option : ${nameOptions}" th:value="${option}"></option>
+                </datalist>
             </div>
 
             <!-- 支店名 -->
@@ -172,8 +170,13 @@
                 <label>口座番号 <small class="text-danger">※</small></label>
                 <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" required/>
             </div>
+        </fieldset>
 
-            <!-- 債務者名 (見出しは「債務者名 ※」、入力欄の右側のみ「様」) -->
+        <!-- お客様情報グループ -->
+        <fieldset>
+            <legend>お客様情報</legend>
+
+            <!-- 債務者名 -->
             <div class="form-group">
                 <label>債務者名 <small class="text-danger">※</small></label>
                 <div class="input-group">
@@ -191,7 +194,31 @@
             <!-- 生年月日 -->
             <div class="form-group">
                 <label>生年月日 <small class="text-danger">※</small></label>
-                <input type="date" th:field="*{birthDate}" class="form-control" required/>
+                <input type="date" id="birthDate" th:field="*{birthDate}" class="form-control" required/>
+            </div>
+
+            <!-- 電話番号 -->
+            <div class="form-group">
+                <label>電話番号 <small class="text-danger">※</small></label>
+                <input type="tel" th:field="*{phoneNumber}" class="form-control" placeholder="090-1234-5678" required/>
+            </div>
+
+            <!-- メールアドレス -->
+            <div class="form-group">
+                <label>メールアドレス <small class="text-danger">※</small></label>
+                <input type="email" th:field="*{email}" class="form-control" placeholder="example@email.com" required/>
+            </div>
+
+            <!-- 郵便番号 -->
+            <div class="form-group">
+                <label>郵便番号 <small class="text-danger">※</small></label>
+                <input type="text" th:field="*{postalCode}" class="form-control" placeholder="810-0001" required/>
+            </div>
+
+            <!-- 住所 -->
+            <div class="form-group">
+                <label>住所 <small class="text-danger">※</small></label>
+                <input type="text" th:field="*{address}" class="form-control" placeholder="福岡県福岡市中央区天神1-1-1" required/>
             </div>
         </fieldset>
 
@@ -202,7 +229,7 @@
             <!-- ローン種類 -->
             <div class="form-group">
                 <label>ローン種類 <small class="text-danger">※</small></label>
-                <select th:field="*{accountType}" class="form-control" required>
+                <select id="accountType" th:field="*{accountType}" class="form-control" required>
                     <option value="">-- 選択してください --</option>
                     <option th:each="option : ${accountTypeOptions}"
                             th:value="${option}"
@@ -211,22 +238,22 @@
                 </select>
             </div>
 
-            <!-- 借入金額 -->
-            <div class="form-group">
-                <label>借入金額（円） <small class="text-danger">※</small></label>
-                <input type="number" th:field="*{loanAmount}" class="form-control" placeholder="1000000" required/>
-            </div>
-
             <!-- 借入年収 -->
             <div class="form-group">
                 <label>借入年収（万円） <small class="text-danger">※</small></label>
-                <input type="number" th:field="*{annualIncome}" class="form-control" placeholder="400" required/>
+                <input type="number" id="annualIncome" th:field="*{annualIncome}" class="form-control" placeholder="400" required/>
+            </div>
+
+            <!-- 借入金額 -->
+            <div class="form-group">
+                <label>借入金額（円） <small class="text-danger">※</small></label>
+                <input type="text" id="loanAmount" th:field="*{loanAmount}" class="form-control" placeholder="1,000,000" required/>
             </div>
 
             <!-- 金利 -->
             <div class="form-group">
                 <label>金利（％） <small class="text-danger">※</small></label>
-                <input type="number" step="0.01" th:field="*{interestRate}" class="form-control" placeholder="1.5" required/>
+                <input type="number" step="0.01" id="interestRate" th:field="*{interestRate}" class="form-control" placeholder="1.5" required/>
             </div>
         </fieldset>
 
@@ -239,6 +266,69 @@
 </div>
 
 <script>
+    // ローン種類ごとのデフォルト金利の対応表（必要に応じて名称や数値を調整してください）
+    const defaultInterestRates = {
+        "住宅ローン": 0.85,
+        "マイカーローン": 2.50,
+        "教育ローン": 1.80,
+        "フリーローン": 5.00,
+        "カードローン": 14.00
+    };
+
+    // ページ読み込み時の初期設定
+    document.addEventListener('DOMContentLoaded', function() {
+        const birthDateInput = document.getElementById('birthDate');
+        if (birthDateInput) {
+            const today = new Date();
+            const maxYear = today.getFullYear() - 20;
+            const maxMonth = String(today.getMonth() + 1).padStart(2, '0');
+            const maxDay = String(today.getDate()).padStart(2, '0');
+            birthDateInput.max = `${maxYear}-${maxMonth}-${maxDay}`;
+        }
+
+        // 借入金額の初期値にカンマをつける（確認画面からの戻りなど）
+        const loanAmountInput = document.getElementById('loanAmount');
+        if (loanAmountInput && loanAmountInput.value) {
+            let rawVal = loanAmountInput.value.replace(/,/g, '');
+            if (!isNaN(rawVal) && rawVal !== '') {
+                loanAmountInput.value = Number(rawVal).toLocaleString();
+            }
+        }
+    });
+
+    // ★ ローン種類を変更したときに、対応する金利を自動でセットする
+    const accountTypeSelect = document.getElementById('accountType');
+    const interestRateInput = document.getElementById('interestRate');
+
+    if (accountTypeSelect && interestRateInput) {
+        accountTypeSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            // 対応表に存在する場合、その金利を自動入力する
+            if (defaultInterestRates.hasOwnProperty(selectedType)) {
+                interestRateInput.value = defaultInterestRates[selectedType];
+            } else if (selectedType === "") {
+                // 未選択に戻された場合は空欄にする
+                interestRateInput.value = "";
+            }
+        });
+    }
+
+    // 借入金額：フォーカスが当たったときはカンマを外して編集しやすくする
+    const loanAmountInput = document.getElementById('loanAmount');
+    if (loanAmountInput) {
+        loanAmountInput.addEventListener('focus', function() {
+            this.value = this.value.replace(/,/g, '');
+        });
+
+        // 借入金額：フォーカスが外れたときに3桁区切りのカンマをつける
+        loanAmountInput.addEventListener('blur', function() {
+            let val = this.value.replace(/,/g, '');
+            if (val !== '' && !isNaN(val)) {
+                this.value = Number(val).toLocaleString();
+            }
+        });
+    }
+
     document.getElementById('loanForm').addEventListener('submit', function(e) {
         let isValid = true;
         const requiredInputs = this.querySelectorAll('[required]');
@@ -247,18 +337,16 @@
         this.querySelectorAll('.error-msg').forEach(el => el.remove());
         requiredInputs.forEach(input => input.classList.remove('is-invalid'));
 
-        // 未入力チェック
+        // 1. 未入力チェック
         requiredInputs.forEach(input => {
             if (!input.value.trim()) {
                 isValid = false;
                 input.classList.add('is-invalid');
 
-                // エラーメッセージを表示
                 const msg = document.createElement('span');
                 msg.className = 'error-msg';
                 msg.innerText = '※ この項目を入力（選択）してください。';
 
-                // input-group 内の場合は親要素の後ろに追加
                 if (input.parentNode.classList.contains('input-group')) {
                     input.parentNode.parentNode.appendChild(msg);
                 } else {
@@ -267,7 +355,66 @@
             }
         });
 
-        // バリデーションエラー時は送信を中断し、最初のエラー項目にフォーカス
+        // 2. 生年月日チェック（満20歳未満の申込を禁止）
+        const birthDateInput = document.getElementById('birthDate');
+        if (birthDateInput && birthDateInput.value) {
+            const birthDate = new Date(birthDateInput.value);
+            const today = new Date();
+            let adultDate = new Date(today.getFullYear() - 20, today.getMonth(), today.getDate());
+
+            if (birthDate > adultDate) {
+                isValid = false;
+                birthDateInput.classList.add('is-invalid');
+
+                const msg = document.createElement('span');
+                msg.className = 'error-msg';
+                msg.innerText = '※ 満20歳未満の方はローンを申し込むことができません。';
+                birthDateInput.parentNode.appendChild(msg);
+            }
+        }
+
+        // 3. 借入金額の下限・上限チェック
+        const annualIncomeInput = document.getElementById('annualIncome');
+
+        if (annualIncomeInput && loanAmountInput && annualIncomeInput.value && loanAmountInput.value) {
+            const incomeYen = parseFloat(annualIncomeInput.value) * 10000; // 万円 → 円
+            const loanAmountYen = parseFloat(loanAmountInput.value.replace(/,/g, '')); // カンマを除去して数値化
+            const maxLimit = Math.floor(incomeYen / 3); // 年収の3分の1
+            const minLimit = 10000; // 下限: 1万円
+
+            if (isNaN(loanAmountYen)) {
+                isValid = false;
+                loanAmountInput.classList.add('is-invalid');
+
+                const msg = document.createElement('span');
+                msg.className = 'error-msg';
+                msg.innerText = '※ 有効な数値を入力してください。';
+                loanAmountInput.parentNode.appendChild(msg);
+            } else if (loanAmountYen < minLimit) {
+                isValid = false;
+                loanAmountInput.classList.add('is-invalid');
+
+                const msg = document.createElement('span');
+                msg.className = 'error-msg';
+                msg.innerText = `※ 借入金額は ${minLimit.toLocaleString()}円 以上で入力してください。`;
+                loanAmountInput.parentNode.appendChild(msg);
+            } else if (loanAmountYen > maxLimit) {
+                isValid = false;
+                loanAmountInput.classList.add('is-invalid');
+
+                const msg = document.createElement('span');
+                msg.className = 'error-msg';
+                msg.innerText = `※ 借入金額は年収の3分の1（${maxLimit.toLocaleString()}円）以下で入力してください。`;
+                loanAmountInput.parentNode.appendChild(msg);
+            }
+        }
+
+        // 送信直前に、借入金額に入っているカンマを自動で削除する
+        if (loanAmountInput && loanAmountInput.value) {
+            loanAmountInput.value = loanAmountInput.value.replace(/,/g, '');
+        }
+
+        // バリデーションエラー時は送信を中断
         if (!isValid) {
             e.preventDefault();
             const firstInvalid = this.querySelector('.is-invalid');
