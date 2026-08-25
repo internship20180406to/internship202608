@@ -96,13 +96,23 @@
 
         <p>
             <label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
+
+            <input type="text"
+                   id="branchSearch"
+                   class="form-control"
+                   placeholder="支店名を検索">
+
             <select th:field="*{branchName}"
-                   id="branchName"
-                   class="form-cobntrol"
+                    id="branchName"
+                    class="form-cobntrol"
                     th:data-selected="${branchName}">
 
                 <option value="">金融機関を先に選択してください</option>
             </select>
+
+            <input type="hidden"
+                   id="selectedBranch"
+                   th:value="*{branchName}">
 
             <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('branchName')}"
@@ -306,14 +316,20 @@
 
     const bankNameSelect = document.getElementById('bankName');
     const branchNameSelect = document.getElementById('branchName');
+    const branchSearch = document.getElementById('branchSearch');
+    const selectedBranchInput = document.getElementById('selectedBranch');
 
-    function updateBranchOptions(selectedBranch) {
+    function updateBranchOptions(selectedBranch = '', keyword = '') {
+
         const selectedBank = bankNameSelect.value;
 
+        // 支店の選択肢をいったん削除
         branchNameSelect.innerHTML = '';
 
+        // 最初の選択肢を作成
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
+
         if (selectedBank === '') {
             defaultOption.textContent = '金融機関を先に選択してください';
         } else {
@@ -322,31 +338,66 @@
 
         branchNameSelect.appendChild(defaultOption);
 
+        // 選択された金融機関の支店を取得
         const branches = branchOptions[selectedBank];
 
         if (branches) {
-            branches.forEach(branch => {
-                const option = document.createElement('option');
-                option.value = branch;
-                option.textContent = branch;
 
-                if (branch === selectedBranch) {
-                    option.selected = true;
-                }
+            branches
+                .filter(branch => branch.includes(keyword))
+                .forEach(branch => {
 
-                branchNameSelect.appendChild(option);
-            });
+                    const option = document.createElement('option');
+
+                    option.value = branch;
+                    option.textContent = branch;
+
+                    branchNameSelect.appendChild(option);
+                });
+        }
+
+        // 選択していた支店を復元
+        if (selectedBranch !== '') {
+            branchNameSelect.value = selectedBranch;
         }
     }
 
+
     // 金融機関を変更したとき
     bankNameSelect.addEventListener('change', function () {
-        updateBranchOptions('');
+
+        branchSearch.value = '';
+        selectedBranchInput.value = '';
+
+        updateBranchOptions();
     });
 
-    // エラーで画面に戻ってきたとき
-    const selectedBranch = branchNameSelect.dataset.selected;
-    updateBranchOptions(selectedBranch);
+
+    // 支店を検索したとき
+    branchSearch.addEventListener('input', function () {
+
+        // 検索前に現在選択している支店を覚える
+        const selectedBranch = branchNameSelect.value;
+
+        selectedBranchInput.value = this.value;
+    });
+
+    // 支店を検索したとき
+    branchSearch.addEventListener('input', function () {
+
+        const currentBranch = selectedBranchInput.value;
+
+        updateBranchOptions(
+            currentBranch,
+            this.value
+        );
+    });
+
+
+    // バリデーションエラーなどで画面が再表示されたとき
+    const savedBranch = selectedBranchInput.value;
+
+    updateBranchOptions(savedBranch);
 </script>
 
 </body>
