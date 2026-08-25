@@ -57,7 +57,7 @@
         <p>科目: <span th:text="*{bankAccountType}"></span></p>
         <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
         <p>口座名義: <span th:text="*{name}"></span></p>
-        <p>金額: <span th:text="*{money}"></span>円</p>
+        <p>金額: <span th:text="${#numbers.formatInteger(bankTransferApplication.money, 1, 'COMMA')}"></span>円</p>
         <p>振込指定日: <span th:text="*{transferDateTime}"></span></p>
 
         <input type="hidden" name="bankName"         th:value="*{bankName}"/>

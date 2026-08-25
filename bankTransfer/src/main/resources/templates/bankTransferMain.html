@@ -31,6 +31,17 @@
             margin: 5px 0;
             box-sizing: border-box;
         }
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-with-unit .form-control {
+            flex: 1;
+        }
+        .unit {
+            white-space: nowrap;
+        }
         .text-danger {
             color: red;
         }
@@ -102,7 +113,10 @@
                   th:errors="*{name}"></span></p>
 
         <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{money}" class="form-control" min="1" placeholder="10000"/>
+            <span class="input-with-unit">
+                <input type="text" th:field="*{money}" class="form-control" inputmode="numeric" placeholder="10,000"/>
+                <span class="unit">円</span>
+            </span>
             <span class="text-danger" th:if="${#fields.hasErrors('money')}"
                   th:errors="*{money}"></span></p>
 
@@ -116,5 +130,6 @@
             <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
     </form>
 </div>
+<script src="/js/bankTransferMain.js"></script>
 </body>
 </html>
