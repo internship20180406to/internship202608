@@ -88,6 +88,21 @@
             <span>万円</span>
         </p>
 
+        <p>
+            <label>
+                ご本人様の前年度年収（税込）:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <input type="number"
+                   th:field="*{annualIncome}"
+                   class="form-control"
+                   min="0"
+                   placeholder="500"
+                   required/>
+            <span>万円</span>
+        </p>
+
         <p class="button-area">
             <input type="button"
                    value="戻る"

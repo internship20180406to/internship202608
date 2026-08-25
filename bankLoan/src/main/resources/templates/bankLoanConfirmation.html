@@ -14,6 +14,7 @@
     <p>支店名: <span th:text="*{branchName}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
     <p>借入希望額:<span th:text="*{desiredLoanAmount}"></span>万円</p>
+    <p>ご本人様の前年度年収（税込）:<span th:text="*{annualIncome}"></span>万円</p>
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
     <input type="hidden" name="branchName" th:value="*{branchName}"/>
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
@@ -22,6 +23,7 @@
     <input type="hidden" name="debtorName" th:value="*{debtorName}"/>
     <input type="hidden" name="desiredLoanAmount" th:value="*{desiredLoanAmount}"/>
     <input type="hidden" th:field="*{birthDate}"/>
+    <input type="hidden" name="annualIncome" th:value="*{annualIncome}"/>
 
     <p>
         <input type="submit" id="submit" value="申込"/>

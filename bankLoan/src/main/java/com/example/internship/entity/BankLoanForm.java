@@ -29,6 +29,8 @@ public class BankLoanForm {
 
     private Integer desiredLoanAmount;
 
+    private Integer annualIncome;
+
     public String getBankName() {
         return bankName;
     }
