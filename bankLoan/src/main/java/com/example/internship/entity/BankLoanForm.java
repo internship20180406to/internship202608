@@ -1,79 +1,25 @@
 package com.example.internship.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class BankLoanForm {
 
     private String bankName;         // 金融機関名
     private String branchName;       // 支店名
-    private String bankAccountType;  // 預金種別（depositType ➔ bankAccountType）
+    private String bankAccountType;  // 預金種別
     private String accountType;      // ローン種類
     private Integer bankAccountNum;  // 口座番号
-    private String name;             // 債務者名（debtorName ➔ name）
-    private Integer loanAmount;      // 借入金額（borrowingAmount ➔ loanAmount）
+    private String name;             // 債務者名
+    private String nameKana;         // フリガナ
+    private String birthDate;        // 生年月日
+    private String phoneNumber;      // 電話番号
+    private String email;            // メールアドレス
+    private String postalCode;       // ★ 追加：郵便番号
+    private String address;          // 住所
+    private Integer loanAmount;      // 借入金額
     private Integer annualIncome;    // 借入年収
     private Double interestRate;     // 金利
-
-    // --- Getter / Setter ---
-
-    public String getBankName() {
-        return bankName;
-    }
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
-    }
-
-    public String getBranchName() {
-        return branchName;
-    }
-    public void setBranchName(String branchName) {
-        this.branchName = branchName;
-    }
-
-    public String getBankAccountType() {
-        return bankAccountType;
-    }
-    public void setBankAccountType(String bankAccountType) {
-        this.bankAccountType = bankAccountType;
-    }
-
-    public String getAccountType() {
-        return accountType;
-    }
-    public void setAccountType(String accountType) {
-        this.accountType = accountType;
-    }
-
-    public Integer getBankAccountNum() {
-        return bankAccountNum;
-    }
-    public void setBankAccountNum(Integer bankAccountNum) {
-        this.bankAccountNum = bankAccountNum;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getLoanAmount() {
-        return loanAmount;
-    }
-    public void setLoanAmount(Integer loanAmount) {
-        this.loanAmount = loanAmount;
-    }
-
-    public Integer getAnnualIncome() {
-        return annualIncome;
-    }
-    public void setAnnualIncome(Integer annualIncome) {
-        this.annualIncome = annualIncome;
-    }
-
-    public Double getInterestRate() {
-        return interestRate;
-    }
-    public void setInterestRate(Double interestRate) {
-        this.interestRate = interestRate;
-    }
 }

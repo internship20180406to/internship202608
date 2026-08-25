@@ -71,6 +71,36 @@
             border-color: #2185D0;
             outline: none;
         }
+
+        /* 入力欄の右に単位や敬称を並べる設定 */
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-group .form-control {
+            flex: 1;
+        }
+        .input-suffix {
+            font-size: 14px;
+            font-weight: bold;
+            color: #444444;
+            white-space: nowrap;
+        }
+
+        /* 未入力エラー時の赤枠 */
+        .is-invalid {
+            border: 2px solid #e74c3c !important;
+            background-color: #fdf2f2 !important;
+        }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
+            font-weight: bold;
+        }
+
         .text-danger {
             color: red;
         }
@@ -102,7 +132,7 @@
 <body>
 <div class="content">
     <h1>ローン申込情報入力</h1>
-    <form action="#" th:action="@{/bankLoanConfirmation}" th:object="${bankLoanApplication}" method="post">
+    <form id="loanForm" action="#" th:action="@{/bankLoanConfirmation}" th:object="${bankLoanApplication}" method="post" novalidate>
 
         <!-- 口座情報グループ -->
         <fieldset>
@@ -111,7 +141,7 @@
             <!-- 金融機関名 -->
             <div class="form-group">
                 <label>金融機関名 <small class="text-danger">※</small></label>
-                <select th:field="*{bankName}" class="form-control">
+                <select th:field="*{bankName}" class="form-control" required>
                     <option th:each="option : ${nameOptions}"
                             th:value="${option}"
                             th:text="${option}">選択肢
@@ -122,13 +152,13 @@
             <!-- 支店名 -->
             <div class="form-group">
                 <label>支店名 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{branchName}" class="form-control" placeholder="福岡支店"/>
+                <input type="text" th:field="*{branchName}" class="form-control" placeholder="福岡支店" required/>
             </div>
 
-            <!-- 預金種別 (★ depositType -> bankAccountType) -->
+            <!-- 預金種別 -->
             <div class="form-group">
                 <label>預金種別 <small class="text-danger">※</small></label>
-                <select th:field="*{bankAccountType}" class="form-control">
+                <select th:field="*{bankAccountType}" class="form-control" required>
                     <option value="">-- 選択してください --</option>
                     <option th:each="option : ${depositTypeOptions}"
                             th:value="${option}"
@@ -140,13 +170,28 @@
             <!-- 口座番号 -->
             <div class="form-group">
                 <label>口座番号 <small class="text-danger">※</small></label>
-                <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/>
+                <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" required/>
             </div>
 
-            <!-- 債務者名 (★ debtorName -> name) -->
+            <!-- 債務者名 (見出しは「債務者名 ※」、入力欄の右側のみ「様」) -->
             <div class="form-group">
                 <label>債務者名 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{name}" class="form-control" placeholder="山田 太郎"/>
+                <div class="input-group">
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="山田 太郎" required/>
+                    <span class="input-suffix">様</span>
+                </div>
+            </div>
+
+            <!-- フリガナ -->
+            <div class="form-group">
+                <label>フリガナ <small class="text-danger">※</small></label>
+                <input type="text" th:field="*{nameKana}" class="form-control" placeholder="ヤマダ タロウ" required/>
+            </div>
+
+            <!-- 生年月日 -->
+            <div class="form-group">
+                <label>生年月日 <small class="text-danger">※</small></label>
+                <input type="date" th:field="*{birthDate}" class="form-control" required/>
             </div>
         </fieldset>
 
@@ -157,7 +202,7 @@
             <!-- ローン種類 -->
             <div class="form-group">
                 <label>ローン種類 <small class="text-danger">※</small></label>
-                <select th:field="*{accountType}" class="form-control">
+                <select th:field="*{accountType}" class="form-control" required>
                     <option value="">-- 選択してください --</option>
                     <option th:each="option : ${accountTypeOptions}"
                             th:value="${option}"
@@ -166,22 +211,22 @@
                 </select>
             </div>
 
-            <!-- 借入金額 (★ borrowingAmount -> loanAmount) -->
+            <!-- 借入金額 -->
             <div class="form-group">
                 <label>借入金額（円） <small class="text-danger">※</small></label>
-                <input type="number" th:field="*{loanAmount}" class="form-control" placeholder="1000000"/>
+                <input type="number" th:field="*{loanAmount}" class="form-control" placeholder="1000000" required/>
             </div>
 
             <!-- 借入年収 -->
             <div class="form-group">
                 <label>借入年収（万円） <small class="text-danger">※</small></label>
-                <input type="number" th:field="*{annualIncome}" class="form-control" placeholder="400"/>
+                <input type="number" th:field="*{annualIncome}" class="form-control" placeholder="400" required/>
             </div>
 
             <!-- 金利 -->
             <div class="form-group">
                 <label>金利（％） <small class="text-danger">※</small></label>
-                <input type="number" step="0.01" th:field="*{interestRate}" class="form-control" placeholder="1.5"/>
+                <input type="number" step="0.01" th:field="*{interestRate}" class="form-control" placeholder="1.5" required/>
             </div>
         </fieldset>
 
@@ -192,5 +237,52 @@
         </p>
     </form>
 </div>
+
+<script>
+    document.getElementById('loanForm').addEventListener('submit', function(e) {
+        let isValid = true;
+        const requiredInputs = this.querySelectorAll('[required]');
+
+        // 既存のエラー表示をクリア
+        this.querySelectorAll('.error-msg').forEach(el => el.remove());
+        requiredInputs.forEach(input => input.classList.remove('is-invalid'));
+
+        // 未入力チェック
+        requiredInputs.forEach(input => {
+            if (!input.value.trim()) {
+                isValid = false;
+                input.classList.add('is-invalid');
+
+                // エラーメッセージを表示
+                const msg = document.createElement('span');
+                msg.className = 'error-msg';
+                msg.innerText = '※ この項目を入力（選択）してください。';
+
+                // input-group 内の場合は親要素の後ろに追加
+                if (input.parentNode.classList.contains('input-group')) {
+                    input.parentNode.parentNode.appendChild(msg);
+                } else {
+                    input.parentNode.appendChild(msg);
+                }
+            }
+        });
+
+        // バリデーションエラー時は送信を中断し、最初のエラー項目にフォーカス
+        if (!isValid) {
+            e.preventDefault();
+            const firstInvalid = this.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.focus();
+            }
+        }
+    });
+
+    // クリアボタンを押したときに赤枠メッセージを消去
+    document.querySelector('.form-clear-button').addEventListener('click', function() {
+        const form = document.getElementById('loanForm');
+        form.querySelectorAll('.error-msg').forEach(el => el.remove());
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    });
+</script>
 </body>
 </html>
