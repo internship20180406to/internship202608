@@ -8,7 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-
+//時間取得のためインポート
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Controller
 public class InvestmentTrustController {
@@ -32,22 +34,39 @@ public class InvestmentTrustController {
         return "investmentTrustConfirmation";
     }
 
+    // 入力内容を修正するときの処理
+    @PostMapping("/investmentTrust")
+    public String edit(@ModelAttribute InvestmentTrustForm investmentTrustForm,
+                       Model model) {
+
+        // 入力されていた内容を入力画面に渡す
+        model.addAttribute(
+                "investmentTrustApplication",
+                investmentTrustForm
+        );
+
+        // 入力画面に戻る
+        return "investmentTrustMain";
+    }
+
     @PostMapping("/investmentTrustCompletion")
     public String completion(@ModelAttribute InvestmentTrustForm investmentTrustForm, Model model) {
 
-//        System.out.println("===== 申込データ =====");
-//       System.out.println("銀行名：" + investmentTrustForm.getBankName());
-//        System.out.println("口座番号：" + investmentTrustForm.getBankAccountNum());
-//        System.out.println("購入者名：" + investmentTrustForm.getPurchaserName());
-//        System.out.println("銘柄：" + investmentTrustForm.getInvestmentTrustName());
-//        System.out.println("科目名：" + investmentTrustForm.getBankSubject());
-//        System.out.println("支店名：" + investmentTrustForm.getBranch());
-//       System.out.println("購入金額：" + investmentTrustForm.getPurchaseAmount());
-//
-//       System.out.println("===== Service呼び出し完了 =====");
-
-
         orderInvestmentTrustService.orderInvestmentTrust(investmentTrustForm);
+
+        // 注文日時を取得
+        LocalDateTime now = LocalDateTime.now();
+
+        // 注文日時の表示形式を設定
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("yyyy年M月d日 HH:mm");
+
+        // 注文日時を文字列に変換
+        String orderDate = now.format(formatter);
+
+        // 完了画面に注文日時を渡す
+        model.addAttribute("orderDate", orderDate);
+
         return "investmentTrustCompletion";
     }
 

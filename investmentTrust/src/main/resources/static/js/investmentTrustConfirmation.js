@@ -1,13 +1,13 @@
 const submitButton = document.getElementById("submit");
-
+// 申し込みボタンがクリックすされた時の処理、
 submitButton.addEventListener("click", function(event) {
-
+    // 科目名の取得
     const bankSubject =
         document.getElementById("bankSubject").textContent;
-
+    //銘柄名の取得
     const investmentTrustName =
         document.getElementById("investmentTrustName").textContent;
-
+    // 購入金額を取得
     const purchaseAmount =
         document.getElementById("purchaseAmount").textContent;
 
@@ -19,7 +19,7 @@ submitButton.addEventListener("click", function(event) {
         "この内容でよろしいですか？";
 
     const result = confirm(message);
-
+    //送信ストップ
     if (!result) {
         event.preventDefault();
     }

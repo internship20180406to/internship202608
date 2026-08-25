@@ -132,6 +132,22 @@
             transform: translateY(-1px);
         }
 
+        /* 入力内容の修正ボタン */
+        /* １６：３１ */
+        .form-edit-button {
+            color: #555;
+
+            background-color: #e7edf3;
+        }
+
+        /* 入力内容の修正ボタン hover */
+        /* １５：２１ */
+        .form-edit-button:hover {
+            background-color: #d8e1e9;
+
+            transform: translateY(-1px);
+        }
+
         /* キャンセルボタン */
         input[type="button"] {
             color: #555;
@@ -155,10 +171,9 @@
     <p>購入者名： <span th:text="*{purchaserName}"></span></p>
     <p>銘柄： <span id="investmentTrustName" th:text="*{investmentTrustName}"></span></p>
     <p>購入金額： <span id="purchaseAmount" th:text="*{purchaseAmount}"></span></p>
-<!--javaにおくる？、-->
+    <!--うらがわしょりOK -->
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
-<!-- 未定   -->
     <input type="hidden" name="branch" th:value="*{branch}"/>
     <input type="hidden" name="bankSubject" th:value="*{bankSubject}"/>
     <input  type="hidden" name="purchaserName" th:value="*{purchaserName}"/>
@@ -167,8 +182,21 @@
 
 
     <p>
-        <input type="submit" id="submit" value="申込"/>
-        <input type="button" value="キャンセル" onclick="window.location='/investmentTrust';"/>
+        <!--入力内容の修正        -->
+        <!-- １６：１０入力画面に戻るための送信先を指定 -->
+        <input type="submit"
+               id="action"
+               name="action"
+               value="入力内容の修正"
+               class="form-contorol-button form-edit-button"
+               formaction="/investmentTrust"/>
+
+        <!--申し込みボタン-->
+        <input type="submit" id="submit" name="action" value="申し込む"
+               class="form-control-button form-confirmation-button"/>
+
+        <!--キャンセル-->
+        <input type="button" value="注文をキャンセル" onclick="window.location='/investmentTrust';"/>
     </p>
 </form>
 <script th:inline="javascript" src="/js/investmentTrustConfirmation.js"></script>
