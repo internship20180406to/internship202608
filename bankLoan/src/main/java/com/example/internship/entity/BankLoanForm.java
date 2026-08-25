@@ -27,7 +27,7 @@ public class BankLoanForm {
     @NotBlank(message = "債務者名を入力してください")
     private String name;
     @NotNull(message = "借入金額を入力してください")
-    @Min(value = 1, message = "借入金額は1万円以上で入力してください")
+    @Min(value = 10, message = "借入金額は10万円以上で入力してください")
     @Max(value = 1000, message = "借入金額が上限を超えています")
     private Integer loanAmount;
     @NotNull(message = "年収を入力してください")
@@ -35,8 +35,8 @@ public class BankLoanForm {
     @Max(value = 100000, message = "年収が上限を超えています")
     private Integer annualIncome;
     @NotNull(message = "金利を入力してください")
-    @DecimalMin("0.0")
-    @DecimalMax("20.0")
+    @DecimalMin("0.95")
+    @DecimalMax("14.5")
     private Double interestRate;
 
 
