@@ -87,6 +87,7 @@
         </p>
         <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}" class="form-control">
+                <option value="">選択してください</option>
                 <option value="普通預金">普通預金</option>
                 <option value="当座預金">当座預金</option>
                 <option value="定期預金">定期預金</option>
@@ -117,7 +118,7 @@
                 <input type="text"
                        th:field="*{lastName}"
                        class="form-control"
-                       placeholder="山田"
+                       placeholder="山田（姓）"
                        maxlength="25"
                        required/>
             </div>
@@ -126,7 +127,7 @@
                 <input type="text"
                        th:field="*{firstName}"
                        class="form-control"
-                       placeholder="太郎"
+                       placeholder="太郎（名）"
                        maxlength="25"
                        required/>
             </div>
@@ -136,41 +137,67 @@
 
         <p><label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}" class="form-control">
+                <option value="">選択してください</option>
                 <option value="　">　</option>
 
-            </select>
-        </p>
-        <p><label class="ml-1">購入金額:
-            <br>（自分で自由に投資をしたい方）<small class="text-danger ml-1">※</small></label><br>
-            <input type="text"
-                   th:field="*{bankAccountNum}"
-                   class="form-control"
-                   placeholder="9999999"
-                   maxlength="7"
-                   pattern="[0-9]{7}"
-                   inputmode="numeric"
-                   title="4桁の半角数字で入力してください"
-                   required/>
-        </p>
-        <p>（選択肢の中から選びたい方）
-        <label class="ml-1"><small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}" class="form-control">
-                <option value="　">　</option>
+            </select></p></form>
 
-            </select>
-        </p>
-        <form id="myForm" onsubmit="return checkFields()">
-            <!-- 入力欄1（※requiredは外しておきます） -->
-            <input type="text" id="phone1" class="form-control" placeholder="固定電話">
+        <form id="investForm" onsubmit="return checkInvestment()">
 
-            <!-- 入力欄2 -->
-            <input type="text" id="phone2" class="form-control" placeholder="携帯電話">
+            <p>
+                <label class="ml-1">購入金額:<br>
+                    （自分で自由に投資をしたい方はこちら）</label><br>
+                <input type="text"
+                       th:field="*{bankAccountNum}"
+                       id="freeInput"
+                       class="form-control"
+                       placeholder="9999999"
+                       maxlength="7"
+                       pattern="[0-9]{1,7}"
+                       inputmode="numeric"
+                       title="最大7桁の半角数字で入力してください"/>
+            </p>
 
-            <button type="submit">次へ進む</button>
+        <!-- 💡onsubmit="return checkInvestment()" が付いているか確認してください -->
+        <form th:action="@{/...}" th:object="${...}" method="post" onsubmit="return checkInvestment()">
+
+        <p>（選択肢の中から選びたい方はこちら）<br>
+                <select th:field="*{bankName}" id="selectInput" class="form-control">
+                    <option value="">選択してください</option>
+                    <option value="10000">10,000円</option>
+                    <option value="30000">30,000円</option>
+                    <option value="50000">50,000円</option>
+                </select>
+                <script>
+                    function checkInvestment() {
+                        // ① 自由入力欄の文字を取得
+                        const freeInputValue = document.getElementById('freeInput').value.trim();
+                        // ② 選択肢欄の選ばれている値を取得
+                        const selectInput = document.getElementById('selectInput');
+                        const selectValue = selectInput.value;
+
+                        // 【チェック1】 両方とも空っぽ（未入力・未選択）の場合
+                        if (freeInputValue === "" && selectValue === "") {
+                            alert("「購入金額の入力」または「選択肢からの選択」の、どちらか片方は必ず行ってください。");
+                            return false; // 次のステップに進ませない
+                        }
+
+                        // 【チェック2】 両方とも入力・選択してしまっている場合
+                        if (freeInputValue !== "" && selectValue !== "") {
+                            alert("購入金額は「自由入力」か「選択肢」のどちらか一方のみにしてください。");
+                            return false; // 次のステップに進ませない
+                        }
+
+                        // 片方だけが正しく入力されていれば、そのまま次のステップ（送信）へ進む
+                        return true;
+                    }
+                </script>
+            </p>
         </form>
+
         <p style="text-align: center;"><input type="submit" value="確認"
                                               class="form-control-button form-confirmation-button"/>
-            <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
+            <input type="button" value="クリア" class="form-control-button form-clear-button"/></p>
     </form>
 </div>
 </body>
