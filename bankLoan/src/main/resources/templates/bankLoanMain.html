@@ -1,78 +1,126 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>ローン申込情報入力画面</title>
+    <title>基本情報</title>
     <style>
         body {
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        padding-top: 40px;
-        padding-bottom: 40px;
-        justify-content: center;
-        align-items: center;
-        min-height: 85vh;
-        overflow: auto;
+            background-color: #f2f2f2;
+            color: #111111;
+            margin: 0;
+            padding: 50px 0;
+            display: flex;
+            justify-content: center;
+            min-height: 85vh;
+            font-family:
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    "Hiragino Kaku Gothic ProN",
+                    "Yu Gothic",
+                    sans-serif;
         }
+
         .content {
-         background-color: #ffffff;
-         width: 80%;
-         padding: 20px;
-         border-radius: 10px;
-         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-         min-height: 50vh;
-         overflow: auto;
+            background-color: #ffffff;
+            width: 80%;
+            max-width: 950px;
+            padding: 35px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         }
+
+        h1 {
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #111111;
+            font-size: 30px;
+        }
+
+        .section-title {
+            margin-top: 35px;
+            padding: 10px 0 10px 15px;
+            border-left: 6px solid #111111;
+            border-bottom: 1px solid #cccccc;
+            color: #111111;
+            font-size: 23px;
+        }
+
+        .form-group {
+            margin: 16px 0;
+        }
+
+        form label {
+            font-weight: 600;
+        }
+
         .form-control {
             width: 100%;
-            padding: 8px;
-            margin: 5px 0;
+            padding: 11px;
+            margin: 7px 0;
             box-sizing: border-box;
+            color: #111111;
+            background-color: #ffffff;
+            border: 1px solid #777777;
+            border-radius: 3px;
+            font-size: 15px;
         }
+
+        .form-control:focus {
+            border: 2px solid #111111;
+            outline: none;
+        }
+
         .name-inputs {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
+
         .name-inputs .form-control {
             flex: 1;
             min-width: 0;
         }
+
         .text-danger {
-        color: red;
+            color: #c00000;
         }
+
+        .button-area {
+            margin-top: 30px;
+            text-align: center;
+        }
+
         .form-control-button {
-        width: 80px;
-        padding: 10px 20px;
-        margin-top: 10px;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
+            min-width: 100px;
+            padding: 12px 22px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: 0.2s;
         }
-        .form-confirmation-button{
-        color: white;
-        background-color: #2185D0;
+
+        .form-confirmation-button {
+            color: #ffffff;
+            background-color: #111111;
+            border: 2px solid #111111;
         }
+
         .form-confirmation-button:hover {
-        background-color: #1678c2;
+            color: #111111;
+            background-color: #ffffff;
         }
-        .form-clear-button{
-        color: black;
-        background-color: #E0E1E2;
+
+        .form-clear-button {
+            color: #111111;
+            background-color: #ffffff;
+            border: 2px solid #777777;
         }
+
         .form-clear-button:hover {
-        background-color: #CCCCCC;
-        }
-
-        .was-validated .form-control:invalid {
-            border: 2px solid #dc3545;
-            background-color: #fff5f5;
-            outline: none;
-        }
-
-        .was-validated .form-control:invalid:focus {
-            box-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
+            background-color: #e5e5e5;
         }
 
         .form-control:user-invalid {
@@ -85,28 +133,57 @@
             box-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
         }
 
+        .was-validated .form-control:invalid {
+            border: 2px solid #dc3545;
+            background-color: #fff5f5;
+            outline: none;
+        }
+
         .step-progress {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 5px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .progress-step {
             padding: 10px 5px;
             text-align: center;
-            background-color: #e0e1e2;
             color: #555555;
-            border-radius: 5px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
             font-size: 14px;
         }
 
         .progress-step.active {
-            background-color: #2185D0;
-            color: white;
+            color: #ffffff;
+            background-color: #111111;
             font-weight: bold;
         }
 
+        .progress-step.completed {
+            color: #111111;
+            background-color: #bfbfbf;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 20px 0;
+            }
+
+            .content {
+                width: 90%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .name-inputs {
+                display: block;
+            }
+        }
     </style>
 </head>
 <body>
@@ -119,7 +196,7 @@
         <div class="progress-step">4. 申込完了</div>
     </div>
 
-    <h1>ローン申込情報入力</h1>
+    <h1>基本情報</h1>
 
     <form action="#" th:action="@{/bankLoanDetails}" th:object="${bankLoanApplication}" method="post"
           class="needs-validation">
@@ -128,6 +205,7 @@
         <input type="hidden" th:field="*{loanYears}"/>
         <input type="hidden" th:field="*{interestType}"/>
         <input type="hidden" th:field="*{interestRate}"/>
+        <h2 class="section-title">ご本人様情報</h2>
         <p><label class="ml-1">お名前: <small class="text-danger ml-1">※</small></label><br>
             <input type="text" th:field="*{debtorLastName}" class="form-control" placeholder="姓"
                    minlength="1" maxlength="20" pattern="[^0-9０-９]*[^0-9０-９\s][^0-9０-９]*"
@@ -164,6 +242,7 @@
                    required/>
             <span>万円</span>
         </p>
+        <h2 class="section-title">ご返済用口座の情報</h2>
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}" class="form-control" required>
                 <option value="">選択してください</option>
