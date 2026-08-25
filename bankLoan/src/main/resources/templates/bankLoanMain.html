@@ -86,6 +86,20 @@
                    class="form-control"
                    required/>
         </p>
+        <p>
+            <label>
+                ご本人様の前年度年収（税込）:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <input type="number"
+                   th:field="*{annualIncome}"
+                   class="form-control"
+                   min="0"
+                   placeholder="500"
+                   required/>
+            <span>万円</span>
+        </p>
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}" class="form-control">
                 <option value="">選択してください</option>

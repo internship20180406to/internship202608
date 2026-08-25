@@ -16,6 +16,7 @@
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
     <p>借入希望額:<span th:text="*{desiredLoanAmount}"></span>万円</p>
     <p>ご本人様の前年度年収（税込）:<span th:text="*{annualIncome}"></span>万円</p>
+    <p>借入年数:<span th:text="*{loanYears}"></span>年</p>
     <p>金利タイプ:<span th:text="*{interestType}"></span></p>
     <p>適用金利: 年<span th:text="*{interestRate}"></span>%</p>
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
@@ -30,6 +31,7 @@
     <input type="hidden" th:field="*{subjectName}"/>
     <input type="hidden" th:field="*{interestType}"/>
     <input type="hidden" th:field="*{interestRate}"/>
+    <input type="hidden" th:field="*{loanYears}"/>
 
     <p>
         <input type="submit" id="submit" value="申込"/>

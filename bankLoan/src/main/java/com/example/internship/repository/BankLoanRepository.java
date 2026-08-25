@@ -19,10 +19,13 @@ public class BankLoanRepository {
                         "bankAccountType, " +
                         "bankAccountNum, " +
                         "name, " +
+                        "birthDate, " +
                         "loanAmount, " +
+                        "loanYears, " +
                         "annualIncome, " +
+                        "interestType, " +
                         "interestRate" +
-                        ") VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+                        ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(
                 sql,
@@ -31,8 +34,12 @@ public class BankLoanRepository {
                 bankLoanForm.getSubjectName(),
                 bankLoanForm.getBankAccountNum(),
                 bankLoanForm.getDebtorName(),
+                bankLoanForm.getBirthDate(),
                 bankLoanForm.getDesiredLoanAmount(),
+                bankLoanForm.getLoanYears(),
                 bankLoanForm.getAnnualIncome(),
+                bankLoanForm.getInterestType(),
                 bankLoanForm.getInterestRate()
         );
     }
+}

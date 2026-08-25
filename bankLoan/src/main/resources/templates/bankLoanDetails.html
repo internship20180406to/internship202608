@@ -74,6 +74,7 @@
         <input type="hidden" th:field="*{debtorFirstName}"/>
         <input type="hidden" th:field="*{birthDate}"/>
         <input type="hidden" th:field="*{subjectName}"/>
+        <input type="hidden" th:field="*{annualIncome}"/>
 
         <p>
             <label>
@@ -91,17 +92,18 @@
 
         <p>
             <label>
-                ご本人様の前年度年収（税込）:
+                借入年数:
                 <small class="text-danger">※</small>
             </label><br>
 
             <input type="number"
-                   th:field="*{annualIncome}"
+                   th:field="*{loanYears}"
                    class="form-control"
-                   min="0"
-                   placeholder="500"
+                   min="1"
+                   max="40"
+                   placeholder="35"
                    required/>
-            <span>万円</span>
+            <span>年</span>
         </p>
 
         <p>

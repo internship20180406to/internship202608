@@ -32,6 +32,8 @@ public class BankLoanForm {
 
     private Integer desiredLoanAmount;
 
+    private Integer loanYears;
+
     private Integer annualIncome;
 
     private String interestType;
