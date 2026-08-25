@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
-
 @Controller
 public class InvestmentTrustController {
 
@@ -20,7 +19,9 @@ public class InvestmentTrustController {
 
     @GetMapping("/investmentTrust")
     public String bankTransfer(Model model) {
+
         model.addAttribute("investmentTrustApplication", new InvestmentTrustForm());
+
         List<String> bankNameOptions = List.of(
                 "山陰共同銀行",
                 "ながれぼし銀行",
@@ -38,25 +39,43 @@ public class InvestmentTrustController {
                 "当座",
                 "貯蓄"
         );
+
+        List<String> fundNameOptions = List.of(
+                "A株式会社",
+                "B株式会社",
+                "C株式会社",
+                "D株式会社"
+        );
+
         model.addAttribute("bankNameOptions", bankNameOptions);
         model.addAttribute("branchNameOptions", branchNameOptions);
         model.addAttribute("bankAccountTypeOptions", bankAccountTypeOptions);
+        model.addAttribute("fundNameOptions", fundNameOptions);
+
         return "investmentTrustMain";
     }
 
     @PostMapping("/investmentTrustConfirmation")
-    public String confirmation(@ModelAttribute InvestmentTrustForm investmentTrustForm, Model model) {
-        //investmentTrustForm.setBankName("ここをBankNameにしたい");
+    public String confirmation(
+            @ModelAttribute InvestmentTrustForm investmentTrustForm,
+            Model model) {
+
+        // investmentTrustForm.setBankName("ここをBankNameにしたい");
+
         model.addAttribute("bankName", investmentTrustForm.getBankName());
         model.addAttribute("bankAccountNum", investmentTrustForm.getBankAccountNum());
         model.addAttribute("investmentTrustApplication", investmentTrustForm);
+
         return "investmentTrustConfirmation";
     }
 
     @PostMapping("/investmentTrustCompletion")
-    public String completion(@ModelAttribute InvestmentTrustForm investmentTrustForm, Model model) {
+    public String completion(
+            @ModelAttribute InvestmentTrustForm investmentTrustForm,
+            Model model) {
+
         orderInvestmentTrustService.orderInvestmentTrust(investmentTrustForm);
+
         return "investmentTrustCompletion";
     }
-
 }
