@@ -77,7 +77,11 @@
         </p>
 
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}" class="form-control">
+            <select th:field="*{bankName}"
+                    id="bankName"
+                    class="form-control">
+                <option value="">選択してください</option>
+
                 <option th:each="option : ${nameOptions}"
                         th:value="${option}"
                         th:text="${option}">選択肢
@@ -92,10 +96,13 @@
 
         <p>
             <label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text"
-                   th:field="*{branchName}"
-                   class="form-control"
-                   placeholder="支店名を入力してください">
+            <select th:field="*{branchName}"
+                   id="branchName"
+                   class="form-cobntrol"
+                    th:data-selected="${branchName}">
+
+                <option value="">金融機関を先に選択してください</option>
+            </select>
 
             <span class="text-danger validation-error"
                   th:if="${#fields.hasErrors('branchName')}"
@@ -183,9 +190,6 @@
         </p>
     </form>
 </div>
-</body>
-
-</html>
 
 <script>
     function clearForm() {
@@ -229,26 +233,26 @@
         const amount = Number(this.value);
 
         if (amount >= 10 && amount <= 100) {
-        interestRate.value = 14.5;
+            interestRate.value = 14.5;
         } else if (amount > 100 && amount <= 200) {
-        interestRate.value = 12.0;
+            interestRate.value = 12.0;
         } else if (amount > 200 && amount <= 300) {
-        interestRate.value = 10.0;
+            interestRate.value = 10.0;
         } else if (amount > 300 && amount <= 400) {
-        interestRate.value = 8.0;
+            interestRate.value = 8.0;
         } else if (amount > 400 && amount <= 500) {
-        interestRate.value = 7.0;
+            interestRate.value = 7.0;
         } else if (amount > 500 && amount <= 600) {
-        interestRate.value = 6.0;
+            interestRate.value = 6.0;
         } else if (amount > 600 && amount <= 700) {
-        interestRate.value = 5.0;
+            interestRate.value = 5.0;
         } else if (amount > 700 && amount <= 800) {
-        interestRate.value = 4.0;
+            interestRate.value = 4.0;
         } else if (amount > 800 && amount <= 1000) {
-        interestRate.value = 0.95;
+            interestRate.value = 0.95;
         } else {
-        interestRate.value = '';
-    }
+            interestRate.value = '';
+        }
 
         interestRate.dispatchEvent(new Event('input', { bubbles: true }));
     });
@@ -272,4 +276,80 @@
     annualIncome.addEventListener('input', updateLoanLimit);
 
     updateLoanLimit();
+    const branchOptions = {
+        "山陰共同銀行": [
+        "中央支店",
+        "北町支店",
+        "南町支店"
+        ],
+        "なないろ銀行": [
+        "虹ヶ丘支店",
+        "若葉支店",
+        "星川支店"
+        ],
+        "桜中央銀行": [
+        "桜町支店",
+        "青葉支店",
+        "みどり支店"
+        ],
+        "みなと未来信用銀行": [
+        "港中央支店",
+        "海岸支店",
+        "未来町支店"
+        ],
+        "つばさ中央銀行": [
+        "つばさ支店",
+        "東中央支店",
+        "西中央支店"
+        ]
+    };
+
+    const bankNameSelect = document.getElementById('bankName');
+    const branchNameSelect = document.getElementById('branchName');
+
+    function updateBranchOptions(selectedBranch) {
+        const selectedBank = bankNameSelect.value;
+
+        branchNameSelect.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        if (selectedBank === '') {
+            defaultOption.textContent = '金融機関を先に選択してください';
+        } else {
+            defaultOption.textContent = '選択してください';
+        }
+
+        branchNameSelect.appendChild(defaultOption);
+
+        const branches = branchOptions[selectedBank];
+
+        if (branches) {
+            branches.forEach(branch => {
+                const option = document.createElement('option');
+                option.value = branch;
+                option.textContent = branch;
+
+                if (branch === selectedBranch) {
+                    option.selected = true;
+                }
+
+                branchNameSelect.appendChild(option);
+            });
+        }
+    }
+
+    // 金融機関を変更したとき
+    bankNameSelect.addEventListener('change', function () {
+        updateBranchOptions('');
+    });
+
+    // エラーで画面に戻ってきたとき
+    const selectedBranch = branchNameSelect.dataset.selected;
+    updateBranchOptions(selectedBranch);
 </script>
+
+</body>
+
+</html>
+
