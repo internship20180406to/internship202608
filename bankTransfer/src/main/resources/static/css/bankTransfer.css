@@ -1,0 +1,648 @@
+/* ============================================================
+   銀行振込画面の共通スタイル
+   これまで各テンプレートの <style> に同じ指定が重複していたため、
+   1ファイルに集約している。色・サイズはすべて下のトークンを参照する。
+   ============================================================ */
+
+:root {
+    /* ---- 配色 ---- */
+    --ground:        #F0F0F0;   /* ページの下地 */
+    --surface:       #FFFFFF;   /* カードの面 */
+    --accent:        #00A7DB;   /* 主要な操作・現在地 */
+    --accent-hover:  #008CB8;
+    --accent-soft:   #E5F6FC;
+    --neutral-btn:   #E0E1E2;   /* 副次的な操作 */
+    --neutral-hover: #CCCCCC;
+    --step-off:      #E0E1E2;   /* 未到達のステップ */
+    --step-off-ink:  #7A7A7A;
+    --step-off-text: #9AA0A6;
+    --danger:        #D32F2F;   /* エラー。白地でコントラスト4.98:1 */
+    --ink:           #1F2328;
+    --ink-muted:     #5F6672;
+    --hairline:      #E3E6EA;
+    --field-border:  #B8BEC6;
+    --row-hover:     #F5FAFC;
+
+    /* ---- タイポグラフィ ----
+       欧文を先に置くことで、英数字はSegoe UI、日本語はメイリオに振り分かる。
+       順序を逆にすると英数字までメイリオになる */
+    --font:          "Segoe UI", Meiryo, "メイリオ", sans-serif;
+    --size-caption:  14px;      /* エラー文・注釈 */
+    --size-body:     16px;      /* ラベル・入力値・ボタン */
+    --size-heading:  24px;      /* 画面タイトル */
+    --size-emphasis: 32px;      /* 金額 */
+    /* 和文は欧文より行間を広く取らないと詰まって見える */
+    --lh-caption:    1.6;
+    --lh-body:       1.7;
+    --lh-heading:    1.4;
+    --lh-emphasis:   1.2;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 40px 0;
+    min-height: 100vh;
+    background-color: var(--ground);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+}
+
+.content {
+    background-color: var(--surface);
+    width: 80%;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 24px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, .1);
+}
+
+/* ============================================================
+   見出し
+   ============================================================ */
+h1 {
+    margin: 0 0 20px;
+    font-size: var(--size-heading);
+    line-height: var(--lh-heading);
+    font-weight: 600;
+}
+
+/* 小見出しはサイズを増やさず太さで差をつける。段数が増えるほど運用で崩れやすいため */
+.section-title {
+    margin: 28px 0 8px;
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+    font-weight: 700;
+}
+
+.lead {
+    margin: 0 0 20px;
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+}
+
+/* ============================================================
+   ステッパー
+   ============================================================ */
+.stepper {
+    display: flex;
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+}
+
+.stepper-item {
+    flex: 1;
+    position: relative;
+    text-align: center;
+    color: var(--step-off-text);
+}
+
+/* ステップどうしをつなぐ線。先頭以外の左側に引き、前のステップの中心まで伸ばす */
+.stepper-item + .stepper-item::before {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: -50%;
+    width: 100%;
+    height: 2px;
+    background-color: var(--step-off);
+}
+
+/* display:flex と margin:auto で中央寄せすると、行の高さに影響されず
+   上端が揃うのでつなぎ線とずれない */
+.stepper-circle {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background-color: var(--step-off);
+    color: var(--step-off-ink);
+    font-size: var(--size-caption);
+    line-height: 1;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.stepper-label {
+    display: block;
+    margin-top: 6px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+}
+
+.stepper-item.is-active {
+    color: var(--accent);
+}
+
+.stepper-item.is-active .stepper-circle {
+    background-color: var(--accent);
+    color: var(--surface);
+}
+
+/* つなぎ線の指定と詳細度が同じなので、必ずこちらを後ろに書く */
+.stepper-item.is-active::before {
+    background-color: var(--accent);
+}
+
+/* 狭い幅では段が入りきらないので、1行の数え上げに差し替える */
+.step-count {
+    display: none;
+    margin: 0 0 20px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+/* ============================================================
+   入力部品
+   フォーム部品は font-size を継承しないので必ず明示する。
+   16px は iOS Safari がフォーカス時に自動拡大しない境界値でもある
+   ============================================================ */
+.field {
+    margin: 0 0 20px;
+}
+
+.field-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+}
+
+.form-control {
+    width: 100%;
+    padding: 9px 10px;
+    font-family: var(--font);
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+    color: var(--ink);
+    background-color: var(--surface);
+    border: 1px solid var(--field-border);
+    border-radius: 6px;
+}
+
+.form-control::placeholder {
+    color: #A6ADB6;
+}
+
+.form-control:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+}
+
+/* 日付欄のカレンダーアイコンは既定だと小さく薄いので、押せると分かる大きさにする */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    width: 22px;
+    height: 22px;
+    padding: 2px;
+    margin-left: 4px;
+    cursor: pointer;
+    opacity: .7;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+.input-with-unit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-with-unit .form-control {
+    flex: 1;
+}
+
+.unit {
+    white-space: nowrap;
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+}
+
+.hint {
+    display: block;
+    margin-top: 4px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+}
+
+.text-danger,
+.error-text {
+    display: block;
+    margin-top: 4px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--danger);
+}
+
+.form-control.has-error {
+    border-color: var(--danger);
+}
+
+/* ラジオボタン。丸い部品に四角い枠が付かないよう、選択肢全体を囲む形にする */
+.radios {
+    margin: 0 0 20px;
+    padding: 0;
+    border: none;
+}
+
+.radios legend {
+    padding: 0;
+}
+
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin: 4px 0 0 -10px;
+}
+
+.radio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+    cursor: pointer;
+}
+
+.radio:hover {
+    background-color: var(--row-hover);
+}
+
+/* ネイティブのラジオを accent-color で着色する。自前で丸を描くより
+   キーボード操作・支援技術との相性が良い */
+.radio input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.radio input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 50%;
+}
+
+.radio:has(input:focus-visible) {
+    outline: 2px solid var(--accent);
+    background-color: var(--accent-soft);
+}
+
+.radio:has(input:focus-visible) input:focus-visible {
+    outline: none;
+}
+
+/* ============================================================
+   操作ボタン
+   ============================================================ */
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.actions .spacer {
+    flex: 1;
+}
+
+.form-control-button {
+    font-family: var(--font);
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+    padding: 10px 28px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.form-confirmation-button {
+    color: var(--surface);
+    background-color: var(--accent);
+}
+
+.form-confirmation-button:hover {
+    background-color: var(--accent-hover);
+}
+
+.form-clear-button {
+    color: var(--ink);
+    background-color: var(--neutral-btn);
+}
+
+.form-clear-button:hover {
+    background-color: var(--neutral-hover);
+}
+
+.form-control-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* よく使う日付などの近道。塗らずに枠線だけにして主要操作と区別する */
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.chip {
+    font-family: var(--font);
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    padding: 6px 14px;
+    color: var(--ink);
+    background-color: transparent;
+    border: 1px solid var(--field-border);
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.chip:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-soft);
+}
+
+.chip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ============================================================
+   選択リスト（金融機関・支店）
+   行そのものがボタン。押せることが見た目で分かるようにする
+   ============================================================ */
+.picklist-head,
+.picklist-row {
+    display: grid;
+    grid-template-columns: 5.5em 1fr 1.2em;
+    align-items: center;
+    gap: 12px;
+}
+
+.picklist-head {
+    padding: 8px 12px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--hairline);
+}
+
+.picklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.picklist li + li {
+    border-top: 1px solid var(--hairline);
+}
+
+.picklist-row {
+    width: 100%;
+    padding: 12px;
+    font-family: var(--font);
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+    color: var(--ink);
+    text-align: left;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.picklist-row:hover {
+    background-color: var(--row-hover);
+}
+
+.picklist-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+.picklist-code {
+    font-size: var(--size-caption);
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.picklist-chevron {
+    color: var(--accent);
+    font-size: 20px;
+    line-height: 1;
+    text-align: right;
+}
+
+/* 検索欄と、その下に重ねて出す候補 */
+.search {
+    position: relative;
+}
+
+.search .form-control {
+    padding-left: 38px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--ink-muted);
+    pointer-events: none;
+}
+
+.suggest {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 10;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 280px;
+    overflow-y: auto;
+    background-color: var(--surface);
+    border: 1px solid var(--field-border);
+    border-radius: 6px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .14);
+}
+
+.suggest li + li {
+    border-top: 1px solid var(--hairline);
+}
+
+.suggest-empty {
+    padding: 12px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+}
+
+/* ============================================================
+   確認・完了の内容表示
+   ============================================================ */
+/* 前の画面までに決まった内容の控え。
+   この画面では「塗り＋枠＋角丸」が入力欄とボタンの合図なので、
+   読むだけの情報に同じ見た目を与えない */
+.recap {
+    margin: 0 0 24px;
+    padding: 0 0 16px;
+    border-bottom: 1px solid var(--hairline);
+}
+
+.recap-title {
+    margin: 0 0 2px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+}
+
+/* 狭い幅では語の途中で折れず、項目単位で折り返す */
+.recap-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 16px;
+    margin: 0;
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+}
+
+.summary {
+    margin: 0 0 4px;
+    border-top: 1px solid var(--hairline);
+}
+
+.summary-row {
+    display: grid;
+    grid-template-columns: 8.5em 1fr auto;
+    align-items: baseline;
+    gap: 0 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--hairline);
+}
+
+.summary-row dt {
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+}
+
+.summary-row dd {
+    margin: 0;
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+    word-break: break-all;
+}
+
+.summary-row.is-amount dd {
+    font-size: var(--size-emphasis);
+    line-height: var(--lh-emphasis);
+    font-variant-numeric: tabular-nums;
+}
+
+.summary-row.is-amount dd .unit {
+    font-size: var(--size-body);
+    margin-left: 4px;
+}
+
+.link-edit {
+    justify-self: end;
+    font-family: var(--font);
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--accent);
+    background-color: transparent;
+    border: none;
+    padding: 2px 4px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.link-edit:hover {
+    color: var(--accent-hover);
+}
+
+.link-edit:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ============================================================
+   狭い幅
+   ============================================================ */
+@media (max-width: 640px) {
+    body {
+        padding: 20px 0;
+    }
+
+    .content {
+        width: 92%;
+        padding: 20px 16px;
+    }
+
+    .stepper {
+        display: none;
+    }
+
+    .step-count {
+        display: block;
+    }
+
+    .summary-row {
+        grid-template-columns: 1fr auto;
+        gap: 2px 12px;
+    }
+
+    .summary-row dt,
+    .summary-row dd {
+        grid-column: 1;
+    }
+
+    .link-edit {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        align-self: center;
+    }
+
+    .picklist-head,
+    .picklist-row {
+        grid-template-columns: 4.5em 1fr 1em;
+        gap: 8px;
+    }
+
+    .actions {
+        flex-wrap: wrap;
+    }
+
+    .form-control-button {
+        flex: 1;
+        padding: 10px 16px;
+    }
+}

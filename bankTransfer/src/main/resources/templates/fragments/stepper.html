@@ -6,20 +6,25 @@
      呼び出し側から現在のステップ番号(1〜3)をcurrentとして受け取り、
      1からcurrentまでのステップに色を付ける
      使い方: <div th:replace="~{fragments/stepper :: stepper(2)}"></div> -->
-<ol class="stepper" th:fragment="stepper(current)">
-    <li class="stepper-item" th:classappend="${current ge 1} ? 'is-active'">
-        <span class="stepper-circle">1</span>
-        <span class="stepper-label">入力</span>
-    </li>
-    <li class="stepper-item" th:classappend="${current ge 2} ? 'is-active'">
-        <span class="stepper-circle">2</span>
-        <span class="stepper-label">確認</span>
-    </li>
-    <li class="stepper-item" th:classappend="${current ge 3} ? 'is-active'">
-        <span class="stepper-circle">3</span>
-        <span class="stepper-label">完了</span>
-    </li>
-</ol>
+<div th:fragment="stepper(current)">
+    <ol class="stepper">
+        <li class="stepper-item" th:classappend="${current ge 1} ? 'is-active'">
+            <span class="stepper-circle">1</span>
+            <span class="stepper-label">入力</span>
+        </li>
+        <li class="stepper-item" th:classappend="${current ge 2} ? 'is-active'">
+            <span class="stepper-circle">2</span>
+            <span class="stepper-label">確認</span>
+        </li>
+        <li class="stepper-item" th:classappend="${current ge 3} ? 'is-active'">
+            <span class="stepper-circle">3</span>
+            <span class="stepper-label">完了</span>
+        </li>
+    </ol>
+
+    <!-- 狭い幅では3段が入りきらないので、CSSでこちらに切り替わる -->
+    <p class="step-count">ステップ <span th:text="${current}">1</span> / 3</p>
+</div>
 
 </body>
 </html>

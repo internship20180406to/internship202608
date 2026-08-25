@@ -2,73 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>銀行振込情報入力画面</title>
-    <link rel="stylesheet" href="/css/stepper.css"/>
-    <style>
-        body {
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            padding-top: 40px;
-            padding-bottom: 40px;
-            justify-content: center;
-            align-items: center;
-            min-height: 85vh;
-            overflow: auto;
-        }
-        .content {
-            background-color: #ffffff;
-            width: 80%;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            min-height: 50vh;
-            overflow: auto;
-        }
-        .form-control {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            box-sizing: border-box;
-        }
-        .input-with-unit {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .input-with-unit .form-control {
-            flex: 1;
-        }
-        .unit {
-            white-space: nowrap;
-        }
-        .text-danger {
-            color: red;
-        }
-        .form-control-button {
-            width: 80px;
-            padding: 10px 20px;
-            margin-top: 10px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .form-confirmation-button{
-            color: white;
-            background-color: #2185D0;
-        }
-        .form-confirmation-button:hover {
-            background-color: #1678c2;
-        }
-        .form-clear-button{
-            color: black;
-            background-color: #E0E1E2;
-        }
-        .form-clear-button:hover {
-            background-color: #CCCCCC;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/bankTransfer.css"/>
 </head>
 <body>
 <div class="content">
@@ -76,7 +12,7 @@
     <h1>銀行振込情報入力</h1>
     <form action="#" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post">
 
-        <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
+        <p><label class="field-label">金融機関名:</label><br>
             <select th:field="*{bankName}" class="form-control">
                 <option value="">選択してください</option>
                 <option th:each="option : ${nameOptions}"
@@ -87,12 +23,12 @@
             <span class="text-danger" th:if="${#fields.hasErrors('bankName')}"
                   th:errors="*{bankName}"></span></p>
 
-        <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
+        <p><label class="field-label">支店名:</label><br>
             <input type="text" th:field="*{branchName}" class="form-control" maxlength="20" placeholder="本店"/>
             <span class="text-danger" th:if="${#fields.hasErrors('branchName')}"
                   th:errors="*{branchName}"></span></p>
 
-        <p><label class="ml-1">科目: <small class="text-danger ml-1">※</small></label><br>
+        <p><label class="field-label">科目:</label><br>
             <select th:field="*{bankAccountType}" class="form-control">
                 <option value="">選択してください</option>
                 <option th:each="option : ${accountTypeOptions}"
@@ -103,18 +39,18 @@
             <span class="text-danger" th:if="${#fields.hasErrors('bankAccountType')}"
                   th:errors="*{bankAccountType}"></span></p>
 
-        <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
+        <p><label class="field-label">口座番号:</label><br>
             <input type="text" th:field="*{bankAccountNum}" class="form-control"
                    maxlength="7" placeholder="1234567"/>
             <span class="text-danger" th:if="${#fields.hasErrors('bankAccountNum')}"
                   th:errors="*{bankAccountNum}"></span></p>
 
-        <p><label class="ml-1">口座名義: <small class="text-danger ml-1">※</small></label><br>
+        <p><label class="field-label">口座名義:</label><br>
             <input type="text" th:field="*{name}" class="form-control" maxlength="20" placeholder="ﾔﾏﾀﾞ ﾀﾛｳ"/>
             <span class="text-danger" th:if="${#fields.hasErrors('name')}"
                   th:errors="*{name}"></span></p>
 
-        <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
+        <p><label class="field-label">金額:</label><br>
             <span class="input-with-unit">
                 <input type="text" th:field="*{money}" class="form-control" inputmode="numeric" placeholder="10,000"/>
                 <span class="unit">円</span>
@@ -122,7 +58,7 @@
             <span class="text-danger" th:if="${#fields.hasErrors('money')}"
                   th:errors="*{money}"></span></p>
 
-        <p><label class="ml-1">振込指定日: <small class="text-danger ml-1">※</small></label><br>
+        <p><label class="field-label">振込指定日:</label><br>
             <input type="date" th:field="*{transferDateTime}" class="form-control" th:min="${today}"/>
             <span class="text-danger" th:if="${#fields.hasErrors('transferDateTime')}"
                   th:errors="*{transferDateTime}"></span></p>
