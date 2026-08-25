@@ -68,6 +68,9 @@
         <input type="hidden" name="money"            th:value="*{money}"/>
         <input type="hidden" name="transferDateTime" th:value="*{transferDateTime}"/>
 
+        <!-- 二重送信防止用のワンタイムトークン -->
+        <input type="hidden" name="transferToken" th:value="${transferToken}"/>
+
         <p>
             <input type="submit" id="submit" value="振込"
                    class="form-control-button form-confirmation-button"/>

@@ -75,16 +75,17 @@
                   th:errors="*{bankName}"></span></p>
 
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{branchName}" class="form-control" placeholder="本店"/>
+            <input type="text" th:field="*{branchName}" class="form-control" maxlength="20" placeholder="本店"/>
             <span class="text-danger" th:if="${#fields.hasErrors('branchName')}"
                   th:errors="*{branchName}"></span></p>
 
         <p><label class="ml-1">科目: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankAccountType}" class="form-control">
                 <option value="">選択してください</option>
-                <option value="普通">普通</option>
-                <option value="当座">当座</option>
-                <option value="貯蓄">貯蓄</option>
+                <option th:each="option : ${accountTypeOptions}"
+                        th:value="${option}"
+                        th:text="${option}">選択肢
+                </option>
             </select>
             <span class="text-danger" th:if="${#fields.hasErrors('bankAccountType')}"
                   th:errors="*{bankAccountType}"></span></p>
@@ -96,7 +97,7 @@
                   th:errors="*{bankAccountNum}"></span></p>
 
         <p><label class="ml-1">口座名義: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="ヤマダ タロウ"/>
+            <input type="text" th:field="*{name}" class="form-control" maxlength="20" placeholder="ﾔﾏﾀﾞ ﾀﾛｳ"/>
             <span class="text-danger" th:if="${#fields.hasErrors('name')}"
                   th:errors="*{name}"></span></p>
 
@@ -106,7 +107,7 @@
                   th:errors="*{money}"></span></p>
 
         <p><label class="ml-1">振込指定日: <small class="text-danger ml-1">※</small></label><br>
-            <input type="date" th:field="*{transferDateTime}" class="form-control"/>
+            <input type="date" th:field="*{transferDateTime}" class="form-control" th:min="${today}"/>
             <span class="text-danger" th:if="${#fields.hasErrors('transferDateTime')}"
                   th:errors="*{transferDateTime}"></span></p>
 
