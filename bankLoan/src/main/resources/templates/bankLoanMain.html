@@ -206,13 +206,36 @@
         <input type="hidden" th:field="*{interestType}"/>
         <input type="hidden" th:field="*{interestRate}"/>
         <h2 class="section-title">ご本人様情報</h2>
-        <p><label class="ml-1">お名前: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{debtorLastName}" class="form-control" placeholder="姓"
-                   minlength="1" maxlength="20" pattern="[^0-9０-９]*[^0-9０-９\s][^0-9０-９]*"
-                   title="姓は数字や空白だけでは入力できません" autocomplete="family-name"required/></p>
-            <input type="text" th:field="*{debtorFirstName}" class="form-control" placeholder="名"
-                   minlength="1" maxlength="20" pattern="[^0-9０-９]*[^0-9０-９\s][^0-9０-９]*"
-                   title="名は数字や空白だけでは入力できません" autocomplete="given-name"required/></p>
+        <div class="form-group">
+            <label>
+                お名前:
+                <small class="text-danger">※</small>
+            </label>
+
+            <div class="name-inputs">
+                <input type="text"
+                       th:field="*{debtorLastName}"
+                       class="form-control"
+                       placeholder="姓"
+                       minlength="1"
+                       maxlength="20"
+                       pattern="[^0-9０-９]*[^0-9０-９\s][^0-9０-９]*"
+                       title="姓は数字や空白だけでは入力できません"
+                       autocomplete="family-name"
+                       required/>
+
+                <input type="text"
+                       th:field="*{debtorFirstName}"
+                       class="form-control"
+                       placeholder="名"
+                       minlength="1"
+                       maxlength="20"
+                       pattern="[^0-9０-９]*[^0-9０-９\s][^0-9０-９]*"
+                       title="名は数字や空白だけでは入力できません"
+                       autocomplete="given-name"
+                       required/>
+            </div>
+        </div>
         <p>
             <label class="ml-1">
                 生年月日:
@@ -284,9 +307,15 @@
                    title="口座番号は半角数字7桁で入力してください"
                    required/>
 
-        <p style="text-align: center;"><input type="submit" value="次へ"
-                                              class="form-control-button form-confirmation-button"/>
-            <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
+        <p class="button-area">
+            <input type="submit"
+                   value="次へ"
+                   class="form-control-button form-confirmation-button"/>
+
+            <input type="reset"
+                   value="クリア"
+                   class="form-control-button form-clear-button"/>
+        </p>
     </form>
 </div>
 </body>
