@@ -123,10 +123,10 @@
 
         <!--振込画面 -->
         <p><label class="ml-1">口座名義: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="フリコミ　タロウ"  pattern="[ァ-ヶーｦ-ﾟ 　]+" maxlength="20"
-                   title="口座名義は全角または半角カタカナで入力してください"
+            <input type="text" th:field="*{name}" class="form-control" placeholder="フリコミ　タロウ"  pattern="[ァ-ヶー　]+" maxlength="20"
+                   title="口座名義は全角カタカナで入力してください"
                    required/>
-            <small>全角または半角カタカナで入力してください。</small>
+            <small>全角カタカナで入力してください。</small>
         </p>
 
         <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
