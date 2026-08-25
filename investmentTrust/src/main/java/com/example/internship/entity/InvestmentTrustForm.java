@@ -32,13 +32,21 @@ public class InvestmentTrustForm {
         this.bankName = bankName;
     }
 
-    public String getBranchName() { return branchName; }
+    public String getBranchName() {
+        return branchName;
+    }
 
-    public void setBranchName(String branchName) { this.branchName = branchName; }
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
 
-    public String getBankAccountTypeName() { return bankAccountTypeName; }
+    public String getBankAccountTypeName() {
+        return bankAccountTypeName;
+    }
 
-    public void setBankAccountTypeName(String bankAccountTypeName) { this.bankAccountTypeName = bankAccountTypeName; }
+    public void setBankAccountTypeName(String bankAccountTypeName) {
+        this.bankAccountTypeName = bankAccountTypeName;
+    }
 
     public Integer getBankAccountNum() {
         return bankAccountNum;
@@ -64,7 +72,9 @@ public class InvestmentTrustForm {
         this.fundName = fundName;
     }
 
-    public Integer getMoney() { return money; }
+    public Integer getMoney() {
+        return money;
+    }
 
     public void setMoney(Integer money) {
         this.money = money;
