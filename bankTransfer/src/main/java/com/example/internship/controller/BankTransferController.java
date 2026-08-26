@@ -104,6 +104,14 @@ public class BankTransferController {
         return ROUTE_REGISTER.equals(session.getAttribute(ROUTE_KEY));
     }
 
+    // 金額画面を出し直す。エラーを見せるのに要るものを揃える
+    private String redisplayAmount(Model model, BankTransferInput input, int balance) {
+        model.addAttribute("input", input);
+        model.addAttribute("balance", balance);
+        addFeeRule(model, input);
+        return "bankTransferAmount";
+    }
+
     // 金額画面で手数料を示すための前提。段が変わる境目と両方の額を渡し、
     // 打ちながら手数料が変わることをJS側で見せられるようにする
     private void addFeeRule(Model model, BankTransferInput input) {
@@ -463,27 +471,25 @@ public class BankTransferController {
             return "redirect:/bankTransfer";
         }
         int balance = balanceRepository.amountOf(currentUser.resolve(session));
-        TransferAmount amount = null;
         // 形の検証（桁・必須・上限）が通ってから金額の中身を見る。
-        // 桁が不正なときに「残高が不足」と出しても意味が通らない
-        if (!bindingResult.hasErrors() && amountForm.getMoney() != null) {
-            int entered = amountForm.getMoney();
-            amount = TransferAmount.of(entered,
-                    transferFee.of(input.getBankCode(), entered), amountForm.isFeeIncluded());
-            if (amount.money() <= 0) {
-                bindingResult.rejectValue("money", "fee.tooSmall",
-                        String.format("手数料 %,d 円を含めると振込額が残りません", amount.fee()));
-            } else if (amount.total() > balance) {
-                bindingResult.rejectValue("money", "balance.short",
-                        String.format("残高が不足しています（手数料を含めて %,d 円、残高 %,d 円）",
-                                amount.total(), balance));
-            }
+        // 桁が不正なときに「残高が不足」と出しても意味が通らない。
+        // ここで返しておけば、この先 money が入っていることが型の上でも分かる
+        if (bindingResult.hasErrors() || amountForm.getMoney() == null) {
+            return redisplayAmount(model, input, balance);
+        }
+        int entered = amountForm.getMoney();
+        TransferAmount amount = TransferAmount.of(entered,
+                transferFee.of(input.getBankCode(), entered), amountForm.isFeeIncluded());
+        if (amount.money() <= 0) {
+            bindingResult.rejectValue("money", "fee.tooSmall",
+                    String.format("手数料 %,d 円を含めると振込額が残りません", amount.fee()));
+        } else if (amount.total() > balance) {
+            bindingResult.rejectValue("money", "balance.short",
+                    String.format("残高が不足しています（手数料を含めて %,d 円、残高 %,d 円）",
+                            amount.total(), balance));
         }
         if (bindingResult.hasErrors()) {
-            model.addAttribute("input", input);
-            model.addAttribute("balance", balance);
-            addFeeRule(model, input);
-            return "bankTransferAmount";
+            return redisplayAmount(model, input, balance);
         }
         input.setMoney(amount.money());
         input.setFee(amount.fee());
@@ -562,11 +568,11 @@ public class BankTransferController {
     @GetMapping("/bankTransfer/completion")
     public String completionView(HttpSession session, Model model) {
         // リロードや直接アクセスではflash属性が無く表示する内容が無いので、入力画面へ戻す
-        if (!model.containsAttribute(RESULT_NAME)) {
+        BankTransferInput result = (BankTransferInput) model.getAttribute(RESULT_NAME);
+        if (result == null) {
             return "redirect:/bankTransfer";
         }
         // 既に登録済みの相手に「登録する」を出しても押せないだけなので、出さない
-        BankTransferInput result = (BankTransferInput) model.getAttribute(RESULT_NAME);
         model.addAttribute("alreadyRegistered",
                 payeeRepository.exists(currentUser.resolve(session), result));
         return "bankTransferCompletion";
