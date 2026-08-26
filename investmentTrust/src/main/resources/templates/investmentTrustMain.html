@@ -75,7 +75,7 @@
                    title="4桁の半角数字で入力してください"
                    required/>
             </p>
-            <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
+            <p><label class="ml-1">支店コード: <small class="text-danger ml-1">※</small></label><br>
                 <input type="text"
                    th:field="*{branchName}"
                    class="form-control"
@@ -134,7 +134,7 @@
             </div>
 
             <p><label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
-                <select th:field="*{fundName}" class="form-control" required>
+                <select th:field="*{fundCode}" class="form-control" required>
                     <option value="">選択してください</option>
                     <option value="森林銀行おすすめファンド">森林銀行おすすめファンド</option>
                     <option value="フォレスト・バンク・オープン">フォレスト・バンク・オープン</option>

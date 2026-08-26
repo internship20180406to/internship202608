@@ -12,7 +12,7 @@ public class InvestmentTrustRepository {
 
     public void create(InvestmentTrustForm investmentTrustForm) {
         String sql =
-        "INSERT INTO investmentTrust_table(bankName, branchName, bankAccountType, bankAccountNum, name, fundName, money) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        "INSERT INTO investmentTrust_table(bankName, branchName, bankAccountType, bankAccountNum, name, fundCode, money) VALUES(?, ?, ?, ?, ?, ?, ?)";
 
         String fullName = investmentTrustForm.getLastName() + investmentTrustForm.getFirstName();
 
@@ -33,7 +33,7 @@ public class InvestmentTrustRepository {
                 investmentTrustForm.getAccountType(),
                 investmentTrustForm.getBankAccountNum(),
                 fullName,
-                investmentTrustForm.getFundName(),
+                investmentTrustForm.getFundCode(),
                 investmentTrustForm.getMoney()
         );
     }
