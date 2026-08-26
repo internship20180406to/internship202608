@@ -35,7 +35,7 @@
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
 
     <p>口座名義: <span th:text="*{name}"></span></p>
-    <p>金額:<span><span th:text="*{money}"></span>円</span></p>
+    <p>金額:<span><span th:text="*{money}"></span>円</span>（手数料：0円）</p>
     <p>振込指定日: <span th:text="*{transferDateTime}"></span></p>
 
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
@@ -47,6 +47,12 @@
     <input type="hidden" name="money" th:value="*{money}"/>
     <input type="hidden" name="transferDateTime" th:value="*{transferDateTime}"/>
 
+    <p>
+        <label>
+            <input type="checkbox" name="registerFavorite" value="true"/>
+            この振込先をお気に入りに登録する
+        </label>
+    </p>
 
     <p>
         <input type="submit" id="submit" value="振込"/>

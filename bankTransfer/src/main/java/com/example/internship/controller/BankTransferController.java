@@ -1,13 +1,17 @@
 package com.example.internship.controller;
 
 import com.example.internship.entity.BankTransferForm;
+import com.example.internship.entity.TransferRecord;
 import com.example.internship.service.ApplyBankTransferService;
+import com.example.internship.service.InsufficientBalanceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 
@@ -29,12 +33,26 @@ import java.util.List;
 
     @GetMapping("/bankTransfer")
     public String bankTransfer(Model model) {
+        addBankTransferMainAttributes(model);
+        return "bankTransferMain";
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public String handleInsufficientBalance(Model model) {
+        model.addAttribute("bankTransferApplication", new BankTransferForm());
+        addBankTransferMainAttributes(model);
+        model.addAttribute("errorMessage", "口座残高が不足しているため振込できませんでした。");
+        return "bankTransferMain";
+    }
+
+    private void addBankTransferMainAttributes(Model model) {
         model.addAttribute("nameOptionsBankName", List.of( "山陰共同銀行", "ながれぼし銀行", "青空銀行"));
         model.addAttribute("nameOptionsBranchName",  List.of("山陰共同支店", "本店", "中央支店"));
         model.addAttribute("today", LocalDate.now());
         model.addAttribute("recentTransfers", applyBankTransferService.getRecentTransfers());
+        model.addAttribute("favoriteTransfers", applyBankTransferService.getFavorites());
         model.addAttribute("balance", applyBankTransferService.getBalance());
-        return "bankTransferMain";
+        model.addAttribute("todayAvailable", applyBankTransferService.getTodayAvailableAmount());
     }
 
     @PostMapping("/bankTransferConfirmation")
@@ -56,13 +74,37 @@ import java.util.List;
     @PostMapping("/bankTransferCompletion")
     public String completion(
             @ModelAttribute("bankTransferApplication")
-            BankTransferForm bankTransferForm) {
+            BankTransferForm bankTransferForm,
+            @RequestParam(name = "registerFavorite", defaultValue = "false")
+            boolean registerFavorite) {
 
-        applyBankTransferService.applyBankTransfer(bankTransferForm);
+        applyBankTransferService.applyBankTransfer(bankTransferForm, registerFavorite);
 
         return "bankTransferCompletion";
     }
 
+    @GetMapping("/bankTransferStatus")
+    public String status(Model model) {
+        model.addAttribute("transfers", applyBankTransferService.getTransferHistory());
+        return "bankTransferStatus";
+    }
 
+    @GetMapping("/bankTransferCancelConfirmation")
+    public String cancelConfirmation(@RequestParam int id, Model model) {
+        TransferRecord transfer = applyBankTransferService.getTransferById(id)
+                .orElseThrow(() -> new IllegalArgumentException("指定された振込が見つかりません: " + id));
+        model.addAttribute("transfer", transfer);
+        return "bankTransferCancelConfirmation";
+    }
+
+    @PostMapping("/bankTransferCancel")
+    public String cancel(@RequestParam int id, Model model) {
+        boolean cancelled = applyBankTransferService.cancelTransfer(id);
+        model.addAttribute("cancelMessage", cancelled
+                ? "振込を取消しました。"
+                : "この振込は取消できませんでした（処理待ちでない、または取消期限〔振込指定日の午前6時〕を過ぎています）。");
+        model.addAttribute("transfers", applyBankTransferService.getTransferHistory());
+        return "bankTransferStatus";
+    }
 
 }

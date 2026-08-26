@@ -184,109 +184,121 @@ h1 {
 ======================================== */
 
 .recent-transfers h2,
+.favorite-transfers h2,
 .new-transfer-heading h2 {
-    margin: 0;
-    padding-left: 12px;
-    border-left: 4px solid var(--accent);
-    color: var(--gray-900);
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.4;
+   margin: 0;
+   padding-left: 12px;
+   border-left: 4px solid var(--accent);
+   color: var(--gray-900);
+   font-size: 18px;
+   font-weight: 700;
+   line-height: 1.4;
 }
 
 .recent-transfers-description,
+.favorite-transfers-description,
 .new-transfer-heading > p {
-    margin: 6px 0 16px;
-    color: var(--gray-500);
-    font-size: 13px;
-    line-height: 1.6;
+   margin: 6px 0 16px;
+   color: var(--gray-500);
+   font-size: 13px;
+   line-height: 1.6;
 }
 
 
 /* ========================================
-   最近の振込先
+   登録済み口座 / 最近の振込先
 ======================================== */
 
+.favorite-transfers,
 .recent-transfers {
-    margin-top: 24px;
-    padding-bottom: 22px;
-    background: var(--white);
+   margin-top: 24px;
+   padding-bottom: 22px;
+   background: var(--white);
 }
 
+.favorite-transfer-list,
 .recent-transfer-list {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
+   display: grid;
+   grid-template-columns: 1fr;
+   gap: 8px;
 }
 
+.favorite-transfer-card,
 .recent-transfer-card {
-    appearance: none;
-    display: grid;
-    grid-template-columns:
-        minmax(120px, 0.9fr)
-        minmax(200px, 1.4fr)
-        minmax(120px, 0.8fr);
-    align-items: center;
-    gap: 8px 16px;
-    width: 100%;
-    min-height: 66px;
-    padding: 13px 15px;
-    border: 1px solid var(--gray-300);
-    border-radius: 6px;
-    color: var(--gray-900);
-    background: var(--white);
-    cursor: pointer;
-    font-family: var(--font-system);
-    text-align: left;
-    transition:
-            border-color 150ms ease,
-            box-shadow 150ms ease;
+   appearance: none;
+   display: grid;
+   grid-template-columns:
+       minmax(120px, 0.9fr)
+       minmax(200px, 1.4fr)
+       minmax(120px, 0.8fr);
+   align-items: center;
+   gap: 8px 16px;
+   width: 100%;
+   min-height: 66px;
+   padding: 13px 15px;
+   border: 1px solid var(--gray-300);
+   border-radius: 6px;
+   color: var(--gray-900);
+   background: var(--white);
+   cursor: pointer;
+   font-family: var(--font-system);
+   text-align: left;
+   transition:
+           border-color 150ms ease,
+           box-shadow 150ms ease;
 }
 
+.favorite-transfer-card strong,
 .recent-transfer-card strong {
-    color: var(--gray-900);
-    font-size: 15px;
-    font-weight: 700;
+   color: var(--gray-900);
+   font-size: 15px;
+   font-weight: 700;
 }
 
+.favorite-transfer-card span,
 .recent-transfer-card span {
-    color: var(--gray-500);
-    font-size: 13px;
+   color: var(--gray-500);
+   font-size: 13px;
 }
 
+.favorite-transfer-card span:last-child,
 .recent-transfer-card span:last-child {
-    text-align: right;
+   text-align: right;
 }
 
+.favorite-transfer-card:hover,
 .recent-transfer-card:hover {
-    border-color: var(--gray-500);
-    box-shadow: 0 2px 7px rgba(31, 41, 47, 0.07);
+   border-color: var(--gray-500);
+   box-shadow: 0 2px 7px rgba(31, 41, 47, 0.07);
 }
 
+.favorite-transfer-card:focus-visible,
 .recent-transfer-card:focus-visible {
-    outline: 3px solid var(--focus-ring);
-    outline-offset: 2px;
+   outline: 3px solid var(--focus-ring);
+   outline-offset: 2px;
 }
 
 /* 選択したカードだけ水色で示す */
+.favorite-transfer-card.selected,
 .recent-transfer-card.selected {
-    border-color: var(--accent);
+   border-color: var(--accent);
     background: var(--white);
-    box-shadow: 0 0 0 2px var(--focus-ring);
+   box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
+.favorite-transfer-card.selected strong::after,
 .recent-transfer-card.selected strong::after {
-    display: inline-block;
-    margin-left: 8px;
-    padding: 1px 7px;
-    border: 1px solid var(--accent);
-    border-radius: 10px;
-    color: var(--accent-dark);
-    background: var(--white);
-    content: "✓ 選択中";
-    font-size: 10px;
-    font-weight: 700;
-    vertical-align: middle;
+   display: inline-block;
+   margin-left: 8px;
+   padding: 1px 7px;
+   border: 1px solid var(--accent);
+   border-radius: 10px;
+   color: var(--accent-dark);
+   background: var(--white);
+   content: "✓ 選択中";
+   font-size: 10px;
+   font-weight: 700;
+   vertical-align: middle;
 }
 
 
@@ -505,6 +517,33 @@ form > p:last-of-type {
 .form-clear-button:hover {
     border-color: var(--gray-500);
     background: var(--gray-50);
+}
+
+/* 振込履歴確認ボタン（ステータスボタン） */
+.status-button {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--white);
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+    box-shadow: 0 2px 6px rgba(39,155,201,0.12);
+}
+
+.status-button:hover {
+    background: var(--accent-dark);
+}
+
+.status-button:active {
+    box-shadow: none;
+    transform: translateY(1px);
+}
+
+.status-button.small {
+    padding: 6px 10px;
+    font-size: 13px;
 }
 
 .form-control-button:active {

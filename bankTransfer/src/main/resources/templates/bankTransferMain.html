@@ -29,6 +29,8 @@
     </div>
 
     <h1>銀行振込情報入力</h1>
+    <p style="margin-top:12px;"><a th:href="@{/bankTransferStatus}" class="status-button">振込履歴を確認する</a></p>
+    <p class="text-danger" th:if="${errorMessage}" th:text="${errorMessage}">エラーメッセージ</p>
     <section class="recent-transfers"
              th:if="${not #lists.isEmpty(recentTransfers)}">
 
@@ -63,8 +65,42 @@
         </div>
     </section>
 
+    <section class="favorite-transfers"
+             th:if="${not #lists.isEmpty(favoriteTransfers)}">
+
+        <h2>登録済みの口座</h2>
+        <p class="favorite-transfers-description">
+            <small>選択すると振込先情報が自動入力されます</small>
+        </p>
+
+        <div class="favorite-transfer-list">
+            <button type="button"
+                    class="recent-transfer-card"
+                    th:each="favorite : ${favoriteTransfers}"
+                    th:attr="
+                    data-bank-name=${favorite.bankName},
+                    data-branch-name=${favorite.branchName},
+                    data-account-type=${favorite.bankAccountType},
+                    data-account-num=${favorite.bankAccountNum},
+                    data-account-name=${favorite.name}">
+
+                <strong th:text="${favorite.name}">
+                    口座名義
+                </strong>
+
+                <span th:text="${favorite.bankName + '　' + favorite.branchName}">
+                金融機関名　支店名
+            </span>
+
+                <span th:text="${favorite.bankAccountType + '　' + favorite.bankAccountNum}">
+                科目名　口座番号
+            </span>
+            </button>
+        </div>
+    </section>
+
     <div class="new-transfer-heading">
-        <div class="choice-separator" th:if="${not #lists.isEmpty(recentTransfers)}">
+        <div class="choice-separator" th:if="${not #lists.isEmpty(recentTransfers)} or ${not #lists.isEmpty(favoriteTransfers)}">
             <span>または</span>
         </div>
         <h2>新しい振込先を入力</h2>
@@ -73,13 +109,22 @@
 
     <form action="#" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post">
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}" class="form-control" required>
-                <option value="">選択してください</option>
-                <option th:each="option : ${nameOptionsBankName}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select></p>
+            <!-- 統合コンボボックス（検索 + プルダウン） -->
+            <div class="combo" id="bankNameCombo">
+                <div class="combo-input-wrapper">
+                    <input type="text" id="bankNameInput" class="form-control" placeholder="選択または検索" aria-autocomplete="list" aria-haspopup="listbox" autocomplete="off" required/>
+                    <button type="button" class="combo-toggle" aria-label="候補を表示">▾</button>
+                </div>
+
+                <ul class="combo-list" id="bankNameList" role="listbox" hidden>
+                    <li role="option" th:each="option : ${nameOptionsBankName}" th:attr="data-value=${option}" th:text="${option}"></li>
+                </ul>
+
+                <!-- フォームバインディング用の hidden フィールド -->
+                <input type="hidden" th:field="*{bankName}" id="bankName" />
+            </div>
+            <small class="text-muted">候補から選ぶか入力して候補を選択できます。</small>
+            </p>
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{branchName}" class="form-control" required>
                 <option value="">選択してください</option>
@@ -123,17 +168,19 @@
 
         <!--振込画面 -->
         <p><label class="ml-1">口座名義: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="フリコミ　タロウ"  pattern="[ァ-ヶー　]+" maxlength="20"
-                   title="口座名義は全角カタカナで入力してください"
+            <input type="text" th:field="*{name}" class="form-control" placeholder="ﾌﾘｺﾐ ﾀﾛｳ"  pattern="[ｦ-ﾟ ]+" maxlength="20"
+                   title="口座名義は半角カタカナで入力してください"
                    required/>
-            <small>全角カタカナで入力してください。</small>
+            <small>半角カタカナで入力してください。</small>
         </p>
 
         <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{money}" class="form-control" placeholder="10000" min="1" step="1"
+            <input type="number" th:field="*{money}" th:attr="max=${balance}" class="form-control" placeholder="10000" min="1" step="1"
                    oninvalid="
            if (this.value === '') {
                this.setCustomValidity('振込金額を入力してください');
+           } else if (this.validity.rangeOverflow) {
+               this.setCustomValidity('振込金額が口座残高を超えています');
            } else {
                this.setCustomValidity('振込金額は1円以上で入力してください');
            }
@@ -148,6 +195,11 @@
             60,000
         </span>円
             </strong>
+
+            <p class="today-available">
+                本日の振込可能額：
+                <strong th:text="${#numbers.formatInteger(todayAvailable, 1, 'COMMA')}">0</strong>円
+            </p>
 
             <p class="balance-note">
                 <small>※振込限度額を超える振込はできません。</small>
