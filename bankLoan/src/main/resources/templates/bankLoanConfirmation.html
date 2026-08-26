@@ -289,7 +289,10 @@
             <div class="confirmation-row">
                 <span class="confirmation-label">口座番号</span>
                 <span class="confirmation-value"
-                      th:text="*{bankAccountNum}"></span>
+                      th:text="${'****' + #strings.substring(
+                          bankLoanApplication.bankAccountNum, 4
+                      )}">
+                </span>
             </div>
         </div>
 
