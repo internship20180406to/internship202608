@@ -623,7 +623,10 @@ class BankTransferControllerTest {
                     "/bankTransfer/account")) {
                 String html = mockMvc.perform(get(url).session(session))
                         .andReturn().getResponse().getContentAsString();
-                assertThat(html).as(url).contains("form=\"cancelForm\"")
+                assertThat(html).as(url)
+                        // ボタンと、それが指すフォームの両方が同じページに出ている
+                        .contains("form=\"cancelForm\"")
+                        .contains("id=\"cancelForm\"")
                         .contains("action=\"/bankTransfer/cancel\"");
             }
         }
