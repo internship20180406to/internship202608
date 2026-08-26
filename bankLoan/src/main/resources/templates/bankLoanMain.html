@@ -226,6 +226,103 @@
 </div>
 
 <script>
+
+    // ==============================
+    // HTML要素の取得
+    // ==============================
+
+    const bankNameSelect = document.getElementById('bankName');
+    const branchNameSelect = document.getElementById('branchName');
+    const branchSearch = document.getElementById('branchSearch');
+    const selectedBranchInput = document.getElementById('selectedBranch');
+
+    const bankAccountTypeInput =
+        document.getElementById('bankAccountType');
+
+    const bankAccountNumInput =
+        document.getElementById('bankAccountNum');
+
+    const nameInput =
+        document.getElementById('name');
+
+    const loanAmountInput =
+        document.getElementById('loanAmount');
+
+    const annualIncomeInput =
+        document.getElementById('annualIncome');
+
+    const interestRateInput =
+        document.getElementById('interestRate');
+
+    const loanLimit =
+        document.getElementById('loanLimit');
+
+
+    // ==============================
+    // クライアントエラー表示
+    // ==============================
+
+    const bankNameError =
+        document.getElementById('bankNameClientError');
+
+    const branchNameError =
+        document.getElementById('branchNameClientError');
+
+    const bankAccountTypeError =
+        document.getElementById('bankAccountTypeClientError');
+
+    const bankAccountNumError =
+        document.getElementById('bankAccountNumClientError');
+
+    const nameError =
+        document.getElementById('nameClientError');
+
+    const loanAmountError =
+        document.getElementById('loanAmountClientError');
+
+    const annualIncomeError =
+        document.getElementById('annualIncomeClientError');
+
+    const interestRateError =
+        document.getElementById('interestRateClientError');
+
+    const loanLimitError =
+        document.getElementById('loanLimitClientError');
+
+
+    // ==============================
+    // Spring側エラー
+    // ==============================
+
+    const loanLimitServerError =
+        document.getElementById('loanLimitServerError');
+
+
+
+    const annualIncome = document.getElementById('annualIncome');
+
+    const branchNameInput = document.getElementById('branchName');
+    const loanAmount = document.getElementById('loanAmount');
+
+
+    function calculateLoanLimit() {
+        const income = Number(annualIncomeInput.value);
+
+        if (annualIncomeInput.value === '' || Number.isNaN(income)) {
+            return 0;
+        }
+
+        // 年収の50％を10万円単位で切り捨て
+        let limit = Math.floor((income * 0.5) / 10) * 10;
+
+        // カードローンの上限を1000万円とする場合
+        if (limit > 1000) {
+            limit = 1000;
+        }
+
+        return limit;
+    }
+
     function clearForm() {
         const form = document.querySelector('form');
 
@@ -261,51 +358,51 @@
         }
     }
 
-    const loanAmount = document.getElementById('loanAmount');
-    const interestRate = document.getElementById('interestRate');
+    function updateInterestRateByLimit(limit) {
 
-    loanAmount.addEventListener('input', function () {
-        const amount = Number(this.value);
+        if (limit >= 10 && limit <= 100) {
+            interestRateInput.value = 14.5;
 
-        if (amount >= 10 && amount <= 100) {
-            interestRate.value = 14.5;
-        } else if (amount > 100 && amount <= 200) {
-            interestRate.value = 12.0;
-        } else if (amount > 200 && amount <= 300) {
-            interestRate.value = 10.0;
-        } else if (amount > 300 && amount <= 400) {
-            interestRate.value = 8.0;
-        } else if (amount > 400 && amount <= 500) {
-            interestRate.value = 7.0;
-        } else if (amount > 500 && amount <= 600) {
-            interestRate.value = 6.0;
-        } else if (amount > 600 && amount <= 700) {
-            interestRate.value = 5.0;
-        } else if (amount > 700 && amount <= 800) {
-            interestRate.value = 4.0;
-        } else if (amount > 800 && amount <= 1000) {
-            interestRate.value = 0.95;
+        } else if (limit > 100 && limit <= 200) {
+            interestRateInput.value = 12.0;
+
+        } else if (limit > 200 && limit <= 300) {
+            interestRateInput.value = 10.0;
+
+        } else if (limit > 300 && limit <= 400) {
+            interestRateInput.value = 8.0;
+
+        } else if (limit > 400 && limit <= 500) {
+            interestRateInput.value = 7.0;
+
+        } else if (limit > 500 && limit <= 600) {
+            interestRateInput.value = 6.0;
+
+        } else if (limit > 600 && limit <= 700) {
+            interestRateInput.value = 5.0;
+
+        } else if (limit > 700 && limit <= 800) {
+            interestRateInput.value = 4.0;
+
+        } else if (limit > 800 && limit <= 1000) {
+            interestRateInput.value = 0.95;
+
         } else {
-            interestRate.value = '';
-        }
-
-        interestRate.dispatchEvent(new Event('input', { bubbles: true }));
-    });
-
-    const annualIncome = document.getElementById('annualIncome');
-    const loanLimit = document.getElementById('loanLimit');
-
-    function updateLoanLimit() {
-        const income = Number(annualIncome.value);
-
-        if (this.value === '' || Number.isNaN(income)) {
-            loanLimit.textContent = '借入限度額：0万円';
+            interestRateInput.value = '';
             return;
         }
 
-        const limit = Math.floor((income * 0.5) / 10) * 10;
+        validateInterestRate();
+    }
 
-        loanLimit.textContent = '借入限度額：' + limit + '万円';
+    function updateLoanLimit() {
+
+        const limit = calculateLoanLimit();
+
+        loanLimit.textContent =
+            '借入限度額：' + limit + '万円';
+
+        updateInterestRateByLimit(limit);
     }
 
     annualIncome.addEventListener('input', updateLoanLimit);
@@ -338,11 +435,6 @@
         "西中央支店"
         ]
     };
-
-    const bankNameSelect = document.getElementById('bankName');
-    const branchNameSelect = document.getElementById('branchName');
-    const branchSearch = document.getElementById('branchSearch');
-    const selectedBranchInput = document.getElementById('selectedBranch');
 
     function updateBranchOptions(selectedBranch = '', keyword = '') {
 
@@ -432,9 +524,6 @@
         }
     }
 
-    const loanAmountInput = document.getElementById('loanAmount');
-    const loanAmountError = document.getElementById('loanAmountClientError');
-
     function validateLoanAmount() {
         clearServerError(loanAmountInput);
 
@@ -457,7 +546,7 @@
         }
     }
 
-    const bankNameError = document.getElementById('bankNameClientError');
+
 
     function validateBankName() {
 
@@ -473,10 +562,6 @@
 
     bankNameSelect.addEventListener('change', validateBankName);
     bankNameSelect.addEventListener('blur', validateBankName);
-
-
-    const nameInput = document.getElementById('name');
-    const nameError = document.getElementById('nameClientError');
 
     function validateName() {
 
@@ -494,9 +579,6 @@
     nameInput.addEventListener('input', validateName);
     nameInput.addEventListener('blur', validateName);
 
-    const branchNameInput = document.getElementById('branchName');
-    const branchNameError = document.getElementById('branchNameClientError');
-
     function validateBranchName() {
 
         clearServerError(branchNameInput);
@@ -512,9 +594,6 @@
 
     branchNameInput.addEventListener('input', validateBranchName);
     branchNameInput.addEventListener('blur', validateBranchName);
-
-    const bankAccountTypeInput = document.getElementById('bankAccountType');
-    const bankAccountTypeError = document.getElementById('bankAccountTypeClientError');
 
     function validateBankAccountType() {
 
@@ -532,8 +611,6 @@
     bankAccountTypeInput.addEventListener('input', validateBankAccountType);
     bankAccountTypeInput.addEventListener('blur', validateBankAccountType);
 
-    const bankAccountNumInput = document.getElementById('bankAccountNum');
-    const bankAccountNumError = document.getElementById('bankAccountNumClientError');
 
     function validateBankAccountNum() {
 
@@ -555,8 +632,6 @@
     bankAccountNumInput.addEventListener('input', validateBankAccountNum);
     bankAccountNumInput.addEventListener('blur', validateBankAccountNum);
 
-    const annualIncomeInput = document.getElementById('annualIncome');
-    const annualIncomeError = document.getElementById('annualIncomeClientError');
 
     function validateAnnualIncome() {
 
@@ -577,8 +652,6 @@
         }
     }
 
-    const interestRateInput = document.getElementById('interestRate');
-    const interestRateError = document.getElementById('interestRateClientError');
 
     function validateInterestRate() {
 
@@ -602,9 +675,6 @@
     interestRateInput.addEventListener('input', validateInterestRate);
     interestRateInput.addEventListener('blur', validateInterestRate);
 
-    const loanLimitError = document.getElementById('loanLimitClientError');
-    const loanLimitServerError = document.getElementById('loanLimitServerError');
-
     function validateLoanLimit() {
         loanLimitError.textContent = '';
 
@@ -612,24 +682,13 @@
             loanLimitServerError.textContent = '';
         }
 
-        const loanValue = loanAmountInput.value;
-        const incomeValue = annualIncomeInput.value;
+        const loan = Number(loanAmountInput.value);
 
-        clearServerError(loanAmountInput);
-
-        // どちらか未入力なら単項目チェックに任せる
-        if (loanValue === '' || incomeValue === '') {
+        if (Number.isNaN(loan)) {
             return;
         }
 
-        const loan = Number(loanValue);
-        const income = Number(incomeValue);
-
-        if (Number.isNaN(loan) || Number.isNaN(income)) {
-            return;
-        }
-
-        const limit = Math.floor((income * 0.5) / 10) * 10;
+        const limit = calculateLoanLimit();
 
         if (loan > limit) {
             loanLimitError.textContent =
@@ -644,6 +703,7 @@
     annualIncomeInput.addEventListener('input', function () {
         validateAnnualIncome();
         validateLoanLimit();
+        updateLoanLimit();
     });
     loanAmountInput.addEventListener('blur', function () {
         validateLoanAmount();
