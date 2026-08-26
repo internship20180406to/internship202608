@@ -26,7 +26,9 @@ public class BankLoanController {
     @GetMapping("/bankLoan")
     public String bankTransfer(Model model) {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
-        model.addAttribute("nameOptions", List.of("山陰共同銀行"));
+
+        // ★ 変更：架空の銀行名リストに変更
+        model.addAttribute("nameOptions", List.of("テスト銀行", "サンプル中央銀行", "デモ信用金庫"));
 
         // リストの定義
         List<String> accountTypeOptions = List.of(
@@ -90,7 +92,9 @@ public class BankLoanController {
 
         // バリデーションエラー（未入力や各独自チェックのエラー）がある場合は、選択肢を再設定して入力画面に戻す
         if (bindingResult.hasErrors() || hasAgeError || hasIncomeError) {
-            model.addAttribute("nameOptions", List.of("山陰共同銀行"));
+            // ★ 変更：エラー時も架空の銀行名リストを再設定
+            model.addAttribute("nameOptions", List.of("テスト銀行", "サンプル中央銀行", "デモ信用金庫"));
+
             model.addAttribute("accountTypeOptions", List.of("住宅ローン", "マイカーローン", "教育ローン", "フリーローン", "カードローン"));
             model.addAttribute("depositTypeOptions", List.of("普通預金", "当座預金", "貯蓄預金"));
 
