@@ -214,6 +214,24 @@
             display: none;
         }
 
+        .search-control {
+            display: block;
+            width: 100%;
+            max-width: 600px;
+            padding: 8px;
+            margin: 8px 0 5px;
+            box-sizing: border-box;
+            border: 1px solid #aaaaaa;
+            border-radius: 4px;
+            background-color: #f7f7f7;
+        }
+
+        .search-control:focus {
+            border-color: #333333;
+            outline: none;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.25);
+        }
+
     </style>
 </head>
 <body>
@@ -297,22 +315,46 @@
             <span>万円</span>
         </p>
         <h2 class="section-title">口座情報</h2>
-        <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}" class="form-control" required>
-                <option value="">選択してください</option>
+        <div class="form-group">
+            <label for="bankName">
+                金融機関名:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <input type="text"
+                   id="bankName"
+                   th:field="*{bankName}"
+                   list="bankNameOptions"
+                   class="form-control"
+                   placeholder="金融機関名を検索または選択"
+                   autocomplete="off"
+                   required/>
+
+            <datalist id="bankNameOptions">
                 <option th:each="option : ${nameOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
+                        th:value="${option}">
                 </option>
-            </select></p>
-        <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{branchName}" class="form-control" required>
-                <option value="">選択してください</option>
-                <option th:each="option : ${branchOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select>
+            </datalist>
+        </div>
+
+        <div class="form-group">
+            <label for="branchName">
+                支店名:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <input type="text"
+                   id="branchName"
+                   th:field="*{branchName}"
+                   list="branchNameOptions"
+                   class="form-control"
+                   placeholder="支店名を検索または選択"
+                   autocomplete="off"
+                   required/>
+
+            <datalist id="branchNameOptions">
+            </datalist>
+        </div>
         <p><label class="ml-1">科目名:<small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{subjectName}" class="form-control"
                     required>
@@ -350,7 +392,9 @@
     </form>
 </div>
 
-<script src="/js/bankLoanValidation.js"></script>
+<script th:src="@{/js/bankLoanBranch.js}"></script>
+<script th:src="@{/js/bankLoanValidation.js}"></script>
+
 </body>
 
 </html>
