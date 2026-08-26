@@ -1,27 +1,49 @@
 package com.example.internship.entity;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
+/**
+ * 投資信託の申込フォーム。
+ * 各項目に付けたアノテーションがサーバサイドの入力チェック（Bean Validation）になる。
+ * フロント側（inputConfirmation.js）にも同じ条件のチェックを実装しているが、
+ * ブラウザの開発者ツールなどでJSを回避できるため、最終的な判定は必ずこちらで行う。
+ */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class InvestmentTrustForm {
-    @NonNull
+
+    //  @NotBlank:String型に作用。null, 空文字, 空白のみをすべて拒否
+    @NotBlank(message = "金融機関名を選択してください。")
     private String bankName;
-    @NonNull
+
+    //  @NotNull:全型に作用。nullを拒否
+    //  @Min/@Max:数値の範囲を判定。1000000〜9999999 とすることで「7桁ちょうど」を表現している
+    @NotNull(message = "口座番号を入力してください。")
+    @Min(value = 1000000, message = "口座番号は半角数字7桁で入力してください。")
+    @Max(value = 9999999, message = "口座番号は半角数字7桁で入力してください。")
     private Integer bankAccountNum;
-    @NonNull
-    private String BranchName;
-    @NonNull
+
+    @NotBlank(message = "支店名を選択してください。")
+    private String branchName;
+
+    @NotBlank(message = "科目名を選択してください。")
     private String bankAccountType;
-    @NonNull
+
+    //  @Size:文字数の上限・下限を判定。DBの桁あふれを防ぐ
+    @NotBlank(message = "購入者名を入力してください。")
+    @Size(max = 30, message = "購入者名は30文字以内で入力してください。")
     private String name;
-    @NonNull
+
+    @NotBlank(message = "銘柄を選択してください。")
     private String fundName;
-    @NonNull
+
+    @NotNull(message = "金額を入力してください。")
+    @Min(value = 10000, message = "金額は10,000円以上で入力してください。")
+    @Max(value = 10000000, message = "金額は10,000,000円以下で入力してください。")
     private Integer money;
 
     public String getBankName() {
@@ -41,11 +63,11 @@ public class InvestmentTrustForm {
     }
 
     public String getBranchName() {
-        return BranchName;
+        return branchName;
     }
 
-    public void setBranchName(String BranchName) {
-        this.BranchName = BranchName;
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
     }
 
     public String getBankAccountType() {

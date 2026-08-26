@@ -37,6 +37,10 @@
         .form_error {
             color: red;
         }
+        .input-error {
+            border: 1px solid red;
+            background-color: #fff5f5;
+        }
         .form-control-button {
         width: 80px;
         padding: 10px 20px;
@@ -68,72 +72,72 @@
 <body>
 <div class="content">
     <h1>投資信託注文情報入力</h1>
-    <form action="#" th:action="@{/investmentTrustConfirmation}" th:object="${investmentTrustApplication}" method="post">
+    <!-- novalidate: ブラウザ標準のエラー表示を止めて、JSで出すメッセージに統一する -->
+    <!-- 各項目の <span class="form_error"> にはサーバサイドのエラーメッセージを表示する。
+         th:errors はエラーが無いと span ごと消えてしまい JS 側が要素を取得できなくなるため、
+         代わりに #fields.errors(...) を文字列化して th:text で埋めている（エラーが無ければ空文字）。 -->
+    <form id="investmentTrustForm" action="#" th:action="@{/investmentTrustConfirmation}"
+          th:object="${investmentTrustApplication}" method="post" novalidate>
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}" class="form-control">
-                <option th:each="sanin : ${nameOptions}"
-                        th:value="${sanin}"
-                        th:text="${sanin}">選択肢
+            <select id="bankName" th:field="*{bankName}" class="form-control" th:errorclass="input-error">
+                <option value="">選択してください</option>
+                <option th:each="bank : ${nameOptions}"
+                        th:value="${bank}"
+                        th:text="${bank}">選択肢
                 </option>
-                <option th:each="kobuta : ${nameOptions1}"
-                        th:value="${kobuta}"
-                        th:text="${kobuta}">選択肢
-                </option>
-            </select></p>
+            </select>
+            <span class="form_error" id="bankName_error" th:text="${#strings.listJoin(#fields.errors('bankName'), ' ')}"></span></p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" id="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/>
-            <span class="form_error" id="accountnum_error_null" hidden>口座番号を入力してください。</span>
-            <span class="form_error" id="accountnum_error_digit" hidden>正しい口座番号を入力してください。</span></p>
+            <input type="number" id="bankAccountNum" th:field="*{bankAccountNum}" class="form-control"
+                   placeholder="1234567" min="1000000" max="9999999" step="1" inputmode="numeric"
+                   th:errorclass="input-error"/>
+            <span class="form_error" id="bankAccountNum_error" th:text="${#strings.listJoin(#fields.errors('bankAccountNum'), ' ')}"></span></p>
 
         <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{BranchName}" class="form-control">
-                <option th:each="wajiro : ${branchOptions}"
-                        th:value="${wajiro}"
-                        th:text="${wajiro}">選択肢
+            <select id="branchName" th:field="*{branchName}" class="form-control" th:errorclass="input-error">
+                <option value="">選択してください</option>
+                <option th:each="branch : ${branchOptions}"
+                        th:value="${branch}"
+                        th:text="${branch}">選択肢
                 </option>
-                <option th:each="usa : ${branchOptions1}"
-                        th:value="${usa}"
-                        th:text="${usa}">選択肢
-                </option>
-            </select></p>
+            </select>
+            <span class="form_error" id="branchName_error" th:text="${#strings.listJoin(#fields.errors('branchName'), ' ')}"></span></p>
 
         <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankAccountType}" class="form-control">
-                <option th:each="normal : ${typeOptions}"
-                        th:value="${normal}"
-                        th:text="${normal}">選択肢
+            <select id="bankAccountType" th:field="*{bankAccountType}" class="form-control" th:errorclass="input-error">
+                <option value="">選択してください</option>
+                <option th:each="type : ${typeOptions}"
+                        th:value="${type}"
+                        th:text="${type}">選択肢
                 </option>
-                <option th:each="check : ${typeOptions1}"
-                        th:value="${check}"
-                        th:text="${check}">選択肢
-                </option>
-            </select></p>
+            </select>
+            <span class="form_error" id="bankAccountType_error" th:text="${#strings.listJoin(#fields.errors('bankAccountType'), ' ')}"></span></p>
 
         <p><label class="ml-1">購入者名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="フルネーム"/>
-            <span class="form_error" id="name_error" hidden>お名前を入力してください。</span></p>
+            <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="フルネーム"
+                   maxlength="30" th:errorclass="input-error"/>
+            <span class="form_error" id="name_error" th:text="${#strings.listJoin(#fields.errors('name'), ' ')}"></span></p>
 
         <p><label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{fundName}" class="form-control">
-                <option th:each="capital1 : ${fundOptions}"
-                        th:value="${capital1}"
-                        th:text="${capital1}">選択肢
+            <select id="fundName" th:field="*{fundName}" class="form-control" th:errorclass="input-error">
+                <option value="">選択してください</option>
+                <option th:each="fund : ${fundOptions}"
+                        th:value="${fund}"
+                        th:text="${fund}">選択肢
                 </option>
-                <option th:each="capital2 : ${fundOptions1}"
-                        th:value="${capital2}"
-                        th:text="${capital2}">選択肢
-                </option>
-            </select></p>
+            </select>
+            <span class="form_error" id="fundName_error" th:text="${#strings.listJoin(#fields.errors('fundName'), ' ')}"></span></p>
 
         <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" id="money" th:field="*{money}" class="form-control" placeholder="1234567"/>
-            <span class="form_error" id="money_error_null" hidden>金額を入力してください。</span>
-            <span class="form_error" id="money_error"></span></p>
+            <input type="number" id="money" th:field="*{money}" class="form-control"
+                   placeholder="10000" min="10000" max="10000000" step="1" inputmode="numeric"
+                   th:errorclass="input-error"/>
+            <span class="form_error" id="money_error" th:text="${#strings.listJoin(#fields.errors('money'), ' ')}"></span></p>
 
         <p style="text-align: center;"><input type="submit" id="confirm" value="確認"
                                               class="form-control-button form-confirmation-button"/>
-            <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
+            <input type="reset" id="clear" value="クリア" class="form-control-button form-clear-button"/></p>
     </form>
     <script th:inline="javascript" src="/js/inputConfirmation.js"></script>
 
