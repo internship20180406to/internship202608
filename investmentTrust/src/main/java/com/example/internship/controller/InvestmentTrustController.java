@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -17,10 +18,135 @@ public class InvestmentTrustController {
     @Autowired
     private OrderInvestmentTrustService orderInvestmentTrustService;
 
+
+    /*
+     * =========================
+     * 投資信託注文入力画面
+     * =========================
+     */
     @GetMapping("/investmentTrust")
     public String bankTransfer(Model model) {
 
-        model.addAttribute("investmentTrustApplication", new InvestmentTrustForm());
+        model.addAttribute(
+                "investmentTrustApplication",
+                new InvestmentTrustForm()
+        );
+
+        setOptions(model);
+
+        /*
+         * 最初に表示するSTEP
+         */
+        model.addAttribute("targetStep", 1);
+
+        /*
+         * 通常の新規入力
+         */
+        model.addAttribute("editMode", false);
+
+        return "investmentTrustMain";
+    }
+
+
+    /*
+     * =========================
+     * 投資信託履歴画面
+     * =========================
+     */
+    @GetMapping("/investmentTrustHistory")
+    public String history() {
+
+        return "rireki";
+    }
+
+
+    /*
+     * =========================
+     * 確認画面
+     * =========================
+     */
+    @PostMapping("/investmentTrustConfirmation")
+    public String confirmation(
+            @ModelAttribute InvestmentTrustForm investmentTrustForm,
+            Model model) {
+
+        model.addAttribute(
+                "investmentTrustApplication",
+                investmentTrustForm
+        );
+
+        return "investmentTrustConfirmation";
+    }
+
+
+    /*
+     * =========================
+     * 確認画面から修正
+     * =========================
+     */
+    @PostMapping("/investmentTrustEdit")
+    public String edit(
+            @ModelAttribute InvestmentTrustForm investmentTrustForm,
+            @RequestParam("targetStep") int targetStep,
+            Model model) {
+
+        /*
+         * 現在の入力内容を保持したまま
+         * 修正したいSTEPを表示する
+         */
+        model.addAttribute(
+                "investmentTrustApplication",
+                investmentTrustForm
+        );
+
+        /*
+         * 修正対象のSTEP
+         */
+        model.addAttribute(
+                "targetStep",
+                targetStep
+        );
+
+        /*
+         * 選択肢を再設定
+         */
+        setOptions(model);
+
+        /*
+         * 修正モード
+         */
+        model.addAttribute(
+                "editMode",
+                true
+        );
+
+        return "investmentTrustMain";
+    }
+
+
+    /*
+     * =========================
+     * 注文完了
+     * =========================
+     */
+    @PostMapping("/investmentTrustCompletion")
+    public String completion(
+            @ModelAttribute InvestmentTrustForm investmentTrustForm,
+            Model model) {
+
+        orderInvestmentTrustService
+                .orderInvestmentTrust(investmentTrustForm);
+
+        return "investmentTrustCompletion";
+    }
+
+
+    /*
+     * =========================
+     * 選択肢設定
+     * =========================
+     */
+    private void setOptions(Model model) {
 
         List<String> bankNameOptions = List.of(
                 "山陰共同銀行",
@@ -47,35 +173,24 @@ public class InvestmentTrustController {
                 "D株式会社"
         );
 
-        model.addAttribute("bankNameOptions", bankNameOptions);
-        model.addAttribute("branchNameOptions", branchNameOptions);
-        model.addAttribute("bankAccountTypeOptions", bankAccountTypeOptions);
-        model.addAttribute("fundNameOptions", fundNameOptions);
+        model.addAttribute(
+                "bankNameOptions",
+                bankNameOptions
+        );
 
-        return "investmentTrustMain";
-    }
+        model.addAttribute(
+                "branchNameOptions",
+                branchNameOptions
+        );
 
-    @PostMapping("/investmentTrustConfirmation")
-    public String confirmation(
-            @ModelAttribute InvestmentTrustForm investmentTrustForm,
-            Model model) {
+        model.addAttribute(
+                "bankAccountTypeOptions",
+                bankAccountTypeOptions
+        );
 
-        // investmentTrustForm.setBankName("ここをBankNameにしたい");
-
-        model.addAttribute("bankName", investmentTrustForm.getBankName());
-        model.addAttribute("bankAccountNum", investmentTrustForm.getBankAccountNum());
-        model.addAttribute("investmentTrustApplication", investmentTrustForm);
-
-        return "investmentTrustConfirmation";
-    }
-
-    @PostMapping("/investmentTrustCompletion")
-    public String completion(
-            @ModelAttribute InvestmentTrustForm investmentTrustForm,
-            Model model) {
-
-        orderInvestmentTrustService.orderInvestmentTrust(investmentTrustForm);
-
-        return "investmentTrustCompletion";
+        model.addAttribute(
+                "fundNameOptions",
+                fundNameOptions
+        );
     }
 }

@@ -1,230 +1,1158 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
     <title>投資信託注文情報入力画面</title>
+
     <style>
-        body {
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        padding-top: 40px;
-        padding-bottom: 40px;
-        justify-content: center;
-        align-items: center;
-        min-height: 85vh;
-        overflow: auto;
-        }
-        .content {
-         background-color: #ffffff;
-         width: 80%;
-         padding: 20px;
-         border-radius: 10px;
-         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-         min-height: 50vh;
-         overflow: auto;
-        }
-        .form-control {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
+
+        * {
             box-sizing: border-box;
         }
-        .text-danger {
-        color: red;
+
+        body {
+            background-color: #f0f0f0;
+
+            margin: 0;
+
+            padding: 40px 20px;
+
+            min-height: 100vh;
+
+            font-family:
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    "Hiragino Kaku Gothic ProN",
+                    "Hiragino Sans",
+                    Meiryo,
+                    sans-serif;
+
+            overflow: auto;
         }
-        .form-control-button {
-            width: 300px;
-            padding: 10px 20px;
-            margin-top: 10px;
+
+
+        /* =========================
+           メインコンテンツ
+        ========================= */
+
+        .content {
+            background-color: #ffffff;
+
+            width: 80%;
+            max-width: 1000px;
+
+            margin: 0 auto;
+
+            padding: 30px 40px 40px;
+
+            border-radius: 10px;
+
+            box-shadow:
+                    0 4px 8px rgba(0, 0, 0, 0.1);
+
+            min-height: 70vh;
+        }
+
+
+        /* =========================
+           注文・履歴ナビゲーション
+        ========================= */
+
+        .navigation {
+            display: flex;
+
+            margin-bottom: 25px;
+
+            border-bottom: 1px solid #dddddd;
+        }
+
+
+        .navigation-button {
+            display: flex;
+
+            justify-content: center;
+            align-items: center;
+
+            width: 160px;
+
+            padding: 12px 20px;
+
+            border: 1px solid #cccccc;
+
+            border-bottom: none;
+
+            border-radius: 8px 8px 0 0;
+
+            background-color: #ffffff;
+
+            color: #333333;
+
+            text-decoration: none;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
             cursor: pointer;
-            border-radius: 5px;
-            border: 1px solid black;
-            background-color: #FFFFFF;
-            color: black;
+
+            transition:
+                    background-color 0.2s ease,
+                    color 0.2s ease;
         }
+
+
+        .navigation-button:hover {
+            background-color: #eeeeee;
+        }
+
+
+        /* =========================
+           現在選択中のページ
+        ========================= */
+
+        .navigation-button.active {
+            background-color: #2185D0;
+
+            border-color: #2185D0;
+
+            color: #ffffff;
+        }
+
+
+        .navigation-button.active:hover {
+            background-color: #1678c2;
+        }
+
+
+        /* =========================
+           タイトル
+        ========================= */
+
+        .page-title {
+            margin: 0;
+
+            color: #333333;
+
+            font-size: 28px;
+
+            text-align: left;
+        }
+
+
+        .page-description {
+            margin: 8px 0 35px;
+
+            color: #777777;
+
+            font-size: 14px;
+        }
+
+
+        /* =========================
+           ステップ全体
+        ========================= */
+
+        .step-progress {
+            position: relative;
+
+            width: 90%;
+
+            height: 100px;
+
+            margin: 0 auto 40px;
+        }
+
+
+        /* =========================
+           背景の線
+        ========================= */
+
+        .progress-line {
+            position: absolute;
+
+            top: 18px;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 6px;
+
+            background-color: #e0e0e0;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            z-index: 1;
+        }
+
+
+        /* =========================
+           緑色の進捗線
+        ========================= */
+
+        .progress-bar {
+            height: 100%;
+
+            width: 0%;
+
+            background-color: #4CAF50;
+
+            border-radius: 10px;
+
+            transition: width 0.3s ease;
+        }
+
+
+        /* =========================
+           ステップ円
+        ========================= */
+
+        .step-circle {
+            position: absolute;
+
+            top: 0;
+
+            width: 38px;
+
+            height: 38px;
+
+            padding: 0;
+
+            border-radius: 50%;
+
+            border: 3px solid #d5d5d5;
+
+            background-color: #ffffff;
+
+            color: #777777;
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transform: translateX(-50%);
+
+            z-index: 2;
+
+            transition:
+                    background-color 0.3s ease,
+                    border-color 0.3s ease,
+                    color 0.3s ease,
+                    transform 0.2s ease;
+        }
+
+
+        /* =========================
+           ○の位置
+        ========================= */
+
+        #stepCircle1 {
+            left: 0%;
+        }
+
+
+        #stepCircle2 {
+            left: 20%;
+        }
+
+
+        #stepCircle3 {
+            left: 40%;
+        }
+
+
+        #stepCircle4 {
+            left: 60%;
+        }
+
+
+        #stepCircle5 {
+            left: 80%;
+        }
+
+
+        #stepCircle6 {
+            left: 100%;
+        }
+
+
+        /* =========================
+           現在のステップ
+        ========================= */
+
+        .step-circle.active {
+            background-color: #4CAF50;
+
+            border-color: #4CAF50;
+
+            color: #ffffff;
+        }
+
+
+        /* =========================
+           完了したステップ
+        ========================= */
+
+        .step-circle.completed {
+            background-color: #4CAF50;
+
+            border-color: #4CAF50;
+
+            color: #ffffff;
+        }
+
+
+        /* =========================
+           まだ進んでいないステップ
+        ========================= */
+
+        .step-circle:disabled {
+            background-color: #ffffff;
+
+            border-color: #d5d5d5;
+
+            color: #999999;
+
+            cursor: default;
+        }
+
+
+        /* =========================
+           ○ホバー
+        ========================= */
+
+        .step-circle:not(:disabled):hover {
+            transform:
+                    translateX(-50%)
+                    scale(1.08);
+        }
+
+
+        /* =========================
+           ステップ名
+        ========================= */
+
+        .step-labels {
+            position: absolute;
+
+            top: 48px;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 30px;
+
+            color: #666666;
+
+            font-size: 13px;
+
+            text-align: center;
+
+            pointer-events: none;
+        }
+
+
+        .step-labels span {
+            position: absolute;
+
+            width: 80px;
+
+            transform: translateX(-50%);
+
+            white-space: nowrap;
+        }
+
+
+        /* ○と同じ位置に配置 */
+
+        .step-labels span:nth-child(1) {
+            left: 0%;
+        }
+
+        .step-labels span:nth-child(2) {
+            left: 20%;
+        }
+
+        .step-labels span:nth-child(3) {
+            left: 40%;
+        }
+
+        .step-labels span:nth-child(4) {
+            left: 60%;
+        }
+
+        .step-labels span:nth-child(5) {
+            left: 80%;
+        }
+
+        .step-labels span:nth-child(6) {
+            left: 100%;
+        }
+
+
+        /* =========================
+           現在のSTEP表示
+        ========================= */
+
+        .current-step-info {
+            text-align: center;
+
+            margin-bottom: 30px;
+        }
+
+
+        .current-step-number {
+            color: #4CAF50;
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            margin-bottom: 5px;
+        }
+
+
+        .current-step-title {
+            margin: 0;
+
+            color: #333333;
+
+            font-size: 23px;
+        }
+
+
+        /* =========================
+           エラー
+        ========================= */
+
+        .text-danger {
+            color: red;
+        }
+
+
+        .global-error {
+            margin-bottom: 20px;
+
+            padding: 10px 15px;
+
+            background-color: #fff0f0;
+
+            border-left: 4px solid red;
+
+            border-radius: 4px;
+        }
+
+
+        /* =========================
+           フォーム
+        ========================= */
+
+        .form-control {
+            width: 100%;
+
+            padding: 10px;
+
+            min-height: 45px;
+
+            margin: 5px 0;
+
+            box-sizing: border-box;
+
+            font-size: 16px;
+
+            border: 1px solid #cccccc;
+
+            border-radius: 5px;
+        }
+
+
+        .form-control:focus {
+            outline: none;
+
+            border-color: #4CAF50;
+
+            box-shadow:
+                    0 0 0 2px
+                    rgba(76, 175, 80, 0.15);
+        }
+
+
+        /* =========================
+           ボタン
+        ========================= */
+
+        .form-control-button {
+            width: 220px;
+
+            padding: 10px 20px;
+
+            min-height: 45px;
+
+            margin-top: 10px;
+
+            cursor: pointer;
+
+            border-radius: 5px;
+
+            border: 1px solid black;
+
+            background-color: #FFFFFF;
+
+            color: black;
+
+            font-size: 15px;
+        }
+
+
+        .form-control-button:hover {
+            background-color: #f5f5f5;
+        }
+
+
+        /* =========================
+           STEPボタン
+        ========================= */
+
         .step-buttons {
             display: flex;
+
             justify-content: space-between;
-            margin-top: 20px;
+
+            gap: 20px;
+
+            margin-top: 25px;
         }
+
+
         #step1 .step-buttons {
             justify-content: flex-end;
         }
-        .form-confirmation-button{
-        color: black;
-        background-color: #2185D0;
-        }
-        .form-confirmation-button:hover {
-        background-color: #1678c2;
-        }
-        .form-clear-button{
-        color: black;
-        background-color: #E0E1E2;
-        }
-        .form-clear-button:hover {
-            background-color: #CCCCCC;
-        }
+
+
+        /* =========================
+           次へ
+        ========================= */
+
         .next-button {
             background-color: #2185D0;
-            color: black;
-            border: 1px solid black;
+
+            color: white;
+
+            border: 1px solid #2185D0;
         }
-        .progress-container {
-            width: 100%;
-            height: 15px;
-            background-color: #E0E0E0;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            overflow: hidden;
+
+
+        .next-button:hover {
+            background-color: #1678c2;
         }
-        .progress-bar {
-            height: 100%;
-            background-color: #4CAF50;
-            width: 0%;
-            transition: width 0.3s;
+
+
+        /* =========================
+           確認ボタン
+        ========================= */
+
+        .form-confirmation-button {
+            color: white;
+
+            background-color: #2185D0;
+
+            border: 1px solid #2185D0;
+        }
+
+
+        .form-confirmation-button:hover {
+            background-color: #1678c2;
+        }
+
+
+        /* =========================
+           スマートフォン対応
+        ========================= */
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 20px 10px;
+            }
+
+
+            .content {
+                width: 100%;
+
+                padding:
+                        20px 15px 30px;
+            }
+
+
+            /* ナビゲーション */
+
+            .navigation-button {
+                width: 50%;
+
+                padding: 10px 5px;
+
+                font-size: 14px;
+            }
+
+
+            .page-title {
+                font-size: 22px;
+            }
+
+
+            .step-progress {
+                width: 92%;
+
+                height: 90px;
+            }
+
+
+            .step-circle {
+                width: 32px;
+
+                height: 32px;
+
+                top: 2px;
+
+                font-size: 12px;
+            }
+
+
+            .progress-line {
+                top: 15px;
+
+                height: 5px;
+            }
+
+
+            .step-labels {
+                top: 42px;
+
+                font-size: 10px;
+            }
+
+
+            .step-labels span {
+                width: 50px;
+            }
+
+
+            .current-step-title {
+                font-size: 20px;
+            }
+
+
+            .step-buttons {
+                flex-direction: column;
+            }
+
+
+            .form-control-button {
+                width: 100%;
+            }
+
         }
 
     </style>
+
 </head>
+
+
 <body>
+
+
 <div class="content">
-    <h1>投資信託注文情報入力</h1>
-    <div class="progress-container">
-        <div id="progressBar" class="progress-bar"></div>
+
+
+    <!-- =========================
+         注文・履歴ナビゲーション
+    ========================== -->
+
+    <div class="navigation">
+
+        <!-- 現在のページ -->
+
+        <a href="/investmentTrust"
+           class="navigation-button active">
+            注文
+        </a>
+
+
+        <!-- 注文履歴 -->
+
+        <a href="/investmentTrustHistory"
+           class="navigation-button">
+            注文履歴
+        </a>
+
     </div>
-    <div th:if="${error}" class="text-danger">
-        <p th:text="${error}"></p>
-    </div>
-    <form action="#" th:action="@{/investmentTrustConfirmation}" th:object="${investmentTrustApplication}" method="post">
-        <div id="step1">
-            <p>
-                <label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}" class="form-control">
-                <option th:each="option : ${bankNameOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select>
-            </p>
-            <div class="step-buttons">
-            <input type="button"
-                   value="次へ"
-                   class="form-control-button next-button"
-                   onclick="nextStep(1)">
-        </div>
+
+
+    <!-- =========================
+         タイトル
+    ========================== -->
+
+    <h1 class="page-title">
+        投資信託注文情報入力
+    </h1>
+
+
+    <p class="page-description">
+        必要な情報を順番に入力してください。
+    </p>
+
+
+    <!-- =========================
+         ステップ表示
+    ========================== -->
+
+    <div class="step-progress">
+
+
+        <!-- 背景の線 -->
+
+        <div class="progress-line">
+
+            <div id="progressBar"
+                 class="progress-bar">
+            </div>
+
         </div>
 
-        <div id="step2" style="display: none;">
+
+        <!-- STEP1 -->
+
+        <button type="button"
+                id="stepCircle1"
+                class="step-circle active"
+                onclick="goToStep(1)">
+
+            1
+
+        </button>
+
+
+        <!-- STEP2 -->
+
+        <button type="button"
+                id="stepCircle2"
+                class="step-circle"
+                onclick="goToStep(2)"
+                disabled>
+
+            2
+
+        </button>
+
+
+        <!-- STEP3 -->
+
+        <button type="button"
+                id="stepCircle3"
+                class="step-circle"
+                onclick="goToStep(3)"
+                disabled>
+
+            3
+
+        </button>
+
+
+        <!-- STEP4 -->
+
+        <button type="button"
+                id="stepCircle4"
+                class="step-circle"
+                onclick="goToStep(4)"
+                disabled>
+
+            4
+
+        </button>
+
+
+        <!-- STEP5 -->
+
+        <button type="button"
+                id="stepCircle5"
+                class="step-circle"
+                onclick="goToStep(5)"
+                disabled>
+
+            5
+
+        </button>
+
+
+        <!-- STEP6 -->
+
+        <button type="button"
+                id="stepCircle6"
+                class="step-circle"
+                onclick="goToStep(6)"
+                disabled>
+
+            6
+
+        </button>
+
+
+        <!-- ステップ名 -->
+
+        <div class="step-labels">
+
+            <span>金融機関</span>
+
+            <span>支店</span>
+
+            <span>科目</span>
+
+            <span>口座番号</span>
+
+            <span>購入者</span>
+
+            <span>注文内容</span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         現在のステップ
+    ========================== -->
+
+    <div class="current-step-info">
+
+        <div id="currentStepNumber"
+             class="current-step-number">
+
+            STEP 1 / 6
+
+        </div>
+
+
+        <h2 id="currentStepTitle"
+            class="current-step-title">
+
+            金融機関
+
+        </h2>
+
+    </div>
+
+
+    <!-- =========================
+         エラー
+    ========================== -->
+
+    <div th:if="${error}"
+         class="text-danger global-error">
+
+        <p th:text="${error}"></p>
+
+    </div>
+
+
+    <!-- =========================
+         FORM
+    ========================== -->
+
+    <form action="#"
+          th:action="@{/investmentTrustConfirmation}"
+          th:object="${investmentTrustApplication}"
+          method="post">
+
+
+        <!-- =========================
+             STEP1 金融機関
+        ========================== -->
+
+        <div id="step1">
+
             <p>
-                <label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{branchName}" class="form-control">
-                <option th:each="option : ${branchNameOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select>
+
+                <label class="ml-1">
+                    金融機関名:
+                    <small class="text-danger ml-1">
+                        ※
+                    </small>
+                </label>
+
+                <br>
+
+
+                <select th:field="*{bankName}"
+                        class="form-control">
+
+                    <option th:each="option : ${bankNameOptions}"
+                            th:value="${option}"
+                            th:text="${option}">
+
+                        選択肢
+
+                    </option>
+
+                </select>
+
             </p>
+
+
             <div class="step-buttons">
+
+                <input type="button"
+                       value="次へ"
+                       class="form-control-button next-button"
+                       onclick="nextStep(1)">
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             STEP2 支店
+        ========================== -->
+
+        <div id="step2"
+             style="display: none;">
+
+            <p>
+
+                <label class="ml-1">
+                    支店名:
+                    <small class="text-danger ml-1">
+                        ※
+                    </small>
+                </label>
+
+                <br>
+
+
+                <select th:field="*{branchName}"
+                        class="form-control">
+
+                    <option th:each="option : ${branchNameOptions}"
+                            th:value="${option}"
+                            th:text="${option}">
+
+                        選択肢
+
+                    </option>
+
+                </select>
+
+            </p>
+
+
+            <div class="step-buttons">
+
                 <input type="button"
                        value="戻る"
                        class="form-control-button"
                        onclick="prevStep(2)">
 
+
                 <input type="button"
                        value="次へ"
                        class="form-control-button next-button"
                        onclick="nextStep(2)">
-        </div>
+
+            </div>
+
         </div>
 
-        <div id="step3" style="display: none;">
+
+        <!-- =========================
+             STEP3 科目
+        ========================== -->
+
+        <div id="step3"
+             style="display: none;">
+
             <p>
-                <label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankAccountTypeName}" class="form-control">
-                <option th:each="option : ${bankAccountTypeOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select>
+
+                <label class="ml-1">
+                    科目名:
+                    <small class="text-danger ml-1">
+                        ※
+                    </small>
+                </label>
+
+                <br>
+
+
+                <select th:field="*{bankAccountTypeName}"
+                        class="form-control">
+
+                    <option th:each="option : ${bankAccountTypeOptions}"
+                            th:value="${option}"
+                            th:text="${option}">
+
+                        選択肢
+
+                    </option>
+
+                </select>
+
             </p>
+
+
             <div class="step-buttons">
+
                 <input type="button"
                        value="戻る"
                        class="form-control-button"
                        onclick="prevStep(3)">
 
+
                 <input type="button"
                        value="次へ"
                        class="form-control-button next-button"
                        onclick="nextStep(3)">
-        </div>
+
+            </div>
+
         </div>
 
-        <div id="step4" style="display: none;">
+
+        <!-- =========================
+             STEP4 口座番号
+        ========================== -->
+
+        <div id="step4"
+             style="display: none;">
+
             <p>
-                <label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text"
-                   id = "bankAccountNum"
-                   th:field="*{bankAccountNum}"
-                   class="form-control"
-                   placeholder="1234567"
-                   inputmode="numeric"
-                   maxlength="7">
+
+                <label class="ml-1">
+                    口座番号:
+                    <small class="text-danger ml-1">
+                        ※
+                    </small>
+                </label>
+
+                <br>
+
+
+                <input type="text"
+                       id="bankAccountNum"
+                       th:field="*{bankAccountNum}"
+                       class="form-control"
+                       placeholder="1234567"
+                       inputmode="numeric"
+                       maxlength="7">
+
 
                 <span id="bankAccountNumError"
                       class="text-danger"
                       style="display: none;">
                 </span>
+
             </p>
+
+
             <div class="step-buttons">
-            <input type="button"
-                   value="戻る"
-                   class="form-control-button"
-                   onclick="prevStep(4)">
 
-            <input type="button"
-                   value="次へ"
-                   class="form-control-button next-button"
-                   onclick="validateBankAccountNum()">
-        </div>
+                <input type="button"
+                       value="戻る"
+                       class="form-control-button"
+                       onclick="prevStep(4)">
+
+
+                <input type="button"
+                       value="次へ"
+                       class="form-control-button next-button"
+                       onclick="validateBankAccountNum()">
+
+            </div>
+
         </div>
 
-        <div id="step5" style="display: none;">
+
+        <!-- =========================
+             STEP5 購入者名
+        ========================== -->
+
+        <div id="step5"
+             style="display: none;">
+
             <p>
-                <label class="ml-1">購入者名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text"
-                   id = "name"
-                   th:field="*{name}"
-                   class="form-control"
-                   placeholder="購入者名を入力してください"/>
+
+                <label class="ml-1">
+                    購入者名:
+                    <small class="text-danger ml-1">
+                        ※
+                    </small>
+                </label>
+
+                <br>
+
+
+                <input type="text"
+                       id="name"
+                       th:field="*{name}"
+                       class="form-control"
+                       placeholder="購入者名を入力してください">
+
 
                 <span id="nameError"
                       class="text-danger"
                       style="display: none;">
                 </span>
+
             </p>
+
+
             <div class="step-buttons">
-            <input type="button"
-                   value="戻る"
-                   class="form-control-button"
-                   onclick="prevStep(5)">
 
-            <input type="button"
-                   value="次へ"
-                   class="form-control-button next-button"
-                   onclick="validateName()">
-        </div>
+                <input type="button"
+                       value="戻る"
+                       class="form-control-button"
+                       onclick="prevStep(5)">
+
+
+                <input type="button"
+                       value="次へ"
+                       class="form-control-button next-button"
+                       onclick="validateName()">
+
+            </div>
+
         </div>
 
-        <div id="step6" style="display: none;">
+
+        <!-- =========================
+             STEP6 注文内容
+        ========================== -->
+
+        <!-- =========================
+     STEP6 注文内容
+========================== -->
+
+        <div id="step6"
+             style="display: none;">
+
+            <!-- 銘柄 -->
 
             <p>
+
                 <label class="ml-1">
                     銘柄選択:
-                    <small class="text-danger ml-1">※</small>
+                    <small class="text-danger ml-1">
+                        ※
+                    </small>
                 </label>
+
                 <br>
 
                 <select id="fundName"
@@ -232,56 +1160,63 @@
                         class="form-control"
                         onchange="updatePrice()">
 
-                    <option value="">選択してください</option>
+                    <option value="">
+                        選択してください
+                    </option>
 
-                    <option value="A株式会社">A株式会社</option>
-                    <option value="B株式会社">B株式会社</option>
-                    <option value="C株式会社">C株式会社</option>
-                    <option value="D株式会社">D株式会社</option>
+                    <option value="A株式会社">
+                        A株式会社
+                    </option>
+
+                    <option value="B株式会社">
+                        B株式会社
+                    </option>
+
+                    <option value="C株式会社">
+                        C株式会社
+                    </option>
+
+                    <option value="D株式会社">
+                        D株式会社
+                    </option>
 
                 </select>
+
             </p>
 
 
+            <!-- 1口の価格 -->
+
             <p>
+
                 <label class="ml-1">
                     1口の価格:
                 </label>
+
                 <br>
 
                 <input type="text"
                        id="unitPrice"
                        class="form-control"
                        readonly>
+
             </p>
 
 
-            <p>
-                <label class="ml-1">
-                    口数:
-                    <small class="text-danger ml-1">※</small>
-                </label>
-                <br>
-
-                <input type="number"
-                       id="quantity"
-                       class="form-control"
-                       placeholder="口数を入力してください"
-                       min="0"
-                       oninput="calculateMoney()">
-
-                <span id="quantityError"
-                      class="text-danger"
-                      style="display: none;">
-        </span>
-            </p>
-
+            <!-- =========================
+                 購入金額
+                 ユーザーが入力
+            ========================== -->
 
             <p>
+
                 <label class="ml-1">
                     購入金額:
-                    <small class="text-danger ml-1">※</small>
+                    <small class="text-danger ml-1">
+                        ※
+                    </small>
                 </label>
+
                 <br>
 
                 <input type="number"
@@ -296,8 +1231,37 @@
                       class="text-danger"
                       style="display: none;">
         </span>
+
             </p>
 
+
+            <!-- =========================
+                 口数
+                 自動計算・入力不可
+            ========================== -->
+
+            <p>
+
+                <label class="ml-1">
+                    口数:
+                </label>
+
+                <br>
+
+                <input type="number"
+                       id="quantity"
+                       class="form-control"
+                       readonly>
+
+                <span id="quantityError"
+                      class="text-danger"
+                      style="display: none;">
+        </span>
+
+            </p>
+
+
+            <!-- ボタン -->
 
             <div class="step-buttons">
 
@@ -314,9 +1278,16 @@
             </div>
 
         </div>
+
     </form>
+
 </div>
+
+
+<!-- JavaScript -->
+
 <script src="/js/test.js"></script>
+
 </body>
 
 </html>

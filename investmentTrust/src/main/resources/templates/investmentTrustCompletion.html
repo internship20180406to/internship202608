@@ -1,12 +1,186 @@
 <!doctype html>
 <html>
+
 <head>
+
     <meta charset="UTF-8"/>
+
     <title>注文完了画面</title>
+
+
+    <style>
+
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 40px 20px;
+
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-family:
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    "Hiragino Kaku Gothic ProN",
+                    "Hiragino Sans",
+                    Meiryo,
+                    sans-serif;
+        }
+
+
+        .content {
+
+            width: 80%;
+            max-width: 600px;
+
+            padding: 45px 30px;
+
+            background-color: #ffffff;
+
+            border-radius: 10px;
+
+            box-shadow:
+                    0 4px 8px rgba(0,0,0,0.1);
+
+            text-align: center;
+        }
+
+
+        /* 完了マーク */
+
+        .completion-icon {
+
+            width: 80px;
+            height: 80px;
+
+            margin: 0 auto 25px;
+
+            border-radius: 50%;
+
+            background-color: #4CAF50;
+
+            color: white;
+
+            display: flex;
+
+            justify-content: center;
+            align-items: center;
+
+            font-size: 45px;
+
+            font-weight: bold;
+        }
+
+
+        h1 {
+
+            margin: 0 0 15px;
+
+            color: #333333;
+
+            font-size: 28px;
+        }
+
+
+        .message {
+
+            margin-bottom: 30px;
+
+            color: #666666;
+
+            line-height: 1.8;
+        }
+
+
+        .back-button {
+
+            min-width: 200px;
+
+            padding: 12px 20px;
+
+            border: 1px solid #2185D0;
+
+            border-radius: 5px;
+
+            background-color: #2185D0;
+
+            color: white;
+
+            font-size: 16px;
+
+            cursor: pointer;
+        }
+
+
+        .back-button:hover {
+
+            background-color: #1678c2;
+        }
+
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 20px 10px;
+            }
+
+            .content {
+                width: 100%;
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+
+        }
+
+    </style>
+
 </head>
+
+
 <body>
-<h1>注文完了</h1>
-<p><input type="button" value="注文に戻る" onclick="window.location='/investmentTrust';"/></p>
+
+
+<div class="content">
+
+
+    <!-- 完了マーク -->
+
+    <div class="completion-icon">
+        ✓
+    </div>
+
+
+    <!-- 完了メッセージ -->
+
+    <h1>
+        申し込みが完了しました
+    </h1>
+
+
+    <p class="message">
+        投資信託の注文を受け付けました。<br>
+        ご利用ありがとうございました。
+    </p>
+
+
+    <!-- 元々あった「注文に戻る」 -->
+
+    <input type="button"
+           value="注文に戻る"
+           class="back-button"
+           onclick="window.location='/investmentTrust';"/>
+
+
+</div>
+
+
 </body>
 
 </html>

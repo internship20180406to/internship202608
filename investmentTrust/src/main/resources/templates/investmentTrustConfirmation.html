@@ -1,60 +1,776 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>投資信託注文確認画面</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 40px 20px;
+
+            font-family:
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    "Hiragino Kaku Gothic ProN",
+                    "Hiragino Sans",
+                    Meiryo,
+                    sans-serif;
+        }
+
+
+        /* =========================
+           メインコンテンツ
+        ========================== */
+
+        .content {
+            width: 80%;
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+            padding: 30px;
+
+            background-color: #ffffff;
+
+            border-radius: 10px;
+
+            box-shadow:
+                    0 4px 8px rgba(0,0,0,0.1);
+        }
+
+
+        /* =========================
+           タイトル
+        ========================== */
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 50px;
+
+            color: #333333;
+
+            font-size: 32px;
+        }
+
+
+        /* =========================
+           確認項目
+        ========================== */
+
+        .confirmation-list {
+            border: 1px solid #dddddd;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            margin-bottom: 45px;
+        }
+
+
+        .confirmation-item {
+            display: flex;
+
+            min-height: 84px;
+
+            border-bottom: 1px solid #eeeeee;
+        }
+
+
+        .confirmation-item:last-child {
+            border-bottom: none;
+        }
+
+
+        /* 項目名 */
+
+        .confirmation-label {
+            width: 30%;
+
+            padding: 25px 20px;
+
+            background-color: #f7f7f7;
+
+            color: #555555;
+
+            font-size: 20px;
+
+            font-weight: bold;
+        }
+
+
+        /* 値 */
+
+        .confirmation-value {
+            width: 55%;
+
+            padding: 25px 20px;
+
+            color: #222222;
+
+            font-size: 20px;
+        }
+
+
+        /* =========================
+           修正ボタン部分
+        ========================== */
+
+        .confirmation-edit {
+            width: 15%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background-color: #ffffff;
+        }
+
+
+        .edit-button {
+            padding: 8px 18px;
+
+            border: 1px solid #2185D0;
+
+            border-radius: 5px;
+
+            background-color: #ffffff;
+
+            color: #2185D0;
+
+            font-size: 15px;
+
+            cursor: pointer;
+        }
+
+
+        .edit-button:hover {
+            background-color: #2185D0;
+
+            color: #ffffff;
+        }
+
+
+        /* =========================
+           購入金額
+        ========================== */
+
+        .money-value {
+            color: #2185D0;
+
+            font-weight: bold;
+        }
+
+
+        /* =========================
+           口座番号
+        ========================== */
+
+        .account-number-display {
+            cursor: pointer;
+
+            color: #2185D0;
+
+            font-weight: bold;
+
+            text-decoration: underline;
+        }
+
+
+        .account-number-display:hover {
+            color: #1678c2;
+        }
+
+
+        /* =========================
+           下部ボタン
+        ========================== */
+
+        .button-area {
+            display: flex;
+
+            justify-content: center;
+
+            gap: 22px;
+
+            margin-top: 10px;
+        }
+
+
+        .button {
+            width: 225px;
+
+            padding: 16px 20px;
+
+            border-radius: 7px;
+
+            font-size: 20px;
+
+            cursor: pointer;
+        }
+
+
+        /* =========================
+           申込
+        ========================== */
+
+        .submit-button {
+            border: 1px solid #2185D0;
+
+            background-color: #2185D0;
+
+            color: #ffffff;
+        }
+
+
+        .submit-button:hover {
+            background-color: #1678c2;
+        }
+
+
+        /* =========================
+           キャンセル
+        ========================== */
+
+        .cancel-button {
+            border: 1px solid #999999;
+
+            background-color: #ffffff;
+
+            color: #333333;
+        }
+
+
+        .cancel-button:hover {
+            background-color: #eeeeee;
+        }
+
+
+        /* =========================
+           スマートフォン対応
+        ========================== */
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 20px 10px;
+            }
+
+
+            .content {
+                width: 100%;
+
+                padding: 20px;
+            }
+
+
+            h1 {
+                font-size: 25px;
+
+                margin-bottom: 30px;
+            }
+
+
+            .confirmation-item {
+                display: block;
+
+                position: relative;
+
+                padding-bottom: 15px;
+            }
+
+
+            .confirmation-label {
+                width: 100%;
+
+                padding: 12px 15px;
+
+                font-size: 17px;
+            }
+
+
+            .confirmation-value {
+                width: 100%;
+
+                padding: 15px;
+
+                padding-right: 90px;
+
+                font-size: 17px;
+            }
+
+
+            .confirmation-edit {
+                position: absolute;
+
+                right: 10px;
+
+                top: 45px;
+
+                width: auto;
+
+                background-color: transparent;
+            }
+
+
+            .edit-button {
+                padding: 6px 12px;
+
+                font-size: 13px;
+            }
+
+
+            .button-area {
+                flex-direction: column;
+            }
+
+
+            .button {
+                width: 100%;
+            }
+
+            .confirmation-item {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+
+                padding: 15px;
+
+                margin-bottom: 10px;
+
+                border-bottom: 1px solid #eeeeee;
+            }
+
+            .item-label {
+                width: 120px;
+
+                font-weight: bold;
+
+                color: #444444;
+            }
+
+            .item-value {
+                flex: 1;
+
+                color: #333333;
+            }
+
+            .edit-button {
+                padding: 7px 18px;
+
+                border: 1px solid #2185D0;
+
+                border-radius: 5px;
+
+                background-color: white;
+
+                color: #2185D0;
+
+                cursor: pointer;
+            }
+
+            .edit-button:hover {
+                background-color: #2185D0;
+
+                color: white;
+            }
+
+        }
+
+    </style>
+
 </head>
+
+
 <body>
-<h1>投資信託注文確認画面</h1>
-<form action="#" th:action="@{/investmentTrustCompletion}" th:object="${investmentTrustApplication}" method="post">
-    <p>金融機関名: <span th:text="*{bankName}"></span>
-        <!--<input type="button"
-               value="変更"
-               onclick="goBackToInput(1)">-->
-    </p>
-    <p>支店名: <span th:text="*{branchName}"></span>
-        <!--<input type="button"
-               value="変更"
-               onclick="goBackToInput(2)">-->
-    </p>
-    <p>科目名: <span th:text="*{bankAccountTypeName}"></span>
-        <!--<input type="button"
-               value="変更"
-               onclick="goBackToInput(3)">-->
-    </p>
-    <p>口座番号: <span>********</span>
-        <!--<input type="button"
-               value="変更"
-               onclick="goBackToInput(4)">-->
-    </p>
-    <p>購入者名: <span th:text="*{name}"></span>
-        <!--<input type="button"
-               value="変更"
-               onclick="goBackToInput(5)">-->
-    </p>
-    <p>銘柄選択: <span th:text="*{fundName}"></span>
-        <!--<input type="button"
-               value="変更"
-               onclick="goBackToInput(6)">-->
-    </p>
-    <p>購入金額: <span th:text="*{money}"></span>
-        <!--<input type="button"
-               value="変更"
-               onclick="goBackToInput(6)">-->
-    </p>
-    <input type="hidden" name="bankName" th:value="*{bankName}"/>
-    <input type="hidden" name="branchName" th:value="*{branchName}"/>
-    <input type="hidden" name="bankAccountTypeName" th:value="*{bankAccountTypeName}"/>
-    <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
-    <input type="hidden" name="name" th:value="*{name}"/>
-    <input type="hidden" name="fundName" th:value="*{fundName}"/>
-    <input type="hidden" name="money" th:value="*{money}"/>
-    <!--<input type="hidden" name="transactionPassword" th:value="*{transactionPassword}"/>-->
-    <p>
-        <input type="submit" id="submit" value="申込" onclick="return confirm('この内容で申し込みますか？');"/>
-        <input type="button" value="キャンセル" onclick="window.location='/investmentTrust';"/>
-    </p>
-</form>
-<script th:inline="javascript" src="/js/investmentTrustConfirmation.js"></script>
+
+
+<div class="content">
+
+
+    <!-- =========================
+         タイトル
+    ========================== -->
+
+    <h1>
+        投資信託注文確認画面
+    </h1>
+
+
+    <form action="#"
+          th:action="@{/investmentTrustCompletion}"
+          th:object="${investmentTrustApplication}"
+          method="post">
+
+
+        <!-- =========================
+             確認項目
+        ========================== -->
+
+        <div class="confirmation-list">
+
+
+            <!-- =========================
+                 金融機関名
+            ========================== -->
+
+            <div class="confirmation-item">
+
+                <div class="confirmation-label">
+                    金融機関名
+                </div>
+
+
+                <div class="confirmation-value"
+                     th:text="*{bankName}">
+                </div>
+
+
+                <div class="confirmation-edit">
+
+                    <button type="button"
+                            class="edit-button"
+                            onclick="goBackToInput(1)">
+                        修正
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 支店名
+            ========================== -->
+
+            <div class="confirmation-item">
+
+                <div class="confirmation-label">
+                    支店名
+                </div>
+
+
+                <div class="confirmation-value"
+                     th:text="*{branchName}">
+                </div>
+
+
+                <div class="confirmation-edit">
+
+                    <button type="button"
+                            class="edit-button"
+                            onclick="goBackToInput(2)">
+                        修正
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 科目名
+            ========================== -->
+
+            <div class="confirmation-item">
+
+                <div class="confirmation-label">
+                    科目名
+                </div>
+
+
+                <div class="confirmation-value"
+                     th:text="*{bankAccountTypeName}">
+                </div>
+
+
+                <div class="confirmation-edit">
+
+                    <button type="button"
+                            class="edit-button"
+                            onclick="goBackToInput(3)">
+                        修正
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 口座番号
+            ========================== -->
+
+            <div class="confirmation-item">
+
+                <div class="confirmation-label">
+                    口座番号
+                </div>
+
+
+                <div class="confirmation-value">
+
+                    <span id="bankAccountDisplay"
+                          class="account-number-display"
+                          th:attr="data-account-number=*{bankAccountNum}"
+                          onclick="toggleBankAccount()">
+
+                        ********
+
+                    </span>
+
+                </div>
+
+
+                <div class="confirmation-edit">
+
+                    <button type="button"
+                            class="edit-button"
+                            onclick="goBackToInput(4)">
+                        修正
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 購入者名
+            ========================== -->
+
+            <div class="confirmation-item">
+
+                <div class="confirmation-label">
+                    購入者名
+                </div>
+
+
+                <div class="confirmation-value"
+                     th:text="*{name}">
+                </div>
+
+
+                <div class="confirmation-edit">
+
+                    <button type="button"
+                            class="edit-button"
+                            onclick="goBackToInput(5)">
+                        修正
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 銘柄選択
+            ========================== -->
+
+            <div class="confirmation-item">
+
+                <div class="confirmation-label">
+                    銘柄選択
+                </div>
+
+
+                <div class="confirmation-value"
+                     th:text="*{fundName}">
+                </div>
+
+
+                <div class="confirmation-edit">
+
+                    <button type="button"
+                            class="edit-button"
+                            onclick="goBackToInput(6)">
+                        修正
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 購入金額
+            ========================== -->
+
+            <div class="confirmation-item">
+
+                <div class="confirmation-label">
+                    購入金額
+                </div>
+
+
+                <div class="confirmation-value money-value">
+
+                    <span th:text="*{money}"></span>
+                    円
+
+                </div>
+
+
+                <div class="confirmation-edit">
+
+                    <button type="button"
+                            class="edit-button"
+                            onclick="goBackToInput(6)">
+                        修正
+                    </button>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =========================
+             hidden
+        ========================== -->
+
+        <input type="hidden"
+               name="bankName"
+               th:value="*{bankName}"/>
+
+
+        <input type="hidden"
+               name="branchName"
+               th:value="*{branchName}"/>
+
+
+        <input type="hidden"
+               name="bankAccountTypeName"
+               th:value="*{bankAccountTypeName}"/>
+
+
+        <input type="hidden"
+               name="bankAccountNum"
+               th:value="*{bankAccountNum}"/>
+
+
+        <input type="hidden"
+               name="name"
+               th:value="*{name}"/>
+
+
+        <input type="hidden"
+               name="fundName"
+               th:value="*{fundName}"/>
+
+
+        <input type="hidden"
+               name="money"
+               th:value="*{money}"/>
+
+
+        <!--<input type="hidden"
+               name="transactionPassword"
+               th:value="*{transactionPassword}"/>-->
+
+
+        <!-- =========================
+             下部ボタン
+        ========================== -->
+
+        <div class="button-area">
+
+
+            <!-- 申込 -->
+
+            <input type="submit"
+                   id="submit"
+                   value="申込"
+                   class="button submit-button"
+                   onclick="return confirm('この内容で申し込みますか？');"/>
+
+
+            <!-- キャンセル -->
+
+            <input type="button"
+                   value="キャンセル"
+                   class="button cancel-button"
+                   onclick="window.location='/investmentTrust';"/>
+
+        </div>
+
+
+    </form>
+
+
+</div>
+
+
+<!-- =========================
+     口座番号表示切替
+========================== -->
+
+<script th:inline="javascript">
+
+    function toggleBankAccount() {
+
+        const accountNumber =
+            document.getElementById("bankAccountDisplay");
+
+
+        const actualNumber =
+            accountNumber.getAttribute(
+                "data-account-number"
+            );
+
+
+        if (
+            accountNumber.textContent.trim()
+            === "********"
+        ) {
+
+            accountNumber.textContent =
+                actualNumber;
+
+        } else {
+
+            accountNumber.textContent =
+                "********";
+        }
+
+    }
+
+
+    /*
+     * 入力画面の指定STEPへ戻る
+     */
+
+    function goBackToInput(step) {
+
+        window.location.href =
+            "/investmentTrust?step=" + step;
+
+    }
+
+</script>
+
+
+<script th:inline="javascript"
+        src="/js/investmentTrustConfirmation.js">
+</script>
+
+
 </body>
+
 </html>
