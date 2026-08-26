@@ -197,81 +197,169 @@
                       margin: 5px auto;
                   }
               }*/
+
+        /* ステップ表示(シェブロン矢印型。入力→確認→完了の進み具合を示す) */
+        .chevron-row {
+            display: flex;
+            max-width: 560px;
+            margin: 0 auto 30px;
+        }
+        .chevron {
+            flex: 1 1 0;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            background-color: #eef1f5;
+            color: #8993a3;
+            clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 18px 50%);
+        }
+        .chevron:first-child {
+            clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
+        }
+        .chevron:last-child {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 18px 50%);
+        }
+        .chevron:not(:first-child) {
+            margin-left: -18px;
+        }
+        /* 現在のステップ */
+        .chevron.active {
+            background-color: #0072c6;
+            color: #fff;
+        }
+        /* 完了済みのステップ */
+        .chevron.done {
+            background-color: #1a9563;
+            color: #fff;
+        }
+
+        /* 項目ごとの入力済みマーク(入力が終わると※から緑の✓に切り替わる) */
+        .field-done {
+            display: none;
+            color: #1a9563;
+            font-weight: bold;
+            margin-left: 6px;
+        }
     </style>
 </head>
 <body>
+<!-- 投資信託 入力画面: 顧客が金融機関・支店・銘柄・購入金額などを入力する画面 -->
 <div class="content">
+    <p style="display: flex; justify-content: space-between;">
+        <a th:href="@{/investmentTrust/intro}">← 紹介ページに戻る</a>
+        <a th:href="@{/investmentTrust/staff/login}">行員モードへ切替</a>
+    </p>
+
+    <!-- ステップ1/3: 入力中 -->
+    <div class="chevron-row">
+        <div class="chevron active">入力</div>
+        <div class="chevron">確認</div>
+        <div class="chevron">完了</div>
+    </div>
+
     <h1>投資信託注文情報入力</h1>
     <form action="#" th:action="@{/investmentTrustConfirmation}" th:object="${investmentTrustApplication}" method="post">
-        <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}" class="form-control"required>
-                <option value="">選択してください</option>
-                <option value="海銀行">海銀行</option>
-                <option value="山陰共同銀行">山陰共同銀行</option>
-                <option value="流れ星銀行">流れ星銀行</option>
-                <option value="ハレルヤ銀行">ハレルヤ銀行</option>
-            </select></p>
-        <!----口座番号------>
-        <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"  maxlength="7"  inputmode="mumeric" required></p>
 
-        <!-----支店名------->
-        <p>
-            <label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <select id="branch" th:field="*{branch}" class="form-control" required>
-                <option value="">選択してください</option>
-                <option value="小倉店">小倉店</option>
-                <option value="福岡店">福岡店</option>
-                <option value="久留米店">久留米店</option>
-                <option value="飯塚店">飯塚店</option>
-            </select>
-        </p>
+        <!-- セクション1: お客様情報(氏名・住所・連絡先。口座情報とは分けて誤入力・混同を防ぐ) -->
+        <div class="form-section">
+            <div class="section-title">お客様情報</div>
 
-        <p><!------科目名------>
-            <label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
-            <select id="bankSubject" th:field="*{bankSubject}" class="form-control" required>
-                <option value="">選択してください</option>
-                <option value="普通預金">普通預金</option>
-                <option value="定期預金">定期預金</option>
-                <option value="当座預金">当座預金</option>
-                <option value="貯蓄預金">貯蓄預金</option>
-            </select>
-        </p>
+            <!-------氏名(姓・名を分けて誤入力・混同を防ぐ)-------->
+            <p>
+                <label class="ml-1">姓: <small class="text-danger ml-1" id="required-lastName">※</small><span class="field-done" id="done-lastName">✓</span></label><br>
+                <input type="text" id="lastName" th:field="*{lastName}" class="form-control" placeholder="投資" required>
+            </p>
+            <p>
+                <label class="ml-1">名: <small class="text-danger ml-1" id="required-firstName">※</small><span class="field-done" id="done-firstName">✓</span></label><br>
+                <input type="text" id="firstName" th:field="*{firstName}" class="form-control" placeholder="信託" required>
+            </p>
 
-        <!-------購入者名-------->
-        <p>
-            <label class="ml-1">購入者名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" id="purchaserName" th:field="*{purchaserName}" class="form-control" placeholder="投資　信託" required>
+            <!-------住所-------->
+            <p>
+                <label class="ml-1">住所: <small class="text-danger ml-1" id="required-address">※</small><span class="field-done" id="done-address">✓</span></label><br>
+                <input type="text" id="address" th:field="*{address}" class="form-control" placeholder="福岡県福岡市中央区〇〇1-2-3" required>
+            </p>
 
-        </p>
+            <!-------連絡先-------->
+            <p>
+                <label class="ml-1">連絡先: <small class="text-danger ml-1" id="required-contact">※</small><span class="field-done" id="done-contact">✓</span></label><br>
+                <input type="text" id="contact" th:field="*{contact}" class="form-control" placeholder="090-1234-5678" required>
+            </p>
+        </div>
 
-        <!-----銘柄選択（SelectBoX）------->
-        <p>
-            <label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
-            <select id="investmentTrustName" th:field="*{investmentTrustName}" class="form-control" required>
-                <option value="">選択してください</option>
-                <option value="モビリティ・イノベーション・ファンド">モビリティ・イノベーション・ファンド</option>
-                <option value="HSBCインドオープン">HSBCインドオープン</option>
-                <option value="新興国連続増配成長株オープン">新興国連続増配成長株オープン</option>
-                <option value="日本高配当リバランスオープン">日本高配当リバランスオープン</option>
-                <option value="損保ジャパン・グリーン・オープン 愛称：ぶなの森">損保ジャパン・グリーン・オープン 愛称：ぶなの森</option>
-                <option value="みずほ好配当日本株オープン">みずほ好配当日本株オープン</option>
-            </select>
-        </p>
+        <!-- セクション2: 口座情報(引き落とし口座を特定するための項目) -->
+        <div class="form-section">
+            <div class="section-title">口座情報</div>
 
-        <!-------購入金額-------->
-        <p>
-            <!-最低限１０００円マックス----->
-            <label class="ml-1">購入金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number"
-                   id="purchaseAmount"
-                   th:field="*{purchaseAmount}"
-                   class="form-control"
-                   placeholder="1000円以上の金額を入力してください"
-                   min="1000"
-                   max="1000000000000000000000"
-                   required>
-        </p>
+            <p><label class="ml-1">金融機関名: <small class="text-danger ml-1" id="required-institutionCode">※</small><span class="field-done" id="done-institutionCode">✓</span></label><br>
+                <select id="institutionCode" th:field="*{institutionCode}" class="form-control" required>
+                    <option value="">選択してください</option>
+                    <option th:each="institution : ${institutionList}"
+                            th:value="${institution.institutionCode}"
+                            th:text="${institution.institutionName}"></option>
+                </select></p>
+
+            <!----口座番号------>
+            <p><label class="ml-1">口座番号: <small class="text-danger ml-1" id="required-bankAccountNum">※</small><span class="field-done" id="done-bankAccountNum">✓</span></label><br>
+                <input type="text" id="bankAccountNum" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" maxlength="7" inputmode="numeric" pattern="[0-9]{7}" required></p>
+
+            <!-----支店名------->
+            <p>
+                <label class="ml-1">支店名: <small class="text-danger ml-1" id="required-branchCode">※</small><span class="field-done" id="done-branchCode">✓</span></label><br>
+                <select id="branchCode" th:field="*{branchCode}" class="form-control" required>
+                    <option value="">金融機関を選択してください</option>
+                </select>
+            </p>
+
+            <p><!------科目名------>
+                <label class="ml-1">科目名: <small class="text-danger ml-1" id="required-bankSubject">※</small><span class="field-done" id="done-bankSubject">✓</span></label><br>
+                <select id="bankSubject" th:field="*{bankSubject}" class="form-control" required>
+                    <option value="">選択してください</option>
+                    <option value="普通預金">普通預金</option>
+                    <option value="定期預金">定期預金</option>
+                    <option value="当座預金">当座預金</option>
+                    <option value="貯蓄預金">貯蓄預金</option>
+                </select>
+            </p>
+        </div>
+
+        <!-- セクション3: 注文内容(銘柄・金額・手数料プレビュー) -->
+        <div class="form-section">
+            <div class="section-title">注文内容</div>
+
+            <!-----銘柄選択（SelectBoX）------->
+            <p>
+                <label class="ml-1">銘柄選択: <small class="text-danger ml-1" id="required-fundCode">※</small><span class="field-done" id="done-fundCode">✓</span></label><br>
+                <select id="fundCode" th:field="*{fundCode}" class="form-control" required>
+                    <option value="">選択してください</option>
+                    <option th:each="fund : ${fundList}"
+                            th:value="${fund.fundCode}"
+                            th:text="${fund.fundName}"></option>
+                </select>
+            </p>
+
+            <!-------購入金額-------->
+            <p>
+                <!-最低限１０００円マックス----->
+                <label class="ml-1">購入金額: <small class="text-danger ml-1" id="required-purchaseAmount">※</small><span class="field-done" id="done-purchaseAmount">✓</span></label><br>
+                <input type="text"
+                       id="purchaseAmount"
+                       th:field="*{purchaseAmount}"
+                       class="form-control"
+                       placeholder="1000円以上の金額を入力してください"
+                       inputmode="numeric"
+                       required>
+            </p>
+
+            <!-------購入手数料(見込み)-------->
+            <p>
+                <label class="ml-1">購入手数料(見込み):</label><br>
+                <span id="feePreview">銘柄と購入金額を入力してください</span>
+            </p>
+        </div>
 
         <p style="text-align: center;">
             <input type="submit"
@@ -285,6 +373,15 @@
     </form>
 </div>
 
+<!-- サーバー側のマスタデータをJSに渡す(支店の絞り込み・手数料プレビュー用) -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const branchMasterList = /*[[${branchList}]]*/ [];
+    const fundMasterList = /*[[${fundList}]]*/ [];
+    // 修正で入力画面に戻ってきた場合に、支店選択肢の初期復元に使う
+    const initialBranchCode = /*[[${investmentTrustApplication.branchCode}]]*/ '';
+    /*]]>*/
+</script>
 <!-- STEP1：購入金額チェック用JavaScript -->
 <script src="/js/investmentTrust.js"></script>
 <!--外部javascript読み込みここではinvestmentTrust.jsダイヤログ-->

@@ -1,3 +1,7 @@
+// 投資信託 確認画面(investmentTrustConfirmation.html)の動作を制御するJS
+// 「申し込む」ボタン押下時に、最終確認ダイアログを表示する
+
+
 const submitButton = document.getElementById("submit");
 // 申し込みボタンがクリックすされた時の処理、
 submitButton.addEventListener("click", function(event) {
@@ -7,9 +11,9 @@ submitButton.addEventListener("click", function(event) {
     //銘柄名の取得
     const investmentTrustName =
         document.getElementById("investmentTrustName").textContent;
-    // 購入金額を取得
+    // 購入金額を取得(カンマ区切り表示から数字だけを取り出す)
     const purchaseAmount =
-        document.getElementById("purchaseAmount").textContent;
+        document.getElementById("purchaseAmount").textContent.replace(/[^0-9]/g, "");
 
     const message =
         "以下の内容で申し込みます。\n\n" +

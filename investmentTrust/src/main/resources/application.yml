@@ -5,3 +5,9 @@ spring:
     url: jdbc:mysql://localhost:3306/internship
     username: root
     password: root_password
+
+# 行員モードの固定ID/パスワード(簡易実装。将来的にはDB管理に置き換える想定)
+investment-trust:
+  staff:
+    id: FITokabe
+    password: okabejyo
