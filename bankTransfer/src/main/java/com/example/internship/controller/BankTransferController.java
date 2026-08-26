@@ -82,15 +82,26 @@ public class BankTransferController {
     // ここで入力内容を消さないのは、確認画面の「変更」から戻ってきたときに
     // 他の項目まで失わせないため。登録が済んだ時点でセッションは破棄している
     //金融機関選択画面を表示する関数(GET/bankTransferがきたら、セッション情報の保持、DBから金融機関情報の取得をおこない金融機関選択画面へ
+    // 振込先の指定方法を選ぶ入口。ここはまだ手順に入っていないのでステッパーを出さない。
+    // 順番を飛ばした人の差し戻し先でもある
     @GetMapping("/bankTransfer")
-    public String bankSelect(@RequestParam(name = "userId", required = false) String userId,
-                             HttpSession session, Model model) {
+    public String start(@RequestParam(name = "userId", required = false) String userId,
+                        HttpSession session) {
         // 【ログインを作るまでの仮】?userId=... で利用者を切り替える。
         // 入力途中の内容は前の利用者のものなので捨てる
         if (userId != null && !userId.isBlank()) {
             currentUser.switchTo(session, userId);
             session.removeAttribute(INPUT_SESSION_KEY);
         }
+        return "bankTransferStart";
+    }
+
+    // ============================================================
+    // 画面1 金融機関の選択
+    // ============================================================
+
+    @GetMapping("/bankTransfer/bank")
+    public String bankSelect(HttpSession session, Model model) {
         model.addAttribute("input", input(session));//戻った時リセットされないようにする
         model.addAttribute("banks", bankMasterRepository.findMajor());//データベースから銀行情報を取得
         return "bankTransferBank";

@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -73,6 +76,15 @@ class BankTransferControllerTest {
         when(branchMasterRepository.find("0001", "999")).thenReturn(Optional.empty());
     }
 
+    // ステッパーの段数を数える。文字列の出現回数をそのまま数えるだけ
+    private static int countOccurrences(String text, String word) {
+        int count = 0;
+        for (int at = text.indexOf(word); at >= 0; at = text.indexOf(word, at + word.length())) {
+            count++;
+        }
+        return count;
+    }
+
     private String tomorrow() {
         return LocalDate.now().plusDays(1).toString();
     }
@@ -105,12 +117,34 @@ class BankTransferControllerTest {
     class Screens {
 
         @Test
+        @DisplayName("入口に振込先の指定方法が出る")
+        void 入口() throws Exception {
+            mockMvc.perform(get("/bankTransfer"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("bankTransferStart"))
+                    // 手順に入っていないのでステッパーは出さない
+                    .andExpect(content().string(not(containsString("stepper-item"))));
+        }
+
+        @Test
         @DisplayName("画面1に金融機関の一覧が出る")
         void 金融機関の選択画面() throws Exception {
-            mockMvc.perform(get("/bankTransfer"))
+            mockMvc.perform(get("/bankTransfer/bank"))
                     .andExpect(status().isOk())
                     .andExpect(view().name("bankTransferBank"))
                     .andExpect(model().attribute("banks", List.of(BANK)));
+        }
+
+        @Test
+        @DisplayName("通常の振込は6段のステッパーになる")
+        void 通常経路のステッパー() throws Exception {
+            String html = mockMvc.perform(get("/bankTransfer/bank"))
+                    .andReturn().getResponse().getContentAsString();
+
+            assertThat(html).contains("金融機関", "支店", "口座情報", "金額", "確認", "完了");
+            // 狭い幅で出る方の数え上げも同じ総数を指している
+            assertThat(html).contains("/ <span>6</span>");
+            assertThat(countOccurrences(html, "stepper-item")).isEqualTo(6);
         }
 
         @Test

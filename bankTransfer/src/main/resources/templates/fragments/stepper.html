@@ -2,34 +2,32 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<!-- 金融機関→支店→口座情報→金額→確認→完了 の進捗表示（6画面で共有する部品）
-     呼び出し側から現在のステップ番号(1〜6)をcurrentとして受け取り、
-     1からcurrentまでのステップに色を付ける
+<!-- 進捗表示。経路によってステップの数が変わるので、ラベルの並びと現在地を受け取る。
+     どの経路も必ず steps() を通るため、狭い幅での差し替え（.stepper→.step-count）が
+     片方の経路だけずれることが起こらない。
      使い方: <div th:replace="~{fragments/stepper :: stepper(3)}"></div> -->
-<div th:fragment="stepper(current)">
+
+<!-- 通常の振込。金融機関から順に入力する 1〜6 -->
+<div th:fragment="stepper(current)"
+     th:replace="~{:: steps(${ {'金融機関','支店','口座情報','金額','確認','完了'} }, ${current})}"></div>
+
+<!-- 履歴・登録した振込先から入ったとき。振込先が一度に決まるので 1〜4 -->
+<div th:fragment="stepperSaved(current)"
+     th:replace="~{:: steps(${ {'振込先','金額','確認','完了'} }, ${current})}"></div>
+
+<!-- 実体。1からcurrentまでのステップに色を付ける -->
+<div th:fragment="steps(labels, current)">
     <ol class="stepper">
-        <li class="stepper-item" th:classappend="${current ge 1} ? 'is-active'">
-            <span class="stepper-circle">1</span><span class="stepper-label">金融機関</span>
-        </li>
-        <li class="stepper-item" th:classappend="${current ge 2} ? 'is-active'">
-            <span class="stepper-circle">2</span><span class="stepper-label">支店</span>
-        </li>
-        <li class="stepper-item" th:classappend="${current ge 3} ? 'is-active'">
-            <span class="stepper-circle">3</span><span class="stepper-label">口座情報</span>
-        </li>
-        <li class="stepper-item" th:classappend="${current ge 4} ? 'is-active'">
-            <span class="stepper-circle">4</span><span class="stepper-label">金額</span>
-        </li>
-        <li class="stepper-item" th:classappend="${current ge 5} ? 'is-active'">
-            <span class="stepper-circle">5</span><span class="stepper-label">確認</span>
-        </li>
-        <li class="stepper-item" th:classappend="${current ge 6} ? 'is-active'">
-            <span class="stepper-circle">6</span><span class="stepper-label">完了</span>
+        <li class="stepper-item" th:each="label, s : ${labels}"
+            th:classappend="${current ge s.count} ? 'is-active'">
+            <span class="stepper-circle" th:text="${s.count}">1</span><span
+                class="stepper-label" th:text="${label}">金融機関</span>
         </li>
     </ol>
 
-    <!-- 狭い幅では6段が入りきらないので、CSSでこちらに切り替わる -->
-    <p class="step-count">ステップ <span th:text="${current}">1</span> / 6</p>
+    <!-- 狭い幅では段が入りきらないので、CSSでこちらに切り替わる -->
+    <p class="step-count">ステップ <span th:text="${current}">1</span>
+        / <span th:text="${#lists.size(labels)}">6</span></p>
 </div>
 
 </body>

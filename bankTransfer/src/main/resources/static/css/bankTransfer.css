@@ -6,7 +6,7 @@
 
 :root {
     /* ---- 配色 ---- */
-    --ground:        #F0F0F0;   /* ページの下地 */
+    --ground:        #E3EFF3;   /* ページの下地。アクセントと同じ色相(195°)を、彩度を落として敷いている */
     --surface:       #FFFFFF;   /* カードの面 */
     --accent:        #00A7DB;   /* 主要な操作・現在地 */
     --accent-hover:  #008CB8;
@@ -464,7 +464,67 @@ a.form-control-button {
     text-align: right;
 }
 
+/* ============================================================
+   入口の選択肢
+   ============================================================ */
+.startlist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--hairline);
+}
+
+.startlist li {
+    border-bottom: 1px solid var(--hairline);
+}
+
+.startlist-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 12px;
+    color: var(--ink);
+    text-decoration: none;
+}
+
+a.startlist-row:hover {
+    background-color: var(--row-hover);
+}
+
+a.startlist-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+.startlist-title {
+    display: block;
+}
+
+.startlist-desc {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+}
+
+/* まだ使えない選択肢。押せるものの手触り（hover・山括弧）を与えない。
+   文字色を落とすだけにして、印は文字で添える */
+.startlist-row.is-unavailable,
+.startlist-row.is-unavailable .startlist-desc {
+    color: var(--step-off-text);
+}
+
+.startlist-soon {
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+    white-space: nowrap;
+}
+
 /* 検索欄と、その下に重ねて出す候補 */
+
 .search {
     position: relative;
 }
