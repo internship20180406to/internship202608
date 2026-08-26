@@ -138,6 +138,8 @@
                   th:if="${#fields.hasErrors('bankAccountType')}"
                   th:errors="*{bankAccountType}">
             </span>
+            <span id="bankAccountTypeClientError"
+                  class="text-danger client-error"></span>
 
         </p>
 
@@ -152,19 +154,23 @@
                   th:if="${#fields.hasErrors('bankAccountNum')}"
                   th:errors="*{bankAccountNum}">
             </span>
+            <span id="bankAccountNumClientError"
+                  class="text-danger client-error"></span>
         </p>
 
         <p><label class="ml-1">借入年収（万円）: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
                    th:field="*{annualIncome}"
                    inputmode="numeric"
-                   maxlength="7"
+                   maxlength="6"
                    class="form-control"
                    placeholder="500"/>
             <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('annualIncome')}"
                   th:errors="*{annualIncome}">
             </span>
+            <span id="annualIncomeClientError"
+                  class="text-danger client-error"></span>
             <span id="loanLimit"></span>
         </p>
 
@@ -177,13 +183,17 @@
                    placeholder="300"/>
 
             <span id="loanAmountClientError"
-                  class="text-danger">
+                  class="text-danger client-error">
             </span>
             <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('loanAmount')}"
                   th:errors="*{loanAmount}">
             </span>
-            <span class="text-danger validation-error"
+            <span id="loanLimitClientError"
+                  class="text-danger client-error">
+            </span>
+            <span id="loanLimitServerError"
+                  class="text-danger server-error"
                   th:if="${#fields.hasErrors('loanAmountWithinLimit')}"
                   th:errors="*{loanAmountWithinLimit}">
             </span>
@@ -201,6 +211,8 @@
                   th:if="${#fields.hasErrors('interestRate')}"
                   th:errors="*{interestRate}">
             </span>
+            <span id="interestRateClientError"
+                  class="text-danger client-error"></span>
         </p>
 
         <p style="text-align: center;"><input type="submit" value="確認"
@@ -393,6 +405,14 @@
 
     updateBranchOptions(savedBranch);
 
+    function clearServerError(element) {
+        const serverError = element.closest('p').querySelector('.server-error');
+
+        if (serverError) {
+            serverError.textContent = '';
+        }
+    }
+
     const loanAmountInput = document.getElementById('loanAmount');
     const loanAmountError = document.getElementById('loanAmountClientError');
 
@@ -418,9 +438,6 @@
         }
     }
 
-    loanAmountInput.addEventListener('input', validateLoanAmount);
-    loanAmountInput.addEventListener('blur', validateLoanAmount);
-
     const bankNameError = document.getElementById('bankNameClientError');
 
     function validateBankName() {
@@ -438,13 +455,6 @@
     bankNameSelect.addEventListener('change', validateBankName);
     bankNameSelect.addEventListener('blur', validateBankName);
 
-    function clearServerError(element) {
-        const serverError = element.closest('p').querySelector('.server-error');
-
-        if (serverError) {
-            serverError.textContent = '';
-        }
-    }
 
     const nameInput = document.getElementById('name');
     const nameError = document.getElementById('nameClientError');
@@ -464,6 +474,167 @@
 
     nameInput.addEventListener('input', validateName);
     nameInput.addEventListener('blur', validateName);
+
+    const branchNameInput = document.getElementById('branchName');
+    const branchNameError = document.getElementById('branchNameClientError');
+
+    function validateBranchName() {
+
+        clearServerError(branchNameInput);
+
+        const value = branchNameInput.value.trim();
+
+        if (value === '') {
+            branchNameError.textContent = '支店名を選択してください';
+        } else {
+            branchNameError.textContent = '';
+        }
+    }
+
+    branchNameInput.addEventListener('input', validateBranchName);
+    branchNameInput.addEventListener('blur', validateBranchName);
+
+    const bankAccountTypeInput = document.getElementById('bankAccountType');
+    const bankAccountTypeError = document.getElementById('bankAccountTypeClientError');
+
+    function validateBankAccountType() {
+
+        clearServerError(bankAccountTypeInput);
+
+        const value = bankAccountTypeInput.value.trim();
+
+        if (value === '') {
+            bankAccountTypeError.textContent = '科目を選択してください';
+        } else {
+            bankAccountTypeError.textContent = '';
+        }
+    }
+
+    bankAccountTypeInput.addEventListener('input', validateBankAccountType);
+    bankAccountTypeInput.addEventListener('blur', validateBankAccountType);
+
+    const bankAccountNumInput = document.getElementById('bankAccountNum');
+    const bankAccountNumError = document.getElementById('bankAccountNumClientError');
+
+    function validateBankAccountNum() {
+
+        clearServerError(bankAccountNumInput);
+
+        const value = bankAccountNumInput.value.trim();
+
+        if (value === '') {
+            bankAccountNumError.textContent = '口座番号を入力してください';
+        } else if (!/^[0-9]+$/.test(value)) {
+            bankAccountNumError.textContent = '口座番号は数字で入力してください';
+        } else if (value.length !== 7) {
+            bankAccountNumError.textContent = '口座番号は7桁で入力してください';
+        } else {
+            bankAccountNumError.textContent = '';
+        }
+    }
+
+    bankAccountNumInput.addEventListener('input', validateBankAccountNum);
+    bankAccountNumInput.addEventListener('blur', validateBankAccountNum);
+
+    const annualIncomeInput = document.getElementById('annualIncome');
+    const annualIncomeError = document.getElementById('annualIncomeClientError');
+
+    function validateAnnualIncome() {
+
+        clearServerError(annualIncomeInput);
+
+        const value = annualIncomeInput.value.trim();
+
+        if (value === '') {
+            annualIncomeError.textContent = '年収を入力してください';
+        } else if (!/^[0-9]+$/.test(value)) {
+            annualIncomeError.textContent = '年収は数字で入力してください';
+        } else if (Number(value) < 1) {
+            annualIncomeError.textContent = '年収は1万円以上で入力してください';
+        } else if (Number(value) > 100000) {
+            annualIncomeError.textContent = '年収が上限を超えています';
+        } else {
+            annualIncomeError.textContent = '';
+        }
+    }
+
+    const interestRateInput = document.getElementById('interestRate');
+    const interestRateError = document.getElementById('interestRateClientError');
+
+    function validateInterestRate() {
+
+        clearServerError(interestRateInput);
+
+        const value = interestRateInput.value.trim();
+
+        if (value === '') {
+            interestRateError.textContent = '金利を入力してください';
+        } else if (Number.isNaN(Number(value))) {
+            interestRateError.textContent = '金利は数字で入力してください';
+        } else if (Number(value) < 0.95) {
+            interestRateError.textContent = '金利は0.95以上で入力してください';
+        } else if (Number(value) > 14.5) {
+            interestRateError.textContent = '金利は14.5以下で入力してください';
+        } else {
+            interestRateError.textContent = '';
+        }
+    }
+
+    interestRateInput.addEventListener('input', validateInterestRate);
+    interestRateInput.addEventListener('blur', validateInterestRate);
+
+    const loanLimitError = document.getElementById('loanLimitClientError');
+    const loanLimitServerError = document.getElementById('loanLimitServerError');
+
+    function validateLoanLimit() {
+        loanLimitError.textContent = '';
+
+        if(loanLimitServerError) {
+            loanLimitServerError.textContent = '';
+        }
+
+        const loanValue = loanAmountInput.value;
+        const incomeValue = annualIncomeInput.value;
+
+        clearServerError(loanAmountInput);
+
+        // どちらか未入力なら単項目チェックに任せる
+        if (loanValue === '' || incomeValue === '') {
+            return;
+        }
+
+        const loan = Number(loanValue);
+        const income = Number(incomeValue);
+
+        if (Number.isNaN(loan) || Number.isNaN(income)) {
+            return;
+        }
+
+        const limit = Math.floor((income * 0.5) / 10) * 10;
+
+        if (loan > limit) {
+            loanLimitError.textContent =
+                '借入限度額は年収の50％（10万円単位）が上限になります';
+        }
+    }
+    loanAmountInput.addEventListener('input', function () {
+        validateLoanAmount();
+        validateLoanLimit();
+    });
+
+    annualIncomeInput.addEventListener('input', function () {
+        validateAnnualIncome();
+        validateLoanLimit();
+    });
+    loanAmountInput.addEventListener('blur', function () {
+        validateLoanAmount();
+        validateLoanLimit();
+    });
+
+    annualIncomeInput.addEventListener('blur', function () {
+        validateAnnualIncome();
+        validateLoanLimit();
+    });
 
 </script>
 

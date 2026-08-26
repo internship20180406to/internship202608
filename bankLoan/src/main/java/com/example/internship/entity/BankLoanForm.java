@@ -29,7 +29,7 @@ public class BankLoanForm {
     private String name;
     @NotNull(message = "借入金額を入力してください")
     @Min(value = 1, message = "借入金額は1万円以上で入力してください")
-    @Max(value = 1000, message = "借入金額が上限を超えています")
+    @Max(value = 1000, message = "借入金額は1000万円以下で入力してください")
     private Integer loanAmount;
     @NotNull(message = "年収を入力してください")
     @Min(value = 1, message = "年収は1万円以上で入力してください")
