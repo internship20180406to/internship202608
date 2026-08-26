@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Set;
@@ -77,19 +78,38 @@ class AccountFormTest {
     }
 
     @ParameterizedTest(name = "口座番号 \"{0}\" は不正")
-    @ValueSource(strings = { "", "123456", "12345678", "abcdefg", "１２３４５６７", "123-456" })
-    void 口座番号は半角数字7桁だけ通す(String num) {
+    @ValueSource(strings = { "", "12345678", "abcdefg", "１２３４５６７", "123-456" })
+    void 口座番号は半角数字7桁以内だけ通す(String num) {
         AccountForm form = validForm();
         form.setBankAccountNum(num);
         assertInvalidOn(form, "bankAccountNum");
     }
 
     @ParameterizedTest(name = "口座番号 \"{0}\" は正常")
-    @ValueSource(strings = { "1234567", "0001234", "0000000" })
-    void 先頭が0でも7桁なら通る(String num) {
+    @ValueSource(strings = { "1234567", "0001234", "0000000", "1", "1234", "123456" })
+    void 七桁以内なら通る(String num) {
         AccountForm form = validForm();
         form.setBankAccountNum(num);
         assertValid(form);
+    }
+
+    @ParameterizedTest(name = "\"{0}\" は \"{1}\" になる")
+    @CsvSource({ "1234567,1234567", "123456,0123456", "1234,0001234", "1,0000001" })
+    @DisplayName("7桁に満たない口座番号は先頭を0で埋める")
+    void 先頭を0で埋める(String input, String expected) {
+        AccountForm form = validForm();
+        form.setBankAccountNum(input);
+
+        assertThat(form.paddedBankAccountNum()).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("未入力のときは埋めずにそのまま返す。埋めると空欄が0000000になってしまう")
+    void 未入力は埋めない() {
+        AccountForm form = validForm();
+        form.setBankAccountNum("");
+
+        assertThat(form.paddedBankAccountNum()).isEmpty();
     }
 
     @Test

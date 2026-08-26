@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/head :: head('振込内容の確認')}"></head>
 <body>
 <div class="content">
-    <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(3)}
+    <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(2)}
                                   : ~{fragments/stepper :: stepper(5)}"></div>
     <h1>振込内容の確認</h1>
     <p class="lead">内容をご確認のうえ、「振込」を押してください。</p>
@@ -14,7 +14,7 @@
             <dd th:text="|*{bankName}（*{bankCode}）|">AAA銀行（0001）</dd>
             <!-- 履歴・登録先から来たときは項目ごとに直せない。振込先ごと選び直してもらう -->
             <a class="link-edit" th:if="${fromSaved}"
-               th:href="@{/bankTransfer/history}">選び直す</a>
+               th:href="@{/bankTransfer}">選び直す</a>
             <a class="link-edit" th:unless="${fromSaved}"
                th:href="@{/bankTransfer/bank}">変更</a>
         </div>
@@ -42,11 +42,31 @@
             <a class="link-edit" th:unless="${fromSaved}"
                th:href="@{/bankTransfer/account}">変更</a>
         </div>
-        <div class="summary-row is-amount">
-            <dt>金額</dt>
+        <div class="summary-row">
+            <dt>振込金額</dt>
             <dd><span th:text="${#numbers.formatInteger(input.money, 1, 'COMMA')}">1,234,567</span><span
                     class="unit">円</span></dd>
             <a class="link-edit" th:href="@{/bankTransfer/amount}">変更</a>
+        </div>
+        <div class="summary-row">
+            <dt>手数料</dt>
+            <dd><span th:text="${#numbers.formatInteger(input.fee, 1, 'COMMA')}">330</span><span
+                    class="unit">円</span></dd>
+        </div>
+        <div class="summary-row is-amount">
+            <dt>合計金額</dt>
+            <dd><span th:text="${#numbers.formatInteger(input.total, 1, 'COMMA')}">1,234,897</span><span
+                    class="unit">円</span></dd>
+        </div>
+        <div class="summary-row">
+            <dt>振込前の残高</dt>
+            <dd><span th:text="${#numbers.formatInteger(balance, 1, 'COMMA')}">1,000,000</span><span
+                    class="unit">円</span></dd>
+        </div>
+        <div class="summary-row">
+            <dt>振込後の残高</dt>
+            <dd><span th:text="${#numbers.formatInteger(balanceAfter, 1, 'COMMA')}">998,766</span><span
+                    class="unit">円</span></dd>
         </div>
         <div class="summary-row">
             <dt>振込指定日</dt>
@@ -60,10 +80,14 @@
         <input type="hidden" name="transferToken" th:value="${transferToken}"/>
         <div class="actions">
             <a class="form-control-button form-clear-button" th:href="@{/bankTransfer/amount}">戻る</a>
+            <button class="form-control-button form-cancel-button" type="submit"
+                    form="cancelForm">中止</button>
+            <span class="spacer"></span>
             <button class="form-control-button form-confirmation-button" type="submit" id="submit">振込</button>
         </div>
     </form>
 </div>
+<div th:replace="~{fragments/cancel :: cancel}"></div>
 <script src="/js/bankTransferConfirmation.js"></script>
 </body>
 </html>

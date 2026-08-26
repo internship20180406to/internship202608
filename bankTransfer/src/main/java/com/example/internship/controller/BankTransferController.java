@@ -1,10 +1,16 @@
 package com.example.internship.controller;
 
+import com.example.internship.balance.BalanceRepository;
 import com.example.internship.entity.AccountForm;
 import com.example.internship.entity.AmountForm;
 import com.example.internship.entity.BankTransferInput;
+import com.example.internship.entity.PayeeForm;
+import com.example.internship.fee.TransferAmount;
+import com.example.internship.fee.TransferFee;
 import com.example.internship.history.RecentPayee;
 import com.example.internship.history.TransferHistoryRepository;
+import com.example.internship.payee.Payee;
+import com.example.internship.payee.PayeeRepository;
 import com.example.internship.master.Bank;
 import com.example.internship.master.BankMasterRepository;
 import com.example.internship.master.Branch;
@@ -45,13 +51,18 @@ public class BankTransferController {
 
     // どの入口から来たかをセッションへ記録するときのキー。
     // ステッパーの段数と「戻る」の行き先が経路によって変わるため
+    // 経路が決まるのは入口だけ。途中の画面はこの値を書き換えない
     private static final String ROUTE_KEY = "transferRoute";
-    private static final String ROUTE_SAVED = "saved";
+    private static final String ROUTE_SAVED = "saved";        // 履歴・登録先から振り込む
+    private static final String ROUTE_REGISTER = "register";  // 振込先を登録する
 
     private final ApplyBankTransferService applyBankTransferService;
     private final BankMasterRepository bankMasterRepository;
     private final BranchMasterRepository branchMasterRepository;
     private final TransferHistoryRepository transferHistoryRepository;
+    private final PayeeRepository payeeRepository;
+    private final BalanceRepository balanceRepository;
+    private final TransferFee transferFee;
     private final CurrentUser currentUser;
 
     // 依存はコンストラクタで受け取る。final にできるので生成後に差し替わらず、
@@ -60,11 +71,17 @@ public class BankTransferController {
                                   BankMasterRepository bankMasterRepository,
                                   BranchMasterRepository branchMasterRepository,
                                   TransferHistoryRepository transferHistoryRepository,
+                                  PayeeRepository payeeRepository,
+                                  BalanceRepository balanceRepository,
+                                  TransferFee transferFee,
                                   CurrentUser currentUser) {
         this.applyBankTransferService = applyBankTransferService;
         this.bankMasterRepository = bankMasterRepository;
         this.branchMasterRepository = branchMasterRepository;
         this.transferHistoryRepository = transferHistoryRepository;
+        this.payeeRepository = payeeRepository;
+        this.balanceRepository = balanceRepository;
+        this.transferFee = transferFee;
         this.currentUser = currentUser;
     }
 
@@ -75,11 +92,26 @@ public class BankTransferController {
         return LocalDate.now().toString();
     }
 
-    // 履歴・登録先から入ったかどうか。ステッパーの段数と「戻る」の行き先が変わるので、
+    // どの経路で来たか。ステッパーの段数と「戻る」の行き先が変わるので、
     // 全画面で参照できるようにここで配る
     @ModelAttribute("fromSaved")
     public boolean fromSaved(HttpSession session) {
         return ROUTE_SAVED.equals(session.getAttribute(ROUTE_KEY));
+    }
+
+    @ModelAttribute("registering")
+    public boolean registering(HttpSession session) {
+        return ROUTE_REGISTER.equals(session.getAttribute(ROUTE_KEY));
+    }
+
+    // 金額画面で手数料を示すための前提。段が変わる境目と両方の額を渡し、
+    // 打ちながら手数料が変わることをJS側で見せられるようにする
+    private void addFeeRule(Model model, BankTransferInput input) {
+        model.addAttribute("ownBank", transferFee.isOwnBank(input.getBankCode()));
+        model.addAttribute("feeUnder", transferFee.of(input.getBankCode(), 1));
+        model.addAttribute("feeOver", transferFee.of(input.getBankCode(), TransferFee.MAX_TRANSFER));
+        model.addAttribute("feeThreshold", 30_000);
+        model.addAttribute("maxTransfer", TransferFee.MAX_TRANSFER);
     }
 
     // セッションの入力内容を取り出す。無ければ空の器を作る
@@ -99,17 +131,20 @@ public class BankTransferController {
     // ここで入力内容を消さないのは、確認画面の「変更」から戻ってきたときに
     // 他の項目まで失わせないため。登録が済んだ時点でセッションは破棄している
     //金融機関選択画面を表示する関数(GET/bankTransferがきたら、セッション情報の保持、DBから金融機関情報の取得をおこない金融機関選択画面へ
-    // 振込先の指定方法を選ぶ入口。ここはまだ手順に入っていないのでステッパーを出さない。
+    // 振込先を選ぶ入口。履歴と登録済みをタブで切り替える1画面。
+    // まだ手順に入っていない（ここから通常の振込へも抜けられる）のでステッパーを出さない。
     // 順番を飛ばした人の差し戻し先でもある
     @GetMapping("/bankTransfer")
     public String start(@RequestParam(name = "userId", required = false) String userId,
-                        HttpSession session) {
+                        HttpSession session, Model model) {
         // 【ログインを作るまでの仮】?userId=... で利用者を切り替える。
         // 入力途中の内容は前の利用者のものなので捨てる
         if (userId != null && !userId.isBlank()) {
             currentUser.switchTo(session, userId);
             session.removeAttribute(INPUT_SESSION_KEY);
         }
+        model.addAttribute("tab", "history");
+        model.addAttribute("payees", transferHistoryRepository.findRecent(currentUser.resolve(session)));
         return "bankTransferStart";
     }
 
@@ -117,10 +152,26 @@ public class BankTransferController {
     // 画面1 金融機関の選択
     // ============================================================
 
+    // 中止。入力途中の内容と経路の記憶を捨てて入口へ戻す。
+    // 状態が変わるのでGETではなくPOSTで受ける
+    @PostMapping("/bankTransfer/cancel")
+    public String cancel(HttpSession session) {
+        session.removeAttribute(INPUT_SESSION_KEY);
+        session.removeAttribute(ROUTE_KEY);
+        // 確認画面まで進んでいた場合に備えて、発行済みのトークンも捨てる
+        session.removeAttribute(TRANSFER_TOKEN);
+        return "redirect:/bankTransfer";
+    }
+
+    // 新しい振込先を指定して振り込む入口。ここで経路を通常に戻す
+    @GetMapping("/bankTransfer/new")
+    public String startNewTransfer(HttpSession session) {
+        session.removeAttribute(ROUTE_KEY);
+        return "redirect:/bankTransfer/bank";
+    }
+
     @GetMapping("/bankTransfer/bank")
     public String bankSelect(HttpSession session, Model model) {
-        // 金融機関から入力し直すので、履歴経路の記憶は捨てる
-        session.removeAttribute(ROUTE_KEY);
         model.addAttribute("input", input(session));//戻った時リセットされないようにする
         model.addAttribute("banks", bankMasterRepository.findMajor());//データベースから銀行情報を取得
         return "bankTransferBank";
@@ -184,10 +235,10 @@ public class BankTransferController {
     // 見えるのも選べるのも、その利用者自身の履歴だけ
     // ============================================================
 
+    // 一覧は入口に吸収した。古いURLは入口へ送る
     @GetMapping("/bankTransfer/history")
-    public String history(HttpSession session, Model model) {
-        model.addAttribute("payees", transferHistoryRepository.findRecent(currentUser.resolve(session)));
-        return "bankTransferHistory";
+    public String history() {
+        return "redirect:/bankTransfer";
     }
 
     @PostMapping("/bankTransfer/history")
@@ -204,7 +255,7 @@ public class BankTransferController {
                 : transferHistoryRepository.find(currentUser.resolve(session),
                         bankCode, branchCode, bankAccountType, bankAccountNum);
         if (found.isEmpty()) {
-            return "redirect:/bankTransfer/history";
+            return "redirect:/bankTransfer";
         }
         RecentPayee payee = found.get();
 
@@ -224,6 +275,110 @@ public class BankTransferController {
 
         session.setAttribute(ROUTE_KEY, ROUTE_SAVED);
         return "redirect:/bankTransfer/amount";
+    }
+
+    // ============================================================
+    // 登録した振込先
+    // 見えるのも選べるのも消せるのも、その利用者自身の登録先だけ
+    // ============================================================
+
+    @GetMapping("/bankTransfer/payees")
+    public String payees(HttpSession session, Model model) {
+        model.addAttribute("tab", "payees");
+        model.addAttribute("payees", payeeRepository.findAll(currentUser.resolve(session)));
+        return "bankTransferStart";
+    }
+
+    // 登録先を選んで振り込む。履歴から選んだときと同じ状態を作る
+    @PostMapping("/bankTransfer/payees/select")
+    public String selectPayee(@RequestParam(name = "id", required = false) Integer id,
+                              HttpSession session) {
+        Optional<Payee> found = id == null
+                ? Optional.empty()
+                : payeeRepository.find(currentUser.resolve(session), id);
+        if (found.isEmpty()) {
+            return "redirect:/bankTransfer/payees";
+        }
+        Payee payee = found.get();
+
+        BankTransferInput input = input(session);
+        input.setBankCode(payee.bankCode());
+        input.setBankName(payee.bankName());
+        input.setBranchCode(payee.branchCode());
+        input.setBranchName(payee.branchName());
+        input.setBankAccountType(payee.bankAccountType());
+        input.setBankAccountNum(payee.bankAccountNum());
+        input.setName(payee.name());
+        // 履歴から選んだときと同じく、金額と振込指定日は引き継がない
+        input.setMoney(null);
+        input.setTransferDateTime(null);
+
+        session.setAttribute(ROUTE_KEY, ROUTE_SAVED);
+        return "redirect:/bankTransfer/amount";
+    }
+
+    @PostMapping("/bankTransfer/payees/delete")
+    public String deletePayee(@RequestParam(name = "id", required = false) Integer id,
+                              HttpSession session) {
+        // 自分の登録先でなければ1件も消えない。消せたかどうかで画面を変えないので
+        // 「他人のものだった」ことも相手には分からない
+        if (id != null) {
+            payeeRepository.delete(currentUser.resolve(session), id);
+        }
+        return "redirect:/bankTransfer/payees";
+    }
+
+    // ============================================================
+    // 振込先の登録
+    // 画面1〜3をそのまま使って振込先を入力し、最後に呼び名を付けて登録する。
+    // 経路の記憶で分かれるのは「画面3の次にどこへ行くか」だけ
+    // ============================================================
+
+    @GetMapping("/bankTransfer/payees/new")
+    public String startRegister(HttpSession session) {
+        // 振込の途中だった内容が混ざらないように捨ててから始める
+        session.removeAttribute(INPUT_SESSION_KEY);
+        session.setAttribute(ROUTE_KEY, ROUTE_REGISTER);
+        return "redirect:/bankTransfer/bank";
+    }
+
+    @GetMapping("/bankTransfer/payee/confirm")
+    public String payeeConfirm(HttpSession session, Model model) {
+        BankTransferInput input = input(session);
+        if (!registering(session) || !input.hasAccount()) {
+            return "redirect:/bankTransfer/payees";
+        }
+        if (!model.containsAttribute("payeeForm")) {
+            model.addAttribute("payeeForm", new PayeeForm());
+        }
+        model.addAttribute("input", input);
+        model.addAttribute("alreadyRegistered",
+                payeeRepository.exists(currentUser.resolve(session), input));
+        return "bankTransferPayeeConfirm";
+    }
+
+    @PostMapping("/bankTransfer/payee/confirm")
+    public String registerPayee(@Valid @ModelAttribute("payeeForm") PayeeForm payeeForm,
+                                BindingResult bindingResult,
+                                HttpSession session,
+                                Model model) {
+        BankTransferInput input = input(session);
+        if (!registering(session) || !input.hasAccount()) {
+            return "redirect:/bankTransfer/payees";
+        }
+        String userId = currentUser.resolve(session);
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("input", input);
+            model.addAttribute("alreadyRegistered", payeeRepository.exists(userId, input));
+            return "bankTransferPayeeConfirm";
+        }
+        if (!payeeRepository.create(userId, payeeForm.getNickname(), input)) {
+            // 既に登録済み。一覧に出ているので、そのまま一覧へ返す
+            return "redirect:/bankTransfer/payees";
+        }
+        session.removeAttribute(INPUT_SESSION_KEY);
+        session.removeAttribute(ROUTE_KEY);
+        return "redirect:/bankTransfer/payees";
     }
 
     // ============================================================
@@ -261,9 +416,12 @@ public class BankTransferController {
             return "bankTransferAccount";
         }
         input.setBankAccountType(accountForm.getBankAccountType());
-        input.setBankAccountNum(accountForm.getBankAccountNum());
+        input.setBankAccountNum(accountForm.paddedBankAccountNum());
         input.setName(accountForm.getName());
-        return "redirect:/bankTransfer/amount";
+        // 振込先の登録なら、金額は入れずに呼び名を付けて終わる
+        return registering(session)
+                ? "redirect:/bankTransfer/payee/confirm"
+                : "redirect:/bankTransfer/amount";
     }
 
     // ============================================================
@@ -273,15 +431,25 @@ public class BankTransferController {
     @GetMapping("/bankTransfer/amount")
     public String amountInput(HttpSession session, Model model) {
         BankTransferInput input = input(session);
+        if (registering(session)) {
+            return "redirect:/bankTransfer/payee/confirm";
+        }
         if (!input.hasAccount()) {
             return "redirect:/bankTransfer";
         }
         AmountForm form = new AmountForm();
-        form.setMoney(input.getMoney());
+        // 戻ってきたときは「入力したときの額」を出す。
+        // 手数料を含めていたなら、打った額は振込額＋手数料だった
+        if (input.getMoney() != null && input.getFee() != null) {
+            form.setMoney(input.isFeeIncluded() ? input.getTotal() : input.getMoney());
+        }
+        form.setFeeIncluded(input.isFeeIncluded());
         form.setTransferDateTime(input.getTransferDateTime());
 
         model.addAttribute("input", input);
         model.addAttribute("amountForm", form);
+        model.addAttribute("balance", balanceRepository.amountOf(currentUser.resolve(session)));
+        addFeeRule(model, input);
         return "bankTransferAmount";
     }
 
@@ -294,11 +462,32 @@ public class BankTransferController {
         if (!input.hasAccount()) {
             return "redirect:/bankTransfer";
         }
+        int balance = balanceRepository.amountOf(currentUser.resolve(session));
+        TransferAmount amount = null;
+        // 形の検証（桁・必須・上限）が通ってから金額の中身を見る。
+        // 桁が不正なときに「残高が不足」と出しても意味が通らない
+        if (!bindingResult.hasErrors() && amountForm.getMoney() != null) {
+            int entered = amountForm.getMoney();
+            amount = TransferAmount.of(entered,
+                    transferFee.of(input.getBankCode(), entered), amountForm.isFeeIncluded());
+            if (amount.money() <= 0) {
+                bindingResult.rejectValue("money", "fee.tooSmall",
+                        String.format("手数料 %,d 円を含めると振込額が残りません", amount.fee()));
+            } else if (amount.total() > balance) {
+                bindingResult.rejectValue("money", "balance.short",
+                        String.format("残高が不足しています（手数料を含めて %,d 円、残高 %,d 円）",
+                                amount.total(), balance));
+            }
+        }
         if (bindingResult.hasErrors()) {
             model.addAttribute("input", input);
+            model.addAttribute("balance", balance);
+            addFeeRule(model, input);
             return "bankTransferAmount";
         }
-        input.setMoney(amountForm.getMoney());
+        input.setMoney(amount.money());
+        input.setFee(amount.fee());
+        input.setFeeIncluded(amount.feeIncluded());
         input.setTransferDateTime(amountForm.getTransferDateTime());
         return "redirect:/bankTransfer/confirmation";
     }
@@ -318,6 +507,10 @@ public class BankTransferController {
         session.setAttribute(TRANSFER_TOKEN, token);
         model.addAttribute(TRANSFER_TOKEN, token);
         model.addAttribute("input", input);
+        int balance = balanceRepository.amountOf(currentUser.resolve(session));
+        model.addAttribute("balance", balance);
+        // 引かれるのは振込額ではなく合計額
+        model.addAttribute("balanceAfter", balance - input.getTotal());
         return "bankTransferConfirmation";
     }
 
@@ -342,12 +535,23 @@ public class BankTransferController {
                 || savedToken == null || !savedToken.equals(transferToken)) {
             return "redirect:/bankTransfer";
         }
-        applyBankTransferService.applyBankTransfer(currentUser.resolve(session), input);
+        String userId = currentUser.resolve(session);
+        // 金額画面で残高を確かめてから、ここへ来るまでの間に別の振込が確定している
+        // ことがある。引けるかどうかは引く瞬間に決まるので、ここでもう一度見る
+        if (!applyBankTransferService.applyBankTransfer(userId, input)) {
+            redirectAttributes.addFlashAttribute("balanceShort",
+                    String.format("残高が不足しています（残高 %,d 円）",
+                            balanceRepository.amountOf(userId)));
+            return "redirect:/bankTransfer/amount";
+        }
         // 使い終わった入力内容は残さない
         session.removeAttribute(INPUT_SESSION_KEY);
         session.removeAttribute(ROUTE_KEY);
         // リダイレクトすると内容が失われるため、完了画面で表示する分をflash属性で引き継ぐ
         redirectAttributes.addFlashAttribute(RESULT_NAME, input);
+        int balanceAfter = balanceRepository.amountOf(userId);
+        redirectAttributes.addFlashAttribute("balanceAfter", balanceAfter);
+        redirectAttributes.addFlashAttribute("balance", balanceAfter + input.getTotal());
         return "redirect:/bankTransfer/completion";
     }
 
@@ -356,12 +560,50 @@ public class BankTransferController {
     // ============================================================
 
     @GetMapping("/bankTransfer/completion")
-    public String completionView(Model model) {
+    public String completionView(HttpSession session, Model model) {
         // リロードや直接アクセスではflash属性が無く表示する内容が無いので、入力画面へ戻す
         if (!model.containsAttribute(RESULT_NAME)) {
             return "redirect:/bankTransfer";
         }
+        // 既に登録済みの相手に「登録する」を出しても押せないだけなので、出さない
+        BankTransferInput result = (BankTransferInput) model.getAttribute(RESULT_NAME);
+        model.addAttribute("alreadyRegistered",
+                payeeRepository.exists(currentUser.resolve(session), result));
         return "bankTransferCompletion";
+    }
+
+    // 完了画面から、今振り込んだ相手を登録先に加える。
+    // 画面から来るのは振込先を決める4項目だけで、中身はこの利用者の履歴から引き直す。
+    // 呼び名がまだ無いので、登録の経路に乗せて呼び名の画面へ送る
+    @PostMapping("/bankTransfer/completion/register")
+    public String registerFromCompletion(@RequestParam(name = "bankCode", required = false) String bankCode,
+                                         @RequestParam(name = "branchCode", required = false) String branchCode,
+                                         @RequestParam(name = "bankAccountType", required = false) String bankAccountType,
+                                         @RequestParam(name = "bankAccountNum", required = false) String bankAccountNum,
+                                         HttpSession session) {
+        Optional<RecentPayee> found = (bankCode == null || branchCode == null
+                || bankAccountType == null || bankAccountNum == null)
+                ? Optional.empty()
+                : transferHistoryRepository.find(currentUser.resolve(session),
+                        bankCode, branchCode, bankAccountType, bankAccountNum);
+        if (found.isEmpty()) {
+            return "redirect:/bankTransfer";
+        }
+        RecentPayee payee = found.get();
+
+        BankTransferInput input = input(session);
+        input.setBankCode(payee.bankCode());
+        input.setBankName(payee.bankName());
+        input.setBranchCode(payee.branchCode());
+        input.setBranchName(payee.branchName());
+        input.setBankAccountType(payee.bankAccountType());
+        input.setBankAccountNum(payee.bankAccountNum());
+        input.setName(payee.name());
+        input.setMoney(null);
+        input.setTransferDateTime(null);
+
+        session.setAttribute(ROUTE_KEY, ROUTE_REGISTER);
+        return "redirect:/bankTransfer/payee/confirm";
     }
 
     // ============================================================

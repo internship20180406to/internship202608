@@ -1,0 +1,68 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('振込先の登録')}"></head>
+<body>
+<div class="content">
+    <div th:replace="~{fragments/stepper :: stepperRegister(4)}"></div>
+    <h1>振込先の登録</h1>
+
+    <p class="text-danger" th:if="${alreadyRegistered}">
+        この振込先は既に登録されています。
+    </p>
+    <p class="lead" th:unless="${alreadyRegistered}">
+        内容を確認し、呼び名を付けて登録してください。
+    </p>
+
+    <dl class="summary" th:object="${input}">
+        <div class="summary-row">
+            <dt>金融機関</dt>
+            <dd th:text="|*{bankName}（*{bankCode}）|">AAA銀行（0001）</dd>
+            <a class="link-edit" th:href="@{/bankTransfer/bank}">変更</a>
+        </div>
+        <div class="summary-row">
+            <dt>支店</dt>
+            <dd th:text="|*{branchName}（*{branchCode}）|">A1支店（001）</dd>
+            <a class="link-edit" th:href="@{/bankTransfer/branch}">変更</a>
+        </div>
+        <div class="summary-row">
+            <dt>科目</dt>
+            <dd th:text="*{bankAccountType}">普通</dd>
+            <a class="link-edit" th:href="@{/bankTransfer/account}">変更</a>
+        </div>
+        <div class="summary-row">
+            <dt>口座番号</dt>
+            <dd th:text="*{bankAccountNum}">1234567</dd>
+            <a class="link-edit" th:href="@{/bankTransfer/account}">変更</a>
+        </div>
+        <div class="summary-row">
+            <dt>口座名義</dt>
+            <dd th:text="*{name}">ﾔﾏﾀﾞ ﾀﾛｳ</dd>
+            <a class="link-edit" th:href="@{/bankTransfer/account}">変更</a>
+        </div>
+    </dl>
+
+    <form th:action="@{/bankTransfer/payee/confirm}" method="post" th:object="${payeeForm}">
+        <div class="field">
+            <label class="field-label" for="nickname">呼び名</label>
+            <input class="form-control" id="nickname" type="text" th:field="*{nickname}"
+                   th:classappend="${#fields.hasErrors('nickname')} ? 'has-error'"
+                   placeholder="例：家賃" autocomplete="off"/>
+            <span class="hint" th:unless="${#fields.hasErrors('nickname')}">一覧で見分けるための名前です</span>
+            <span class="text-danger" th:if="${#fields.hasErrors('nickname')}"
+                  th:errors="*{nickname}"></span>
+        </div>
+
+        <div class="actions">
+            <a class="form-control-button form-clear-button"
+               th:href="@{/bankTransfer/payees}">やめる</a>
+                    <button class="form-control-button form-cancel-button" type="submit"
+                form="cancelForm">中止</button>
+<span class="spacer"></span>
+            <button class="form-control-button form-confirmation-button" type="submit"
+                    th:disabled="${alreadyRegistered}">登録</button>
+        </div>
+    </form>
+</div>
+<div th:replace="~{fragments/cancel :: cancel}"></div>
+</body>
+</html>

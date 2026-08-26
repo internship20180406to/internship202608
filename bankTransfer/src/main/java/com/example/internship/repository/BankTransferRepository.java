@@ -19,8 +19,8 @@ public class BankTransferRepository {
         String sql = """
         INSERT INTO bankTransfer_table
             (userId, bankCode, bankName, branchCode, branchName, bankAccountType,
-             bankAccountNum, name, money, transferDateTime)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             bankAccountNum, name, money, fee, transferDateTime)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
         jdbcTemplate.update(sql,
                 userId,
@@ -32,6 +32,7 @@ public class BankTransferRepository {
                 input.getBankAccountNum(),
                 input.getName(),
                 input.getMoney(),
+                input.getFee(),
                 input.getTransferDateTime());
     }
 

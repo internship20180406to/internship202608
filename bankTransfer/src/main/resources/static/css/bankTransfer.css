@@ -8,10 +8,11 @@
     /* ---- 配色 ---- */
     --ground:        #E3EFF3;   /* ページの下地。アクセントと同じ色相(195°)を、彩度を落として敷いている */
     --surface:       #FFFFFF;   /* カードの面 */
-    --accent:        #00A7DB;   /* 主要な操作・現在地 */
-    --accent-hover:  #008CB8;
+    --accent:        #1998CF;   /* 主要な操作・現在地 */
+    --accent-hover:  #157FAE;   /* --accent を同じ比率で暗くしたもの */
     --accent-soft:   #E5F6FC;
     --neutral-btn:   #E0E1E2;   /* 副次的な操作 */
+    --field-fill:    #F1F3F5;   /* 検索欄の塗り */
     --neutral-hover: #CCCCCC;
     --step-off:      #E0E1E2;   /* 未到達のステップ */
     --step-off-ink:  #7A7A7A;
@@ -305,13 +306,12 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     border-radius: 50%;
 }
 
+/* 押したときに行ごと青く塗ると強すぎるので、白のままにする。
+   選ばれていることは丸そのもの（accent-color）が示す。
+   丸の周りのフォーカス枠は残す（キーボードで今どこに居るか分からなくなるため）*/
 .radio:has(input:focus-visible) {
-    outline: 2px solid var(--accent);
-    background-color: var(--accent-soft);
-}
-
-.radio:has(input:focus-visible) input:focus-visible {
-    outline: none;
+    outline: 2px solid var(--surface);
+    background-color: var(--surface);
 }
 
 /* ============================================================
@@ -328,6 +328,22 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .actions .spacer {
     flex: 1;
 }
+
+/* 一覧が長くても常に押せるよう、画面の下に貼り付ける。
+   position:fixed ではなく sticky にしているのは、カードの幅と余白に
+   そのまま乗ってくれるため。一番下まで送ると、そこで収まって止まる。
+   左右と下は負のマージンでカードの端まで届かせ、padding で余白を戻している */
+.actions.is-sticky {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    margin: 28px -24px -24px;
+    padding: 16px 24px;
+    background-color: var(--surface);
+    border-top: 1px solid var(--hairline);
+    border-radius: 0 0 10px 10px;
+}
+
 
 /* 「戻る」はページ遷移なので <a> で書く。ボタンと同じ見た目に揃える */
 a.form-control-button {
@@ -362,6 +378,31 @@ a.form-control-button {
 
 .form-clear-button:hover {
     background-color: var(--neutral-hover);
+}
+
+/* 灰色に埋もれさせたくないが、主要操作でもない操作。
+   塗りは白のままにして枠だけアクセントにする。
+   文字色は変えない（アクセント色の文字は白地で3.27:1しかなく本文サイズには足りない） */
+.form-outline-button {
+    color: var(--ink);
+    background-color: var(--surface);
+    border: 1px solid var(--accent);
+}
+
+.form-outline-button:hover {
+    background-color: var(--accent-soft);
+}
+
+/* 中止。押し間違えると入力が消えるので、塗らずに一番目立たせない */
+.form-cancel-button {
+    padding: 10px 16px;
+    color: var(--ink-muted);
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+.form-cancel-button:hover {
+    color: var(--ink);
 }
 
 .form-control-button:focus-visible {
@@ -524,6 +565,225 @@ a.startlist-row:focus-visible {
 }
 
 /* ============================================================
+   完了画面の見出し
+   この画面には操作が無く「終わった」ことを伝えるのが仕事なので、
+   ここだけ中央寄せにして印と見出しを大きく出す
+   ============================================================ */
+.done-hero {
+    margin: 8px 0 28px;
+    text-align: center;
+}
+
+.done-check {
+    width: 72px;
+    height: 72px;
+    color: var(--accent);
+}
+
+.done-check-ring,
+.done-check-mark {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.done-check-ring {
+    stroke-width: 3;
+}
+
+.done-check-mark {
+    stroke-width: 6;
+}
+
+/* 見出しはこの画面だけ金額と同じ大きさまで上げる。
+   強調は大きさ1つに絞り、色や太さは動かさない */
+.done-title {
+    margin: 12px 0 4px;
+    font-size: var(--size-emphasis);
+    line-height: var(--lh-emphasis);
+    font-weight: 600;
+}
+
+.done-lead {
+    margin: 0;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+}
+
+/* 丸を描いてからチェックを引く。
+   動きを減らす設定の人には出さない */
+@media (prefers-reduced-motion: no-preference) {
+    .done-check-ring {
+        stroke-dasharray: 208;
+        stroke-dashoffset: 208;
+        animation: done-draw .5s ease-out forwards;
+    }
+
+    .done-check-mark {
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: done-draw .3s ease-out .4s forwards;
+    }
+}
+
+@keyframes done-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* ============================================================
+   入切のスイッチ
+   チェックボックスはそのまま置き、目に見える部分だけ差し替える。
+   本体を消さないのは、キーボードでも読み上げでも普通に扱えるようにするため
+   ============================================================ */
+/* 名前を左、つまみを右に置いて、行の両端に寄せる */
+.switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.switch input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.switch-track {
+    position: relative;
+    flex: none;
+    width: 46px;
+    height: 26px;
+    background-color: var(--neutral-btn);
+    border-radius: 999px;
+    transition: background-color .15s ease-out;
+}
+
+.switch-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background-color: var(--surface);
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+    transition: transform .15s ease-out;
+}
+
+/* 「+」ではなく「~」を使う。th:field がチェックボックスの直後に
+   hidden を差し込むので、直後の兄弟では switch-track に届かない */
+.switch input:checked ~ .switch-track {
+    background-color: var(--accent);
+}
+
+.switch input:checked ~ .switch-track .switch-knob {
+    transform: translateX(20px);
+}
+
+.switch input:focus-visible ~ .switch-track {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.switch-label {
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+}
+
+/* 相手口座にいくら届くか。読むだけの情報なので塗り・枠は与えない */
+.fee-result {
+    margin: 8px 0 0;
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+    font-variant-numeric: tabular-nums;
+}
+
+.fee-result:empty {
+    margin: 0;
+}
+
+/* 動きを減らす設定なら、つまみを滑らせない */
+@media (prefers-reduced-motion: reduce) {
+    .switch-track,
+    .switch-knob {
+        transition: none;
+    }
+}
+
+/* 金額を入れる前に「いくらまで送れるか」を示す。
+   読むだけの情報なので塗り・枠・角丸は与えない */
+.balance-note {
+    margin: 0 0 20px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+}
+
+/* 金額そのものは桁を数えるので、字幅を揃えて本文サイズで出す */
+.balance-amount {
+    font-size: var(--size-body);
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   入口のタブ（履歴 / 登録済み）
+   リンクなので「塗り＋角丸」を与えてよい。選ばれている方は
+   白く浮かせるだけにして、太さや色は動かさない
+   ============================================================ */
+.tabs {
+    display: inline-flex;
+    gap: 4px;
+    margin: 0 0 20px;
+    padding: 4px;
+    background-color: var(--ground);
+    border-radius: 999px;
+}
+
+.tab {
+    padding: 8px 28px;
+    border-radius: 999px;
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+    color: var(--ink-muted);
+    text-decoration: none;
+}
+
+.tab:hover {
+    color: var(--ink);
+}
+
+.tab.is-current {
+    background-color: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+}
+
+.tab:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* 目には見せないが読み上げには残すラベル */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* ============================================================
    振込先の一覧（履歴・登録先）
    1行が1つの振込先。行ごとに送る値が違うので、行ごとにフォームを置く
    ============================================================ */
@@ -586,6 +846,36 @@ a.startlist-row:focus-visible {
     color: var(--ink-muted);
 }
 
+/* 登録先の呼び名。一覧で最初に目に入るので、太さだけで差をつける */
+.payee-nickname {
+    display: block;
+    font-weight: 700;
+}
+
+/* 削除。振り込む操作と取り違えないよう、行の外に小さく置く */
+.payee-delete {
+    margin: 0;
+    padding: 0 12px 12px;
+    text-align: right;
+}
+
+.link-danger {
+    padding: 0;
+    font-family: var(--font);
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--danger);
+    background-color: transparent;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.link-danger:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 /* 一覧に出すものが1件も無いときの案内 */
 .empty {
     margin: 0;
@@ -603,8 +893,10 @@ a.startlist-row:focus-visible {
     position: relative;
 }
 
+/* 検索欄は塗りを灰色にして、入力欄の中でも「探す」ものだと分かるようにする */
 .search .form-control {
     padding-left: 38px;
+    background-color: var(--field-fill);
 }
 
 .search-icon {
@@ -746,6 +1038,12 @@ a.startlist-row:focus-visible {
     .content {
         width: 92%;
         padding: 20px 16px;
+    }
+
+    /* カードの余白が変わるので、はみ出させる量も合わせる */
+    .actions.is-sticky {
+        margin: 20px -16px -20px;
+        padding: 12px 16px;
     }
 
     .stepper {

@@ -3,41 +3,103 @@
 <head th:replace="~{fragments/head :: head('振込')}"></head>
 <body>
 <div class="content">
-    <!-- ここはまだ振込の手順に入っていないので、ステッパーは出さない -->
+    <!-- ここはまだ手順に入っていない（通常の振込へも抜けられる）のでステッパーを出さない -->
     <h1>振込</h1>
-    <p class="lead">振込先の指定方法を選んでください。</p>
 
-    <ul class="startlist">
-        <li>
-            <a class="startlist-row" th:href="@{/bankTransfer/bank}">
-                <span>
-                    <span class="startlist-title">新しい振込先を指定する</span>
-                    <span class="startlist-desc">金融機関・支店・口座番号を入力します</span>
-                </span>
-                <span class="picklist-chevron" aria-hidden="true">›</span>
-            </a>
+    <!-- タブはリンク。JSが無くても切り替わる -->
+    <nav class="tabs">
+        <a class="tab" th:classappend="${tab == 'history'} ? 'is-current'"
+           th:href="@{/bankTransfer}">履歴</a>
+        <a class="tab" th:classappend="${tab == 'payees'} ? 'is-current'"
+           th:href="@{/bankTransfer/payees}">登録済み</a>
+    </nav>
+
+    <!-- 一覧は全件出ているので、絞り込みは手元で行う（サーバに問い合わせない）。
+         JSが無くても全件は見える -->
+    <div class="search" th:if="${!payees.isEmpty()}">
+        <svg class="search-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M10.8 10.8 L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <label class="visually-hidden" for="payeeFilter">一覧を絞り込む</label>
+        <input class="form-control" id="payeeFilter" type="search"
+               placeholder="受取人名　支店名　口座番号" autocomplete="off"/>
+    </div>
+
+    <ul class="payeelist" id="payeeList" th:if="${!payees.isEmpty()}">
+        <!-- 履歴：振込先を決めるのは4項目。選ばれたものはサーバ側で引き直す -->
+        <li th:if="${tab == 'history'}" th:each="payee : ${payees}"
+            th:data-search="|${payee.name()} ${payee.branchName()} ${payee.bankAccountNum()} ${payee.bankName()}|">
+            <form th:action="@{/bankTransfer/history}" method="post">
+                <input type="hidden" name="bankCode" th:value="${payee.bankCode()}"/>
+                <input type="hidden" name="branchCode" th:value="${payee.branchCode()}"/>
+                <input type="hidden" name="bankAccountType" th:value="${payee.bankAccountType()}"/>
+                <input type="hidden" name="bankAccountNum" th:value="${payee.bankAccountNum()}"/>
+                <button class="payee-row" type="submit">
+                    <span>
+                        <span class="payee-nickname" th:text="${payee.name()}">ﾔﾅｷﾞﾀ ﾕｳｷ</span>
+                        <span class="payee-account">
+                            <span th:text="${payee.bankName()}">AAA銀行</span>
+                            <span th:text="${payee.branchName()}">A1支店</span>
+                            <span th:text="${payee.bankAccountType()}">普通</span>
+                            <span th:text="${payee.bankAccountNum()}">1234567</span>
+                        </span>
+                        <span class="payee-last">最終振込日
+                            <span th:text="${payee.lastTransferredOn()}">2026-09-02</span></span>
+                    </span>
+                    <span class="picklist-chevron" aria-hidden="true">›</span>
+                </button>
+            </form>
         </li>
 
-        <!-- 押せないものは <a> にしない。リンクの形をしていると押せると読まれる -->
-        <li>
-            <a class="startlist-row" th:href="@{/bankTransfer/history}">
-                <span>
-                    <span class="startlist-title">履歴から振り込む</span>
-                    <span class="startlist-desc">過去に振り込んだ相手から選びます</span>
-                </span>
-                <span class="picklist-chevron" aria-hidden="true">›</span>
-            </a>
-        </li>
-        <li>
-            <span class="startlist-row is-unavailable">
-                <span>
-                    <span class="startlist-title">登録した振込先から振り込む</span>
-                    <span class="startlist-desc">登録しておいた振込先から選びます</span>
-                </span>
-                <span class="startlist-soon">準備中</span>
-            </span>
+        <!-- 登録済み：idで選ぶ。他人のidを送られてもサーバ側で見つからない -->
+        <li th:unless="${tab == 'history'}" th:each="payee : ${payees}"
+            th:data-search="|${payee.nickname()} ${payee.name()} ${payee.branchName()} ${payee.bankAccountNum()} ${payee.bankName()}|">
+            <form th:action="@{/bankTransfer/payees/select}" method="post">
+                <input type="hidden" name="id" th:value="${payee.id()}"/>
+                <button class="payee-row" type="submit">
+                    <span>
+                        <span class="payee-nickname" th:text="${payee.nickname()}">家賃</span>
+                        <span class="payee-account">
+                            <span th:text="${payee.bankName()}">AAA銀行</span>
+                            <span th:text="${payee.branchName()}">A1支店</span>
+                            <span th:text="${payee.bankAccountType()}">普通</span>
+                            <span th:text="${payee.bankAccountNum()}">1234567</span>
+                        </span>
+                        <span class="payee-last" th:text="${payee.name()}">ﾔﾏﾀﾞ ﾀﾛｳ</span>
+                    </span>
+                    <span class="picklist-chevron" aria-hidden="true">›</span>
+                </button>
+            </form>
+            <!-- 消す側。振り込む操作と取り違えないよう、行の外に小さく置く -->
+            <form class="payee-delete" th:action="@{/bankTransfer/payees/delete}" method="post">
+                <input type="hidden" name="id" th:value="${payee.id()}"/>
+                <button class="link-danger" type="submit"
+                        th:data-nickname="${payee.nickname()}">削除</button>
+            </form>
         </li>
     </ul>
+
+    <!-- 絞り込みで1件も残らなかったとき。JSが出し入れする -->
+    <p class="empty" id="filterEmpty" hidden>該当する振込先が見つかりません</p>
+
+    <p class="empty" th:if="${payees.isEmpty() and tab == 'history'}">
+        まだ振込の履歴がありません。<br/>
+        下の「新しい振込先を指定して振り込む」から始めてください。
+    </p>
+    <p class="empty" th:if="${payees.isEmpty() and tab == 'payees'}">
+        まだ振込先を登録していません。<br/>
+        下の「口座情報を登録」から登録できます。
+    </p>
+
+    <div class="actions is-sticky">
+        <a class="form-control-button form-outline-button"
+           th:href="@{/bankTransfer/payees/new}">口座情報を登録</a>
+        <span class="spacer"></span>
+        <a class="form-control-button form-confirmation-button"
+           th:href="@{/bankTransfer/new}">新しい振込先を指定して振り込む</a>
+    </div>
 </div>
+<script src="/js/bankTransferStart.js"></script>
 </body>
 </html>

@@ -3,10 +3,17 @@
 <head th:replace="~{fragments/head :: head('金額と振込指定日')}"></head>
 <body>
 <div class="content">
-    <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(2)}
+    <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(1)}
                                   : ~{fragments/stepper :: stepper(4)}"></div>
     <h1>金額と振込指定日</h1>
     <div th:replace="~{fragments/recap :: recap(${input})}"></div>
+
+    <!-- 確定の直前に残高が足りず戻されたとき -->
+    <p class="text-danger" th:if="${balanceShort}" th:text="${balanceShort}"></p>
+
+    <p class="balance-note">振込可能額
+        <span class="balance-amount"
+              th:text="${#numbers.formatInteger(balance, 1, 'COMMA')}">1,000,000</span>円</p>
 
     <form th:action="@{/bankTransfer/amount}" th:object="${amountForm}" method="post">
 
@@ -15,15 +22,36 @@
             <span class="input-with-unit">
                 <input class="form-control" id="money" type="text" th:field="*{money}"
                        th:classappend="${#fields.hasErrors('money')} ? 'has-error'"
-                       inputmode="numeric" placeholder="10,000"/>
+                       inputmode="numeric" placeholder="10,000" autocomplete="off"/>
                 <span class="unit">円</span>
             </span>
+            <span class="hint" th:unless="${#fields.hasErrors('money')}"
+                  th:text="|1回の振込は ${#numbers.formatInteger(maxTransfer, 1, 'COMMA')} 円までです|">1回の振込は 2,000,000 円までです</span>
             <span class="text-danger" th:if="${#fields.hasErrors('money')}" th:errors="*{money}"></span>
         </div>
 
+        <!-- 手数料の扱い。自行あては無料なので選ばせる意味がない -->
+        <div class="field" th:unless="${ownBank}">
+            <span class="field-label">手数料</span>
+            <label class="switch">
+                <span class="switch-label">手数料を入力金額に含める</span>
+                <input type="checkbox" th:field="*{feeIncluded}"/>
+                <span class="switch-track" aria-hidden="true"><span class="switch-knob"></span></span>
+            </label>
+            <span class="hint">手数料は
+                <span th:text="${#numbers.formatInteger(feeThreshold, 1, 'COMMA')}">30,000</span>円未満で
+                <span th:text="${feeUnder}">220</span>円、以上で
+                <span th:text="${feeOver}">330</span>円です</span>
+            <!-- 打ちながら相手に届く額を見せる。決めるのはサーバ側 -->
+            <p class="fee-result" id="feeResult"
+               th:data-fee-under="${feeUnder}" th:data-fee-over="${feeOver}"
+               th:data-threshold="${feeThreshold}"></p>
+        </div>
+        <p class="hint" th:if="${ownBank}">ふくよか銀行あての振込に手数料はかかりません</p>
+
         <div class="field">
             <label class="field-label" for="transferDateTime">振込指定日</label>
-            <input class="form-control" id="transferDateTime" type="date" th:field="*{transferDateTime}"
+            <input class="form-control" id="transferDateTime" type="date" th:field="*{transferDateTime}" autocomplete="off"
                    th:classappend="${#fields.hasErrors('transferDateTime')} ? 'has-error'"
                    th:min="${today}"/>
             <div class="chips">
@@ -37,11 +65,15 @@
         </div>
 
         <div class="actions">
-            <a class="form-control-button form-clear-button" th:href="${fromSaved} ? @{/bankTransfer/history} : @{/bankTransfer/account}">戻る</a>
+            <a class="form-control-button form-clear-button" th:href="${fromSaved} ? @{/bankTransfer} : @{/bankTransfer/account}">戻る</a>
+            <button class="form-control-button form-cancel-button" type="submit"
+                    form="cancelForm">中止</button>
+            <span class="spacer"></span>
             <button class="form-control-button form-confirmation-button" type="submit">確認</button>
         </div>
     </form>
 </div>
+<div th:replace="~{fragments/cancel :: cancel}"></div>
 <script src="/js/bankTransferAmount.js"></script>
 </body>
 </html>

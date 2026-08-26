@@ -3,7 +3,8 @@
 <head th:replace="~{fragments/head :: head('口座情報の入力')}"></head>
 <body>
 <div class="content">
-    <div th:replace="~{fragments/stepper :: stepper(3)}"></div>
+    <div th:replace="${registering} ? ~{fragments/stepper :: stepperRegister(3)}
+                                    : ~{fragments/stepper :: stepper(3)}"></div>
     <h1>口座情報の入力</h1>
     <div th:replace="~{fragments/recap :: recap(${input})}"></div>
 
@@ -30,8 +31,8 @@
             <label class="field-label" for="bankAccountNum">口座番号</label>
             <input class="form-control" id="bankAccountNum" type="text" th:field="*{bankAccountNum}"
                    th:classappend="${#fields.hasErrors('bankAccountNum')} ? 'has-error'"
-                   inputmode="numeric" maxlength="7" placeholder="1234567"/>
-            <span class="hint" th:unless="${#fields.hasErrors('bankAccountNum')}">半角数字7桁で入力してください</span>
+                   inputmode="numeric" maxlength="7" placeholder="1234567" autocomplete="off"/>
+            <span class="hint" th:unless="${#fields.hasErrors('bankAccountNum')}">半角数字7桁以内で入力してください。先頭の「0」の入力は不要です</span>
             <span class="text-danger" th:if="${#fields.hasErrors('bankAccountNum')}"
                   th:errors="*{bankAccountNum}"></span>
         </div>
@@ -40,16 +41,20 @@
             <label class="field-label" for="name">口座名義</label>
             <input class="form-control" id="name" type="text" th:field="*{name}"
                    th:classappend="${#fields.hasErrors('name')} ? 'has-error'"
-                   maxlength="20" placeholder="ﾔﾏﾀﾞ ﾀﾛｳ"/>
+                   maxlength="20" placeholder="ﾔﾏﾀﾞ ﾀﾛｳ" autocomplete="off"/>
             <span class="hint" th:unless="${#fields.hasErrors('name')}">半角カタカナで入力してください</span>
             <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
         </div>
 
         <div class="actions">
             <a class="form-control-button form-clear-button" th:href="@{/bankTransfer/branch}">戻る</a>
+            <button class="form-control-button form-cancel-button" type="submit"
+                    form="cancelForm">中止</button>
+            <span class="spacer"></span>
             <button class="form-control-button form-confirmation-button" type="submit">次へ</button>
         </div>
     </form>
 </div>
+<div th:replace="~{fragments/cancel :: cancel}"></div>
 </body>
 </html>

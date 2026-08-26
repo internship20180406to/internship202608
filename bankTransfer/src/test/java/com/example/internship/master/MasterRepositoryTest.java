@@ -32,15 +32,15 @@ class MasterRepositoryTest {
     class BankMaster {
 
         @Test
-        @DisplayName("6行あり、コード順に並ぶ")
+        @DisplayName("コード順に並ぶ")
         void 一覧() {
             List<Bank> banks = bankMasterRepository.findAll();
 
-            assertThat(banks).hasSize(6);
-            assertThat(banks).extracting(Bank::bankCode)
-                    .containsExactly("0001", "0002", "0003", "0004", "0005", "0006");
+            assertThat(banks).extracting(Bank::bankCode).isSorted();
+            // デモ用の4行と、初期からある6行
             assertThat(banks).extracting(Bank::bankName)
-                    .containsExactly("AAA銀行", "BBB銀行", "CCC銀行", "DDD銀行", "EEE銀行", "FFF銀行");
+                    .contains("ふくよか銀行", "丸菱USJ銀行", "二井往友銀行", "ウォーターほ銀行")
+                    .contains("AAA銀行", "BBB銀行", "CCC銀行", "DDD銀行", "EEE銀行", "FFF銀行");
         }
 
         @Test
@@ -63,15 +63,22 @@ class MasterRepositoryTest {
         void 名前で検索() {
             assertThat(bankMasterRepository.search("BBB"))
                     .extracting(Bank::bankName).containsExactly("BBB銀行");
-            assertThat(bankMasterRepository.search("銀行")).hasSize(6);
+            assertThat(bankMasterRepository.search("ふくよか"))
+                    .extracting(Bank::bankName).containsExactly("ふくよか銀行");
+            // どの行も名前に「銀行」が入る
+            assertThat(bankMasterRepository.search("銀行"))
+                    .hasSameSizeAs(bankMasterRepository.findAll());
         }
 
         @Test
         @DisplayName("コードの前方一致で検索できる")
         void コードで検索() {
-            assertThat(bankMasterRepository.search("000")).hasSize(6);
             assertThat(bankMasterRepository.search("0003"))
                     .extracting(Bank::bankName).containsExactly("CCC銀行");
+            assertThat(bankMasterRepository.search("0177"))
+                    .extracting(Bank::bankName).containsExactly("ふくよか銀行");
+            // 前方一致なので、途中に含むだけの行は拾わない
+            assertThat(bankMasterRepository.search("177")).isEmpty();
         }
 
         @Test
@@ -86,7 +93,8 @@ class MasterRepositoryTest {
         void 主な金融機関に絞る() {
             assertThat(bankMasterRepository.findMajor())
                     .extracting(Bank::bankName)
-                    .containsExactly("AAA銀行", "BBB銀行", "CCC銀行");
+                    .containsExactlyInAnyOrder("ふくよか銀行", "丸菱USJ銀行",
+                            "二井往友銀行", "ウォーターほ銀行");
 
             // 一覧に無いものも検索では見つかる
             assertThat(bankMasterRepository.search("FFF"))

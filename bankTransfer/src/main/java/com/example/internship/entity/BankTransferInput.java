@@ -23,7 +23,9 @@ public class BankTransferInput implements Serializable {
     private String bankAccountNum;    // 口座番号
     private String name;              // 口座名義
 
-    private Integer money;            // 金額
+    private Integer money;            // 金額（相手が受け取る額）
+    private Integer fee;              // 振込手数料
+    private boolean feeIncluded;      // 手数料を入力金額に含めたか
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate transferDateTime;   // 振込指定日
@@ -46,6 +48,11 @@ public class BankTransferInput implements Serializable {
     }
 
     public boolean hasAmount() {
-        return hasAccount() && money != null && transferDateTime != null;
+        return hasAccount() && money != null && fee != null && transferDateTime != null;
+    }
+
+    // 口座から引かれる額。振込額と手数料の合計
+    public Integer getTotal() {
+        return money == null || fee == null ? null : money + fee;
     }
 }

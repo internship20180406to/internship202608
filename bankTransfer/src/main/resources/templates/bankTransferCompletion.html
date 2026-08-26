@@ -3,10 +3,16 @@
 <head th:replace="~{fragments/head :: head('振込完了')}"></head>
 <body>
 <div class="content">
-    <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(4)}
+    <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(3)}
                                   : ~{fragments/stepper :: stepper(6)}"></div>
-    <h1>振込完了</h1>
-    <p class="lead">以下の内容で振込を受け付けました。</p>
+    <div class="done-hero">
+        <svg class="done-check" viewBox="0 0 72 72" role="img" aria-label="完了">
+            <circle class="done-check-ring" cx="36" cy="36" r="33"/>
+            <path class="done-check-mark" d="M20 37.5 L31 48.5 L52 25"/>
+        </svg>
+        <h1 class="done-title">振込が完了しました</h1>
+        <p class="done-lead">以下の内容で受け付けました。</p>
+    </div>
 
     <dl class="summary" th:object="${bankTransferResult}">
         <div class="summary-row">
@@ -29,9 +35,29 @@
             <dt>口座名義</dt>
             <dd th:text="*{name}">ﾔﾏﾀﾞ ﾀﾛｳ</dd>
         </div>
-        <div class="summary-row is-amount">
-            <dt>金額</dt>
+        <div class="summary-row">
+            <dt>振込金額</dt>
             <dd><span th:text="${#numbers.formatInteger(bankTransferResult.money, 1, 'COMMA')}">1,234,567</span><span
+                    class="unit">円</span></dd>
+        </div>
+        <div class="summary-row">
+            <dt>手数料</dt>
+            <dd><span th:text="${#numbers.formatInteger(bankTransferResult.fee, 1, 'COMMA')}">330</span><span
+                    class="unit">円</span></dd>
+        </div>
+        <div class="summary-row is-amount">
+            <dt>合計金額</dt>
+            <dd><span th:text="${#numbers.formatInteger(bankTransferResult.total, 1, 'COMMA')}">1,234,897</span><span
+                    class="unit">円</span></dd>
+        </div>
+        <div class="summary-row">
+            <dt>振込前の残高</dt>
+            <dd><span th:text="${#numbers.formatInteger(balance, 1, 'COMMA')}">1,000,000</span><span
+                    class="unit">円</span></dd>
+        </div>
+        <div class="summary-row">
+            <dt>振込後の残高</dt>
+            <dd><span th:text="${#numbers.formatInteger(balanceAfter, 1, 'COMMA')}">998,766</span><span
                     class="unit">円</span></dd>
         </div>
         <div class="summary-row">
@@ -40,9 +66,26 @@
         </div>
     </dl>
 
-    <div class="actions">
+    <!-- もう一度この相手に送ることがあるなら、ここで登録しておける。
+         送る値は目印だけで、中身はサーバ側で履歴から引き直す -->
+    <form th:unless="${alreadyRegistered}" th:action="@{/bankTransfer/completion/register}"
+          method="post" th:object="${bankTransferResult}">
+        <input type="hidden" name="bankCode" th:value="*{bankCode}"/>
+        <input type="hidden" name="branchCode" th:value="*{branchCode}"/>
+        <input type="hidden" name="bankAccountType" th:value="*{bankAccountType}"/>
+        <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
+        <div class="actions">
+            <a class="form-control-button form-clear-button" th:href="@{/bankTransfer}">振込に戻る</a>
+            <span class="spacer"></span>
+            <button class="form-control-button form-outline-button" type="submit">
+                この口座情報を登録する</button>
+        </div>
+    </form>
+
+    <div class="actions" th:if="${alreadyRegistered}">
         <a class="form-control-button form-clear-button" th:href="@{/bankTransfer}">振込に戻る</a>
         <span class="spacer"></span>
+        <span class="hint">この振込先は登録済みです</span>
     </div>
 </div>
 </body>

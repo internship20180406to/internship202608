@@ -14,10 +14,20 @@ public class AccountForm {
     private String bankAccountType;
 
     @NotBlank(message = "口座番号を入力してください")
-    //DBがchar(7)のため、7桁以外はSQLエラーになる
+    //口座番号は7桁で、足りない分は先頭を0で埋めるのが決まり。
+    //利用者に0を打たせる意味がないので7桁以内で受け取り、保存する形は padded() で作る。
     //空文字も許容し、未入力のときに@NotBlankとメッセージが二重に出ないようにする
-    @Pattern(regexp = "([0-9]{7})?", message = "口座番号は7桁の半角数字で入力してください")
+    @Pattern(regexp = "([0-9]{1,7})?", message = "口座番号は7桁以内の半角数字で入力してください")
     private String bankAccountNum;
+
+    //DBがchar(7)のため、7桁に満たないままだと桁がずれる。
+    //入力された数字を右に寄せ、空いた先頭を0で埋める
+    public String paddedBankAccountNum() {
+        if (bankAccountNum == null || bankAccountNum.isBlank()) {
+            return bankAccountNum;
+        }
+        return "0".repeat(Math.max(0, 7 - bankAccountNum.length())) + bankAccountNum;
+    }
 
     @NotBlank(message = "口座名義を入力してください")
     @Size(max = 20, message = "口座名義は20文字以内で入力してください")

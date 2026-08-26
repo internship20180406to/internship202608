@@ -83,3 +83,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+
+// 相手口座に届く額を打ちながら見せる。手数料を含めるかどうかで変わる。
+// 実際に決めるのはサーバ側で、ここは確認画面まで進まないと分からない状態を減らすだけ
+document.addEventListener('DOMContentLoaded', () => {
+    const moneyInput = document.getElementById('money');
+    const result = document.getElementById('feeResult');
+    const includeInput = document.querySelector('.switch input[type="checkbox"]');
+    if (moneyInput === null || result === null || includeInput === null) {
+        return;
+    }
+    const feeUnder = Number(result.dataset.feeUnder);
+    const feeOver = Number(result.dataset.feeOver);
+    const threshold = Number(result.dataset.threshold);
+
+    const update = () => {
+        const entered = Number(moneyInput.value.replace(/[^0-9]/g, ''));
+        if (entered === 0) {
+            result.textContent = '';
+            return;
+        }
+        // 手数料の段はサーバと同じく「打った額」で決める
+        const fee = entered < threshold ? feeUnder : feeOver;
+        const toPayee = includeInput.checked ? entered - fee : entered;
+        result.textContent = '相手口座への振込額 '
+                + Math.max(0, toPayee).toLocaleString('ja-JP') + '円';
+    };
+
+    moneyInput.addEventListener('input', update);
+    includeInput.addEventListener('change', update);
+    update();
+});

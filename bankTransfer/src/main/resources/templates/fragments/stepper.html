@@ -11,9 +11,14 @@
 <div th:fragment="stepper(current)"
      th:replace="~{:: steps(${ {'金融機関','支店','口座情報','金額','確認','完了'} }, ${current})}"></div>
 
-<!-- 履歴・登録した振込先から入ったとき。振込先が一度に決まるので 1〜4 -->
+<!-- 履歴・登録した振込先から入ったとき。振込先は入口の一覧で決まっているので 1〜3。
+     入口はまだ手順に入っておらず（そこから通常の振込へも抜けられる）ステッパーを出さない -->
 <div th:fragment="stepperSaved(current)"
-     th:replace="~{:: steps(${ {'振込先','金額','確認','完了'} }, ${current})}"></div>
+     th:replace="~{:: steps(${ {'金額','確認','完了'} }, ${current})}"></div>
+
+<!-- 振込先を登録するとき。金額を入れずに登録して終わるので 1〜4 -->
+<div th:fragment="stepperRegister(current)"
+     th:replace="~{:: steps(${ {'金融機関','支店','口座情報','確認'} }, ${current})}"></div>
 
 <!-- 実体。1からcurrentまでのステップに色を付ける -->
 <div th:fragment="steps(labels, current)">

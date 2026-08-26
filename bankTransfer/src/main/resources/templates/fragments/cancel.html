@@ -1,0 +1,17 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- 「中止」の送り先。入力途中の内容を捨てるので、状態が変わる＝POSTで送る
+     （GETは何度呼ばれても状態が変わってはいけない）。
+     ボタンは各画面の <form> の中に置きたいが form は入れ子にできないので、
+     HTML5 の form 属性で離れた場所のこのフォームへ紐づける。
+     使い方: 置く側 <div th:replace="~{fragments/cancel :: cancel}"></div>
+             ボタン <button type="submit" form="cancelForm">中止</button> -->
+<div th:fragment="cancel">
+    <form id="cancelForm" th:action="@{/bankTransfer/cancel}" method="post" hidden></form>
+    <script src="/js/bankTransferCancel.js"></script>
+</div>
+
+</body>
+</html>

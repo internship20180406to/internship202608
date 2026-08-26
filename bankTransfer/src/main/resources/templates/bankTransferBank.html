@@ -3,7 +3,8 @@
 <head th:replace="~{fragments/head :: head('金融機関の選択')}"></head>
 <body>
 <div class="content">
-    <div th:replace="~{fragments/stepper :: stepper(1)}"></div>
+    <div th:replace="${registering} ? ~{fragments/stepper :: stepperRegister(1)}
+                                    : ~{fragments/stepper :: stepper(1)}"></div>
     <h1>金融機関の選択</h1>
 
     <!-- 行そのものが送信ボタン。JSが無くても選べる -->
@@ -40,10 +41,13 @@
     </form>
 
     <div class="actions">
-        <a class="form-control-button form-clear-button" th:href="@{/bankTransfer}">戻る</a>
-        <span class="spacer"></span>
+        <a class="form-control-button form-clear-button" th:href="${registering} ? @{/bankTransfer/payees} : @{/bankTransfer}">戻る</a>
+                <button class="form-control-button form-cancel-button" type="submit"
+                form="cancelForm">中止</button>
+<span class="spacer"></span>
     </div>
 </div>
+<div th:replace="~{fragments/cancel :: cancel}"></div>
 <script src="/js/bankTransferSearch.js"></script>
 </body>
 </html>
