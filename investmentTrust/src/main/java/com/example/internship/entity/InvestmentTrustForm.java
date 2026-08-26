@@ -16,7 +16,7 @@ public class InvestmentTrustForm {
     @NonNull
     private String bankAccountTypeName;//科目名
     @NonNull
-    private Integer bankAccountNum;//口座番号
+    private String bankAccountNum;//口座番号
     @NonNull
     private String name;//購入者名
     @NonNull
@@ -48,11 +48,11 @@ public class InvestmentTrustForm {
         this.bankAccountTypeName = bankAccountTypeName;
     }
 
-    public Integer getBankAccountNum() {
+    public String getBankAccountNum() {
         return bankAccountNum;
     }
 
-    public void setBankAccountNum(Integer bankAccountNum) {
+    public void setBankAccountNum(String bankAccountNum) {
         this.bankAccountNum = bankAccountNum;
     }
 
