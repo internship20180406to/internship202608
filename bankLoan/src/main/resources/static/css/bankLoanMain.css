@@ -199,3 +199,19 @@ select.form-control {
         width: 100%;
     }
 }
+
+.name-row {
+    display: flex;
+    gap: 16px;
+}
+
+.name-field {
+    flex: 1;
+}
+
+@media (max-width: 600px) {
+    .name-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

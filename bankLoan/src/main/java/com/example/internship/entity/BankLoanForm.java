@@ -25,8 +25,25 @@ public class BankLoanForm {
     @NotBlank(message = "口座番号を入力してください")
     @Pattern(regexp = "[0-9]{7}", message = "口座番号は7桁の数字で入力してください")
     private String bankAccountNum;
-    @NotBlank(message = "氏名を入力してください")
-    private String name;
+    @NotBlank(message = "姓を入力してください")
+    private String lastName;
+
+    @NotBlank(message = "名を入力してください")
+    private String firstName;
+
+    @NotBlank(message = "姓のフリガナを入力してください")
+    @Pattern(
+            regexp = "^[ァ-ヶー]+$",
+            message = "姓のフリガナはカタカナで入力してください"
+    )
+    private String lastNameKana;
+
+    @NotBlank(message = "名のフリガナを入力してください")
+    @Pattern(
+            regexp = "^[ァ-ヶー]+$",
+            message = "名のフリガナはカタカナで入力してください"
+    )
+    private String firstNameKana;
     @NotNull(message = "借入金額を入力してください")
     @Min(value = 1, message = "借入金額は1万円以上で入力してください")
     @Max(value = 1000, message = "借入金額は1000万円以下で入力してください")
@@ -86,12 +103,36 @@ public class BankLoanForm {
         this.bankAccountNum = bankAccountNum;
     }
 
-    public String getName() {
-        return name;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastNameKana() {
+        return lastNameKana;
+    }
+
+    public void setLastNameKana(String lastNameKana) {
+        this.lastNameKana = lastNameKana;
+    }
+
+    public String getFirstNameKana() {
+        return firstNameKana;
+    }
+
+    public void setFirstNameKana(String firstNameKana) {
+        this.firstNameKana = firstNameKana;
     }
 
     public Integer getLoanAmount() {

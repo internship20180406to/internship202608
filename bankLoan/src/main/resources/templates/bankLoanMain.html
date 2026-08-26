@@ -11,19 +11,85 @@
         <h1>カードローン申込情報入力</h1>
         <form action="#" th:action="@{/bankLoanConfirmation}" th:object="${bankLoanApplication}" method="post">
 
-        <p><label class="ml-1">氏名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text"
-                   th:field="*{name}"
-                   class="form-control"
-                   placeholder="氏名を入力してください">
+            <p>
+                <label>氏名: <small class="text-danger">※</small></label>
 
-            <span class="text-danger server-error"
-                  th:if="${#fields.hasErrors('name')}"
-                  th:errors="*{name}">
+            <div class="name-row">
+                <div class="name-field">
+                    <label for="lastName">姓</label>
+                    <input type="text"
+                           th:field="*{lastName}"
+                           id="lastName"
+                           class="form-control"
+                           placeholder="松岡">
+
+                    <span class="text-danger server-error"
+                          th:if="${#fields.hasErrors('lastName')}"
+                          th:errors="*{lastName}">
             </span>
-            <span id="nameClientError"
-                  class="text-danger client-error"></span>
-        </p>
+
+                    <span id="lastNameClientError"
+                          class="text-danger client-error"></span>
+                </div>
+
+                <div class="name-field">
+                    <label for="firstName">名</label>
+                    <input type="text"
+                           th:field="*{firstName}"
+                           id="firstName"
+                           class="form-control"
+                           placeholder="慎吾">
+
+                    <span class="text-danger server-error"
+                          th:if="${#fields.hasErrors('firstName')}"
+                          th:errors="*{firstName}">
+            </span>
+
+                    <span id="firstNameClientError"
+                          class="text-danger client-error"></span>
+                </div>
+            </div>
+            </p>
+
+            <p>
+                <label>フリガナ: <small class="text-danger">※</small></label>
+
+            <div class="name-row">
+                <div class="name-field">
+                    <label for="lastNameKana">セイ</label>
+                    <input type="text"
+                           th:field="*{lastNameKana}"
+                           id="lastNameKana"
+                           class="form-control"
+                           placeholder="マツオカ">
+
+                    <span class="text-danger server-error"
+                          th:if="${#fields.hasErrors('lastNameKana')}"
+                          th:errors="*{lastNameKana}">
+            </span>
+
+                    <span id="lastNameKanaClientError"
+                          class="text-danger client-error"></span>
+                </div>
+
+                <div class="name-field">
+                    <label for="firstNameKana">メイ</label>
+                    <input type="text"
+                           th:field="*{firstNameKana}"
+                           id="firstNameKana"
+                           class="form-control"
+                           placeholder="シンゴ">
+
+                    <span class="text-danger server-error"
+                          th:if="${#fields.hasErrors('firstNameKana')}"
+                          th:errors="*{firstNameKana}">
+            </span>
+
+                    <span id="firstNameKanaClientError"
+                          class="text-danger client-error"></span>
+                </div>
+            </div>
+            </p>
 
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}"
@@ -75,7 +141,9 @@
         </p>
 
         <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankAccountType}" class="form-control">
+            <select th:field="*{bankAccountType}"
+                    id="bankAccountType"
+                    class="form-control">
                 <option value="">選択してください</option>
                 <option value="普通預金">普通預金</option>
                 <option value="当座預金">当座預金</option>
@@ -93,6 +161,7 @@
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
                    th:field="*{bankAccountNum}"
+                   id="bankAccountNum"
                    maxlength="7"
                    inputmode="numeric"
                    class="form-control"
@@ -108,6 +177,7 @@
         <p><label class="ml-1">年収（万円）: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
                    th:field="*{annualIncome}"
+                   id="annualIncome"
                    inputmode="numeric"
                    maxlength="6"
                    class="form-control"
@@ -126,6 +196,7 @@
         <p><label class="ml-1">希望借入金額（万円）: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
                    th:field="*{loanAmount}"
+                   id="loanAmount"
                    inputmode="numeric"
                    maxlength="4"
                    class="form-control"
@@ -155,7 +226,8 @@
                max="20"
                step="0.01"
                class="form-control"
-               placeholder="2.50">
+               placeholder="2.50"
+               id="interestRate">
             <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('interestRate')}"
                   th:errors="*{interestRate}">
@@ -196,8 +268,6 @@
     const bankAccountNumInput =
         document.getElementById('bankAccountNum');
 
-    const nameInput =
-        document.getElementById('name');
 
     const loanAmountInput =
         document.getElementById('loanAmount');
@@ -210,6 +280,18 @@
 
     const loanLimit =
         document.getElementById('loanLimit');
+
+    const lastNameInput =
+        document.getElementById('lastName');
+
+    const firstNameInput =
+        document.getElementById('firstName');
+
+    const lastNameKanaInput =
+        document.getElementById('lastNameKana');
+
+    const firstNameKanaInput =
+        document.getElementById('firstNameKana');
 
 
     // ==============================
@@ -228,9 +310,6 @@
     const bankAccountNumError =
         document.getElementById('bankAccountNumClientError');
 
-    const nameError =
-        document.getElementById('nameClientError');
-
     const loanAmountError =
         document.getElementById('loanAmountClientError');
 
@@ -242,6 +321,18 @@
 
     const loanLimitError =
         document.getElementById('loanLimitClientError');
+
+    const lastNameError =
+        document.getElementById('lastNameClientError');
+
+    const firstNameError =
+        document.getElementById('firstNameClientError');
+
+    const lastNameKanaError =
+        document.getElementById('lastNameKanaClientError');
+
+    const firstNameKanaError =
+        document.getElementById('firstNameKanaClientError');
 
 
     // ==============================
@@ -455,7 +546,7 @@
         // 検索前に現在選択している支店を覚える
         const selectedBranch = branchNameSelect.value;
 
-        selectedBranchInput.value = this.value;
+        selectedBranchInput.value = selectedBranch;
     });
 
     // 支店を検索したとき
@@ -476,13 +567,25 @@
     updateBranchOptions(savedBranch);
 
     function clearServerError(element) {
-        const serverError = element.closest('p').querySelector('.server-error');
+        if (!element) {
+            return;
+        }
+
+        const container =
+            element.closest('.name-field') ||
+            element.closest('p');
+
+        if (!container) {
+            return;
+        }
+
+        const serverError =
+            container.querySelector('.server-error');
 
         if (serverError) {
             serverError.textContent = '';
         }
     }
-
     function validateLoanAmount() {
         clearServerError(loanAmountInput);
 
@@ -522,21 +625,6 @@
     bankNameSelect.addEventListener('change', validateBankName);
     bankNameSelect.addEventListener('blur', validateBankName);
 
-    function validateName() {
-
-        clearServerError(nameInput);
-
-        const value = nameInput.value.trim();
-
-        if (value === '') {
-            nameError.textContent = '氏名を入力してください';
-        } else {
-            nameError.textContent = '';
-        }
-    }
-
-    nameInput.addEventListener('input', validateName);
-    nameInput.addEventListener('blur', validateName);
 
     function validateBranchName() {
 
@@ -654,6 +742,71 @@
                 '借入限度額は年収の50％（10万円単位）が上限になります';
         }
     }
+
+    function validateLastName() {
+        clearServerError(lastNameInput);
+
+        if (lastNameInput.value.trim() === '') {
+            lastNameError.textContent = '姓を入力してください';
+        } else {
+            lastNameError.textContent = '';
+        }
+    }
+
+    function validateFirstName() {
+        clearServerError(firstNameInput);
+
+        if (firstNameInput.value.trim() === '') {
+            firstNameError.textContent = '名を入力してください';
+        } else {
+            firstNameError.textContent = '';
+        }
+    }
+
+    function validateLastNameKana() {
+        clearServerError(lastNameKanaInput);
+
+        const value = lastNameKanaInput.value.trim();
+
+        if (value === '') {
+            lastNameKanaError.textContent =
+                '姓のフリガナを入力してください';
+        } else if (!/^[ァ-ヶー]+$/.test(value)) {
+            lastNameKanaError.textContent =
+                '姓のフリガナはカタカナで入力してください';
+        } else {
+            lastNameKanaError.textContent = '';
+        }
+    }
+
+    function validateFirstNameKana() {
+        clearServerError(firstNameKanaInput);
+
+        const value = firstNameKanaInput.value.trim();
+
+        if (value === '') {
+            firstNameKanaError.textContent =
+                '名のフリガナを入力してください';
+        } else if (!/^[ァ-ヶー]+$/.test(value)) {
+            firstNameKanaError.textContent =
+                '名のフリガナはカタカナで入力してください';
+        } else {
+            firstNameKanaError.textContent = '';
+        }
+    }
+
+    lastNameInput.addEventListener('input', validateLastName);
+    lastNameInput.addEventListener('blur', validateLastName);
+
+    firstNameInput.addEventListener('input', validateFirstName);
+    firstNameInput.addEventListener('blur', validateFirstName);
+
+    lastNameKanaInput.addEventListener('input', validateLastNameKana);
+    lastNameKanaInput.addEventListener('blur', validateLastNameKana);
+
+    firstNameKanaInput.addEventListener('input', validateFirstNameKana);
+    firstNameKanaInput.addEventListener('blur', validateFirstNameKana);
+
     loanAmountInput.addEventListener('input', function () {
         validateLoanAmount();
         validateLoanLimit();

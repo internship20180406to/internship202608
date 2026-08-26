@@ -14,13 +14,17 @@ public class BankLoanRepository {
         String sql = "INSERT INTO bankLoan_table(" +
                 "bankName, branchName, bankAccountType, bankAccountNum, name, loanAmount, annualIncome, InterestRate)" +
                 " VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+        String kanaName =
+                bankLoanForm.getLastNameKana()
+                        + " "
+                        + bankLoanForm.getFirstNameKana();
         jdbcTemplate.update(
                 sql,
                 bankLoanForm.getBankName(),
                 bankLoanForm.getBranchName(),
                 bankLoanForm.getBankAccountType(),
                 bankLoanForm.getBankAccountNum(),
-                bankLoanForm.getName(),
+                kanaName,
                 bankLoanForm.getLoanAmount() * 10000,
                 bankLoanForm.getAnnualIncome() *10000,
                 bankLoanForm.getInterestRate());
