@@ -5,7 +5,6 @@
     <title>ローン申込情報入力画面</title>
     <style>
         body {
-            /* 全体の背景を爽やかな薄いブルーのグラデーションに */
             background: linear-gradient(135deg, #f4f8fc, #e1ecf7);
             margin: 0;
             display: flex;
@@ -16,7 +15,6 @@
             overflow: auto;
         }
         .content {
-            /* カードを純白にし、リッチで優しい影をつける */
             background-color: #ffffff;
             width: 80%;
             max-width: 600px;
@@ -73,8 +71,10 @@
             box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
             outline: none;
         }
-
-        /* 入力欄の右に単位や敬称を並べる設定 */
+        .form-control.is-invalid {
+            border-color: #e53e3e;
+            background-color: #fff5f5;
+        }
         .input-group {
             display: flex;
             align-items: center;
@@ -89,10 +89,33 @@
             color: #2d3748;
             white-space: nowrap;
         }
-
-        /* 未入力エラー時の赤枠とエラーメッセージの共通スタイル */
         .text-danger {
             color: #e53e3e;
+        }
+        .error-msg {
+            display: block;
+            color: #e53e3e;
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: bold;
+        }
+        .warning-banner {
+            background-color: #fffaf0;
+            border: 1px solid #ecc94b;
+            color: #c05621;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-top: 6px;
+            font-weight: bold;
+            display: none;
+        }
+        .limit-guide {
+            font-size: 12px;
+            color: #4a5568;
+            margin-top: 5px;
+            font-weight: bold;
+            display: none;
         }
         .form-control-button {
             width: 110px;
@@ -125,6 +148,7 @@
 <body>
 <div class="content">
     <h1>ローン申込情報入力</h1>
+
     <form id="loanForm" action="#" th:action="@{/bankLoanConfirmation}" th:object="${bankLoanApplication}" method="post" novalidate>
 
         <!-- 口座情報グループ -->
@@ -134,9 +158,8 @@
             <!-- 金融機関名 -->
             <div class="form-group">
                 <label>金融機関名 <small class="text-danger">※</small></label>
-                <label style="display: block; width: 100%;">
-                    <input type="text" th:field="*{bankName}" list="bankNameOptions" class="form-control" placeholder="例: テスト銀行 （選択または直接入力）" required/>
-                </label>
+                <input type="text" th:field="*{bankName}" list="bankNameOptions" class="form-control" th:classappend="${#fields.hasErrors('bankName')} ? 'is-invalid' : ''" placeholder="例: テスト銀行 （選択または直接入力）" required/>
+                <span class="error-msg" th:if="${#fields.hasErrors('bankName')}" th:errors="*{bankName}"></span>
                 <datalist id="bankNameOptions">
                     <option th:each="option : ${nameOptions}" th:value="${option}"></option>
                 </datalist>
@@ -145,35 +168,33 @@
             <!-- 支店名 -->
             <div class="form-group">
                 <label>支店名 <small class="text-danger">※</small></label>
-                <label style="display: block; width: 100%;">
-                    <input type="text" th:field="*{branchName}" class="form-control" placeholder="福岡支店" required/>
-                </label>
+                <input type="text" th:field="*{branchName}" class="form-control" th:classappend="${#fields.hasErrors('branchName')} ? 'is-invalid' : ''" placeholder="福岡支店" required/>
+                <span class="error-msg" th:if="${#fields.hasErrors('branchName')}" th:errors="*{branchName}"></span>
             </div>
 
             <!-- 預金種別 -->
             <div class="form-group">
                 <label>預金種別 <small class="text-danger">※</small></label>
-                <label style="display: block; width: 100%;">
-                    <select th:field="*{bankAccountType}" class="form-control" required>
-                        <option value="">-- 選択してください --</option>
-                        <option th:each="option : ${depositTypeOptions}"
-                                th:value="${option}"
-                                th:text="${option}">選択肢
-                        </option>
-                    </select>
-                </label>
+                <select th:field="*{bankAccountType}" class="form-control" th:classappend="${#fields.hasErrors('bankAccountType')} ? 'is-invalid' : ''" required>
+                    <option value="">-- 選択してください --</option>
+                    <option th:each="option : ${depositTypeOptions}"
+                            th:value="${option}"
+                            th:text="${option}">選択肢
+                    </option>
+                </select>
+                <span class="error-msg" th:if="${#fields.hasErrors('bankAccountType')}" th:errors="*{bankAccountType}"></span>
             </div>
 
             <!-- 口座番号 -->
             <div class="form-group">
-                <label>口座番号 <small class="text-danger">※</small></label>
-                <label style="display: block; width: 100%;">
-                    <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" required/>
-                </label>
+                <label for="bankAccountNum">口座番号 <small class="text-danger">※</small></label>
+                <input type="text" id="bankAccountNum" th:field="*{bankAccountNum}" class="form-control" th:classappend="${#fields.hasErrors('bankAccountNum')} ? 'is-invalid' : ''" maxlength="7" autocomplete="off" required/>
+                <small style="display: block; color: #718096; font-size: 12px; margin-top: 4px;">※半角数字で入力してください</small>
+                <span class="error-msg" th:if="${#fields.hasErrors('bankAccountNum')}" th:errors="*{bankAccountNum}"></span>
             </div>
         </fieldset>
 
-        <!-- お客様情報グループ（自動保存・オートフィル対応） -->
+        <!-- お客様情報グループ -->
         <fieldset>
             <legend>お客様情報</legend>
 
@@ -181,58 +202,58 @@
             <div class="form-group">
                 <label>債務者名 <small class="text-danger">※</small></label>
                 <div class="input-group">
-                    <label style="flex: 1;">
-                        <input type="text" th:field="*{name}" class="form-control" placeholder="山田 太郎" autocomplete="name" required/>
-                    </label>
+                    <input type="text" th:field="*{name}" class="form-control" th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''" placeholder="山田 太郎" autocomplete="name" required/>
                     <span class="input-suffix">様</span>
                 </div>
+                <span class="error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
             </div>
 
             <!-- フリガナ -->
             <div class="form-group">
                 <label>フリガナ <small class="text-danger">※</small></label>
                 <div class="input-group">
-                    <label style="flex: 1;">
-                        <input type="text" th:field="*{nameKana}" class="form-control" placeholder="ヤマダ タロウ" autocomplete="name" required/>
-                    </label>
+                    <input type="text" th:field="*{nameKana}" class="form-control" th:classappend="${#fields.hasErrors('nameKana')} ? 'is-invalid' : ''" placeholder="ヤマダ タロウ" autocomplete="name" required/>
                     <span class="input-suffix">様</span>
                 </div>
+                <span class="error-msg" th:if="${#fields.hasErrors('nameKana')}" th:errors="*{nameKana}"></span>
             </div>
 
             <!-- 生年月日 -->
             <div class="form-group">
                 <label for="birthDate">生年月日 <small class="text-danger">※</small></label>
-                <input type="date" id="birthDate" th:field="*{birthDate}" class="form-control" autocomplete="day" required/>
+                <input type="date" id="birthDate" th:field="*{birthDate}" class="form-control" th:classappend="${#fields.hasErrors('birthDate')} ? 'is-invalid' : ''" autocomplete="day" required/>
+                <span class="error-msg" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></span>
+                <div id="underageWarning" class="warning-banner">
+                    ⚠️ <strong>ご注意：</strong> 満20歳未満の方は原則としてローンのお申し込みができません。（保護者の同意などが必要になる場合があります）
+                </div>
             </div>
 
             <!-- 電話番号 -->
             <div class="form-group">
                 <label for="phoneNumber">電話番号 <small class="text-danger">※</small></label>
-                <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="090-1234-5678" autocomplete="tel" required/>
+                <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" th:classappend="${#fields.hasErrors('phoneNumber')} ? 'is-invalid' : ''" placeholder="090-1234-5678" autocomplete="tel" required/>
+                <span class="error-msg" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></span>
             </div>
 
             <!-- メールアドレス -->
             <div class="form-group">
                 <label>メールアドレス <small class="text-danger">※</small></label>
-                <label style="display: block; width: 100%;">
-                    <input type="email" th:field="*{email}" class="form-control" placeholder="example@email.com" autocomplete="email" required/>
-                </label>
+                <input type="email" th:field="*{email}" class="form-control" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''" placeholder="example@email.com" autocomplete="email" required/>
+                <span class="error-msg" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
             </div>
 
             <!-- 郵便番号 -->
             <div class="form-group">
-                <label>郵便番号 <small class="text-danger">※</small></label>
-                <label style="display: block; width: 100%;">
-                    <input type="text" th:field="*{postalCode}" class="form-control" placeholder="810-0001" autocomplete="postal-code" required/>
-                </label>
+                <label for="postalCode">郵便番号 <small class="text-danger">※</small></label>
+                <input type="text" id="postalCode" th:field="*{postalCode}" class="form-control" th:classappend="${#fields.hasErrors('postalCode')} ? 'is-invalid' : ''" placeholder="810-0001" autocomplete="postal-code" required/>
+                <span class="error-msg" th:if="${#fields.hasErrors('postalCode')}" th:errors="*{postalCode}"></span>
             </div>
 
             <!-- 住所 -->
             <div class="form-group">
                 <label>住所 <small class="text-danger">※</small></label>
-                <label style="display: block; width: 100%;">
-                    <input type="text" th:field="*{address}" class="form-control" placeholder="福岡県福岡市中央区天神1-1-1" autocomplete="street-address" required/>
-                </label>
+                <input type="text" th:field="*{address}" class="form-control" th:classappend="${#fields.hasErrors('address')} ? 'is-invalid' : ''" placeholder="福岡県福岡市中央区天神1-1-1" autocomplete="street-address" required/>
+                <span class="error-msg" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></span>
             </div>
         </fieldset>
 
@@ -243,43 +264,51 @@
             <!-- ローン種類 -->
             <div class="form-group">
                 <label for="accountType">ローン種類 <small class="text-danger">※</small></label>
-                <select id="accountType" th:field="*{accountType}" class="form-control" required>
+                <select id="accountType" th:field="*{accountType}" class="form-control" th:classappend="${#fields.hasErrors('accountType')} ? 'is-invalid' : ''" required>
                     <option value="">-- 選択してください --</option>
                     <option th:each="option : ${accountTypeOptions}"
                             th:value="${option}"
                             th:text="${option}">選択肢
                     </option>
                 </select>
+                <span class="error-msg" th:if="${#fields.hasErrors('accountType')}" th:errors="*{accountType}"></span>
             </div>
 
-            <!-- ★ 追加：ローン年数（返済期間） -->
+            <!-- ローン年数（返済期間） -->
             <div class="form-group">
                 <label for="loanYears">返済期間（ローン年数） <small class="text-danger">※</small></label>
-                <select id="loanYears" th:field="*{loanYears}" class="form-control" required>
+                <select id="loanYears" th:field="*{loanYears}" class="form-control" th:classappend="${#fields.hasErrors('loanYears')} ? 'is-invalid' : ''" required>
                     <option value="">-- 選択してください --</option>
                     <option th:each="option : ${loanYearsOptions}"
                             th:value="${option}"
                             th:text="${option}">選択肢
                     </option>
                 </select>
+                <span class="error-msg" th:if="${#fields.hasErrors('loanYears')}" th:errors="*{loanYears}"></span>
             </div>
 
             <!-- 借入年収 -->
             <div class="form-group">
                 <label for="annualIncome">借入年収（万円） <small class="text-danger">※</small></label>
-                <input type="number" id="annualIncome" th:field="*{annualIncome}" class="form-control" placeholder="400" required/>
+                <input type="text" id="annualIncome" th:field="*{annualIncome}" class="form-control" th:classappend="${#fields.hasErrors('annualIncome')} ? 'is-invalid' : ''" placeholder="400" required/>
+                <small style="display: block; color: #718096; font-size: 12px; margin-top: 4px;">※半角数字で入力してください</small>
+                <span class="error-msg" th:if="${#fields.hasErrors('annualIncome')}" th:errors="*{annualIncome}"></span>
             </div>
 
             <!-- 借入金額 -->
             <div class="form-group">
                 <label for="loanAmount">借入金額（円） <small class="text-danger">※</small></label>
-                <input type="text" id="loanAmount" th:field="*{loanAmount}" class="form-control" placeholder="1,000,000" required/>
+                <input type="text" id="loanAmount" th:field="*{loanAmount}" class="form-control" th:classappend="${#fields.hasErrors('loanAmount')} ? 'is-invalid' : ''" placeholder="1,000,000" required/>
+                <small style="display: block; color: #718096; font-size: 12px; margin-top: 4px;">※半角数字で入力してください</small>
+                <div id="loanLimitGuide" class="limit-guide"></div>
+                <span class="error-msg" th:if="${#fields.hasErrors('loanAmount')}" th:errors="*{loanAmount}"></span>
             </div>
 
             <!-- 金利 -->
             <div class="form-group">
                 <label for="interestRate">金利（％） <small class="text-danger">※</small></label>
-                <input type="number" step="0.01" id="interestRate" th:field="*{interestRate}" class="form-control" placeholder="1.5" required/>
+                <input type="number" step="0.01" id="interestRate" th:field="*{interestRate}" class="form-control" th:classappend="${#fields.hasErrors('interestRate')} ? 'is-invalid' : ''" placeholder="1.5" required/>
+                <span class="error-msg" th:if="${#fields.hasErrors('interestRate')}" th:errors="*{interestRate}"></span>
             </div>
         </fieldset>
 
@@ -300,17 +329,126 @@
         "カードローン": 14.00
     };
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const birthDateInput = document.getElementById('birthDate');
+    const loanLimits = {
+        "住宅ローン": { min: 1000000, max: 100000000, minStr: "100万円", maxStr: "1億円" },
+        "マイカーローン": { min: 100000, max: 5000000, minStr: "10万円", maxStr: "500万円" },
+        "教育ローン": { min: 100000, max: 3000000, minStr: "10万円", maxStr: "300万円" },
+        "フリーローン": { min: 50000, max: 2000000, minStr: "5万円", maxStr: "200万円" },
+        "カードローン": { min: 10000, max: 1000000, minStr: "1万円", maxStr: "100万円" }
+    };
+
+    const birthDateInput = document.getElementById('birthDate');
+    const underageWarning = document.getElementById('underageWarning');
+    const accountTypeSelect = document.getElementById('accountType');
+    const interestRateInput = document.getElementById('interestRate');
+    const loanLimitGuide = document.getElementById('loanLimitGuide');
+    const bankAccountNumInput = document.getElementById('bankAccountNum');
+    const postalCodeInput = document.getElementById('postalCode');
+    const loanAmountInput = document.getElementById('loanAmount');
+    const annualIncomeInput = document.getElementById('annualIncome');
+
+    function initBirthDateSettings() {
         if (birthDateInput) {
             const today = new Date();
-            const maxYear = today.getFullYear() - 20;
-            const maxMonth = String(today.getMonth() + 1).padStart(2, '0');
-            const maxDay = String(today.getDate()).padStart(2, '0');
-            birthDateInput.max = `${maxYear}-${maxMonth}-${maxDay}`;
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            birthDateInput.max = `${yyyy}-${mm}-${dd}`;
         }
+    }
 
-        const loanAmountInput = document.getElementById('loanAmount');
+    function checkAgeWarning() {
+        if (birthDateInput && birthDateInput.value) {
+            const birthDate = new Date(birthDateInput.value);
+            const today = new Date();
+            let adultDate = new Date(today.getFullYear() - 20, today.getMonth(), today.getDate());
+
+            if (birthDate > adultDate) {
+                underageWarning.style.display = 'block';
+            } else {
+                underageWarning.style.display = 'none';
+            }
+        } else {
+            underageWarning.style.display = 'none';
+        }
+    }
+
+    function updateLoanLimitGuide() {
+        const selectedType = accountTypeSelect ? accountTypeSelect.value : "";
+        if (selectedType && loanLimits.hasOwnProperty(selectedType)) {
+            const limit = loanLimits[selectedType];
+            loanLimitGuide.innerText = `💡 選択中の【${selectedType}】の借入可能範囲： ${limit.minStr} 〜 ${limit.maxStr}`;
+            loanLimitGuide.style.display = 'block';
+        } else {
+            loanLimitGuide.innerText = '';
+            loanLimitGuide.style.display = 'none';
+        }
+    }
+
+    if (birthDateInput) {
+        birthDateInput.addEventListener('change', checkAgeWarning);
+        birthDateInput.addEventListener('input', checkAgeWarning);
+    }
+
+    if (accountTypeSelect) {
+        accountTypeSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            if (defaultInterestRates.hasOwnProperty(selectedType)) {
+                interestRateInput.value = defaultInterestRates[selectedType];
+            } else if (selectedType === "") {
+                interestRateInput.value = "";
+            }
+            updateLoanLimitGuide();
+        });
+    }
+
+    if (bankAccountNumInput) {
+        bankAccountNumInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        bankAccountNumInput.addEventListener('blur', function() {
+            let val = this.value.trim();
+            if (val !== '' && !isNaN(val)) {
+                if (val.length < 7) {
+                    this.value = val.padStart(7, '0');
+                }
+            }
+        });
+    }
+
+    if (postalCodeInput) {
+        postalCodeInput.addEventListener('input', function() {
+            let value = this.value.replace(/[^0-9]/g, '');
+            if (value.length > 3) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 7);
+            }
+            this.value = value;
+        });
+    }
+
+    if (annualIncomeInput) {
+        annualIncomeInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    }
+
+    if (loanAmountInput) {
+        loanAmountInput.addEventListener('input', function() {
+            let val = this.value.replace(/[^0-9]/g, '');
+            if (val !== '') {
+                this.value = Number(val).toLocaleString();
+            } else {
+                this.value = '';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initBirthDateSettings();
+        checkAgeWarning();
+        updateLoanLimitGuide();
+
         if (loanAmountInput && loanAmountInput.value) {
             let rawVal = loanAmountInput.value.replace(/,/g, '');
             if (!isNaN(rawVal) && rawVal !== '') {
@@ -319,7 +457,6 @@
         }
     });
 
-    // 電話番号の自動ハイフン挿入処理
     const phoneInput = document.getElementById('phoneNumber');
     if (phoneInput) {
         phoneInput.addEventListener('input', function() {
@@ -333,115 +470,89 @@
         });
     }
 
-    const accountTypeSelect = document.getElementById('accountType');
-    const interestRateInput = document.getElementById('interestRate');
-
-    if (accountTypeSelect && interestRateInput) {
-        accountTypeSelect.addEventListener('change', function() {
-            const selectedType = this.value;
-            if (defaultInterestRates.hasOwnProperty(selectedType)) {
-                interestRateInput.value = defaultInterestRates[selectedType];
-            } else if (selectedType === "") {
-                interestRateInput.value = "";
-            }
-        });
-    }
-
-    const loanAmountInput = document.getElementById('loanAmount');
-    if (loanAmountInput) {
-        loanAmountInput.addEventListener('focus', function() {
-            this.value = this.value.replace(/,/g, '');
-        });
-
-        loanAmountInput.addEventListener('blur', function() {
-            let val = this.value.replace(/,/g, '');
-            if (val !== '' && !isNaN(val)) {
-                this.value = Number(val).toLocaleString();
-            }
-        });
-    }
-
     document.getElementById('loanForm').addEventListener('submit', function(e) {
         let isValid = true;
         const requiredInputs = this.querySelectorAll('[required]');
 
-        this.querySelectorAll('.error-msg').forEach(el => el.remove());
-        requiredInputs.forEach(input => input.classList.remove('is-invalid'));
+        // JavaScript生成のエラーメッセージと赤枠表示を一旦クリア
+        this.querySelectorAll('.error-msg-js').forEach(el => el.remove());
+        this.querySelectorAll('.form-control').forEach(input => input.classList.remove('is-invalid'));
 
+        // 1. 必須チェック
         requiredInputs.forEach(input => {
             if (!input.value.trim()) {
                 isValid = false;
                 input.classList.add('is-invalid');
 
                 const msg = document.createElement('span');
-                msg.className = 'error-msg';
+                msg.className = 'error-msg error-msg-js';
                 msg.innerText = '※ この項目を入力（選択）してください。';
 
-                if (input.parentNode.classList.contains('input-group')) {
-                    input.parentNode.parentNode.appendChild(msg);
-                } else {
-                    input.parentNode.appendChild(msg);
-                }
+                input.closest('.form-group').appendChild(msg);
             }
         });
 
-        const birthDateInput = document.getElementById('birthDate');
-        if (birthDateInput && birthDateInput.value) {
-            const birthDate = new Date(birthDateInput.value);
-            const today = new Date();
-            let adultDate = new Date(today.getFullYear() - 20, today.getMonth(), today.getDate());
+        // 2. 口座番号桁数チェック
+        if (bankAccountNumInput && bankAccountNumInput.value.trim() !== '') {
+            const accVal = bankAccountNumInput.value.trim();
+            if (accVal.length < 7 && /^\d+$/.test(accVal)) {
+                bankAccountNumInput.value = accVal.padStart(7, '0');
+            }
 
-            if (birthDate > adultDate) {
+            if (!/^\d{7}$/.test(bankAccountNumInput.value)) {
                 isValid = false;
-                birthDateInput.classList.add('is-invalid');
-
+                bankAccountNumInput.classList.add('is-invalid');
                 const msg = document.createElement('span');
-                msg.className = 'error-msg';
-                msg.innerText = '※ 満20歳未満の方はローンを申し込むことができません。';
-                birthDateInput.parentNode.appendChild(msg);
+                msg.className = 'error-msg error-msg-js';
+                msg.innerText = '※ 口座番号は7桁の数字で入力してください。';
+                bankAccountNumInput.closest('.form-group').appendChild(msg);
             }
         }
 
-        const annualIncomeInput = document.getElementById('annualIncome');
+        // 3. 借入金額チェック
+        if (loanAmountInput && loanAmountInput.value) {
+            const rawLoanVal = loanAmountInput.value.replace(/,/g, '');
+            const loanAmountYen = parseFloat(rawLoanVal);
+            const selectedType = accountTypeSelect ? accountTypeSelect.value : "";
+            const typeName = selectedType ? selectedType : "ローン";
 
-        if (annualIncomeInput && loanAmountInput && annualIncomeInput.value && loanAmountInput.value) {
-            const incomeYen = parseFloat(annualIncomeInput.value) * 10000;
-            const loanAmountYen = parseFloat(loanAmountInput.value.replace(/,/g, ''));
-            const maxLimit = Math.floor(incomeYen / 3);
-            const minLimit = 10000;
+            let minLimit = 10000;
+            let maxLimit = 100000000;
+
+            if (loanLimits[selectedType]) {
+                minLimit = loanLimits[selectedType].min;
+                maxLimit = loanLimits[selectedType].max;
+            }
 
             if (isNaN(loanAmountYen)) {
                 isValid = false;
                 loanAmountInput.classList.add('is-invalid');
-
                 const msg = document.createElement('span');
-                msg.className = 'error-msg';
+                msg.className = 'error-msg error-msg-js';
                 msg.innerText = '※ 有効な数値を入力してください。';
-                loanAmountInput.parentNode.appendChild(msg);
-            } else if (loanAmountYen < minLimit) {
+                loanAmountInput.closest('.form-group').appendChild(msg);
+            }
+            else if (loanAmountYen < minLimit) {
                 isValid = false;
                 loanAmountInput.classList.add('is-invalid');
-
                 const msg = document.createElement('span');
-                msg.className = 'error-msg';
-                msg.innerText = `※ 借入金額は ${minLimit.toLocaleString()}円 以上で入力してください。`;
-                loanAmountInput.parentNode.appendChild(msg);
-            } else if (loanAmountYen > maxLimit) {
+                msg.className = 'error-msg error-msg-js';
+                msg.innerText = `※ ${typeName}の借入金額は ${minLimit.toLocaleString()}円 以上で入力してください。`;
+                loanAmountInput.closest('.form-group').appendChild(msg);
+            }
+            else if (loanAmountYen > maxLimit) {
                 isValid = false;
                 loanAmountInput.classList.add('is-invalid');
-
                 const msg = document.createElement('span');
-                msg.className = 'error-msg';
-                msg.innerText = `※ 借入金額は年収の3分の1（${maxLimit.toLocaleString()}円）以下で入力してください。`;
-                loanAmountInput.parentNode.appendChild(msg);
+                msg.className = 'error-msg error-msg-js';
+                msg.innerText = `※ ${typeName}の借入金額は ${maxLimit.toLocaleString()}円 以下で入力してください。`;
+                loanAmountInput.closest('.form-group').appendChild(msg);
             }
         }
 
-        if (loanAmountInput && loanAmountInput.value) {
+        if (isValid && loanAmountInput && loanAmountInput.value) {
             loanAmountInput.value = loanAmountInput.value.replace(/,/g, '');
-        }
-
-        if (!isValid) {
+        } else if (!isValid) {
             e.preventDefault();
             const firstInvalid = this.querySelector('.is-invalid');
             if (firstInvalid) {
@@ -454,6 +565,8 @@
         const form = document.getElementById('loanForm');
         form.querySelectorAll('.error-msg').forEach(el => el.remove());
         form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        if (underageWarning) underageWarning.style.display = 'none';
+        if (loanLimitGuide) loanLimitGuide.style.display = 'none';
     });
 </script>
 </body>

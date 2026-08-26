@@ -48,7 +48,7 @@ public class BankLoanController {
         );
         model.addAttribute("depositTypeOptions", depositTypeOptions);
 
-        // ★ 追加：ローン年数の選択肢を設定
+        // ローン年数の選択肢を設定
         List<String> loanYearsOptions = List.of(
                 "1年", "3年", "5年", "10年", "15年", "20年", "25年", "30年", "35年"
         );
@@ -83,15 +83,42 @@ public class BankLoanController {
             }
         }
 
-        // ★ 2. サーバー側：借入金額が年収の3分の1を超えていないかチェック
+        // ★ 2. サーバー側：ローン種類ごとの借入金額・上限下限チェック
         boolean hasIncomeError = false;
-        if (bankLoanForm.getAnnualIncome() != null && bankLoanForm.getLoanAmount() != null) {
-            long incomeYen = bankLoanForm.getAnnualIncome() * 10000L; // 万円 → 円に換算
-            long maxLimit = incomeYen / 3;                            // 年収の3分の1
+        if (bankLoanForm.getLoanAmount() != null) {
+            long loanAmountYen = bankLoanForm.getLoanAmount();
+            String accountType = bankLoanForm.getAccountType();
 
-            if (bankLoanForm.getLoanAmount() > maxLimit) {
-                bindingResult.rejectValue("loanAmount", "error.loanAmount",
-                        "借入金額は年収の3分の1（" + String.format("%,d", maxLimit) + "円）以下で入力してください。");
+            long minLimit = 10_000L;          // デフォルト下限（1万円）
+            long maxLimit = 100_000_000L;     // デフォルト上限
+            String errorMessage = "借入金額の範囲が正しくありません。";
+
+            // ローン種類ごとの上限・下限を設定
+            if ("住宅ローン".equals(accountType)) {
+                minLimit = 1_000_000L;       // 100万円
+                maxLimit = 100_000_000L;   // 1億円
+                errorMessage = "住宅ローンの借入金額は100万円以上、1億円以下で入力してください。";
+            } else if ("マイカーローン".equals(accountType)) {
+                minLimit = 100_000L;       // 10万円
+                maxLimit = 5_000_000L;     // 500万円
+                errorMessage = "マイカーローンの借入金額は10万円以上、500万円以下で入力してください。";
+            } else if ("教育ローン".equals(accountType)) {
+                minLimit = 100_000L;       // 10万円
+                maxLimit = 3_000_000L;     // 300万円
+                errorMessage = "教育ローンの借入金額は10万円以上、300万円以下で入力してください。";
+            } else if ("フリーローン".equals(accountType)) {
+                minLimit = 50_000L;        // 5万円
+                maxLimit = 2_000_000L;     // 200万円
+                errorMessage = "フリーローンの借入金額は5万円以上、200万円以下で入力してください。";
+            } else if ("カードローン".equals(accountType)) {
+                minLimit = 10_000L;        // 1万円
+                maxLimit = 1_000_000L;     // 100万円
+                errorMessage = "カードローンの借入金額は1万円以上、100万円以下で入力してください。";
+            }
+
+            // 範囲チェックの実行（年収の3分の1の計算処理を除去）
+            if (loanAmountYen < minLimit || loanAmountYen > maxLimit) {
+                bindingResult.rejectValue("loanAmount", "error.loanAmount", errorMessage);
                 hasIncomeError = true;
             }
         }
@@ -101,8 +128,6 @@ public class BankLoanController {
             model.addAttribute("nameOptions", List.of("テスト銀行", "サンプル中央銀行", "デモ信用金庫"));
             model.addAttribute("accountTypeOptions", List.of("住宅ローン", "マイカーローン", "教育ローン", "フリーローン", "カードローン"));
             model.addAttribute("depositTypeOptions", List.of("普通預金", "当座預金", "貯蓄預金"));
-
-            // ★ エラー時も忘れずにローン年数の選択肢を再設定する
             model.addAttribute("loanYearsOptions", List.of("1年", "3年", "5年", "10年", "15年", "20年", "25年", "30年", "35年"));
 
             return "bankLoanMain";
