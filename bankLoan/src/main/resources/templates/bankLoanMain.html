@@ -91,7 +91,6 @@
         }
 
         /* 未入力エラー時の赤枠とエラーメッセージの共通スタイル */
-
         .text-danger {
             color: #e53e3e;
         }
@@ -136,7 +135,7 @@
             <div class="form-group">
                 <label>金融機関名 <small class="text-danger">※</small></label>
                 <label style="display: block; width: 100%;">
-                    <input type="text" th:field="*{bankName}" list="bankNameOptions" class="form-control" placeholder="例: 山陰共同銀行 （選択または直接入力）" required/>
+                    <input type="text" th:field="*{bankName}" list="bankNameOptions" class="form-control" placeholder="例: テスト銀行 （選択または直接入力）" required/>
                 </label>
                 <datalist id="bankNameOptions">
                     <option th:each="option : ${nameOptions}" th:value="${option}"></option>
@@ -189,7 +188,7 @@
                 </div>
             </div>
 
-            <!-- フリガナ (右側に「様」を配置) -->
+            <!-- フリガナ -->
             <div class="form-group">
                 <label>フリガナ <small class="text-danger">※</small></label>
                 <div class="input-group">
@@ -206,7 +205,7 @@
                 <input type="date" id="birthDate" th:field="*{birthDate}" class="form-control" autocomplete="day" required/>
             </div>
 
-            <!-- 電話番号（自動ハイフン対応） -->
+            <!-- 電話番号 -->
             <div class="form-group">
                 <label for="phoneNumber">電話番号 <small class="text-danger">※</small></label>
                 <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="090-1234-5678" autocomplete="tel" required/>
@@ -247,6 +246,18 @@
                 <select id="accountType" th:field="*{accountType}" class="form-control" required>
                     <option value="">-- 選択してください --</option>
                     <option th:each="option : ${accountTypeOptions}"
+                            th:value="${option}"
+                            th:text="${option}">選択肢
+                    </option>
+                </select>
+            </div>
+
+            <!-- ★ 追加：ローン年数（返済期間） -->
+            <div class="form-group">
+                <label for="loanYears">返済期間（ローン年数） <small class="text-danger">※</small></label>
+                <select id="loanYears" th:field="*{loanYears}" class="form-control" required>
+                    <option value="">-- 選択してください --</option>
+                    <option th:each="option : ${loanYearsOptions}"
                             th:value="${option}"
                             th:text="${option}">選択肢
                     </option>
@@ -308,7 +319,7 @@
         }
     });
 
-    // ★ 電話番号の自動ハイフン挿入処理
+    // 電話番号の自動ハイフン挿入処理
     const phoneInput = document.getElementById('phoneNumber');
     if (phoneInput) {
         phoneInput.addEventListener('input', function() {

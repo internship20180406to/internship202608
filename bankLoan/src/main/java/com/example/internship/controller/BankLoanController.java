@@ -27,10 +27,10 @@ public class BankLoanController {
     public String bankTransfer(Model model) {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
 
-        // ★ 変更：架空の銀行名リストに変更
+        // 銀行名の選択肢を設定
         model.addAttribute("nameOptions", List.of("テスト銀行", "サンプル中央銀行", "デモ信用金庫"));
 
-        // リストの定義
+        // ローン種類の選択肢を設定
         List<String> accountTypeOptions = List.of(
                 "住宅ローン",
                 "マイカーローン",
@@ -47,6 +47,12 @@ public class BankLoanController {
                 "貯蓄預金"
         );
         model.addAttribute("depositTypeOptions", depositTypeOptions);
+
+        // ★ 追加：ローン年数の選択肢を設定
+        List<String> loanYearsOptions = List.of(
+                "1年", "3年", "5年", "10年", "15年", "20年", "25年", "30年", "35年"
+        );
+        model.addAttribute("loanYearsOptions", loanYearsOptions);
 
         return "bankLoanMain";
     }
@@ -90,13 +96,14 @@ public class BankLoanController {
             }
         }
 
-        // バリデーションエラー（未入力や各独自チェックのエラー）がある場合は、選択肢を再設定して入力画面に戻す
+        // バリデーションエラーがある場合は、選択肢を再設定して入力画面に戻す
         if (bindingResult.hasErrors() || hasAgeError || hasIncomeError) {
-            // ★ 変更：エラー時も架空の銀行名リストを再設定
             model.addAttribute("nameOptions", List.of("テスト銀行", "サンプル中央銀行", "デモ信用金庫"));
-
             model.addAttribute("accountTypeOptions", List.of("住宅ローン", "マイカーローン", "教育ローン", "フリーローン", "カードローン"));
             model.addAttribute("depositTypeOptions", List.of("普通預金", "当座預金", "貯蓄預金"));
+
+            // ★ エラー時も忘れずにローン年数の選択肢を再設定する
+            model.addAttribute("loanYearsOptions", List.of("1年", "3年", "5年", "10年", "15年", "20年", "25年", "30年", "35年"));
 
             return "bankLoanMain";
         }

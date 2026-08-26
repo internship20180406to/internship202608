@@ -17,9 +17,12 @@ public class BankLoanForm {
     private String birthDate;        // 生年月日
     private String phoneNumber;      // 電話番号
     private String email;            // メールアドレス
-    private String postalCode;       // ★ 追加：郵便番号
+    private String postalCode;       // 郵便番号
     private String address;          // 住所
     private Integer loanAmount;      // 借入金額
     private Integer annualIncome;    // 借入年収
     private Double interestRate;     // 金利
+
+    // ★ 追加：ローン年数（返済期間）
+    private String loanYears;
 }
