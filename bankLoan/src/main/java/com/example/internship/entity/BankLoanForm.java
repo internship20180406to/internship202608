@@ -11,6 +11,11 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.AssertTrue;
+import java.time.LocalDate;
+import java.time.Period;
+
+import jakarta.validation.constraints.Past;
+
 
 @Data
 @AllArgsConstructor
@@ -69,6 +74,23 @@ public class BankLoanForm {
     @DecimalMin("0.95")
     @DecimalMax("14.5")
     private Double interestRate;
+    @NotNull(message = "生年月日を入力してください")
+    @Past(message = "生年月日は過去の日付を入力してください")
+    private LocalDate birthDate;
+    @AssertTrue(message = "20歳未満の方はお申し込みいただけません")
+    public boolean isAgeEligible() {
+
+        if (birthDate == null) {
+            return true;
+        }
+
+        int age = Period.between(
+                birthDate,
+                LocalDate.now()
+        ).getYears();
+
+        return age >= 20;
+    }
 
 
     public String getBankName() {
@@ -154,6 +176,15 @@ public class BankLoanForm {
     public Double getInterestRate() {
         return interestRate;
     }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
     public void setInterestRate(Double interestRate) {
         this.interestRate = interestRate;
     }

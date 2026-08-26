@@ -91,6 +91,35 @@
             </div>
             </p>
 
+            <p>
+                <label for="birthDate">
+                    生年月日:
+                    <small class="text-danger">※</small>
+                </label>
+                <br>
+
+                <input type="date"
+                       th:field="*{birthDate}"
+                       id="birthDate"
+                       class="form-control">
+
+                <span id="birthDateServerError"
+                      class="text-danger server-error"
+                      th:if="${#fields.hasErrors('birthDate')}"
+                      th:errors="*{birthDate}">
+                </span>
+
+                <span id="ageServerError"
+                      class="text-danger server-error"
+                      th:if="${#fields.hasErrors('ageEligible')}"
+                      th:errors="*{ageEligible}">
+                </span>
+
+                <span id="birthDateClientError"
+                      class="text-danger client-error">
+                </span>
+            </p>
+
         <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
             <select th:field="*{bankName}"
                     id="bankName"
@@ -293,6 +322,8 @@
     const firstNameKanaInput =
         document.getElementById('firstNameKana');
 
+    const birthDateInput =
+        document.getElementById('birthDate');
 
     // ==============================
     // クライアントエラー表示
@@ -334,6 +365,9 @@
     const firstNameKanaError =
         document.getElementById('firstNameKanaClientError');
 
+    const birthDateError =
+        document.getElementById('birthDateClientError');
+
 
     // ==============================
     // Spring側エラー
@@ -342,7 +376,11 @@
     const loanLimitServerError =
         document.getElementById('loanLimitServerError');
 
+    const birthDateServerError =
+        document.getElementById('birthDateServerError');
 
+    const ageServerError =
+        document.getElementById('ageServerError');
 
     const annualIncome = document.getElementById('annualIncome');
 
@@ -795,6 +833,60 @@
         }
     }
 
+    function validateBirthDate() {
+
+        // Spring側の古いエラーを消す
+        if (birthDateServerError) {
+            birthDateServerError.textContent = '';
+        }
+
+        if (ageServerError) {
+            ageServerError.textContent = '';
+        }
+
+        const value = birthDateInput.value;
+
+        if (value === '') {
+            birthDateError.textContent =
+                '生年月日を入力してください';
+            return;
+        }
+
+        const birthDate = new Date(value + 'T00:00:00');
+        const today = new Date();
+
+        // 未来の日付
+        if (birthDate > today) {
+            birthDateError.textContent =
+                '生年月日は過去の日付を入力してください';
+            return;
+        }
+
+        let age =
+            today.getFullYear() - birthDate.getFullYear();
+
+        const monthDifference =
+            today.getMonth() - birthDate.getMonth();
+
+        // 今年の誕生日がまだ来ていなければ1歳引く
+        if (
+            monthDifference < 0 ||
+            (
+                monthDifference === 0 &&
+                today.getDate() < birthDate.getDate()
+            )
+        ) {
+            age--;
+        }
+
+        if (age <= 21) {
+            birthDateError.textContent =
+                '20歳未満の方はお申し込みいただけません';
+        } else {
+            birthDateError.textContent = '';
+        }
+    }
+
     lastNameInput.addEventListener('input', validateLastName);
     lastNameInput.addEventListener('blur', validateLastName);
 
@@ -826,6 +918,16 @@
         validateAnnualIncome();
         validateLoanLimit();
     });
+
+    birthDateInput.addEventListener(
+        'input',
+        validateBirthDate
+    );
+
+    birthDateInput.addEventListener(
+        'blur',
+        validateBirthDate
+    );
 
 </script>
 

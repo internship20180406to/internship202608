@@ -43,6 +43,13 @@
                 </div>
 
                 <div class="confirmation-row">
+                    <span class="confirmation-label">生年月日</span>
+                    <span class="confirmation-value"
+                          th:text="*{birthDate}">
+                    </span>
+                </div>
+
+                <div class="confirmation-row">
                     <span class="confirmation-label">金融機関名</span>
                     <span class="confirmation-value"
                           th:text="*{bankName}"></span>
@@ -97,6 +104,7 @@
             <input type="hidden" name="firstName" th:value="*{firstName}"/>
             <input type="hidden" name="lastNameKana" th:value="*{lastNameKana}"/>
             <input type="hidden" name="firstNameKana" th:value="*{firstNameKana}"/>
+            <input type="hidden" name="birthDate" th:value="*{birthDate}"/>
             <input type="hidden" name="loanAmount" th:value="*{loanAmount}"/>
             <input type="hidden" name="annualIncome" th:value="*{annualIncome}"/>
             <input type="hidden" name="interestRate" th:value="*{interestRate}"/>
