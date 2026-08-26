@@ -1,0 +1,200 @@
+body {
+    margin: 0;
+    padding: 40px 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
+
+    background-color: #f4f7fa;
+    color: #333;
+
+    font-family:
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            "Yu Gothic",
+            "Meiryo",
+            sans-serif;
+}
+
+.container {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.confirmation-card {
+    background-color: #ffffff;
+
+    padding: 36px 44px 40px;
+
+    border: 1px solid #e5e9ed;
+    border-radius: 12px;
+
+    box-shadow:
+            0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+    margin-top: 0;
+    margin-bottom: 12px;
+
+    text-align: center;
+
+    color: #263238;
+    font-size: 26px;
+}
+
+.confirmation-message {
+    margin-bottom: 28px;
+
+    text-align: center;
+
+    color: #607d8b;
+    font-size: 14px;
+}
+
+.confirmation-list {
+    overflow: hidden;
+
+    border: 1px solid #dfe5e8;
+    border-radius: 8px;
+}
+
+.confirmation-row {
+    display: flex;
+
+    min-height: 52px;
+
+    border-bottom: 1px solid #e5e9ed;
+}
+
+.confirmation-row:last-child {
+    border-bottom: none;
+}
+
+.confirmation-label {
+    display: flex;
+    align-items: center;
+
+    width: 35%;
+    padding: 14px 16px;
+    box-sizing: border-box;
+
+    background-color: #f5f8fa;
+
+    color: #455a64;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.confirmation-value {
+    display: flex;
+    align-items: center;
+
+    width: 65%;
+    padding: 14px 18px;
+    box-sizing: border-box;
+
+    background-color: #ffffff;
+
+    color: #263238;
+
+    font-size: 15px;
+}
+
+.button-area {
+    display: flex;
+    justify-content: center;
+
+    gap: 16px;
+
+    margin-top: 36px;
+}
+
+.form-button {
+    min-width: 150px;
+
+    padding: 12px 24px;
+
+    border: none;
+    border-radius: 6px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.2s,
+            box-shadow 0.2s,
+            transform 0.1s;
+}
+
+.cancel-button {
+    color: #455a64;
+    background-color: #eceff1;
+}
+
+.cancel-button:hover {
+    background-color: #dfe3e6;
+}
+
+.submit-button {
+    color: #ffffff;
+    background-color: #2185d0;
+
+    box-shadow:
+            0 2px 5px rgba(33, 133, 208, 0.25);
+}
+
+.submit-button:hover {
+    background-color: #1678c2;
+
+    box-shadow:
+            0 3px 8px rgba(33, 133, 208, 0.3);
+}
+
+.form-button:active {
+    transform: translateY(1px);
+}
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 20px 12px;
+    }
+
+    .confirmation-card {
+        padding: 26px 20px 30px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .confirmation-row {
+        display: block;
+    }
+
+    .confirmation-label,
+    .confirmation-value {
+        width: 100%;
+    }
+
+    .confirmation-label {
+        padding-bottom: 7px;
+    }
+
+    .confirmation-value {
+        padding-top: 7px;
+    }
+
+    .button-area {
+        flex-direction: column;
+    }
+
+    .form-button {
+        width: 100%;
+    }
+}

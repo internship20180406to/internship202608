@@ -1,12 +1,39 @@
 <!doctype html>
-<html>
+<html lang="ja">
 <head>
     <meta charset="UTF-8"/>
     <title>申込完了画面</title>
-</head>
-<body>
-<h1>申込完了</h1>
-<p><input type="button" value="申込に戻る" onclick="window.location='/bankLoan';"/></p>
-</body>
 
+    <link rel="stylesheet"
+          href="/css/bankLoanCompletion.css">
+</head>
+
+<body>
+
+<div class="container">
+    <div class="completion-card">
+
+        <div class="completion-icon">✓</div>
+
+        <h1>申込完了</h1>
+
+        <p class="completion-message">
+            カードローンのお申し込みを受け付けました。
+        </p>
+
+        <p class="completion-sub-message">
+            お申し込みありがとうございました。
+        </p>
+
+        <div class="button-area">
+            <input type="button"
+                   value="申込画面に戻る"
+                   class="return-button"
+                   onclick="window.location='/bankLoan';"/>
+        </div>
+
+    </div>
+</div>
+
+</body>
 </html>
