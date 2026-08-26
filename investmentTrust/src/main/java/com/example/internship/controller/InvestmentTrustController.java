@@ -32,10 +32,13 @@ public class InvestmentTrustController {
         model.addAttribute("bankAccountNum", investmentTrustForm.getBankAccountNum());
         model.addAttribute("investmentTrustApplication", investmentTrustForm);
         return "investmentTrustConfirmation";
+
+
     }
 
     // 入力内容を修正するときの処理
-    @PostMapping("/investmentTrust")
+    @PostMapping("/investmentTrust")//ボタンが押されたときに呼ばれる
+    //editメソッドで確認画面から入力画面に戻る処理
     public String edit(@ModelAttribute InvestmentTrustForm investmentTrustForm,
                        Model model) {
 
@@ -48,14 +51,14 @@ public class InvestmentTrustController {
         // 入力画面に戻る
         return "investmentTrustMain";
     }
-
+    //申し込みボタンが押された時の処理
     @PostMapping("/investmentTrustCompletion")
     public String completion(@ModelAttribute InvestmentTrustForm investmentTrustForm, Model model) {
 
         orderInvestmentTrustService.orderInvestmentTrust(investmentTrustForm);
 
         // 注文日時を取得
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();//この行が実行された時間を取得
 
         // 注文日時の表示形式を設定
         DateTimeFormatter formatter =

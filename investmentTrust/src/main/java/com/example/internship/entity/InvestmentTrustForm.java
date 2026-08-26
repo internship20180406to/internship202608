@@ -7,25 +7,32 @@ import lombok.NonNull;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor //定型コード自動生成
 
 public class InvestmentTrustForm {
-    @NonNull
+    @NonNull//HTML状でrequiredを使用
 //    金融機関名
     private String bankName;
     @NonNull
 //    口座番号
     private Integer bankAccountNum;
 //    購入者名
+    @NonNull
     private String purchaserName;
 //    銘柄
+    @NonNull
     private String investmentTrustName;
 //    科目名
+    @NonNull
     private String bankSubject;
 //    支店名
+    @NonNull
     private String branch;
 //    購入金額
+    @NonNull
     private Integer purchaseAmount;
+
+//    Integerを使用しているのは、未入力をnull状態で表現するため
 
     public String getBankName() {
         return bankName;

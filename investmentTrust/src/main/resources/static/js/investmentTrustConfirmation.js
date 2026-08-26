@@ -3,7 +3,7 @@ const submitButton = document.getElementById("submit");
 submitButton.addEventListener("click", function(event) {
     // 科目名の取得
     const bankSubject =
-        document.getElementById("bankSubject").textContent;
+        document.getElementById("bankSubject").textContent;//idをHTML側で探すtextcontentで画面上に表示している文字を読み取りに行く
     //銘柄名の取得
     const investmentTrustName =
         document.getElementById("investmentTrustName").textContent;

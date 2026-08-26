@@ -6,14 +6,13 @@ const purchaseAmount =
 const form =
     purchaseAmount.closest("form");
 
-// 申し込みボタンがクリックされた時の処理
+// 申し込みボタンがクリックされた時の処理　addEventListener(イベント名、実行する関数)
 form.addEventListener("submit", function(event) {
 
     // 購入金額を数字として取得
-    const amount =
-        Number(purchaseAmount.value);
-
-    // 10,000円以上の場合
+    const amount = Number(purchaseAmount.value);
+    // ↑があるため
+    // 百万円以上の場合
     if (amount >= 1000000) {
 
         // 確認メッセージを表示
@@ -25,7 +24,7 @@ form.addEventListener("submit", function(event) {
         if (!result) {
 
             // 送信ストップ
-            event.preventDefault();
+            event.preventDefault();//eventはsubmitそのものを呼び出すようになっている。preventDefaultはブラウザの動作を止める
         }
     }
 });
