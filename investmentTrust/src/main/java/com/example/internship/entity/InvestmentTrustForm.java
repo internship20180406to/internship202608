@@ -36,9 +36,7 @@ public class InvestmentTrustForm {
         this.bankCode = bankCode;
     }
 
-    public Integer getBranchName() {
-        return branchName;
-    }
+    public Integer getBranchName() {return branchName;}
 
     public void setBranchName(Integer BranchName) {
         this.branchName = branchName;
