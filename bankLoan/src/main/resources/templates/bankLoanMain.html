@@ -309,11 +309,16 @@
         const income = Number(annualIncomeInput.value);
 
         if (annualIncomeInput.value === '' || Number.isNaN(income)) {
-            return 0;
+            return 10;
         }
 
         // 年収の50％を10万円単位で切り捨て
         let limit = Math.floor((income * 0.5) / 10) * 10;
+
+        // 最低限度額を10万円にする
+        if (limit < 10) {
+            limit = 10;
+        }
 
         // カードローンの上限を1000万円とする場合
         if (limit > 1000) {
@@ -344,7 +349,7 @@
 
         const loanLimit = document.getElementById('loanLimit');
         if (loanLimit) {
-            loanLimit.textContent = '借入限度額：0万円';
+            loanLimit.textContent = '借入限度額：10万円';
         }
 
         const selectedBranch = document.getElementById('selectedBranch');
