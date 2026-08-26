@@ -38,9 +38,8 @@ public class InvestmentTrustForm {
 
     public Integer getBranchName() {return branchName;}
 
-    public void setBranchName(Integer BranchName) {
-        this.branchName = branchName;
-    }
+    public void setBranchName(Integer Name) {this.branchName = Name;}
+
 
     public String getAccountType() {
         return accountType;
