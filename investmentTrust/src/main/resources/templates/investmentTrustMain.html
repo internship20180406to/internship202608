@@ -34,6 +34,12 @@
         .text-danger {
         color: red;
         }
+        .form_hint {
+            color: #666666;
+            font-size: 0.85em;
+            display: inline-block;
+            margin-top: 2px;
+        }
         .form_error {
             color: red;
         }
@@ -89,8 +95,8 @@
             <span class="form_error" id="bankName_error" th:text="${#strings.listJoin(#fields.errors('bankName'), ' ')}"></span></p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" id="bankAccountNum" th:field="*{bankAccountNum}" class="form-control"
-                   placeholder="1234567" min="1000000" max="9999999" step="1" inputmode="numeric"
+            <input type="text" id="bankAccountNum" th:field="*{bankAccountNum}" class="form-control"
+                   placeholder="1234567" maxlength="7" inputmode="numeric"
                    th:errorclass="input-error"/>
             <span class="form_error" id="bankAccountNum_error" th:text="${#strings.listJoin(#fields.errors('bankAccountNum'), ' ')}"></span></p>
 
@@ -115,8 +121,10 @@
             <span class="form_error" id="bankAccountType_error" th:text="${#strings.listJoin(#fields.errors('bankAccountType'), ' ')}"></span></p>
 
         <p><label class="ml-1">購入者名: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="フルネーム"
-                   maxlength="30" th:errorclass="input-error"/>
+            <small class="form_hint">半角カナと半角スペースで入力してください（例: ﾔﾏﾀﾞ ﾀﾛｳ）。<br>
+                全角カナ「ヤマダ」・漢字「山田」・英数字は使用できません。</small><br>
+            <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="ﾔﾏﾀﾞ ﾀﾛｳ"
+                   maxlength="20" th:errorclass="input-error"/>
             <span class="form_error" id="name_error" th:text="${#strings.listJoin(#fields.errors('name'), ' ')}"></span></p>
 
         <p><label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>

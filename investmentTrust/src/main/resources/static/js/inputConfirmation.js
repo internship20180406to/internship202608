@@ -7,10 +7,11 @@
  * 最終的な可否の判断は必ずサーバサイドで行う。
  */
 
-// サーバサイドの @Min / @Max / @Size と同じ値をここでも定義する
+// サーバサイドの @Pattern / @Size / @Min / @Max と同じ条件をここでも定義する
 const ACCOUNT_NUM_PATTERN = /^[0-9]{7}$/;   //  半角数字7桁ちょうど
 const MONEY_PATTERN = /^[0-9]+$/;           //  小数・符号なしの半角数字（1円単位）
-const NAME_MAX_LENGTH = 30;
+const KANA_PATTERN = /^[\uFF66-\uFF9F ]+$/;  //  半角カタカナ(U+FF66 ｦ 〜 U+FF9F ﾟ)と半角スペースのみ
+const NAME_MAX_LENGTH = 20;                 //  DBの name 列 varchar(20) に合わせる
 const MONEY_MIN = 10000;
 const MONEY_MAX = 10000000;
 
@@ -51,6 +52,9 @@ const rules = [
         validate: (value) => {
             if (value === "") {
                 return "購入者名を入力してください。";
+            }
+            if (!KANA_PATTERN.test(value)) {
+                return "購入者名は半角カナ（半角スペース可）で入力してください。";
             }
             if (value.length > NAME_MAX_LENGTH) {
                 return "購入者名は" + NAME_MAX_LENGTH + "文字以内で入力してください。";
