@@ -80,10 +80,24 @@
         </div>
 
         <p style="text-align: center;">
-            <input type="submit" value="注文を確定する" onclick="'http://localhost:63342/internship202608/internship%20(3)%20(com.example)/templates/investmentTrustCompletion.html?_ijt=t9mc6mklfpc5hue6pegsg50tlb&_ij_reload=RELOAD_ON_SAVE';" />
-            <input type="button" value="戻る" onclick="window.location='http://localhost:63342/internship202608/internship%20(3)%20(com.example)/templates/investmentTrustMain.html?_ijt=te73c6pl3upngaupovppsrqitt&_ij_reload=RELOAD_ON_SAVE';" />
+            <input type="submit" value="注文を確定する" class="form-control-button form-confirmation-button" onclick="return confirmOrder();" />
+            <input type="button" value="戻る" class="form-control-button form-clear-button" onclick="history.back();" />
         </p>
-    </form>
+
+        <script>
+            function confirmOrder() {
+                if (!confirm("この内容で投資信託の注文を確定しますか？")) {
+                    return false;
+                }
+                return true;
+            }
+        </script>
+    <form>
+</div>
+</body>
+</html>
+
+</form>
 </div>
 </body>
 </html>
