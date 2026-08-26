@@ -5,7 +5,7 @@
     <title>投資信託注文情報確認画面</title>
     <style>
         body {
-            background-color: #f0f0f0;
+            background-color: #E0F2FE;
             margin: 0;
             padding: 0;
             display: flex;
@@ -46,6 +46,13 @@
         .form-clear-button:hover {
             background-color: #CCCCCC;
         }
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.70);
+        }
     </style>
 </head>
         <body>
@@ -64,7 +71,23 @@
         <input type="hidden" th:field="*{amount}" />
         <input type="hidden" th:field="*{purchaseAmount}" />
 
-        <p>金融機関名:<span th:text="${bankName}"></span> （コード: <span th:text="*{bankCode}"></span>）</p>
+        <p>金融機関名:
+            <span th:text="*{bankCode == '0167' ? '山陰合同銀行' :
+                   (bankCode == '9900' ? 'ゆうちょ銀行' :
+                   (bankCode == '0001' ? 'みずほ銀行' :
+                   (bankCode == '0005' ? '三菱ＵＦＪ銀行' :
+                   (bankCode == '0009' ? '三井住友銀行' :
+                   (bankCode == '0010' ? 'りそな銀行' :
+                   (bankCode == '0036' ? '楽天銀行' :
+                   (bankCode == '0033' ? 'ＰａｙＰａｙ銀行' :
+                   (bankCode == '0034' ? 'セブン銀行' :
+                   (bankCode == '0035' ? 'ソニー銀行' :
+                   (bankCode == '0040' ? 'イオン銀行' :
+                   (bankCode == '0166' ? '鳥取銀行' :
+                   (bankCode == '0565' ? '島根銀行' : 'その他の金融機関'))))))))))))}">
+    </span>
+            （コード: <span th:text="*{bankCode}"></span>）
+        </p>
 
         <p>支店名: <span th:text="*{branchName}"></span>（コード: <span th:text="*{branchName}"></span>）</p>
         <p>科目名: <span th:text="*{accountType}"></span></p>

@@ -1,14 +1,107 @@
 <!doctype html>
-<html>
-    <head>
-        <meta charset="UTF-8"/>
-        <title>注文完了画面</title>
-    </head>
-    <body>
-        <h1><b>注文完了</b></h1>
-        <p>
-            <input type="button" value="申し込み入力画面に戻る" onclick="window.location='http://localhost:63342/internship202608/internship%20(3)%20(com.example)/templates/investmentTrustMain.html?_ijt=te73c6pl3upngaupovppsrqitt&_ij_reload=RELOAD_ON_SAVE';" />
-        </p>
-    </body>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注文完了画面</title>
+    <style>
+        /* 全体のリセットと背景・フォント設定 */
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background-color: #E0F2FE;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
+        /* カード型のコンテナ */
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        /* チェックマークのアイコン（必要に応じて） */
+        .icon {
+            font-size: 50px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        /* メインの見出し */
+        h1 {
+            color: #333333;
+            font-size: 24px;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        /* ボタンのベーススタイル */
+        .btn-submit {
+            background-color: #001bff;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* ボタンのホバー（マウスが乗ったとき）とアクティブ時のエフェクト */
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.70);
+        }
+    </style>
+</head>
+    <body>
+<div class="container">
+    <div class="icon">✓</div>
+        <h1>注文完了</h1>
+    <form th:action="@{/investmentTrustCompletion}" th:object="${investmentTrustApplication}" method="post">
+
+        <input type="hidden" th:field="*{bankCode}" />
+        <input type="hidden" th:field="*{branchName}" />
+        <input type="hidden" th:field="*{accountType}" />
+        <input type="hidden" th:field="*{bankAccountNum}" />
+        <input type="hidden" th:field="*{lastName}" />
+        <input type="hidden" th:field="*{firstName}" />
+        <input type="hidden" th:field="*{fundCode}" />
+        <input type="hidden" th:field="*{amount}" />
+        <input type="hidden" th:field="*{purchaseAmount}" />
+
+        <p>金融機関名:<span th:text="${bankName}"></span> （コード: <span th:text="*{bankCode}"></span>）</p>
+
+        <p>支店名: <span th:text="*{branchName}"></span>（コード: <span th:text="*{branchName}"></span>）</p>
+        <p>科目名: <span th:text="*{accountType}"></span></p>
+        <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
+        <p>購入者名: <span th:text="*{lastName} + ' ' + *{firstName}"></span></p>
+        <p>銘柄選択: <span th:text="*{fundCode}"></span></p>
+
+        <div th:if="*{amount != null && amount != ''}">
+            <p>購入金額（自由入力）: <span th:text="*{amount}"></span> 円</p>
+        </div>
+        <div th:if="*{purchaseAmount != null && purchaseAmount != ''}">
+            <p>購入金額（選択肢）: <span th:text="*{purchaseAmount}"></span> 円</p>
+        </div>
+    </form>
+    <p style="margin: 0;">
+        <input type="button" class="btn-submit" value="申し込み入力画面に戻る" onclick="window.location='http://localhost:63342/internship202608/internship%20(3)%20(com.example)/templates/investmentTrustMain.html?_ijt=te73c6pl3upngaupovppsrqitt&_ij_reload=RELOAD_ON_SAVE';" />
+    </p>
+</div>
+</body>
 </html>
