@@ -12,7 +12,9 @@ public class InvestmentTrustRepository {
 
     public void create(InvestmentTrustForm investmentTrustForm) {
         String sql =
-        "INSERT INTO investmentTrust_table(bankName, branchName, bankAccountType, bankAccountNum, name, fundCode, money) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        "INSERT INTO investmentTrust_table" +
+                "(bankName, branchName, bankAccountType, bankAccountNum, name, fundName, money) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        //ここの変数（名前）は触らないこと！変更なしでOK！
 
         String fullName = investmentTrustForm.getLastName() + investmentTrustForm.getFirstName();
 
