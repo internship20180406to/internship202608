@@ -87,6 +87,7 @@
 
         .form-control {
             width: 100%;
+            max-width: 600px;
             padding: 11px;
             margin: 7px 0;
             box-sizing: border-box;
@@ -187,6 +188,12 @@
                 padding: 13px 10px;
             }
         }
+
+        .unit {
+            margin-left: 5px;
+            font-weight: 600;
+        }
+
     </style>
 </head>
 
@@ -227,7 +234,7 @@
                    placeholder="3000"
                    title="借入希望額は1万円以上で入力してください"
                    required>
-            <span>万円</span>
+            <span class="unit">万円</span>
         </p>
 
         <p>

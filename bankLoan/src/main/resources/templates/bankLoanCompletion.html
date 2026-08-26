@@ -1,46 +1,295 @@
 <!doctype html>
-<html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>申込完了画面</title>
+    <title>申込完了</title>
+
     <style>
+        body {
+            background-color: #f2f2f2;
+            color: #111111;
+            margin: 0;
+            padding: 50px 0;
+            display: flex;
+            justify-content: center;
+            min-height: 85vh;
+            font-family:
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    "Hiragino Kaku Gothic ProN",
+                    "Yu Gothic",
+                    sans-serif;
+        }
+
+        .content {
+            background-color: #ffffff;
+            width: 80%;
+            max-width: 950px;
+            padding: 35px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #111111;
+            font-size: 30px;
+        }
+
+        .completion-message {
+            margin: 25px 0 35px;
+            padding: 25px;
+            background-color: #f5f5f5;
+            border-left: 6px solid #111111;
+        }
+
+        .completion-message-main {
+            margin: 0 0 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .completion-message-sub {
+            margin: 0;
+            color: #555555;
+        }
+
+        .section-title {
+            margin-top: 35px;
+            padding: 10px 0 10px 15px;
+            border-left: 6px solid #111111;
+            border-bottom: 1px solid #cccccc;
+            font-size: 23px;
+        }
+
+        .confirmation-group {
+            max-width: 750px;
+            margin-bottom: 30px;
+        }
+
+        .confirmation-row {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            padding: 15px 10px;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .confirmation-label {
+            color: #555555;
+            font-weight: 600;
+        }
+
+        .confirmation-value {
+            color: #111111;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .button-area {
+            margin-top: 40px;
+            padding-top: 25px;
+            text-align: center;
+            border-top: 2px solid #111111;
+        }
+
+        .return-button {
+            display: inline-block;
+            padding: 13px 30px;
+            color: #ffffff;
+            background-color: #111111;
+            border: 2px solid #111111;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .return-button:hover {
+            color: #111111;
+            background-color: #ffffff;
+        }
+
         .step-progress {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 5px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .progress-step {
             padding: 10px 5px;
             text-align: center;
-            background-color: #e0e1e2;
             color: #555555;
-            border-radius: 5px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
             font-size: 14px;
         }
 
         .progress-step.active {
-            background-color: #2185D0;
-            color: white;
+            color: #ffffff;
+            background-color: #111111;
             font-weight: bold;
         }
 
         .progress-step.completed {
-            background-color: #b8d9f2;
-            color: #174d73;
+            color: #111111;
+            background-color: #bfbfbf;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 20px 0;
+            }
+
+            .content {
+                width: 90%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .confirmation-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+
+            .return-button {
+                width: 80%;
+            }
         }
     </style>
 </head>
-<body>
-<div class="step-progress">
-    <div class="progress-step completed">1. 基本情報</div>
-    <div class="progress-step completed">2. 借入内容</div>
-    <div class="progress-step completed">3. 内容確認</div>
-    <div class="progress-step active" aria-current="step">4. 申込完了</div>
-</div>
-<h1>申込完了</h1>
-<p><input type="button" value="申込に戻る" onclick="window.location='/bankLoan';"/></p>
-</body>
 
+<body>
+<div class="content">
+
+    <div class="step-progress">
+        <div class="progress-step completed">1. 基本情報</div>
+        <div class="progress-step completed">2. 借入内容</div>
+        <div class="progress-step completed">3. 内容確認</div>
+        <div class="progress-step active" aria-current="step">4. 申込完了</div>
+    </div>
+
+    <h1>申込完了</h1>
+
+    <div class="completion-message">
+        <p class="completion-message-main">
+            申込内容が正常に送信されました。
+        </p>
+
+        <p class="completion-message-sub">
+            以下の内容で住宅ローンのお申込みを受け付けました。
+        </p>
+    </div>
+
+    <div th:object="${bankLoanApplication}">
+
+        <h2 class="section-title">ご本人様情報</h2>
+
+        <div class="confirmation-group">
+            <div class="confirmation-row">
+                <span class="confirmation-label">お名前</span>
+
+                <span class="confirmation-value">
+                    <span th:text="*{debtorLastName}"></span>
+                    <span th:text="*{debtorFirstName}"></span>
+                </span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">生年月日</span>
+                <span class="confirmation-value"
+                      th:text="*{birthDate}"></span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    ご本人様の前年度年収（税込）
+                </span>
+
+                <span class="confirmation-value">
+                    <span th:text="*{annualIncome}"></span>万円
+                </span>
+            </div>
+        </div>
+
+        <h2 class="section-title">ご返済用口座の情報</h2>
+
+        <div class="confirmation-group">
+            <div class="confirmation-row">
+                <span class="confirmation-label">金融機関名</span>
+                <span class="confirmation-value"
+                      th:text="*{bankName}"></span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">支店名</span>
+                <span class="confirmation-value"
+                      th:text="*{branchName}"></span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">科目名</span>
+                <span class="confirmation-value"
+                      th:text="*{subjectName}"></span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">口座番号</span>
+                <span class="confirmation-value"
+                      th:text="*{bankAccountNum}"></span>
+            </div>
+        </div>
+
+        <h2 class="section-title">お借入内容</h2>
+
+        <div class="confirmation-group">
+            <div class="confirmation-row">
+                <span class="confirmation-label">借入希望額</span>
+
+                <span class="confirmation-value">
+                    <span th:text="*{desiredLoanAmount}"></span>万円
+                </span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">借入年数</span>
+
+                <span class="confirmation-value">
+                    <span th:text="*{loanYears}"></span>年
+                </span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">金利タイプ</span>
+                <span class="confirmation-value"
+                      th:text="*{interestType}"></span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">適用金利</span>
+
+                <span class="confirmation-value">
+                    年<span th:text="*{interestRate}"></span>%
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-area">
+        <a th:href="@{/bankLoanSimulation}"
+           class="return-button">
+            住宅ローンページへ戻る
+        </a>
+    </div>
+
+</div>
+</body>
 </html>

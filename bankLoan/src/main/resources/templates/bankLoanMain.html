@@ -209,6 +209,11 @@
             font-weight: 600;
         }
 
+        /* 姓と名の両方が未入力でも、メッセージは1つだけ表示 */
+        .name-inputs ~ .field-error + .field-error {
+            display: none;
+        }
+
     </style>
 </head>
 <body>
@@ -284,9 +289,10 @@
                    th:field="*{annualIncome}"
                    class="form-control"
                    min="200"
+                   max="100000"
                    placeholder="500"
                    step="1"
-                   title="年収は200万円以上で入力してください"
+                   title="年収は200万円以上10億円以下で入力してください"
                    required/>
             <span>万円</span>
         </p>

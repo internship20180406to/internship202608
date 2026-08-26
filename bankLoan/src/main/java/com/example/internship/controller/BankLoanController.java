@@ -118,6 +118,7 @@ public class BankLoanController {
     @PostMapping("/bankLoanCompletion")
     public String completion(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
         applyBankLoanService.applyBankLoan(bankLoanForm);
+        model.addAttribute("bankLoanApplication", bankLoanForm);
         return "bankLoanCompletion";
     }
 
