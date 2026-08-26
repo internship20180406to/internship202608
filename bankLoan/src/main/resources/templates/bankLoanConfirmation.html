@@ -6,7 +6,10 @@
 </head>
 <body>
 <h1>ローン申込確認画面</h1>
-<form action="#" th:action="@{/bankLoanCompletion}" th:object="${bankLoanApplication}" method="post">
+<form id="bankLoanConfirmationForm"
+      th:action="@{/bankLoanCompletion}"
+      th:object="${bankLoanApplication}"
+      method="post">
     <p>金融機関名: <span th:text="*{bankName}"></span></p>
     <p>支店名: <span th:text="*{branchName}"></span></p>
     <p>科目名: <span th:text="*{bankAccountType}"></span></p>
@@ -24,6 +27,7 @@
     <input type="hidden" name="loanAmount" th:value="*{loanAmount}"/>
     <input type="hidden" name="annualIncome" th:value="*{annualIncome}"/>
     <input type="hidden" name="interestRate" th:value="*{interestRate}"/>
+
     <p>
         <input type="submit" id="submit" value="申込"/>
         <input type="button" value="キャンセル" onclick="window.location='/bankLoan';"/>

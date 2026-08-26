@@ -1,4 +1,9 @@
-const submitButton = document.getElementById("submit")
-    submitButton.addEventListener('click', (e) => {
-      console.log(confirm("操作を実行します"))
-    })
+const form = document.getElementById('bankLoanConfirmationForm');
+
+form.addEventListener('submit', function(event) {
+    const result = confirm('この内容で申し込みますか？');
+
+    if (!result) {
+        event.preventDefault();
+    }
+});
