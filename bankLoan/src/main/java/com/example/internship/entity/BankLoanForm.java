@@ -25,7 +25,7 @@ public class BankLoanForm {
     @NotBlank(message = "口座番号を入力してください")
     @Pattern(regexp = "[0-9]{7}", message = "口座番号は7桁の数字で入力してください")
     private String bankAccountNum;
-    @NotBlank(message = "債務者名を入力してください")
+    @NotBlank(message = "氏名を入力してください")
     private String name;
     @NotNull(message = "借入金額を入力してください")
     @Min(value = 1, message = "借入金額は1万円以上で入力してください")

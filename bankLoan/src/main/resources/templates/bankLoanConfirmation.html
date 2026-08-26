@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>ローン申込確認画面</title>
+    <title>カードローン申込確認画面</title>
 </head>
 <body>
-<h1>ローン申込確認画面</h1>
+<h1>カードローン申込確認画面</h1>
 <form id="bankLoanConfirmationForm"
       th:action="@{/bankLoanCompletion}"
       th:object="${bankLoanApplication}"
@@ -14,7 +14,7 @@
     <p>支店名: <span th:text="*{branchName}"></span></p>
     <p>科目名: <span th:text="*{bankAccountType}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
-    <p>債務者名: <span th:text="*{name}"></span></p>
+    <p>氏名: <span th:text="*{name}"></span></p>
     <p>借入金額: <span th:text="*{loanAmount}"></span>万円</p>
     <p>借入年収: <span th:text="*{annualIncome}"></span>万円</p>
     <p>金利: <span th:text="*{interestRate}"></span>％</p>
