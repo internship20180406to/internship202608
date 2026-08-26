@@ -16,7 +16,7 @@ public class ApplyBankTransferService {
         this.bankTransferRepository = bankTransferRepository;
     }
 
-    public void applyBankTransfer(BankTransferInput input) {
-        bankTransferRepository.create(input);
+    public void applyBankTransfer(String userId, BankTransferInput input) {
+        bankTransferRepository.create(userId, input);
     }
 }

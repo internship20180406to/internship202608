@@ -6,6 +6,7 @@ import com.example.internship.master.BankMasterRepository;
 import com.example.internship.master.Branch;
 import com.example.internship.master.BranchMasterRepository;
 import com.example.internship.service.ApplyBankTransferService;
+import com.example.internship.user.CurrentUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +25,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 // Web層だけを起動する。DataSourceは読み込まれないのでMySQLが動いていなくても実行できる。
 // マスタとDB登録は差し替え、画面の流れとガードだけを見る。
 @WebMvcTest(BankTransferController.class)
+@Import(CurrentUser.class)
 @DisplayName("振込6画面の流れ")
 class BankTransferControllerTest {
 
@@ -272,7 +277,7 @@ class BankTransferControllerTest {
                     .andExpect(flash().attributeExists("bankTransferResult"));
 
             ArgumentCaptor<BankTransferInput> captor = ArgumentCaptor.forClass(BankTransferInput.class);
-            verify(applyBankTransferService).applyBankTransfer(captor.capture());
+            verify(applyBankTransferService).applyBankTransfer(eq("demo"), captor.capture());
 
             BankTransferInput saved = captor.getValue();
             assertThat(saved.getBankCode()).isEqualTo("0001");
@@ -280,6 +285,22 @@ class BankTransferControllerTest {
             assertThat(saved.getBranchCode()).isEqualTo("001");
             assertThat(saved.getBranchName()).isEqualTo("A1支店");
             assertThat(saved.getMoney()).isEqualTo(1000);
+        }
+
+        @Test
+        @DisplayName("利用者を切り替えると、その利用者の振込として記録される")
+        void 記録される利用者() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            // 入口で利用者を切り替えてから、最後まで通す
+            mockMvc.perform(get("/bankTransfer").param("userId", "taro").session(session));
+            String token = walkToConfirmation(session);
+
+            mockMvc.perform(post("/bankTransfer/completion").param(TOKEN_KEY, token).session(session))
+                    .andExpect(redirectedUrl("/bankTransfer/completion"));
+
+            // 履歴をこの利用者の分だけに絞れるかは、ここが正しいことに乗っている
+            verify(applyBankTransferService)
+                    .applyBankTransfer(eq("taro"), any(BankTransferInput.class));
         }
 
         @Test
@@ -293,7 +314,7 @@ class BankTransferControllerTest {
             mockMvc.perform(post("/bankTransfer/completion").param(TOKEN_KEY, token).session(session))
                     .andExpect(redirectedUrl("/bankTransfer"));
 
-            verify(applyBankTransferService, times(1)).applyBankTransfer(any(BankTransferInput.class));
+            verify(applyBankTransferService, times(1)).applyBankTransfer(anyString(), any(BankTransferInput.class));
         }
 
         @Test
@@ -305,7 +326,7 @@ class BankTransferControllerTest {
             mockMvc.perform(post("/bankTransfer/completion").session(session))
                     .andExpect(redirectedUrl("/bankTransfer"));
 
-            verify(applyBankTransferService, never()).applyBankTransfer(any(BankTransferInput.class));
+            verify(applyBankTransferService, never()).applyBankTransfer(anyString(), any(BankTransferInput.class));
         }
 
         @Test

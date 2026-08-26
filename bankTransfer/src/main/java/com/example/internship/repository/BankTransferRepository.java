@@ -13,14 +13,17 @@ public class BankTransferRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void create(BankTransferInput input) {
+    // 誰の振込かを記録する。userId は入力内容ではないので
+    // BankTransferInput には入れず、別の引数として受け取る
+    public void create(String userId, BankTransferInput input) {
         String sql = """
         INSERT INTO bankTransfer_table
-            (bankCode, bankName, branchCode, branchName, bankAccountType,
+            (userId, bankCode, bankName, branchCode, branchName, bankAccountType,
              bankAccountNum, name, money, transferDateTime)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
         jdbcTemplate.update(sql,
+                userId,
                 input.getBankCode(),
                 input.getBankName(),
                 input.getBranchCode(),

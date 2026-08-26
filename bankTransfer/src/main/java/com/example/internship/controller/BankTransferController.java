@@ -9,6 +9,7 @@ import com.example.internship.master.Branch;
 import com.example.internship.master.BranchMasterRepository;
 import com.example.internship.master.Suggestion;
 import com.example.internship.service.ApplyBankTransferService;
+import com.example.internship.user.CurrentUser;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -43,15 +44,18 @@ public class BankTransferController {
     private final ApplyBankTransferService applyBankTransferService;
     private final BankMasterRepository bankMasterRepository;
     private final BranchMasterRepository branchMasterRepository;
+    private final CurrentUser currentUser;
 
     // 依存はコンストラクタで受け取る。final にできるので生成後に差し替わらず、
     // 渡し忘れもコンパイル時に分かる（コンストラクタが1つなら @Autowired は不要）
     public BankTransferController(ApplyBankTransferService applyBankTransferService,
                                   BankMasterRepository bankMasterRepository,
-                                  BranchMasterRepository branchMasterRepository) {
+                                  BranchMasterRepository branchMasterRepository,
+                                  CurrentUser currentUser) {
         this.applyBankTransferService = applyBankTransferService;
         this.bankMasterRepository = bankMasterRepository;
         this.branchMasterRepository = branchMasterRepository;
+        this.currentUser = currentUser;
     }
 
     // 振込指定日の入力欄で過去日を選べないようにするための下限値
@@ -79,7 +83,14 @@ public class BankTransferController {
     // 他の項目まで失わせないため。登録が済んだ時点でセッションは破棄している
     //金融機関選択画面を表示する関数(GET/bankTransferがきたら、セッション情報の保持、DBから金融機関情報の取得をおこない金融機関選択画面へ
     @GetMapping("/bankTransfer")
-    public String bankSelect(HttpSession session, Model model) {
+    public String bankSelect(@RequestParam(name = "userId", required = false) String userId,
+                             HttpSession session, Model model) {
+        // 【ログインを作るまでの仮】?userId=... で利用者を切り替える。
+        // 入力途中の内容は前の利用者のものなので捨てる
+        if (userId != null && !userId.isBlank()) {
+            currentUser.switchTo(session, userId);
+            session.removeAttribute(INPUT_SESSION_KEY);
+        }
         model.addAttribute("input", input(session));//戻った時リセットされないようにする
         model.addAttribute("banks", bankMasterRepository.findMajor());//データベースから銀行情報を取得
         return "bankTransferBank";
@@ -254,7 +265,7 @@ public class BankTransferController {
                 || savedToken == null || !savedToken.equals(transferToken)) {
             return "redirect:/bankTransfer";
         }
-        applyBankTransferService.applyBankTransfer(input);
+        applyBankTransferService.applyBankTransfer(currentUser.resolve(session), input);
         // 使い終わった入力内容は残さない
         session.removeAttribute(INPUT_SESSION_KEY);
         // リダイレクトすると内容が失われるため、完了画面で表示する分をflash属性で引き継ぐ

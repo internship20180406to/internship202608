@@ -65,3 +65,18 @@ CROSS JOIN (
     UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6
     UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
 ) n;
+
+-- ------------------------------------------------------------
+-- 申し込み記録に利用者を追加
+--   履歴と登録先は「その人のもの」しか見せてはいけないので、
+--   誰の記録かをここで持つ。ログインが無い間は 'demo' が入る。
+-- ------------------------------------------------------------
+ALTER TABLE bankTransfer_table
+    ADD COLUMN userId VARCHAR(32) NULL AFTER id;
+
+UPDATE bankTransfer_table SET userId = 'demo' WHERE userId IS NULL;
+
+ALTER TABLE bankTransfer_table
+    MODIFY COLUMN userId VARCHAR(32) NOT NULL;
+
+CREATE INDEX idx_bankTransfer_user ON bankTransfer_table (userId, id DESC);
