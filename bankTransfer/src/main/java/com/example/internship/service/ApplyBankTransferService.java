@@ -2,7 +2,6 @@ package com.example.internship.service;
 
 import com.example.internship.entity.BankTransferInput;
 import com.example.internship.repository.BankTransferRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,8 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class ApplyBankTransferService {
-    @Autowired
-    private BankTransferRepository bankTransferRepository;
+
+    private final BankTransferRepository bankTransferRepository;
+
+    public ApplyBankTransferService(BankTransferRepository bankTransferRepository) {
+        this.bankTransferRepository = bankTransferRepository;
+    }
 
     public void applyBankTransfer(BankTransferInput input) {
         bankTransferRepository.create(input);

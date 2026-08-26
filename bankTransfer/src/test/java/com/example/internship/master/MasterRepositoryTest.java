@@ -107,7 +107,8 @@ class MasterRepositoryTest {
         @Test
         @DisplayName("銀行ごとに9行あり、頭文字が銀行名と対応する")
         void 銀行ごとの一覧() {
-            List<Branch> branches = branchMasterRepository.findByBankCode("0002");
+            // 全支店名に「支店」が入るので、これで銀行0002の全件が並ぶ
+            List<Branch> branches = branchMasterRepository.search("0002", "支店");
 
             assertThat(branches).hasSize(9);
             assertThat(branches).extracting(Branch::branchCode)

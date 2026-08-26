@@ -1,14 +1,17 @@
 package com.example.internship.repository;
 
 import com.example.internship.entity.BankTransferInput;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 //SQLにデータの挿入を行うクラスを定義
 @Repository
 public class BankTransferRepository {
-    @Autowired
-    JdbcTemplate jdbcTemplate;
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public BankTransferRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public void create(BankTransferInput input) {
         String sql = """

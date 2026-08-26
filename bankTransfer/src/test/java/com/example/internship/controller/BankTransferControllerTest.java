@@ -61,10 +61,9 @@ class BankTransferControllerTest {
 
     @BeforeEach
     void setUpMaster() {
-        when(bankMasterRepository.findAll()).thenReturn(List.of(BANK));
+        when(bankMasterRepository.findMajor()).thenReturn(List.of(BANK));
         when(bankMasterRepository.findByCode("0001")).thenReturn(Optional.of(BANK));
         when(bankMasterRepository.findByCode("9999")).thenReturn(Optional.empty());
-        when(branchMasterRepository.findByBankCode("0001")).thenReturn(List.of(BRANCH));
         when(branchMasterRepository.find("0001", "001")).thenReturn(Optional.of(BRANCH));
         when(branchMasterRepository.find("0001", "999")).thenReturn(Optional.empty());
     }
@@ -106,7 +105,7 @@ class BankTransferControllerTest {
             mockMvc.perform(get("/bankTransfer"))
                     .andExpect(status().isOk())
                     .andExpect(view().name("bankTransferBank"))
-                    .andExpect(model().attributeExists("banks"));
+                    .andExpect(model().attribute("banks", List.of(BANK)));
         }
 
         @Test

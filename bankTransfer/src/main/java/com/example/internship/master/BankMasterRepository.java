@@ -1,6 +1,5 @@
 package com.example.internship.master;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -15,8 +14,12 @@ public class BankMasterRepository {
     private static final RowMapper<Bank> ROW_MAPPER =
             (rs, rowNum) -> new Bank(rs.getString("bankCode"), rs.getString("bankName"));
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+
+    // コンストラクタが1つだけなら @Autowired は不要（Spring 4.3以降）
+    public BankMasterRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public List<Bank> findAll() {
         String sql = "SELECT bankCode, bankName FROM bank_master ORDER BY bankCode";

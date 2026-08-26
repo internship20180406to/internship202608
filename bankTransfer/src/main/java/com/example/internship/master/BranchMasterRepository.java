@@ -1,6 +1,5 @@
 package com.example.internship.master;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -15,17 +14,10 @@ public class BranchMasterRepository {
     private static final RowMapper<Branch> ROW_MAPPER = (rs, rowNum) -> new Branch(
             rs.getString("bankCode"), rs.getString("branchCode"), rs.getString("branchName"));
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-    public List<Branch> findByBankCode(String bankCode) {
-        String sql = """
-                SELECT bankCode, branchCode, branchName
-                  FROM branch_master
-                 WHERE bankCode = ?
-                 ORDER BY branchCode
-                """;
-        return jdbcTemplate.query(sql, ROW_MAPPER, bankCode);
+    public BranchMasterRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     // 選択された支店が、その銀行の支店として実在するかの確認に使う

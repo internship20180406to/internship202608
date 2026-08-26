@@ -11,7 +11,6 @@ import com.example.internship.master.Suggestion;
 import com.example.internship.service.ApplyBankTransferService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -41,14 +40,19 @@ public class BankTransferController {
     // 完了画面へ内容を渡すときのキー
     private static final String RESULT_NAME = "bankTransferResult";
 
-    @Autowired
-    private ApplyBankTransferService applyBankTransferService;
+    private final ApplyBankTransferService applyBankTransferService;
+    private final BankMasterRepository bankMasterRepository;
+    private final BranchMasterRepository branchMasterRepository;
 
-    @Autowired
-    private BankMasterRepository bankMasterRepository;
-
-    @Autowired
-    private BranchMasterRepository branchMasterRepository;
+    // 依存はコンストラクタで受け取る。final にできるので生成後に差し替わらず、
+    // 渡し忘れもコンパイル時に分かる（コンストラクタが1つなら @Autowired は不要）
+    public BankTransferController(ApplyBankTransferService applyBankTransferService,
+                                  BankMasterRepository bankMasterRepository,
+                                  BranchMasterRepository branchMasterRepository) {
+        this.applyBankTransferService = applyBankTransferService;
+        this.bankMasterRepository = bankMasterRepository;
+        this.branchMasterRepository = branchMasterRepository;
+    }
 
     // 振込指定日の入力欄で過去日を選べないようにするための下限値
     // （サーバ側は AmountForm の @FutureOrPresent で検証する）
