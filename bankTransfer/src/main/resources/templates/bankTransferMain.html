@@ -38,9 +38,9 @@
         }
         .form-control:focus {
             outline: none;
-            border-color: #2185D0;
+            border-color: #0b6b57;
             background-color: #ffffff;
-            box-shadow: 0 0 0 3px rgba(33, 133, 208, 0.12);
+            box-shadow: 0 0 0 3px rgba(11, 107, 87, 0.12);
         }
         .text-danger {
         color: red;
@@ -58,17 +58,17 @@
         }
         .form-confirmation-button {
             color: white;
-            background-color: #1f5f91;
-            box-shadow: 0 3px 6px rgba(31, 95, 145, 0.25);
+            background-color: #0b6b57;
+            box-shadow: 0 3px 6px rgba(11, 107, 87, 0.25);
         }
+
+
         .form-confirmation-button:hover {
-            background-color: #174a72;
+            background-color: #095746;
             transform: translateY(-1px);
-            box-shadow: 0 5px 10px rgba(31, 95, 145, 0.3);
+            box-shadow: 0 5px 10px rgba(11, 107, 87, 0.3);
         }
-        .form-confirmation-button:hover {
-        background-color: #1678c2;
-        }
+
         .form-clear-button {
             color: #34495e;
             background-color: #eef1f5;
@@ -85,7 +85,7 @@
         }
         .form-title {
             text-align: center;
-            color: #1f3a5f;
+            color: #333;
             font-size: 28px;
             font-weight: 600;
             margin-bottom: 30px;
@@ -96,7 +96,7 @@
             display: block;
             font-size: 14px;
             font-weight: 600;
-            color: #34495e;
+            color: #555;
             margin-bottom: 6px;
         }
         .required {
@@ -105,7 +105,7 @@
             margin-left: 4px;
         }
         .form-container p {
-            margin: 0 0 20px;
+            margin: 0 0 24px;
         }
         .form-container p:last-child {
             margin-bottom: 0;
@@ -134,9 +134,9 @@
             transform: translateY(-1px);
         }
         .menu-button.active {
-            background-color: #1f5f91;
+            background-color: #0b6b57;
             color: white;
-            box-shadow: 0 3px 6px rgba(31, 95, 145, 0.25);
+            box-shadow: 0 3px 6px rgba(11, 107, 87, 0.25);
         }
         .form-control:invalid {
             color: #999;
@@ -153,7 +153,7 @@
 
         .input-help {
             display: block;
-            margin-top: 5px;
+            margin-top: 8px;
             font-size: 12px;
             color: #999;
         }
@@ -162,62 +162,141 @@
             opacity: 1;
         }
 
+        .account-type-options {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .radio-label {
+            position: relative;
+            cursor: pointer;
+            width: 110px;
+        }
+        .radio-label input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+        .radio-label span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 44px;
+            background-color: #f8fafc;
+            color: #555;
+            border: 1px solid #d5dce5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .radio-label:hover span {
+            background-color: #f1f7f5;
+            border-color: #0b6b57;
+        }
+        .radio-label input[type="radio"]:checked + span {
+            background-color: #0b6b57;
+            border-color: #0b6b57;
+            color: white;
+
+            box-shadow: 0 3px 8px rgba(11, 107, 87, 0.2);
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin: 10px 0 20px;
+            color: #333;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .section-title span {
+            display: inline-block;
+            width: 5px;
+            height: 22px;
+            margin-right: 10px;
+            background-color: #0b6b57;
+            border-radius: 5px;
+        }
+        .section-title:not(:first-child) {
+            margin-top: 35px;
+        }
+        .transfer-content-title {
+            padding-top: 40px;
+        }
+
     </style>
 </head>
 <body>
 <div class="content">
-
-
     <div class="menu-buttons">
-        <a href="/bankTransfer" class="menu-button active">
-            振込入力
-        </a>
-
-        <a href="/bankTransferFavorite" class="menu-button">
-            振込先登録
-        </a>
+        <a href="/bankTransfer" class="menu-button active">振込入力</a>
+        <a href="/bankTransferFavorite" class="menu-button">振込先登録</a>
     </div>
     <h1 class="form-title">銀行振込情報入力</h1>
     <div class="form-container">
     <form action="#" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post">
-        <p><label class="form-label">金融機関名 <span class="required">※</span></label><br>
+        <div class="section-title"><span></span>振込先情報</div>
+        <p><label class="form-label">金融機関名 <span class="required">※</span></label>
             <select th:field="*{bankName}" class="form-control" required>
                 <option value="">選択してください</option>
                 <option th:each="option : ${nameOptions}"
                         th:value="${option}"
-                        th:text="${option}">選択肢
+                        th:text="${option}"
+                    th:selected="${option == bankTransferApplication.bankName}">
                 </option>
-            </select></p>
-        <p><label class="form-label">支店名 <span class="required">※</span></label><br>
+            </select>
+        </p>
+        <p><label class="form-label">支店名 <span class="required">※</span></label>
             <select th:field="*{branchName}" class="form-control" required>
                 <option value="">選択してください</option>
                 <option th:each="option : ${branchNameOptions}"
                         th:value="${option}"
-                        th:text="${option}">選択肢
+                        th:text="${option}"
+                        th:selected="${option == bankTransferApplication.branchName}">
                 </option>
             </select></p>
-        <p><label class="form-label">科目名 <span class="required">※</span></label><br>
-            <select th:field="*{bankAccountType}" class="form-control" required>
-                <option value="">選択してください</option>
-                <option th:each="option : ${accountTypeOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select></p>
-        <p><label class="form-label">口座番号 <span class="required">※</span></label><br>
-            <input type="number" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567"/></p>
-        <p><label class="form-label">口座名義 <span class="required">※</span></label><br>
+        <p>
+            <label class="form-label">科目名 <span class="required">※</span></label>
+        <div class="account-type-options">
+            <label th:each="option : ${accountTypeOptions}" class="radio-label">
+                <input type="radio"
+                       th:field="*{bankAccountType}"
+                       th:value="${option}"
+                       required>
+                <span th:text="${option}"></span>
+            </label>
+        </div>
+        </p>
+        <p><label class="form-label">口座番号 <span class="required">※</span></label>
+            <input type="text"
+                   th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" inputmode="numeric"
+                   pattern="[0-9]{6,7}" maxlength="7" required/>
+            <small class="input-help">※6～7桁の半角数字で入力してください</small>
+
+
+
+
+
+
+
+
+
+
+        <p><label class="form-label">口座名義 <span class="required">※</span></label>
             <input type="text" th:field="*{name}" class="form-control" placeholder="ｻﾄｳ ﾊﾅｺ" required>
             <small class="input-help">
                 ※半角カタカナで入力してください
-            </small><p>
-        <p><label class="form-label">金額 <span class="required">※</span></label><br>
-            <input type="number" th:field="*{money}" class="form-control" placeholder="10000" min="1" max="1000000" required/>
+            </small></p>
+        <div class="section-title transfer-content-title"><span></span>振込内容</div>
+        <p><label class="form-label">金額 <span class="required">※</span></label>
+            <input type="number" th:field="*{money}" class="form-control" placeholder="10000" min="1" max="1,000,000" required/>
             <span th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger"></span></p>
-        <p><label class="form-label">振込指定日 <span class="required">※</span></label><br>
+        <p><label class="form-label">振込指定日 <span class="required">※</span></label>
             <input type="date" th:field="*{transferDateTime}" class="form-control"/></p>
-        <p style="text-align: center;"><input type="submit" value="確認" class="form-control-button form-confirmation-button"/>
-            <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
+        <p style="text-align: center;">
+            <input type="reset" value="クリア" class="form-control-button form-clear-button"/>
+            <input type="submit" value="確認" class="form-control-button form-confirmation-button"/></p>
     </form>
     </div>
     </div>

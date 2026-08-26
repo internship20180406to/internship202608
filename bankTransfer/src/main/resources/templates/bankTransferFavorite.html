@@ -50,9 +50,9 @@
             transform: translateY(-1px);
         }
         .menu-button.active {
-            background-color: #1f5f91;
+            background-color: #0b6b57;
             color: white;
-            box-shadow: 0 3px 6px rgba(31, 95, 145, 0.25);
+            box-shadow: 0 3px 6px rgba(11, 107, 87, 0.25);
         }
         .form-container {
             max-width: 800px;
@@ -61,7 +61,7 @@
         }
         .form-title {
             text-align: center;
-            color: #1f3a5f;
+            color: #333;
             font-size: 28px;
             font-weight: 600;
             margin-bottom: 30px;
@@ -72,7 +72,7 @@
             display: block;
             font-size: 14px;
             font-weight: 600;
-            color: #34495e;
+            color: #555;
             margin-bottom: 6px;
         }
         .required {
@@ -93,9 +93,9 @@
         }
         .form-control:focus {
             outline: none;
-            border-color: #2185D0;
+            border-color: #0b6b57;
             background-color: #ffffff;
-            box-shadow: 0 0 0 3px rgba(33, 133, 208, 0.12);
+            box-shadow: 0 0 0 3px rgba(11, 107, 87, 0.25);
         }
         .form-control-button {
             min-width: 140px;
@@ -110,13 +110,13 @@
         }
         .form-register-button {
             color: white;
-            background-color: #1f5f91;
-            box-shadow: 0 3px 6px rgba(31, 95, 145, 0.25);
+            background-color: #0b6b57;
+            box-shadow: 0 3px 6px rgba(11, 107, 87, 0.25);
         }
         .form-register-button:hover {
-            background-color: #174a72;
+            background-color: #095746;
             transform: translateY(-1px);
-            box-shadow: 0 5px 10px rgba(31, 95, 145, 0.3);
+            box-shadow: 0 5px 10px rgba(11, 107, 87, 0.3);
         }
         .form-clear-button {
             color: #34495e;
@@ -133,8 +133,6 @@
         .form-container p:last-child {
             margin-bottom: 0;
         }
-
-
         .favorite-container {
             max-width: 800px;
             margin: 40px auto 0;
@@ -143,7 +141,7 @@
         }
         .favorite-title {
             text-align: center;
-            color: #1f3a5f;
+            color: #333;
             font-size: 22px;
             font-weight: 600;
             margin-bottom: 20px;
@@ -164,7 +162,7 @@
         .favorite-bank {
             font-size: 18px;
             font-weight: 600;
-            color: #1f3a5f;
+            color: #333;
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 1px solid #e5eaf0;
@@ -183,7 +181,7 @@
             font-weight: 600;
         }
         .favorite-info strong {
-            color: #34495e;
+            color: #555;
             font-weight: 500;
         }
         .use-favorite-button {
@@ -192,7 +190,7 @@
             box-sizing: border-box;
             padding: 11px;
             border-radius: 6px;
-            background-color: #1f5f91;
+            background-color: #0b6b57;
             color: white;
             text-align: center;
             text-decoration: none;
@@ -201,7 +199,7 @@
             transition: 0.2s;
         }
         .use-favorite-button:hover {
-            background-color: #174a72;
+            background-color: #095746;
             transform: translateY(-1px);
         }
         .no-favorite {
@@ -212,7 +210,6 @@
             border: 1px solid #d5dce5;
             border-radius: 8px;
         }
-
         .delete-favorite-button {
             width: 100%;
             margin-top: 8px;
@@ -268,6 +265,85 @@
             color: #999;
             opacity: 1;
         }
+        .account-type-options {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .radio-label {
+            position: relative;
+            cursor: pointer;
+            width: 110px;
+        }
+        .radio-label input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+        .radio-label span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 44px;
+            background-color: #f8fafc;
+            color: #555;
+            border: 1px solid #d5dce5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .radio-label:hover span {
+            background-color: #f1f7f5;
+            border-color: #0b6b57;
+        }
+        .radio-label input[type="radio"]:checked + span {
+            background-color: #0b6b57;
+            border-color: #0b6b57;
+            color: white;
+            box-shadow: 0 3px 8px rgba(11, 107, 87, 0.2);
+        }
+
+
+        .success-message {
+            max-width: 800px;
+            margin: 0 auto 25px;
+            padding: 15px 18px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            background-color: #f1f7f5;
+            border: 1px solid #c5ddd6;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+        .success-icon {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #0b6b57;
+            color: white;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .success-text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .success-text strong {
+            color: #0b6b57;
+            font-size: 14px;
+        }
+        .success-text span {
+            color: #777;
+            font-size: 12px;
+        }
+
 
     </style>
 </head>
@@ -280,6 +356,10 @@
         <a href="/bankTransferFavorite" class="menu-button active">振込先登録</a>
     </div>
     <h1 class="form-title">振込先登録</h1>
+    <div th:if="${successMessage}" class="success-message">
+        <div class="success-icon">✓</div>
+        <div class="success-text"><strong>振込先を登録しました</strong><span>登録済みの振込先からいつでも利用できます。</span></div>
+    </div>
     <div class="form-container">
         <form action="/bankTransfer/favorite" method="post">
             <p><label class="form-label">金融機関名<span class="required">※</span></label>
@@ -293,10 +373,16 @@
                     <option>博多支店</option> <option>天神支店</option> <option>小倉支店</option> <option>久留米支店</option> <option>八女支店</option>
                 </select></p>
             <p><label class="form-label">科目名<span class="required">※</span></label>
-                <select name="bankAccountType" class="form-control" required>
-                    <option value="">選択してください</option>
-                    <option>普通預金</option> <option>当座預金</option> <option>貯蓄預金</option> <option>定期預金</option>
-                </select></p>
+            <div class="account-type-options">
+            <label class="radio-label">
+                <input type="radio" name="bankAccountType" value="普通" required><span>普通</span></label>
+            <label class="radio-label">
+                <input type="radio" name="bankAccountType" value="当座"><span>当座</span></label>
+            <label class="radio-label">
+                <input type="radio" name="bankAccountType" value="貯蓄"><span>貯蓄</span></label>
+            </div></p>
+
+
             <p><label class="form-label">口座番号<span class="required">※</span></label>
                 <input type="number" name="bankAccountNum" class="form-control" placeholder="1234567"/></p>
             <p><label class="form-label">口座名義<span class="required">※</span></label>
@@ -305,8 +391,8 @@
                     ※半角カタカナで入力してください
                 </small></p>
             <p style="text-align: center;">
-                <input type="submit" value="振込先を登録" class="form-control-button form-register-button"/>
-                <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
+                <input type="reset" value="クリア" class="form-control-button form-clear-button"/>
+                <input type="submit" value="振込先を登録" class="form-control-button form-register-button"/></p>
         </form>
     </div>
     <div class="favorite-container">

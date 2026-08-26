@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Arrays;
 
 
@@ -27,7 +28,7 @@ public class BankTransferController {
         model.addAttribute("bankTransferApplication", new BankTransferForm());
         model.addAttribute("nameOptions", Arrays.asList("山陰共同銀行", "さくら未来銀行", "ながれぼし銀行", "ひかり中央", "ほしぞら銀行"));
         model.addAttribute("branchNameOptions", Arrays.asList("博多支店", "天神支店", "小倉支店", "久留米支店", "八女支店"));
-        model.addAttribute("accountTypeOptions", Arrays.asList("普通預金", "当座預金", "貯蓄預金", "定期預金"));
+        model.addAttribute("accountTypeOptions", Arrays.asList("普通", "当座", "貯蓄"));
         return "bankTransferMain";
     }
 
@@ -51,18 +52,22 @@ public class BankTransferController {
             @RequestParam String name,
             Model model) {
 
+        System.out.println("bankName = [" + bankName + "]");
+        System.out.println("branchName = [" + branchName + "]");
+        System.out.println("bankAccountType = [" + bankAccountType + "]");
+
         BankTransferForm form = new BankTransferForm();
 
-        form.setBankName("");
-        form.setBranchName("");
-        form.setBankAccountType("");
+        form.setBankName(bankName);
+        form.setBranchName(branchName);
+        form.setBankAccountType(bankAccountType);
         form.setBankAccountNum(Integer.valueOf(bankAccountNum));
         form.setName(name);
 
         model.addAttribute("bankTransferApplication", form);
         model.addAttribute("nameOptions", Arrays.asList("山陰共同銀行", "さくら未来銀行", "ながれぼし銀行", "ひかり中央", "ほしぞら銀行"));
         model.addAttribute("branchNameOptions", Arrays.asList("博多支店", "天神支店", "小倉支店", "久留米支店", "八女支店"));
-        model.addAttribute("accountTypeOptions", Arrays.asList("普通預金", "当座預金", "貯蓄預金", "定期預金"));
+        model.addAttribute("accountTypeOptions", Arrays.asList("普通", "当座", "貯蓄"));
         return "bankTransferMain";
     }
 
@@ -100,11 +105,11 @@ public class BankTransferController {
         model.addAttribute("bankTransferApplication", bankTransferForm);
         return "bankTransferCompletion";
     }
-
     @PostMapping("/bankTransfer/favorite")
-    public String registerFavorite(@ModelAttribute BankTransferFavoriteForm form) {
+    public String registerFavorite(@ModelAttribute BankTransferFavoriteForm form, RedirectAttributes redirectAttributes) {
         applyBankTransferFavoriteService.registerFavorite(form);
-        return "redirect:/bankTransfer";
+        redirectAttributes.addFlashAttribute("successMessage", "✓ 振込先を登録しました");
+        return "redirect:/bankTransferFavorite";
     }
     @PostMapping("/bankTransferFavorite/delete")
     public String deleteFavorite(@RequestParam Integer id) {
