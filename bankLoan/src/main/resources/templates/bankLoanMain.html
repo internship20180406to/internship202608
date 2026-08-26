@@ -237,9 +237,28 @@
             select.selectedIndex = 0;
         });
 
-        form.querySelectorAll('.validation-error').forEach(error => {
+        form.querySelectorAll('.server-error').forEach(error => {
             error.textContent = '';
         });
+
+        form.querySelectorAll('.client-error').forEach(error => {
+            error.textContent = '';
+        });
+
+        const loanLimit = document.getElementById('loanLimit');
+        if (loanLimit) {
+            loanLimit.textContent = '借入限度額：0万円';
+        }
+
+        const selectedBranch = document.getElementById('selectedBranch');
+        if (selectedBranch) {
+            selectedBranch.value = '';
+        }
+
+        // 金融機関未選択用の支店表示に戻す
+        if (typeof updateBranchOptions === 'function') {
+            updateBranchOptions();
+        }
     }
 
     const loanAmount = document.getElementById('loanAmount');
