@@ -57,6 +57,7 @@
 
         .form-control {
             width: 100%;
+            max-width: 600px;
             padding: 11px;
             margin: 7px 0;
             box-sizing: border-box;
@@ -75,11 +76,13 @@
         .name-inputs {
             display: flex;
             gap: 12px;
+            max-width: 600px;
         }
 
         .name-inputs .form-control {
             flex: 1;
             min-width: 0;
+            max-width: none;
         }
 
         .text-danger {
@@ -184,6 +187,28 @@
                 display: block;
             }
         }
+
+        form > p,
+        .form-group {
+            margin-top: 26px;
+            margin-bottom: 26px;
+        }
+
+        .form-control.is-invalid {
+            border: 2px solid #dc3545 !important;
+            background-color: #fff5f5;
+            outline: none;
+        }
+
+        .field-error {
+            display: block;
+            max-width: 600px;
+            margin-top: 5px;
+            color: #c00000;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
     </style>
 </head>
 <body>
@@ -308,16 +333,18 @@
                    required/>
 
         <p class="button-area">
-            <input type="submit"
-                   value="次へ"
-                   class="form-control-button form-confirmation-button"/>
-
             <input type="reset"
                    value="クリア"
                    class="form-control-button form-clear-button"/>
+
+            <input type="submit"
+                   value="次へ"
+                   class="form-control-button form-confirmation-button"/>
         </p>
     </form>
 </div>
+
+<script src="/js/bankLoanValidation.js"></script>
 </body>
 
 </html>

@@ -6,64 +6,105 @@
 
     <style>
         body {
-            background-color: #f0f0f0;
+            background-color: #f2f2f2;
+            color: #111111;
             margin: 0;
-            padding: 40px 0;
+            padding: 50px 0;
             display: flex;
             justify-content: center;
-            align-items: center;
             min-height: 85vh;
+            font-family:
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    "Hiragino Kaku Gothic ProN",
+                    "Yu Gothic",
+                    sans-serif;
         }
 
         .content {
             background-color: #ffffff;
             width: 80%;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 950px;
+            padding: 35px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #111111;
+            font-size: 30px;
+        }
+
+        form label {
+            font-weight: 600;
         }
 
         .form-control {
             width: 100%;
-            padding: 8px;
-            margin: 5px 0;
+            max-width: 600px;
+            padding: 11px;
+            margin: 7px 0;
             box-sizing: border-box;
+            color: #111111;
+            background-color: #ffffff;
+            border: 1px solid #777777;
+            border-radius: 3px;
+            font-size: 15px;
+        }
+
+        .form-control:focus {
+            border: 2px solid #111111;
+            outline: none;
+        }
+
+        .form-control[readonly] {
+            background-color: #eeeeee;
+            color: #333333;
         }
 
         .text-danger {
-            color: red;
+            color: #c00000;
         }
 
         .button-area {
+            margin-top: 30px;
             text-align: center;
         }
 
         .form-button {
-            padding: 10px 20px;
-            margin-top: 10px;
-            border: none;
+            min-width: 100px;
+            padding: 12px 22px;
+            margin: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            border-radius: 5px;
+            font-size: 15px;
+            font-weight: bold;
+            transition: 0.2s;
         }
 
         .next-button {
-            color: white;
-            background-color: #2185D0;
+            color: #ffffff;
+            background-color: #111111;
+            border: 2px solid #111111;
+        }
+
+        .next-button:hover {
+            color: #111111;
+            background-color: #ffffff;
         }
 
         .back-button {
-            color: black;
-            background-color: #E0E1E2;
+            color: #111111;
+            background-color: #ffffff;
+            border: 2px solid #777777;
         }
 
-        .was-validated .form-control:invalid {
-            border: 2px solid #dc3545;
-            background-color: #fff5f5;
-            outline: none;
-        }
-
-        .was-validated .form-control:invalid:focus {
-            box-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
+        .back-button:hover {
+            background-color: #e5e5e5;
         }
 
         .form-control:user-invalid {
@@ -76,31 +117,67 @@
             box-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
         }
 
+        .was-validated .form-control:invalid {
+            border: 2px solid #dc3545;
+            background-color: #fff5f5;
+            outline: none;
+        }
+
         .step-progress {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 5px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .progress-step {
             padding: 10px 5px;
             text-align: center;
-            background-color: #e0e1e2;
             color: #555555;
-            border-radius: 5px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
             font-size: 14px;
         }
 
         .progress-step.active {
-            background-color: #2185D0;
-            color: white;
+            color: #ffffff;
+            background-color: #111111;
             font-weight: bold;
         }
 
         .progress-step.completed {
-            background-color: #b8d9f2;
-            color: #174d73;
+            color: #111111;
+            background-color: #bfbfbf;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 20px 0;
+            }
+
+            .content {
+                width: 90%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+        }
+
+        .form-control.is-invalid {
+            border: 2px solid #dc3545 !important;
+            background-color: #fff5f5;
+            outline: none;
+        }
+
+        .field-error {
+            display: block;
+            max-width: 600px;
+            margin-top: 5px;
+            color: #c00000;
+            font-size: 13px;
+            font-weight: 600;
         }
 
     </style>
@@ -114,7 +191,7 @@
         <div class="progress-step">3. 内容確認</div>
         <div class="progress-step">4. 申込完了</div>
     </div>
-    <h1>借入内容入力</h1>
+    <h1>お借入内容</h1>
 
     <form th:action="@{/bankLoanConfirmation}"
           th:object="${bankLoanApplication}"
@@ -201,7 +278,8 @@
             <input type="submit"
                    th:formaction="@{/bankLoanEdit}"
                    value="戻る"
-                   class="form-button back-button"/>
+                   class="form-button back-button"
+                   formnovalidate/>
 
             <input type="submit"
                    value="確認"
@@ -230,5 +308,6 @@
     });
     interestType.dispatchEvent(new Event("change"));
 </script>
+<script src="/js/bankLoanValidation.js"></script>
 </body>
 </html>
