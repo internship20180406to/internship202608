@@ -510,9 +510,10 @@
         }
 
         // 3. 借入金額チェック
+        let loanAmountYen = 0;
         if (loanAmountInput && loanAmountInput.value) {
             const rawLoanVal = loanAmountInput.value.replace(/,/g, '');
-            const loanAmountYen = parseFloat(rawLoanVal);
+            loanAmountYen = parseFloat(rawLoanVal);
             const selectedType = accountTypeSelect ? accountTypeSelect.value : "";
             const typeName = selectedType ? selectedType : "ローン";
 
@@ -550,9 +551,21 @@
             }
         }
 
-        if (isValid && loanAmountInput && loanAmountInput.value) {
-            loanAmountInput.value = loanAmountInput.value.replace(/,/g, '');
-        } else if (!isValid) {
+        // 4. バリデーションエラーが無く、借入金額が100万円以上の場合にダイアログ表示
+        if (isValid) {
+            if (loanAmountYen >= 1000000) {
+                const isConfirmed = confirm(`お借入金額が【${loanAmountYen.toLocaleString()}円】に設定されています。\n本当に間違いありませんか？`);
+                if (!isConfirmed) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+
+            // 送信用にカンマを削除
+            if (loanAmountInput && loanAmountInput.value) {
+                loanAmountInput.value = loanAmountInput.value.replace(/,/g, '');
+            }
+        } else {
             e.preventDefault();
             const firstInvalid = this.querySelector('.is-invalid');
             if (firstInvalid) {
