@@ -140,6 +140,20 @@
             "
                    oninput="this.setCustomValidity('')" required/></p>
 
+        <div class="balance-information">
+            <span class="balance-label">口座残高：</span>
+
+            <strong class="balance-amount">
+        <span th:text="${#numbers.formatInteger(balance, 1, 'COMMA')}">
+            60,000
+        </span>円
+            </strong>
+
+            <p class="balance-note">
+                <small>※振込限度額を超える振込はできません。</small>
+            </p>
+        </div>
+
         <p><label class="ml-1">振込指定日: <small class="text-danger ml-1">※</small></label><br>
             <input type="date" th:field="*{transferDateTime}" th:attr="min=${today}" class="form-control" required/></p>
 

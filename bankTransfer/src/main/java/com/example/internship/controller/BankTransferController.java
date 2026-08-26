@@ -33,6 +33,7 @@ import java.util.List;
         model.addAttribute("nameOptionsBranchName",  List.of("山陰共同支店", "本店", "中央支店"));
         model.addAttribute("today", LocalDate.now());
         model.addAttribute("recentTransfers", applyBankTransferService.getRecentTransfers());
+        model.addAttribute("balance", applyBankTransferService.getBalance());
         return "bankTransferMain";
     }
 
