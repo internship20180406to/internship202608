@@ -25,17 +25,22 @@ public class BankTransferFavoriteRepository {
     }
 
     public List<BankTransferFavoriteForm> findAll() {
-        String sql = "SELECT bankName, branchName, bankAccountType, bankAccountNum, name FROM bankTransfer_favorite_table";
+        String sql = "SELECT id, bankName, branchName, bankAccountType, bankAccountNum, name FROM bankTransfer_favorite_table";
+
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             BankTransferFavoriteForm form = new BankTransferFavoriteForm();
-
+            form.setId(rs.getInt("id"));
             form.setBankName(rs.getString("bankName"));
             form.setBranchName(rs.getString("branchName"));
             form.setBankAccountType(rs.getString("bankAccountType"));
             form.setBankAccountNum(rs.getString("bankAccountNum"));
             form.setName(rs.getString("name"));
-
             return form;
         });
+    }
+    public void deleteById(Integer id) {
+        String sql = "DELETE FROM bankTransfer_favorite_table WHERE id = ?";
+
+        jdbcTemplate.update(sql, id);
     }
 }

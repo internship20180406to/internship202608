@@ -21,4 +21,8 @@ public class ApplyBankTransferFavoriteService {
     public List<BankTransferFavoriteForm> getFavorites() {
         return bankTransferFavoriteRepository.findAll();
     }
+
+    public void deleteFavorite(Integer id) {
+        bankTransferFavoriteRepository.deleteById(id);
+    }
 }

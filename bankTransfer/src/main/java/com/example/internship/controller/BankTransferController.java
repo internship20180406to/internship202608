@@ -53,9 +53,9 @@ public class BankTransferController {
 
         BankTransferForm form = new BankTransferForm();
 
-        form.setBankName(bankName);
-        form.setBranchName(branchName);
-        form.setBankAccountType(bankAccountType);
+        form.setBankName("");
+        form.setBranchName("");
+        form.setBankAccountType("");
         form.setBankAccountNum(Integer.valueOf(bankAccountNum));
         form.setName(name);
 
@@ -105,6 +105,11 @@ public class BankTransferController {
     public String registerFavorite(@ModelAttribute BankTransferFavoriteForm form) {
         applyBankTransferFavoriteService.registerFavorite(form);
         return "redirect:/bankTransfer";
+    }
+    @PostMapping("/bankTransferFavorite/delete")
+    public String deleteFavorite(@RequestParam Integer id) {
+        applyBankTransferFavoriteService.deleteFavorite(id);
+        return "redirect:/bankTransferFavorite";
     }
 
 }

@@ -2,12 +2,17 @@ package com.example.internship.entity;
 
 public class BankTransferFavoriteForm {
 
+    private Integer id;
     private String bankName;
     private String branchName;
     private String bankAccountType;
     private String bankAccountNum;
     private String name;
 
+
+    public Integer getId() {return id;}
+
+    public void setId(Integer id) {this.id = id;}
 
     public String getBankName() {return bankName;}
 

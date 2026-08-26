@@ -135,7 +135,6 @@
         }
 
 
-
         .favorite-container {
             max-width: 800px;
             margin: 40px auto 0;
@@ -214,6 +213,62 @@
             border-radius: 8px;
         }
 
+        .delete-favorite-button {
+            width: 100%;
+            margin-top: 8px;
+            padding: 10px;
+            border: 1px solid #d5dce5;
+            border-radius: 6px;
+            background-color: #ffffff;
+            color: #c0392b;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .delete-favorite-button:hover {
+            background-color: #fdf0ef;
+            border-color: #e05252;
+            transform: translateY(-1px);
+        }
+        .favorite-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .favorite-actions .use-favorite-button {
+            flex: 1;
+        }
+        .favorite-actions form {
+            flex: 0 0 100px;
+            margin: 0;
+        }
+        .favorite-actions .delete-favorite-button {
+            width: 100%;
+            margin-top: 0;
+        }
+        .form-control:invalid {
+            color: #999;
+        }
+        .form-control:valid {
+            color: #333;
+        }
+        .form-control option[value=""] {
+            color: #999;
+        }
+        .form-control option:not([value=""]) {
+            color: #333;
+        }
+        .input-help {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #999;
+        }
+        .form-control::placeholder {
+            color: #999;
+            opacity: 1;
+        }
+
     </style>
 </head>
 
@@ -228,22 +283,27 @@
     <div class="form-container">
         <form action="/bankTransfer/favorite" method="post">
             <p><label class="form-label">金融機関名<span class="required">※</span></label>
-                <select name="bankName" class="form-control">
+                <select name="bankName" class="form-control" required>
+                    <option value="">選択してください</option>
                     <option>山陰共同銀行</option> <option>さくら未来銀行</option> <option>ながれぼし銀行</option> <option>ひかり中央</option> <option>ほしぞら銀行</option>
                 </select></p>
-            <p><label class="form-label">
-                支店名<span class="required">※</span></label>
-                <select name="branchName" class="form-control">
+            <p><label class="form-label">支店名<span class="required">※</span></label>
+                <select name="branchName" class="form-control" required>
+                    <option value="">選択してください</option>
                     <option>博多支店</option> <option>天神支店</option> <option>小倉支店</option> <option>久留米支店</option> <option>八女支店</option>
                 </select></p>
             <p><label class="form-label">科目名<span class="required">※</span></label>
-                <select name="bankAccountType" class="form-control">
+                <select name="bankAccountType" class="form-control" required>
+                    <option value="">選択してください</option>
                     <option>普通預金</option> <option>当座預金</option> <option>貯蓄預金</option> <option>定期預金</option>
                 </select></p>
             <p><label class="form-label">口座番号<span class="required">※</span></label>
                 <input type="number" name="bankAccountNum" class="form-control" placeholder="1234567"/></p>
             <p><label class="form-label">口座名義<span class="required">※</span></label>
-                <input type="text" name="name" class="form-control" placeholder="山田　太郎"/></p>
+                <input type="text" name="name" class="form-control" placeholder="ｻﾄｳ ﾊﾅｺ" required>
+                <small class="input-help">
+                    ※半角カタカナで入力してください
+                </small></p>
             <p style="text-align: center;">
                 <input type="submit" value="振込先を登録" class="form-control-button form-register-button"/>
                 <input type="reset" value="クリア" class="form-control-button form-clear-button"/></p>
@@ -251,7 +311,11 @@
     </div>
     <div class="favorite-container">
         <h2 class="favorite-title">登録済みの振込先</h2>
-        <div th:if="${#lists.isEmpty(favoriteList)}" class="no-favorite">登録されている振込先はありません。</div>
+        <div th:if="${#lists.isEmpty(favoriteList)}" class="no-favorite">
+            <div class="no-favorite-icon">⭐</div>
+            <p class="no-favorite-title">登録されている振込先はありません</p>
+            <p class="no-favorite-text">振込先を登録すると、次回から簡単に呼び出せます。</p>
+        </div>
         <div th:each="favorite : ${favoriteList}" class="favorite-card">
             <div class="favorite-bank">🏦<span th:text="${favorite.bankName}"></span></div>
             <div class="favorite-info"><p><span>支店名</span><strong th:text="${favorite.branchName}"></strong></p>
@@ -259,6 +323,9 @@
                 <p><span>口座番号</span><strong th:text="${favorite.bankAccountNum}"></strong></p>
                 <p><span>口座名義</span><strong th:text="${favorite.name}"></strong></p>
             </div>
+
+            <div class="favorite-actions">
+
             <a th:href="@{/bankTransfer/useFavorite(
                 bankName=${favorite.bankName},
                 branchName=${favorite.branchName},
@@ -268,6 +335,15 @@
             )}" class="use-favorite-button">
                 この振込先を使う
             </a>
+            <form th:action="@{/bankTransferFavorite/delete}" method="post"
+                  onsubmit="return confirm('この振込先を削除しますか？');">
+                <input type="hidden" name="id" th:value="${favorite.id}"/>
+
+                <button type="submit" class="delete-favorite-button">
+                    🗑️ 削除
+                </button>
+            </form>
+        </div>
         </div>
     </div>
 
