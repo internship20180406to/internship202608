@@ -33,7 +33,7 @@ public class InvestmentTrustRepository {
                 investmentTrustForm.getAccountType(),
                 investmentTrustForm.getBankAccountNum(),
                 fullName,
-                investmentTrustForm.getFundCode(),
+                investmentTrustForm.getFundName(),
                 investmentTrustForm.getMoney()
         );
     }

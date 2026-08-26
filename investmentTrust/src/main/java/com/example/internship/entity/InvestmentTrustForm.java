@@ -22,7 +22,7 @@ public class InvestmentTrustForm {
 
     private String firstName;
 
-    private String fundCode;
+    private String fundName;
 
     private Integer amount;
 
@@ -73,12 +73,12 @@ public class InvestmentTrustForm {
         this.firstName = firstName;
     }
 
-    public String getFundCode() {
-        return fundCode;
+    public String getFundName() {
+        return fundName;
     }
 
-    public void setFundCode(String fundCode) {
-        this.fundCode = fundCode;
+    public void setFundName(String fundName) {
+        this.fundName = fundName;
     }
 
     public Integer getAmount() {
