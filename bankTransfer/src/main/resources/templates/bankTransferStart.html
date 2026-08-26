@@ -20,13 +20,13 @@
 
         <!-- 押せないものは <a> にしない。リンクの形をしていると押せると読まれる -->
         <li>
-            <span class="startlist-row is-unavailable">
+            <a class="startlist-row" th:href="@{/bankTransfer/history}">
                 <span>
                     <span class="startlist-title">履歴から振り込む</span>
                     <span class="startlist-desc">過去に振り込んだ相手から選びます</span>
                 </span>
-                <span class="startlist-soon">準備中</span>
-            </span>
+                <span class="picklist-chevron" aria-hidden="true">›</span>
+            </a>
         </li>
         <li>
             <span class="startlist-row is-unavailable">

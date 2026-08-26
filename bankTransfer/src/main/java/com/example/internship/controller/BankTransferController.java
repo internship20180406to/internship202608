@@ -3,6 +3,8 @@ package com.example.internship.controller;
 import com.example.internship.entity.AccountForm;
 import com.example.internship.entity.AmountForm;
 import com.example.internship.entity.BankTransferInput;
+import com.example.internship.history.RecentPayee;
+import com.example.internship.history.TransferHistoryRepository;
 import com.example.internship.master.Bank;
 import com.example.internship.master.BankMasterRepository;
 import com.example.internship.master.Branch;
@@ -41,9 +43,15 @@ public class BankTransferController {
     // 完了画面へ内容を渡すときのキー
     private static final String RESULT_NAME = "bankTransferResult";
 
+    // どの入口から来たかをセッションへ記録するときのキー。
+    // ステッパーの段数と「戻る」の行き先が経路によって変わるため
+    private static final String ROUTE_KEY = "transferRoute";
+    private static final String ROUTE_SAVED = "saved";
+
     private final ApplyBankTransferService applyBankTransferService;
     private final BankMasterRepository bankMasterRepository;
     private final BranchMasterRepository branchMasterRepository;
+    private final TransferHistoryRepository transferHistoryRepository;
     private final CurrentUser currentUser;
 
     // 依存はコンストラクタで受け取る。final にできるので生成後に差し替わらず、
@@ -51,10 +59,12 @@ public class BankTransferController {
     public BankTransferController(ApplyBankTransferService applyBankTransferService,
                                   BankMasterRepository bankMasterRepository,
                                   BranchMasterRepository branchMasterRepository,
+                                  TransferHistoryRepository transferHistoryRepository,
                                   CurrentUser currentUser) {
         this.applyBankTransferService = applyBankTransferService;
         this.bankMasterRepository = bankMasterRepository;
         this.branchMasterRepository = branchMasterRepository;
+        this.transferHistoryRepository = transferHistoryRepository;
         this.currentUser = currentUser;
     }
 
@@ -63,6 +73,13 @@ public class BankTransferController {
     @ModelAttribute("today")
     public String today() {
         return LocalDate.now().toString();
+    }
+
+    // 履歴・登録先から入ったかどうか。ステッパーの段数と「戻る」の行き先が変わるので、
+    // 全画面で参照できるようにここで配る
+    @ModelAttribute("fromSaved")
+    public boolean fromSaved(HttpSession session) {
+        return ROUTE_SAVED.equals(session.getAttribute(ROUTE_KEY));
     }
 
     // セッションの入力内容を取り出す。無ければ空の器を作る
@@ -102,6 +119,8 @@ public class BankTransferController {
 
     @GetMapping("/bankTransfer/bank")
     public String bankSelect(HttpSession session, Model model) {
+        // 金融機関から入力し直すので、履歴経路の記憶は捨てる
+        session.removeAttribute(ROUTE_KEY);
         model.addAttribute("input", input(session));//戻った時リセットされないようにする
         model.addAttribute("banks", bankMasterRepository.findMajor());//データベースから銀行情報を取得
         return "bankTransferBank";
@@ -158,6 +177,53 @@ public class BankTransferController {
         input.setBranchCode(branch.get().branchCode());
         input.setBranchName(branch.get().branchName());
         return "redirect:/bankTransfer/account";
+    }
+
+    // ============================================================
+    // 履歴から振込先を選ぶ（画面1〜3を飛ばして金額へ進む）
+    // 見えるのも選べるのも、その利用者自身の履歴だけ
+    // ============================================================
+
+    @GetMapping("/bankTransfer/history")
+    public String history(HttpSession session, Model model) {
+        model.addAttribute("payees", transferHistoryRepository.findRecent(currentUser.resolve(session)));
+        return "bankTransferHistory";
+    }
+
+    @PostMapping("/bankTransfer/history")
+    public String selectFromHistory(@RequestParam(name = "bankCode", required = false) String bankCode,
+                                    @RequestParam(name = "branchCode", required = false) String branchCode,
+                                    @RequestParam(name = "bankAccountType", required = false) String bankAccountType,
+                                    @RequestParam(name = "bankAccountNum", required = false) String bankAccountNum,
+                                    HttpSession session) {
+        // 画面から送られた値は信じず、この利用者の履歴に実在するか引き直す。
+        // 他人の振込先を送りつけられても、ここで見つからず弾かれる
+        Optional<RecentPayee> found = (bankCode == null || branchCode == null
+                || bankAccountType == null || bankAccountNum == null)
+                ? Optional.empty()
+                : transferHistoryRepository.find(currentUser.resolve(session),
+                        bankCode, branchCode, bankAccountType, bankAccountNum);
+        if (found.isEmpty()) {
+            return "redirect:/bankTransfer/history";
+        }
+        RecentPayee payee = found.get();
+
+        // 画面1〜3で埋まるはずの項目が、ここで一度に決まる
+        BankTransferInput input = input(session);
+        input.setBankCode(payee.bankCode());
+        input.setBankName(payee.bankName());
+        input.setBranchCode(payee.branchCode());
+        input.setBranchName(payee.branchName());
+        input.setBankAccountType(payee.bankAccountType());
+        input.setBankAccountNum(payee.bankAccountNum());
+        input.setName(payee.name());
+        // 金額と振込指定日は引き継がない。前回と同じとは限らず、
+        // 気づかず前回の額を送ってしまう方が被害が大きい
+        input.setMoney(null);
+        input.setTransferDateTime(null);
+
+        session.setAttribute(ROUTE_KEY, ROUTE_SAVED);
+        return "redirect:/bankTransfer/amount";
     }
 
     // ============================================================
@@ -279,6 +345,7 @@ public class BankTransferController {
         applyBankTransferService.applyBankTransfer(currentUser.resolve(session), input);
         // 使い終わった入力内容は残さない
         session.removeAttribute(INPUT_SESSION_KEY);
+        session.removeAttribute(ROUTE_KEY);
         // リダイレクトすると内容が失われるため、完了画面で表示する分をflash属性で引き継ぐ
         redirectAttributes.addFlashAttribute(RESULT_NAME, input);
         return "redirect:/bankTransfer/completion";

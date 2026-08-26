@@ -3,7 +3,8 @@
 <head th:replace="~{fragments/head :: head('金額と振込指定日')}"></head>
 <body>
 <div class="content">
-    <div th:replace="~{fragments/stepper :: stepper(4)}"></div>
+    <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(2)}
+                                  : ~{fragments/stepper :: stepper(4)}"></div>
     <h1>金額と振込指定日</h1>
     <div th:replace="~{fragments/recap :: recap(${input})}"></div>
 
@@ -36,7 +37,7 @@
         </div>
 
         <div class="actions">
-            <a class="form-control-button form-clear-button" th:href="@{/bankTransfer/account}">戻る</a>
+            <a class="form-control-button form-clear-button" th:href="${fromSaved} ? @{/bankTransfer/history} : @{/bankTransfer/account}">戻る</a>
             <button class="form-control-button form-confirmation-button" type="submit">確認</button>
         </div>
     </form>

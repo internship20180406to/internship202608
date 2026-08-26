@@ -1,0 +1,51 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('履歴から振り込む')}"></head>
+<body>
+<div class="content">
+    <div th:replace="~{fragments/stepper :: stepperSaved(1)}"></div>
+    <h1>履歴から振り込む</h1>
+
+    <p class="lead" th:if="${!payees.isEmpty()}">過去に振り込んだ相手を選んでください。</p>
+
+    <!-- 1行ずつ別のフォームにする。行ごとに送る値が違うため -->
+    <ul class="payeelist" th:if="${!payees.isEmpty()}">
+        <li th:each="payee : ${payees}">
+            <form th:action="@{/bankTransfer/history}" method="post">
+                <!-- 送られてきた値はそのまま使わず、サーバ側でこの利用者の履歴から引き直す -->
+                <input type="hidden" name="bankCode" th:value="${payee.bankCode()}"/>
+                <input type="hidden" name="branchCode" th:value="${payee.branchCode()}"/>
+                <input type="hidden" name="bankAccountType" th:value="${payee.bankAccountType()}"/>
+                <input type="hidden" name="bankAccountNum" th:value="${payee.bankAccountNum()}"/>
+                <button class="payee-row" type="submit">
+                    <span>
+                        <span class="payee-bank">
+                            <span th:text="${payee.bankName()}">AAA銀行</span>
+                            <span th:text="${payee.branchName()}">A1支店</span>
+                        </span>
+                        <span class="payee-account">
+                            <span th:text="${payee.bankAccountType()}">普通</span>
+                            <span th:text="${payee.bankAccountNum()}">1234567</span>
+                            <span th:text="${payee.name()}">ﾔﾏﾀﾞ ﾀﾛｳ</span>
+                        </span>
+                        <span class="payee-last">最終振込日
+                            <span th:text="${payee.lastTransferredOn()}">2026-09-02</span></span>
+                    </span>
+                    <span class="picklist-chevron" aria-hidden="true">›</span>
+                </button>
+            </form>
+        </li>
+    </ul>
+
+    <p class="empty" th:if="${payees.isEmpty()}">
+        まだ振込の履歴がありません。<br/>
+        「新しい振込先を指定する」から振込先を入力してください。
+    </p>
+
+    <div class="actions">
+        <a class="form-control-button form-clear-button" th:href="@{/bankTransfer}">戻る</a>
+        <span class="spacer"></span>
+    </div>
+</div>
+</body>
+</html>

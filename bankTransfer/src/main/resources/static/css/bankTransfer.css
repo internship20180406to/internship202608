@@ -523,7 +523,81 @@ a.startlist-row:focus-visible {
     white-space: nowrap;
 }
 
+/* ============================================================
+   振込先の一覧（履歴・登録先）
+   1行が1つの振込先。行ごとに送る値が違うので、行ごとにフォームを置く
+   ============================================================ */
+.payeelist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--hairline);
+}
+
+.payeelist li {
+    border-bottom: 1px solid var(--hairline);
+}
+
+.payeelist form {
+    margin: 0;
+}
+
+.payee-row {
+    display: grid;
+    grid-template-columns: 1fr 1.2em;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 12px;
+    font-family: var(--font);
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
+    color: var(--ink);
+    text-align: left;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.payee-row:hover {
+    background-color: var(--row-hover);
+}
+
+.payee-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+.payee-bank,
+.payee-account,
+.payee-last {
+    display: block;
+}
+
+/* 口座番号は桁を数えるので、字幅を揃える */
+.payee-account {
+    font-variant-numeric: tabular-nums;
+}
+
+.payee-last {
+    margin-top: 2px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+}
+
+/* 一覧に出すものが1件も無いときの案内 */
+.empty {
+    margin: 0;
+    padding: 32px 12px;
+    text-align: center;
+    color: var(--ink-muted);
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+}
+
 /* 検索欄と、その下に重ねて出す候補 */
+
 
 .search {
     position: relative;

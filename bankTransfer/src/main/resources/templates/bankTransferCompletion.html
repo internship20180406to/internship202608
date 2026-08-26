@@ -3,7 +3,8 @@
 <head th:replace="~{fragments/head :: head('振込完了')}"></head>
 <body>
 <div class="content">
-    <div th:replace="~{fragments/stepper :: stepper(6)}"></div>
+    <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(4)}
+                                  : ~{fragments/stepper :: stepper(6)}"></div>
     <h1>振込完了</h1>
     <p class="lead">以下の内容で振込を受け付けました。</p>
 

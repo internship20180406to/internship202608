@@ -3,7 +3,8 @@
 <head th:replace="~{fragments/head :: head('振込内容の確認')}"></head>
 <body>
 <div class="content">
-    <div th:replace="~{fragments/stepper :: stepper(5)}"></div>
+    <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(3)}
+                                  : ~{fragments/stepper :: stepper(5)}"></div>
     <h1>振込内容の確認</h1>
     <p class="lead">内容をご確認のうえ、「振込」を押してください。</p>
 
@@ -11,27 +12,35 @@
         <div class="summary-row">
             <dt>金融機関</dt>
             <dd th:text="|*{bankName}（*{bankCode}）|">AAA銀行（0001）</dd>
-            <a class="link-edit" th:href="@{/bankTransfer/bank}">変更</a>
+            <!-- 履歴・登録先から来たときは項目ごとに直せない。振込先ごと選び直してもらう -->
+            <a class="link-edit" th:if="${fromSaved}"
+               th:href="@{/bankTransfer/history}">選び直す</a>
+            <a class="link-edit" th:unless="${fromSaved}"
+               th:href="@{/bankTransfer/bank}">変更</a>
         </div>
         <div class="summary-row">
             <dt>支店</dt>
             <dd th:text="|*{branchName}（*{branchCode}）|">A1支店（001）</dd>
-            <a class="link-edit" th:href="@{/bankTransfer/branch}">変更</a>
+            <a class="link-edit" th:unless="${fromSaved}"
+               th:href="@{/bankTransfer/branch}">変更</a>
         </div>
         <div class="summary-row">
             <dt>科目</dt>
             <dd th:text="*{bankAccountType}">普通</dd>
-            <a class="link-edit" th:href="@{/bankTransfer/account}">変更</a>
+            <a class="link-edit" th:unless="${fromSaved}"
+               th:href="@{/bankTransfer/account}">変更</a>
         </div>
         <div class="summary-row">
             <dt>口座番号</dt>
             <dd th:text="*{bankAccountNum}">1234567</dd>
-            <a class="link-edit" th:href="@{/bankTransfer/account}">変更</a>
+            <a class="link-edit" th:unless="${fromSaved}"
+               th:href="@{/bankTransfer/account}">変更</a>
         </div>
         <div class="summary-row">
             <dt>口座名義</dt>
             <dd th:text="*{name}">ﾔﾏﾀﾞ ﾀﾛｳ</dd>
-            <a class="link-edit" th:href="@{/bankTransfer/account}">変更</a>
+            <a class="link-edit" th:unless="${fromSaved}"
+               th:href="@{/bankTransfer/account}">変更</a>
         </div>
         <div class="summary-row is-amount">
             <dt>金額</dt>

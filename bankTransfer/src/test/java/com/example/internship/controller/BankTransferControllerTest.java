@@ -1,6 +1,8 @@
 package com.example.internship.controller;
 
 import com.example.internship.entity.BankTransferInput;
+import com.example.internship.history.RecentPayee;
+import com.example.internship.history.TransferHistoryRepository;
 import com.example.internship.master.Bank;
 import com.example.internship.master.BankMasterRepository;
 import com.example.internship.master.Branch;
@@ -53,6 +55,9 @@ class BankTransferControllerTest {
     private static final String INPUT_KEY = "bankTransferInput";
 
     private static final Bank BANK = new Bank("0001", "AAA銀行");
+    private static final RecentPayee PAYEE = new RecentPayee(
+            "0001", "AAA銀行", "001", "A1支店", "普通", "1234567", "ﾔﾏﾀﾞ ﾀﾛｳ",
+            java.time.LocalDate.of(2026, 8, 20));
     private static final Branch BRANCH = new Branch("0001", "001", "A1支店");
 
     @Autowired
@@ -67,6 +72,9 @@ class BankTransferControllerTest {
     @MockitoBean
     private BranchMasterRepository branchMasterRepository;
 
+    @MockitoBean
+    private TransferHistoryRepository transferHistoryRepository;
+
     @BeforeEach
     void setUpMaster() {
         when(bankMasterRepository.findMajor()).thenReturn(List.of(BANK));
@@ -74,6 +82,9 @@ class BankTransferControllerTest {
         when(bankMasterRepository.findByCode("9999")).thenReturn(Optional.empty());
         when(branchMasterRepository.find("0001", "001")).thenReturn(Optional.of(BRANCH));
         when(branchMasterRepository.find("0001", "999")).thenReturn(Optional.empty());
+        when(transferHistoryRepository.findRecent("demo")).thenReturn(List.of(PAYEE));
+        when(transferHistoryRepository.find("demo", "0001", "001", "普通", "1234567"))
+                .thenReturn(Optional.of(PAYEE));
     }
 
     // ステッパーの段数を数える。文字列の出現回数をそのまま数えるだけ
@@ -293,6 +304,99 @@ class BankTransferControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(view().name("bankTransferAmount"))
                     .andExpect(model().attributeHasFieldErrors("amountForm", "money"));
+        }
+    }
+
+    @Nested
+    @DisplayName("履歴から振り込む")
+    class History {
+
+        // 履歴から選んだ状態で金額画面まで来る
+        private MockHttpSession pickFromHistory() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            mockMvc.perform(post("/bankTransfer/history")
+                            .param("bankCode", "0001").param("branchCode", "001")
+                            .param("bankAccountType", "普通").param("bankAccountNum", "1234567")
+                            .session(session))
+                    .andExpect(redirectedUrl("/bankTransfer/amount"));
+            return session;
+        }
+
+        @Test
+        @DisplayName("一覧にはその利用者の履歴が出る")
+        void 一覧() throws Exception {
+            mockMvc.perform(get("/bankTransfer/history"))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("bankTransferHistory"))
+                    .andExpect(model().attribute("payees", List.of(PAYEE)));
+        }
+
+        @Test
+        @DisplayName("選ぶと振込先が一度に埋まり、金額画面へ進む")
+        void 選ぶと振込先が埋まる() throws Exception {
+            MockHttpSession session = pickFromHistory();
+
+            BankTransferInput input = (BankTransferInput) session.getAttribute(INPUT_KEY);
+            assertThat(input.getBankCode()).isEqualTo("0001");
+            assertThat(input.getBankName()).isEqualTo("AAA銀行");
+            assertThat(input.getBranchCode()).isEqualTo("001");
+            assertThat(input.getBankAccountNum()).isEqualTo("1234567");
+            assertThat(input.getName()).isEqualTo("ﾔﾏﾀﾞ ﾀﾛｳ");
+            // 画面1〜3を通っていなくても、金額画面のガードは通る
+            assertThat(input.hasAccount()).isTrue();
+        }
+
+        @Test
+        @DisplayName("金額と振込指定日は引き継がない")
+        void 金額は空になる() throws Exception {
+            MockHttpSession session = pickFromHistory();
+
+            BankTransferInput input = (BankTransferInput) session.getAttribute(INPUT_KEY);
+            assertThat(input.getMoney()).isNull();
+            assertThat(input.getTransferDateTime()).isNull();
+        }
+
+        @Test
+        @DisplayName("履歴に無い振込先は選べない")
+        void 履歴に無いものは弾く() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+
+            mockMvc.perform(post("/bankTransfer/history")
+                            .param("bankCode", "9999").param("branchCode", "999")
+                            .param("bankAccountType", "普通").param("bankAccountNum", "0000000")
+                            .session(session))
+                    .andExpect(redirectedUrl("/bankTransfer/history"));
+
+            assertThat(session.getAttribute(INPUT_KEY)).isNull();
+        }
+
+        @Test
+        @DisplayName("履歴から来ると4段のステッパーになる")
+        void 履歴経路のステッパー() throws Exception {
+            MockHttpSession session = pickFromHistory();
+
+            String html = mockMvc.perform(get("/bankTransfer/amount").session(session))
+                    .andReturn().getResponse().getContentAsString();
+
+            assertThat(countOccurrences(html, "stepper-item")).isEqualTo(4);
+            assertThat(html).contains("振込先").doesNotContain("口座情報");
+            // 狭い幅で出る方も同じ総数を指す
+            assertThat(html).contains("/ <span>4</span>");
+            // 戻る先は口座情報ではなく履歴一覧
+            assertThat(html).contains("/bankTransfer/history");
+        }
+
+        @Test
+        @DisplayName("金融機関から入力し直すと6段に戻る")
+        void 経路を切り替える() throws Exception {
+            MockHttpSession session = pickFromHistory();
+
+            // 入口から「新しい振込先を指定する」へ入り直す
+            mockMvc.perform(get("/bankTransfer/bank").session(session));
+            String html = mockMvc.perform(get("/bankTransfer/amount").session(session))
+                    .andReturn().getResponse().getContentAsString();
+
+            assertThat(countOccurrences(html, "stepper-item")).isEqualTo(6);
         }
     }
 
