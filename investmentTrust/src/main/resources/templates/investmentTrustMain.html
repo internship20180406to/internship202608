@@ -138,8 +138,8 @@
             <span class="form_error" id="fundName_error" th:text="${#strings.listJoin(#fields.errors('fundName'), ' ')}"></span></p>
 
         <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
-            <input type="number" id="money" th:field="*{money}" class="form-control"
-                   placeholder="10000" min="10000" max="10000000" step="1" inputmode="numeric"
+            <input type="text" id="money" th:field="*{money}" class="form-control"
+                   placeholder="10,000" maxlength="12" inputmode="numeric"
                    th:errorclass="input-error"/>
             <span class="form_error" id="money_error" th:text="${#strings.listJoin(#fields.errors('money'), ' ')}"></span></p>
 

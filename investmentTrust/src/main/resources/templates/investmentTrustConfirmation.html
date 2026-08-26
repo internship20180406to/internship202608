@@ -13,7 +13,9 @@
     <p>科目名: <span th:text="*{bankAccountType}"></span></p>
     <p>購入者名: <span th:text="*{name}"></span></p>
     <p>銘柄選択: <span th:text="*{fundName}"></span></p>
-    <p>購入金額: <span th:text="*{money}"></span></p>
+    <!-- #numbers.formatInteger(値, 最小桁数, 'COMMA') で3桁ごとのカンマ区切りにする。
+         hidden項目にはカンマ無しの生の数値を入れて次の画面へ渡す -->
+    <p>購入金額: <span th:text="${#numbers.formatInteger(investmentTrustApplication.money, 1, 'COMMA')}"></span></p>
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
     <input type="hidden" name="branchName" th:value="*{branchName}"/>
