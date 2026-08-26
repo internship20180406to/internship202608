@@ -36,9 +36,13 @@ public class InvestmentTrustForm {
         this.bankCode = bankCode;
     }
 
-    public Integer getBranchName() {return branchName;}
+    public Integer getBranchName() {
+        return branchName;
+    }
 
-    public void setBranchName(Integer Name) {this.branchName = branchName;}
+    public void setBranchName(Integer BranchName) {
+        this.branchName = branchName;
+    }
 
     public String getAccountType() {
         return accountType;
@@ -56,7 +60,9 @@ public class InvestmentTrustForm {
         this.bankAccountNum = bankAccountNum;
     }
 
-    public String getLastName() {return lastName;}
+    public String getLastName() {
+        return lastName;
+    }
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
@@ -92,5 +98,12 @@ public class InvestmentTrustForm {
 
     public void setPurchaseAmount(Integer purchaseAmount) {
         this.purchaseAmount = purchaseAmount;
+    }
+
+    public Integer getMoney() {
+        if (this.amount != null && this.amount > 0) {
+            return this.amount;
+        }
+        return this.purchaseAmount;
     }
 }
