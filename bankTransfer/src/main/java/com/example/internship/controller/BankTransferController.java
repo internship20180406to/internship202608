@@ -27,7 +27,7 @@ public class BankTransferController {
     public String bankTransfer(Model model) {
         model.addAttribute("bankTransferApplication", new BankTransferForm());
         model.addAttribute("nameOptions", Arrays.asList("山陰共同銀行", "さくら未来銀行", "ながれぼし銀行", "ひかり中央", "ほしぞら銀行"));
-        model.addAttribute("branchNameOptions", Arrays.asList("博多支店", "天神支店", "小倉支店", "久留米支店", "八女支店"));
+        model.addAttribute("branchNameOptions", Arrays.asList("本店", "中央支店", "東支店", "西支店", "南支店", "北支店", "A支店", "B支店", "C支店", "D支店"));
         model.addAttribute("accountTypeOptions", Arrays.asList("普通", "当座", "貯蓄"));
         return "bankTransferMain";
     }
@@ -35,11 +35,12 @@ public class BankTransferController {
     @GetMapping("/bankTransferFavorite")
     public String bankTransferFavorite(Model model) {
 
-        model.addAttribute(
-                "favoriteList",
+        model.addAttribute("favoriteList",
                 applyBankTransferFavoriteService.getFavorites()
         );
 
+        model.addAttribute("branchNameOptions",
+                Arrays.asList("本店", "中央支店", "東支店", "西支店", "南支店", "北支店", "A支店", "B支店", "C支店", "D支店"));
         return "bankTransferFavorite";
     }
 
@@ -77,7 +78,7 @@ public class BankTransferController {
 
         model.addAttribute("bankTransferApplication", form);
         model.addAttribute("nameOptions", Arrays.asList("山陰共同銀行", "さくら未来銀行", "ながれぼし銀行", "ひかり中央", "ほしぞら銀行"));
-        model.addAttribute("branchNameOptions", Arrays.asList("博多支店", "天神支店", "小倉支店", "久留米支店", "八女支店"));
+        model.addAttribute("branchNameOptions", Arrays.asList("本店", "中央支店", "東支店", "西支店", "南支店", "北支店", "A支店", "B支店", "C支店", "D支店"));
         model.addAttribute("accountTypeOptions", Arrays.asList("普通", "当座", "貯蓄"));
         return "bankTransferMain";
     }
@@ -161,8 +162,6 @@ public class BankTransferController {
                 "✓ 振込先を登録しました");
         return "redirect:/bankTransferFavorite";
     }
-
-
 
     @PostMapping("/bankTransferFavorite/delete")
     public String deleteFavorite(@RequestParam Integer id) {

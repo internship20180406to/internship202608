@@ -379,11 +379,15 @@
                     <option value="">選択してください</option>
                     <option>山陰共同銀行</option> <option>さくら未来銀行</option> <option>ながれぼし銀行</option> <option>ひかり中央</option> <option>ほしぞら銀行</option>
                 </select></p>
-            <p><label class="form-label">支店名<span class="required">※</span></label>
-                <select name="branchName" class="form-control" required>
-                    <option value="">選択してください</option>
-                    <option>博多支店</option> <option>天神支店</option> <option>小倉支店</option> <option>久留米支店</option> <option>八女支店</option>
-                </select></p>
+            <p>
+                <label class="form-label">支店名<span class="required">※</span></label>
+                <input type="text" name="branchName" class="form-control" list="favoriteBranchList" placeholder="支店名を入力・検索" autocomplete="off" required>
+                <datalist id="favoriteBranchList">
+                    <option value="本店"><option value="中央支店"><option value="東支店"><option value="西支店"><option value="南支店">
+                    <option value="北支店"><option value="A支店"><option value="B支店"><option value="C支店"><option value="D支店">
+                </datalist>
+                <small class="input-help">※支店名を入力すると候補が表示されます</small>
+            </p>
             <p><label class="form-label">科目名<span class="required">※</span></label>
             <div class="account-type-options">
             <label class="radio-label">
@@ -410,9 +414,6 @@
             </div>
             <small class="input-help">※半角カタカナで入力してください</small>
             </p>
-
-
-
             <p style="text-align: center;">
                 <input type="reset" value="クリア" class="form-control-button form-clear-button"/>
                 <input type="submit" value="振込先を登録" class="form-control-button form-register-button"/></p>

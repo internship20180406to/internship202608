@@ -23,31 +23,22 @@
         }
 
         .bank-icon {
-            width: 52px;
-            height: 52px;
-            margin: 0 auto 15px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background: #0b6b57;
-            color: white;
-
-            border-radius: 50%;
-            font-size: 24px;
-            font-weight: bold;
-
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+            width: auto;
+            height: auto;
+            margin: 0 auto 10px;
+            background: none;
+            color: #0b6b57;
+            font-size: 30px;
+            font-weight: 700;
+            box-shadow: none;
+            border-radius: 0;
         }
-
         .page-header h1 {
             margin: 0 0 10px;
             font-size: 30px;
             font-weight: 700;
             letter-spacing: 0.04em;
         }
-
         .page-header p {
             margin: 0;
             color: #777;
@@ -69,7 +60,6 @@
             font-size: 18px;
             font-weight: bold;
         }
-
         .section-title span {
             display: inline-block;
 
@@ -146,7 +136,6 @@
 
             box-shadow: 0 5px 12px rgba(11, 107, 87, 0.25);
         }
-
         .submit-button:hover {
             background: #095746;
             transform: translateY(-2px);
@@ -157,7 +146,6 @@
 
             border: 1px solid #d5dadd;
         }
-
         .cancel-button:hover {
             background: #f5f5f5;
         }
@@ -169,14 +157,82 @@
             color: #888;
             font-size: 12px;
         }
+        .stepper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 520px;
+            margin: 18px auto 32px;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 75px;
+            position: relative;
+        }
+        .step-number {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #d9e2df;
+            color: #9aa5a1;
+            font-size: 14px;
+            font-weight: 700;
+            box-sizing: border-box;
+            transition: 0.25s ease;
+        }
+        .step-label {
+            margin-top: 8px;
+            color: #929c99;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+        .step-line {
+            flex: 1;
+            height: 2px;
+            margin: 0 5px 21px;
+            background: #e1e7e5;
+            border-radius: 10px;
+        }
+        .step.active .step-number {
+            background: #0b6b57;
+            border-color: #0b6b57;
+            color: #ffffff;
+            transform: scale(1.08);
+            box-shadow:
+                    0 4px 10px rgba(11, 107, 87, 0.20),
+                    0 0 0 5px rgba(11, 107, 87, 0.08);
+        }
+        .step.active .step-label {
+            color: #0b6b57;
+            font-weight: 700;
+        }
 
     </style>
 
 </head>
 <body>
     <div class="confirmation-container">
+        <div class="stepper">
+            <div class="step">
+                <div class="step-number">1</div><div class="step-label">入力</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step active">
+                <div class="step-number">2</div><div class="step-label">確認</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-number">3</div><div class="step-label">完了</div>
+            </div>
+        </div>
         <div class="page-header"><div class="bank-icon">￥</div> <h1>銀行振込確認</h1> <p>以下の内容をご確認のうえ、「振込」を押してください。</p></div>
-
         <form action="#" th:action="@{/bankTransferCompletion}" th:object="${bankTransferApplication}" method="post"
               onsubmit="return confirm('振込を実行しますか？');">
             <div class="confirmation-card">
