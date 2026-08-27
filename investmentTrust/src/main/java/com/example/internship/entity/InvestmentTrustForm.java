@@ -5,24 +5,44 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class InvestmentTrustForm {
+
     @NonNull
-    private String bankName;//金融機関名
+    private String bankName;
+
     @NonNull
-    private String branchName;//支店名
+    private String branchName;
+
     @NonNull
-    private String bankAccountTypeName;//科目名
+    private String bankAccountTypeName;
+
     @NonNull
-    private String bankAccountNum;//口座番号
+    private String bankAccountNum;
+
     @NonNull
-    private String name;//購入者名
+    private String name;
+
     @NonNull
-    private String fundName;//銘柄選択
+    private String fundName;
+
     @NonNull
-    private Integer money;//購入金額
+    private Integer money;
+
+    // =========================
+    // 履歴用
+    // =========================
+
+    private LocalDateTime applicationDate;
+
+    private LocalDateTime purchaseDate;
+
+    private String status;
+
 
     public String getBankName() {
         return bankName;
@@ -78,5 +98,29 @@ public class InvestmentTrustForm {
 
     public void setMoney(Integer money) {
         this.money = money;
+    }
+
+    public LocalDateTime getApplicationDate() {
+        return applicationDate;
+    }
+
+    public void setApplicationDate(LocalDateTime applicationDate) {
+        this.applicationDate = applicationDate;
+    }
+
+    public LocalDateTime getPurchaseDate() {
+        return purchaseDate;
+    }
+
+    public void setPurchaseDate(LocalDateTime purchaseDate) {
+        this.purchaseDate = purchaseDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

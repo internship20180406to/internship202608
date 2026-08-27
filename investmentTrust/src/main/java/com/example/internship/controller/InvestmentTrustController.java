@@ -18,14 +18,8 @@ public class InvestmentTrustController {
     @Autowired
     private OrderInvestmentTrustService orderInvestmentTrustService;
 
-
-    /*
-     * =========================
-     * 投資信託注文入力画面
-     * =========================
-     */
     @GetMapping("/investmentTrust")
-    public String bankTransfer(Model model) {
+    public String investmentTrust(Model model) {
 
         model.addAttribute(
                 "investmentTrustApplication",
@@ -34,37 +28,23 @@ public class InvestmentTrustController {
 
         setOptions(model);
 
-        /*
-         * 最初に表示するSTEP
-         */
         model.addAttribute("targetStep", 1);
-
-        /*
-         * 通常の新規入力
-         */
         model.addAttribute("editMode", false);
 
         return "investmentTrustMain";
     }
 
-
-    /*
-     * =========================
-     * 投資信託履歴画面
-     * =========================
-     */
     @GetMapping("/investmentTrustHistory")
-    public String history() {
+    public String history(Model model) {
+
+        model.addAttribute(
+                "history",
+                orderInvestmentTrustService.getHistory()
+        );
 
         return "rireki";
     }
 
-
-    /*
-     * =========================
-     * 確認画面
-     * =========================
-     */
     @PostMapping("/investmentTrustConfirmation")
     public String confirmation(
             @ModelAttribute InvestmentTrustForm investmentTrustForm,
@@ -78,119 +58,75 @@ public class InvestmentTrustController {
         return "investmentTrustConfirmation";
     }
 
-
-    /*
-     * =========================
-     * 確認画面から修正
-     * =========================
-     */
     @PostMapping("/investmentTrustEdit")
     public String edit(
             @ModelAttribute InvestmentTrustForm investmentTrustForm,
             @RequestParam("targetStep") int targetStep,
             Model model) {
 
-        /*
-         * 現在の入力内容を保持したまま
-         * 修正したいSTEPを表示する
-         */
         model.addAttribute(
                 "investmentTrustApplication",
                 investmentTrustForm
         );
 
-        /*
-         * 修正対象のSTEP
-         */
-        model.addAttribute(
-                "targetStep",
-                targetStep
-        );
+        model.addAttribute("targetStep", targetStep);
 
-        /*
-         * 選択肢を再設定
-         */
         setOptions(model);
 
-        /*
-         * 修正モード
-         */
-        model.addAttribute(
-                "editMode",
-                true
-        );
+        model.addAttribute("editMode", true);
 
         return "investmentTrustMain";
     }
 
-
-    /*
-     * =========================
-     * 注文完了
-     * =========================
-     */
     @PostMapping("/investmentTrustCompletion")
     public String completion(
             @ModelAttribute InvestmentTrustForm investmentTrustForm,
             Model model) {
 
-        orderInvestmentTrustService
-                .orderInvestmentTrust(investmentTrustForm);
+        orderInvestmentTrustService.orderInvestmentTrust(
+                investmentTrustForm
+        );
 
         return "investmentTrustCompletion";
     }
 
-
-    /*
-     * =========================
-     * 選択肢設定
-     * =========================
-     */
     private void setOptions(Model model) {
-
-        List<String> bankNameOptions = List.of(
-                "山陰共同銀行",
-                "ながれぼし銀行",
-                "その他"
-        );
-
-        List<String> branchNameOptions = List.of(
-                "本店",
-                "福岡支店",
-                "その他"
-        );
-
-        List<String> bankAccountTypeOptions = List.of(
-                "普通",
-                "当座",
-                "貯蓄"
-        );
-
-        List<String> fundNameOptions = List.of(
-                "A株式会社",
-                "B株式会社",
-                "C株式会社",
-                "D株式会社"
-        );
 
         model.addAttribute(
                 "bankNameOptions",
-                bankNameOptions
+                List.of(
+                        "山陰共同銀行",
+                        "ながれぼし銀行",
+                        "その他"
+                )
         );
 
         model.addAttribute(
                 "branchNameOptions",
-                branchNameOptions
+                List.of(
+                        "本店",
+                        "福岡支店",
+                        "その他"
+                )
         );
 
         model.addAttribute(
                 "bankAccountTypeOptions",
-                bankAccountTypeOptions
+                List.of(
+                        "普通",
+                        "当座",
+                        "貯蓄"
+                )
         );
 
         model.addAttribute(
                 "fundNameOptions",
-                fundNameOptions
+                List.of(
+                        "A株式会社",
+                        "B株式会社",
+                        "C株式会社",
+                        "D株式会社"
+                )
         );
     }
 }
