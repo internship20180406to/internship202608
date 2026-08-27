@@ -10,9 +10,9 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class InvestmentTrustForm {
     @NonNull
-    private Integer bankCode;
+    private String bankCode;
     @NonNull
-    private Integer branchName;
+    private String branchName;
 
     private String accountType;
 
@@ -28,17 +28,17 @@ public class InvestmentTrustForm {
 
     private Integer purchaseAmount;
 
-    public Integer getBankCode() {
+    public String getBankCode() {
         return bankCode;
     }
 
-    public void setBankCode(Integer bankCode) {
+    public void setBankCode(String bankCode) {
         this.bankCode = bankCode;
     }
 
-    public Integer getBranchName() {return branchName;}
+    public String getBranchName() {return branchName;}
 
-    public void setBranchName(Integer Name) {this.branchName = Name;}
+    public void setBranchName(String Name) {this.branchName = Name;}
 
 
     public String getAccountType() {

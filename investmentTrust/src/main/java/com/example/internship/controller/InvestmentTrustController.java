@@ -27,7 +27,7 @@ public class InvestmentTrustController {
 
     @PostMapping("/investmentTrustConfirmation")
     public String confirmation(@ModelAttribute("investmentTrustApplication") InvestmentTrustForm investmentTrustForm, Model model) {
-        bankListService.getName(investmentTrustForm);
+        model.addAttribute("bankList", bankListService.getName(investmentTrustForm));
         model.addAttribute("bankAccountNum", investmentTrustForm.getBankAccountNum());
         model.addAttribute("investmentTrustApplication", investmentTrustForm);
 
