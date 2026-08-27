@@ -7,18 +7,47 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // 候補の1行。押すと、下の一覧と同じくフォームが送信されて選択が確定する
-    const rowHtml = (item) =>
-        '<li><button class="picklist-row" type="submit" name="' + panel.dataset.paramName + '"'
-        + ' value="' + item.code + '">'
-        + '<span class="picklist-code">' + item.code + '</span>'
-        + '<span>' + item.name + '</span>'
-        + '<span class="picklist-chevron" aria-hidden="true">' + String.fromCharCode(8250) + '</span>'
-        + '</button></li>';
+    // 候補の1行。押すと、下の一覧と同じくフォームが送信されて選択が確定する。
+    // 文字列をつないで innerHTML に入れるのではなく、要素を作って textContent に入れる。
+    // 金融機関名・支店名はマスタから来る自由な文字列で、引用符や「<」が混ざると
+    // 文字列の組み立てでは属性や要素の外へはみ出してしまう
+    const row = (item) => {
+        const button = document.createElement('button');
+        button.className = 'picklist-row';
+        button.type = 'submit';
+        button.name = panel.dataset.paramName;
+        button.value = item.code;
+
+        const code = document.createElement('span');
+        code.className = 'picklist-code';
+        code.textContent = item.code;
+
+        const name = document.createElement('span');
+        name.textContent = item.name;
+
+        const chevron = document.createElement('span');
+        chevron.className = 'picklist-chevron';
+        chevron.setAttribute('aria-hidden', 'true');
+        chevron.textContent = String.fromCharCode(8250);
+
+        button.append(code, name, chevron);
+
+        const li = document.createElement('li');
+        li.append(button);
+        return li;
+    };
+
+    // 1件も見つからなかったときの1行
+    const noHitRow = () => {
+        const li = document.createElement('li');
+        li.className = 'suggest-empty';
+        li.textContent = panel.dataset.noHit;
+        return li;
+    };
 
     const close = () => {
         panel.hidden = true;
-        panel.innerHTML = '';
+        panel.replaceChildren();
     };
 
     // 打つたびに投げるので、最後の応答だけを採用する。
@@ -46,9 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mine !== latest) {
             return;
         }
-        panel.innerHTML = items.length > 0
-            ? items.map(rowHtml).join('')
-            : '<li class="suggest-empty">' + panel.dataset.noHit + '</li>';
+        panel.replaceChildren(...(items.length > 0 ? items.map(row) : [noHitRow()]));
         panel.hidden = false;
     }
 

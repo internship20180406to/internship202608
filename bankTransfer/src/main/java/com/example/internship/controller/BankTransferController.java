@@ -92,13 +92,13 @@ public class BankTransferController {
         return LocalDate.now().toString();
     }
 
-    // どの経路で来たか。ステッパーの段数と「戻る」の行き先が変わるので、
-    // 全画面で参照できるようにここで配る
+    // 履歴から振込の画面にいるか判定
     @ModelAttribute("fromSaved")
     public boolean fromSaved(HttpSession session) {
         return ROUTE_SAVED.equals(session.getAttribute(ROUTE_KEY));
     }
 
+    //登録している口座から画面にいるかどうか判定
     @ModelAttribute("registering")
     public boolean registering(HttpSession session) {
         return ROUTE_REGISTER.equals(session.getAttribute(ROUTE_KEY));
@@ -118,7 +118,7 @@ public class BankTransferController {
         model.addAttribute("ownBank", transferFee.isOwnBank(input.getBankCode()));
         model.addAttribute("feeUnder", transferFee.of(input.getBankCode(), 1));
         model.addAttribute("feeOver", transferFee.of(input.getBankCode(), TransferFee.MAX_TRANSFER));
-        model.addAttribute("feeThreshold", 30_000);
+        model.addAttribute("feeThreshold", TransferFee.THRESHOLD);
         model.addAttribute("maxTransfer", TransferFee.MAX_TRANSFER);
     }
 
@@ -160,21 +160,29 @@ public class BankTransferController {
     // 画面1 金融機関の選択
     // ============================================================
 
+    // 手順を最初から始めるための後始末。入力・経路・発行済みのトークンを全部捨てる。
+    //
+    // 手順の入口が増えるたびにここを通す。1か所でも忘れると、前の手順で入れた内容が
+    // 次の手順に残る（実際、履歴から入れた振込先が「新しい振込先を指定」に残っていた）。
+    // 確認画面まで進んでいた場合に備えてトークンも捨てる
+    private void clearProgress(HttpSession session) {
+        session.removeAttribute(INPUT_SESSION_KEY);
+        session.removeAttribute(ROUTE_KEY);
+        session.removeAttribute(TRANSFER_TOKEN);
+    }
+
     // 中止。入力途中の内容と経路の記憶を捨てて入口へ戻す。
     // 状態が変わるのでGETではなくPOSTで受ける
     @PostMapping("/bankTransfer/cancel")
     public String cancel(HttpSession session) {
-        session.removeAttribute(INPUT_SESSION_KEY);
-        session.removeAttribute(ROUTE_KEY);
-        // 確認画面まで進んでいた場合に備えて、発行済みのトークンも捨てる
-        session.removeAttribute(TRANSFER_TOKEN);
+        clearProgress(session);
         return "redirect:/bankTransfer";
     }
 
     // 新しい振込先を指定して振り込む入口。ここで経路を通常に戻す
     @GetMapping("/bankTransfer/new")
     public String startNewTransfer(HttpSession session) {
-        session.removeAttribute(ROUTE_KEY);
+        clearProgress(session);
         return "redirect:/bankTransfer/bank";
     }
 
@@ -242,12 +250,6 @@ public class BankTransferController {
     // 履歴から振込先を選ぶ（画面1〜3を飛ばして金額へ進む）
     // 見えるのも選べるのも、その利用者自身の履歴だけ
     // ============================================================
-
-    // 一覧は入口に吸収した。古いURLは入口へ送る
-    @GetMapping("/bankTransfer/history")
-    public String history() {
-        return "redirect:/bankTransfer";
-    }
 
     @PostMapping("/bankTransfer/history")
     public String selectFromHistory(@RequestParam(name = "bankCode", required = false) String bankCode,
@@ -345,11 +347,12 @@ public class BankTransferController {
     @GetMapping("/bankTransfer/payees/new")
     public String startRegister(HttpSession session) {
         // 振込の途中だった内容が混ざらないように捨ててから始める
-        session.removeAttribute(INPUT_SESSION_KEY);
+        clearProgress(session);
         session.setAttribute(ROUTE_KEY, ROUTE_REGISTER);
         return "redirect:/bankTransfer/bank";
     }
 
+    //金融機関の登録の確認画面を表示
     @GetMapping("/bankTransfer/payee/confirm")
     public String payeeConfirm(HttpSession session, Model model) {
         BankTransferInput input = input(session);
@@ -380,10 +383,10 @@ public class BankTransferController {
             model.addAttribute("alreadyRegistered", payeeRepository.exists(userId, input));
             return "bankTransferPayeeConfirm";
         }
-        if (!payeeRepository.create(userId, payeeForm.getNickname(), input)) {
-            // 既に登録済み。一覧に出ているので、そのまま一覧へ返す
-            return "redirect:/bankTransfer/payees";
-        }
+        // 既に登録済みでも行き先は同じ（その相手は一覧に出ている）。
+        // 後始末も同じにする。経路を残したまま一覧へ戻すと「登録の途中」の
+        // ままになり、次に金額画面へ行こうとしても呼び名の画面へ跳ね返される
+        payeeRepository.create(userId, payeeForm.getNickname(), input);
         session.removeAttribute(INPUT_SESSION_KEY);
         session.removeAttribute(ROUTE_KEY);
         return "redirect:/bankTransfer/payees";
@@ -541,6 +544,14 @@ public class BankTransferController {
                 || savedToken == null || !savedToken.equals(transferToken)) {
             return "redirect:/bankTransfer";
         }
+        // 「本日」を選んだまま確認画面で日付をまたぐと、ここへ来た時点では過去の日付になる。
+        // 金額画面の検証は通っているので、記録する直前にもう一度見る
+        if (input.getTransferDateTime() != null
+                && input.getTransferDateTime().isBefore(LocalDate.now())) {
+            redirectAttributes.addFlashAttribute("dateExpired",
+                    "振込指定日が過去の日付になりました。指定し直してください");
+            return "redirect:/bankTransfer/amount";
+        }
         String userId = currentUser.resolve(session);
         // 金額画面で残高を確かめてから、ここへ来るまでの間に別の振込が確定している
         // ことがある。引けるかどうかは引く瞬間に決まるので、ここでもう一度見る
@@ -550,9 +561,10 @@ public class BankTransferController {
                             balanceRepository.amountOf(userId)));
             return "redirect:/bankTransfer/amount";
         }
-        // 使い終わった入力内容は残さない
+        // 使い終わった入力内容は残さない。
+        // 経路（ROUTE_KEY）はここでは消さない。完了画面のステッパーが
+        // 「どの経路の何段目か」を出すのに要るので、消すのは完了画面を出したあと
         session.removeAttribute(INPUT_SESSION_KEY);
-        session.removeAttribute(ROUTE_KEY);
         // リダイレクトすると内容が失われるため、完了画面で表示する分をflash属性で引き継ぐ
         redirectAttributes.addFlashAttribute(RESULT_NAME, input);
         int balanceAfter = balanceRepository.amountOf(userId);
@@ -572,6 +584,9 @@ public class BankTransferController {
         if (result == null) {
             return "redirect:/bankTransfer";
         }
+        // 経路の記憶はここで役目を終える。ステッパーが読む fromSaved は
+        // @ModelAttribute で既に解決済みなので、消すのはこの後で構わない
+        session.removeAttribute(ROUTE_KEY);
         // 既に登録済みの相手に「登録する」を出しても押せないだけなので、出さない
         model.addAttribute("alreadyRegistered",
                 payeeRepository.exists(currentUser.resolve(session), result));

@@ -33,13 +33,20 @@ class TransferHistoryRepositoryTest {
     private JdbcTemplate jdbcTemplate;
 
     private void insert(String userId, String bankCode, String bankName, String branchCode,
-                        String branchName, String type, String num, String name, String date) {
+                        String branchName, String type, String num, String name,
+                        int money, String date) {
         jdbcTemplate.update("""
                 INSERT INTO bankTransfer_table
                     (userId, bankCode, bankName, branchCode, branchName,
                      bankAccountType, bankAccountNum, name, money, transferDateTime)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1000, ?)
-                """, userId, bankCode, bankName, branchCode, branchName, type, num, name, date);
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, userId, bankCode, bankName, branchCode, branchName, type, num, name,
+                money, date);
+    }
+
+    private void insert(String userId, String bankCode, String bankName, String branchCode,
+                        String branchName, String type, String num, String name, String date) {
+        insert(userId, bankCode, bankName, branchCode, branchName, type, num, name, 1000, date);
     }
 
     @BeforeEach
@@ -64,6 +71,22 @@ class TransferHistoryRepositoryTest {
         assertThat(aaa.lastTransferredOn()).hasToString("2026-08-20");
         // 名義が途中で変わっていたら、最後に振り込んだときの名義を採る
         assertThat(aaa.name()).isEqualTo("ｲ");
+    }
+
+    @Test
+    @DisplayName("前回の金額と最終振込日は同じ行から来る")
+    void 金額と日付は同じ行から来る() {
+        // 先の日付で5万円を申し込み、そのあとに手前の日付で1千円を申し込む。
+        // 申込順（id）で行を選ぶと「12月1日に1,000円」という、
+        // 実際には起きていない組み合わせが一覧に出る
+        insert(TARO, "0005", "EEE銀行", "007", "E7支店", "普通", "9999999", "ｵ", 50000, "2026-12-01");
+        insert(TARO, "0005", "EEE銀行", "007", "E7支店", "普通", "9999999", "ｵ", 1000, "2026-09-01");
+
+        RecentPayee eee = transferHistoryRepository.findRecent(TARO).stream()
+                .filter(p -> p.bankCode().equals("0005")).findFirst().orElseThrow();
+
+        assertThat(eee.lastTransferredOn()).hasToString("2026-12-01");
+        assertThat(eee.lastAmount()).isEqualTo(50000);
     }
 
     @Test

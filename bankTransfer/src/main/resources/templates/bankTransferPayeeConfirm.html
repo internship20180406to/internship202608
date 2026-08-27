@@ -2,9 +2,10 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('振込先の登録')}"></head>
 <body>
+<div th:replace="~{fragments/appbar :: appbar}"></div>
 <div class="content">
     <div th:replace="~{fragments/stepper :: stepperRegister(4)}"></div>
-    <h1>振込先の登録</h1>
+    <div th:replace="~{fragments/titlebar :: titleWithCancel('振込先の登録')}"></div>
 
     <p class="text-danger" th:if="${alreadyRegistered}">
         この振込先は既に登録されています。
@@ -53,11 +54,10 @@
         </div>
 
         <div class="actions">
+            <!-- 見出しの行に「中止」が付いたので、ここは他の画面と同じ「戻る」にする。
+                 口座情報はセッションから復元されるので、打ち直しにはならない -->
             <a class="form-control-button form-clear-button"
-               th:href="@{/bankTransfer/payees}">やめる</a>
-                    <button class="form-control-button form-cancel-button" type="submit"
-                form="cancelForm">中止</button>
-<span class="spacer"></span>
+               th:href="@{/bankTransfer/account}">戻る</a>
             <button class="form-control-button form-confirmation-button" type="submit"
                     th:disabled="${alreadyRegistered}">登録</button>
         </div>

@@ -15,8 +15,8 @@ public class TransferFee {
     // 自行。このアプリを動かしている銀行あては手数料が無料
     public static final String OWN_BANK_CODE = "0177";
 
-    // 手数料の段が変わる境目
-    static final int THRESHOLD = 30_000;
+    // 手数料の段が変わる境目。画面の案内にも同じ値を出すので外へ見せる
+    public static final int THRESHOLD = 30_000;
 
     static final int FEE_UNDER = 220;
     static final int FEE_OVER = 330;

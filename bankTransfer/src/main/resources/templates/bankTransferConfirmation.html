@@ -2,88 +2,23 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('振込内容の確認')}"></head>
 <body>
+<div th:replace="~{fragments/appbar :: appbar}"></div>
 <div class="content">
     <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(2)}
                                   : ~{fragments/stepper :: stepper(5)}"></div>
-    <h1>振込内容の確認</h1>
+    <div th:replace="~{fragments/titlebar :: titleWithCancel('振込内容の確認')}"></div>
     <p class="lead">内容をご確認のうえ、「振込」を押してください。</p>
 
-    <dl class="summary" th:object="${input}">
-        <div class="summary-row">
-            <dt>金融機関</dt>
-            <dd th:text="|*{bankName}（*{bankCode}）|">AAA銀行（0001）</dd>
-            <!-- 履歴・登録先から来たときは項目ごとに直せない。振込先ごと選び直してもらう -->
-            <a class="link-edit" th:if="${fromSaved}"
-               th:href="@{/bankTransfer}">選び直す</a>
-            <a class="link-edit" th:unless="${fromSaved}"
-               th:href="@{/bankTransfer/bank}">変更</a>
-        </div>
-        <div class="summary-row">
-            <dt>支店</dt>
-            <dd th:text="|*{branchName}（*{branchCode}）|">A1支店（001）</dd>
-            <a class="link-edit" th:unless="${fromSaved}"
-               th:href="@{/bankTransfer/branch}">変更</a>
-        </div>
-        <div class="summary-row">
-            <dt>科目</dt>
-            <dd th:text="*{bankAccountType}">普通</dd>
-            <a class="link-edit" th:unless="${fromSaved}"
-               th:href="@{/bankTransfer/account}">変更</a>
-        </div>
-        <div class="summary-row">
-            <dt>口座番号</dt>
-            <dd th:text="*{bankAccountNum}">1234567</dd>
-            <a class="link-edit" th:unless="${fromSaved}"
-               th:href="@{/bankTransfer/account}">変更</a>
-        </div>
-        <div class="summary-row">
-            <dt>口座名義</dt>
-            <dd th:text="*{name}">ﾔﾏﾀﾞ ﾀﾛｳ</dd>
-            <a class="link-edit" th:unless="${fromSaved}"
-               th:href="@{/bankTransfer/account}">変更</a>
-        </div>
-        <div class="summary-row">
-            <dt>振込金額</dt>
-            <dd><span th:text="${#numbers.formatInteger(input.money, 1, 'COMMA')}">1,234,567</span><span
-                    class="unit">円</span></dd>
-            <a class="link-edit" th:href="@{/bankTransfer/amount}">変更</a>
-        </div>
-        <div class="summary-row">
-            <dt>手数料</dt>
-            <dd><span th:text="${#numbers.formatInteger(input.fee, 1, 'COMMA')}">330</span><span
-                    class="unit">円</span></dd>
-        </div>
-        <div class="summary-row is-amount">
-            <dt>合計金額</dt>
-            <dd><span th:text="${#numbers.formatInteger(input.total, 1, 'COMMA')}">1,234,897</span><span
-                    class="unit">円</span></dd>
-        </div>
-        <div class="summary-row">
-            <dt>振込前の残高</dt>
-            <dd><span th:text="${#numbers.formatInteger(balance, 1, 'COMMA')}">1,000,000</span><span
-                    class="unit">円</span></dd>
-        </div>
-        <div class="summary-row">
-            <dt>振込後の残高</dt>
-            <dd><span th:text="${#numbers.formatInteger(balanceAfter, 1, 'COMMA')}">998,766</span><span
-                    class="unit">円</span></dd>
-        </div>
-        <div class="summary-row">
-            <dt>振込指定日</dt>
-            <dd th:text="*{transferDateTime}">2026-08-27</dd>
-            <a class="link-edit" th:href="@{/bankTransfer/amount}">変更</a>
-        </div>
-    </dl>
+    <div th:replace="~{fragments/summary :: summary(${input}, true)}"></div>
 
     <form th:action="@{/bankTransfer/completion}" method="post">
         <!-- 二重送信防止用のワンタイムトークン -->
         <input type="hidden" name="transferToken" th:value="${transferToken}"/>
-        <div class="actions">
+        <!-- 最後の一押しだけは右下ではなく中央に置く。ここは手順を進める操作ではなく、
+             実際にお金が動く操作なので、他の画面と同じ定位置に置かない -->
+        <div class="actions is-commit">
             <a class="form-control-button form-clear-button" th:href="@{/bankTransfer/amount}">戻る</a>
-            <button class="form-control-button form-cancel-button" type="submit"
-                    form="cancelForm">中止</button>
-            <span class="spacer"></span>
-            <button class="form-control-button form-confirmation-button" type="submit" id="submit">振込</button>
+            <button class="form-control-button form-commit-button" type="submit" id="submit">振込</button>
         </div>
     </form>
 </div>

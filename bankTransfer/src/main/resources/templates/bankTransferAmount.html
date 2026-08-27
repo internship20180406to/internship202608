@@ -2,14 +2,17 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('金額と振込指定日')}"></head>
 <body>
+<div th:replace="~{fragments/appbar :: appbar}"></div>
 <div class="content">
     <div th:replace="${fromSaved} ? ~{fragments/stepper :: stepperSaved(1)}
                                   : ~{fragments/stepper :: stepper(4)}"></div>
-    <h1>金額と振込指定日</h1>
+    <div th:replace="~{fragments/titlebar :: titleWithCancel('金額と振込指定日')}"></div>
     <div th:replace="~{fragments/recap :: recap(${input})}"></div>
 
     <!-- 確定の直前に残高が足りず戻されたとき -->
     <p class="text-danger" th:if="${balanceShort}" th:text="${balanceShort}"></p>
+    <!-- 確定の直前に振込指定日が過去になっていたとき（本日を選んだまま日付をまたいだ場合） -->
+    <p class="text-danger" th:if="${dateExpired}" th:text="${dateExpired}"></p>
 
     <p class="balance-note">振込可能額
         <span class="balance-amount"
@@ -20,14 +23,17 @@
         <div class="field">
             <label class="field-label" for="money">金額</label>
             <span class="input-with-unit">
-                <input class="form-control" id="money" type="text" th:field="*{money}"
+                <input class="form-control is-short" id="money" type="text" th:field="*{money}"
                        th:classappend="${#fields.hasErrors('money')} ? 'has-error'"
-                       inputmode="numeric" placeholder="10,000" autocomplete="off"/>
+                       inputmode="numeric" placeholder="10,000" autocomplete="off"
+                       th:data-max="${maxTransfer}"/>
                 <span class="unit">円</span>
             </span>
             <span class="hint" th:unless="${#fields.hasErrors('money')}"
                   th:text="|1回の振込は ${#numbers.formatInteger(maxTransfer, 1, 'COMMA')} 円までです|">1回の振込は 2,000,000 円までです</span>
             <span class="text-danger" th:if="${#fields.hasErrors('money')}" th:errors="*{money}"></span>
+            <!-- 数字にならない字を打ったときだけ出る。文言は bankTransferAmount.js が入れる -->
+            <span class="text-danger" data-warn-for="money" hidden></span>
         </div>
 
         <!-- 手数料の扱い。自行あては無料なので選ばせる意味がない -->
@@ -51,7 +57,7 @@
 
         <div class="field">
             <label class="field-label" for="transferDateTime">振込指定日</label>
-            <input class="form-control" id="transferDateTime" type="date" th:field="*{transferDateTime}" autocomplete="off"
+            <input class="form-control is-short" id="transferDateTime" type="date" th:field="*{transferDateTime}" autocomplete="off"
                    th:classappend="${#fields.hasErrors('transferDateTime')} ? 'has-error'"
                    th:min="${today}"/>
             <div class="chips">
@@ -66,14 +72,12 @@
 
         <div class="actions">
             <a class="form-control-button form-clear-button" th:href="${fromSaved} ? @{/bankTransfer} : @{/bankTransfer/account}">戻る</a>
-            <button class="form-control-button form-cancel-button" type="submit"
-                    form="cancelForm">中止</button>
-            <span class="spacer"></span>
             <button class="form-control-button form-confirmation-button" type="submit">確認</button>
         </div>
     </form>
 </div>
 <div th:replace="~{fragments/cancel :: cancel}"></div>
+<script src="/js/bankTransferText.js"></script>
 <script src="/js/bankTransferAmount.js"></script>
 </body>
 </html>

@@ -7,6 +7,9 @@ import java.time.LocalDate;
 //
 // 振込先を決めるのは 金融機関・支店・科目・口座番号 の4つ。
 // 口座名義はこの4つが決まれば決まるので、鍵には含めない。
+//
+// lastAmount は最後に振り込んだ金額。一覧で「いくら送ったか」の目印になる。
+// 記録が無い古い行に備えて Integer（null あり）で持つ。
 public record RecentPayee(
         String bankCode,
         String bankName,
@@ -15,5 +18,6 @@ public record RecentPayee(
         String bankAccountType,
         String bankAccountNum,
         String name,
+        Integer lastAmount,
         LocalDate lastTransferredOn) {
 }

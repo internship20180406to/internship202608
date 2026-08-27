@@ -17,6 +17,10 @@ public class TransferHistoryRepository {
 
     private static final RowMapper<RecentPayee> ROW_MAPPER = (rs, rowNum) -> {
         Date last = rs.getDate("lastTransferredOn");
+        // 金額は NULL を区別したいので、読んだ直後に wasNull() を見る。
+        // getObject のキャストだと、列の型が変わったときに ClassCastException になる
+        int amount = rs.getInt("lastAmount");
+        Integer lastAmount = rs.wasNull() ? null : amount;
         return new RecentPayee(
                 rs.getString("bankCode"),
                 rs.getString("bankName"),
@@ -25,6 +29,7 @@ public class TransferHistoryRepository {
                 rs.getString("bankAccountType"),
                 rs.getString("bankAccountNum"),
                 rs.getString("name"),
+                lastAmount,
                 last == null ? null : last.toLocalDate());
     };
 
@@ -33,21 +38,32 @@ public class TransferHistoryRepository {
 
     // 同じ振込先を1件にまとめる。
     // 名義や金融機関名は後から変わることがあるので、まとめた中の
-    // 最も新しい行の値を採る（MAX(id) の行）。
+    // 最も新しい行の値を採る。
+    //
+    // 集約関数（MAX）で列ごとに拾うと、項目が別々の行から集まった1件ができる。
+    // 実際それで「12月1日に振り込んだ 1,000円」のような、日付と金額が
+    // 噛み合わない表示が出た。行を1つ選び、その行から全部の値を採る。
+    //
+    // 「最も新しい行」は振込指定日で決める。画面に出しているのがその日付で、
+    // 申込順（id）で選ぶと、先の日付を指定できるぶん表示とずれる。
+    // 同じ日が並んだときだけ、後から申し込んだ方を新しいとみなす
     private static final String SELECT = """
-            SELECT t.bankCode, t.branchCode, t.bankAccountType, t.bankAccountNum,
-                   latest.bankName, latest.branchName, latest.name,
-                   t.lastTransferredOn
+            SELECT t.bankCode, t.bankName, t.branchCode, t.branchName,
+                   t.bankAccountType, t.bankAccountNum, t.name,
+                   t.money AS lastAmount,
+                   t.transferDateTime AS lastTransferredOn
               FROM (
-                    SELECT bankCode, branchCode, bankAccountType, bankAccountNum,
-                           MAX(id) AS latestId,
-                           MAX(transferDateTime) AS lastTransferredOn
+                    SELECT id, bankCode, bankName, branchCode, branchName,
+                           bankAccountType, bankAccountNum, name, money, transferDateTime,
+                           ROW_NUMBER() OVER (
+                               PARTITION BY bankCode, branchCode,
+                                            bankAccountType, bankAccountNum
+                               ORDER BY transferDateTime DESC, id DESC) AS rn
                       FROM bankTransfer_table
                      WHERE userId = ?
                        AND bankCode IS NOT NULL
-                     GROUP BY bankCode, branchCode, bankAccountType, bankAccountNum
                    ) t
-              JOIN bankTransfer_table latest ON latest.id = t.latestId
+             WHERE t.rn = 1
             """;
 
     private final JdbcTemplate jdbcTemplate;
@@ -61,7 +77,7 @@ public class TransferHistoryRepository {
     // 振込指定日は先の日付を選べるため、表示された日付が降順に見えなくなる。
     // 同じ日が並んだときだけ、後から申し込んだ方を先にする
     public List<RecentPayee> findRecent(String userId) {
-        String sql = SELECT + " ORDER BY t.lastTransferredOn DESC, t.latestId DESC LIMIT " + LIMIT;
+        String sql = SELECT + " ORDER BY t.transferDateTime DESC, t.id DESC LIMIT " + LIMIT;
         return jdbcTemplate.query(sql, ROW_MAPPER, userId);
     }
 
@@ -70,7 +86,7 @@ public class TransferHistoryRepository {
     public Optional<RecentPayee> find(String userId, String bankCode, String branchCode,
                                       String bankAccountType, String bankAccountNum) {
         String sql = SELECT + """
-                 WHERE t.bankCode = ? AND t.branchCode = ?
+                   AND t.bankCode = ? AND t.branchCode = ?
                    AND t.bankAccountType = ? AND t.bankAccountNum = ?
                 """;
         return jdbcTemplate.query(sql, ROW_MAPPER, userId, bankCode, branchCode,

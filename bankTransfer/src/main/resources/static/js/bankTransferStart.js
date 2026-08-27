@@ -9,14 +9,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const rows = Array.from(list.children);
 
+    // 探す対象は data-search に入れてある。行の文字全部を見ると
+    // 「削除」や「最終振込日」まで引っかかってしまう。
+    // 名義は半角カタカナで入っているので、打った字と一緒に同じ形へ寄せてから比べる。
+    // こうすると「やまだ」「ヤマダ」「ﾔﾏﾀﾞ」のどれで打っても同じ行に当たる。
+    // 行の側は変わらないので、最初に1回だけ寄せておく
+    const targets = rows.map((row) => window.bankTransferText.normalize(row.dataset.search || ''));
+
     input.addEventListener('input', () => {
-        const keyword = input.value.trim().toLowerCase();
+        const keyword = window.bankTransferText.normalize(input.value);
         let shown = 0;
-        rows.forEach((row) => {
-            // 探す対象は data-search に入れてある。行の文字全部を見ると
-            // 「削除」や「最終振込日」まで引っかかってしまう
-            const hit = keyword === ''
-                || (row.dataset.search || '').toLowerCase().indexOf(keyword) >= 0;
+        rows.forEach((row, index) => {
+            const hit = keyword === '' || targets[index].indexOf(keyword) >= 0;
             row.hidden = !hit;
             if (hit) {
                 shown++;

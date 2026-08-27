@@ -2,14 +2,22 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('振込')}"></head>
 <body>
-<div class="content">
-    <!-- ここはまだ手順に入っていない（通常の振込へも抜けられる）のでステッパーを出さない -->
+<div th:replace="~{fragments/appbar :: appbar}"></div>
+<div class="content is-list">
+    <!-- ここはまだ手順に入っていない（通常の振込へも抜けられる）のでステッパーを出さない。
+         代わりに、いま銀行のどこにいるかをパンくずで示す。
+         ホームはまだ無いので、リンクにはしない -->
+    <nav class="crumbs" aria-label="現在位置">
+        <span>ホーム</span>
+        <span class="crumbs-sep" aria-hidden="true">/</span>
+        <span aria-current="page">振込</span>
+    </nav>
     <h1>振込</h1>
 
     <!-- タブはリンク。JSが無くても切り替わる -->
     <nav class="tabs">
         <a class="tab" th:classappend="${tab == 'history'} ? 'is-current'"
-           th:href="@{/bankTransfer}">履歴</a>
+           th:href="@{/bankTransfer}">最近の振込先</a>
         <a class="tab" th:classappend="${tab == 'payees'} ? 'is-current'"
            th:href="@{/bankTransfer/payees}">登録済み</a>
     </nav>
@@ -23,7 +31,7 @@
         </svg>
         <label class="visually-hidden" for="payeeFilter">一覧を絞り込む</label>
         <input class="form-control" id="payeeFilter" type="search"
-               placeholder="受取人名　支店名　口座番号" autocomplete="off"/>
+               placeholder="名前・支店・口座番号で検索" autocomplete="off"/>
     </div>
 
     <ul class="payeelist" id="payeeList" th:if="${!payees.isEmpty()}">
@@ -36,7 +44,7 @@
                 <input type="hidden" name="bankAccountType" th:value="${payee.bankAccountType()}"/>
                 <input type="hidden" name="bankAccountNum" th:value="${payee.bankAccountNum()}"/>
                 <button class="payee-row" type="submit">
-                    <span>
+                    <span class="payee-main">
                         <span class="payee-nickname" th:text="${payee.name()}">ﾔﾅｷﾞﾀ ﾕｳｷ</span>
                         <span class="payee-account">
                             <span th:text="${payee.bankName()}">AAA銀行</span>
@@ -44,8 +52,15 @@
                             <span th:text="${payee.bankAccountType()}">普通</span>
                             <span th:text="${payee.bankAccountNum()}">1234567</span>
                         </span>
-                        <span class="payee-last">最終振込日
-                            <span th:text="${payee.lastTransferredOn()}">2026-09-02</span></span>
+                    </span>
+                    <!-- 前回いくら送ったか。同じ相手でも用途が違うことがあるので、
+                         金額と日付を並べて思い出せるようにする -->
+                    <span class="payee-side">
+                        <span class="payee-amount" th:if="${payee.lastAmount() != null}"
+                              th:text="|¥${#numbers.formatInteger(payee.lastAmount(), 1, 'COMMA')}|">¥120,000</span>
+                        <!-- 年は同じ年の記録がほとんどで場所を取るだけなので落とす -->
+                        <span class="payee-date" th:if="${payee.lastTransferredOn() != null}"
+                              th:text="|${payee.lastTransferredOn().getMonthValue()}月${payee.lastTransferredOn().getDayOfMonth()}日|">9月3日</span>
                     </span>
                     <span class="picklist-chevron" aria-hidden="true">›</span>
                 </button>
@@ -58,20 +73,22 @@
             <form th:action="@{/bankTransfer/payees/select}" method="post">
                 <input type="hidden" name="id" th:value="${payee.id()}"/>
                 <button class="payee-row" type="submit">
-                    <span>
+                    <span class="payee-main">
                         <span class="payee-nickname" th:text="${payee.nickname()}">家賃</span>
+                        <!-- 口座の素性は履歴タブと同じ並びで出し、末尾に名義を足す。
+                             太字の行は呼び名（利用者が付ける見出し）で、名義とは別物 -->
                         <span class="payee-account">
                             <span th:text="${payee.bankName()}">AAA銀行</span>
                             <span th:text="${payee.branchName()}">A1支店</span>
                             <span th:text="${payee.bankAccountType()}">普通</span>
                             <span th:text="${payee.bankAccountNum()}">1234567</span>
+                            <span th:text="${payee.name()}">ﾔﾏﾀﾞ ﾀﾛｳ</span>
                         </span>
-                        <span class="payee-last" th:text="${payee.name()}">ﾔﾏﾀﾞ ﾀﾛｳ</span>
                     </span>
                     <span class="picklist-chevron" aria-hidden="true">›</span>
                 </button>
             </form>
-            <!-- 消す側。振り込む操作と取り違えないよう、行の外に小さく置く -->
+            <!-- 消す側。振り込む操作と取り違えないよう、行のボタンの外に小さく置く -->
             <form class="payee-delete" th:action="@{/bankTransfer/payees/delete}" method="post">
                 <input type="hidden" name="id" th:value="${payee.id()}"/>
                 <button class="link-danger" type="submit"
@@ -85,21 +102,22 @@
 
     <p class="empty" th:if="${payees.isEmpty() and tab == 'history'}">
         まだ振込の履歴がありません。<br/>
-        下の「新しい振込先を指定して振り込む」から始めてください。
+        下の「新しい振込先を指定」から始めてください。
     </p>
     <p class="empty" th:if="${payees.isEmpty() and tab == 'payees'}">
         まだ振込先を登録していません。<br/>
         下の「口座情報を登録」から登録できます。
     </p>
 
+    <!-- 縦に積む。主たる操作を先に置き、読む順と押す順を揃える -->
     <div class="actions is-sticky">
+        <a class="form-control-button form-confirmation-button"
+           th:href="@{/bankTransfer/new}">新しい振込先を指定</a>
         <a class="form-control-button form-outline-button"
            th:href="@{/bankTransfer/payees/new}">口座情報を登録</a>
-        <span class="spacer"></span>
-        <a class="form-control-button form-confirmation-button"
-           th:href="@{/bankTransfer/new}">新しい振込先を指定して振り込む</a>
     </div>
 </div>
+<script src="/js/bankTransferText.js"></script>
 <script src="/js/bankTransferStart.js"></script>
 </body>
 </html>

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- 見出しの行。手順の途中の画面はここに「中止」を置く。
+     中止は手順から抜けて入力を全部捨てる操作で、1つ戻るだけの「戻る」とは
+     取り返しのつかなさが違う。下の行に並べると指の移動が数ミリしかないので、
+     画面の上下で離している。
+     押したときの確認は bankTransferCancel.js が button[form="cancelForm"] に付ける。
+     使い方: <div th:replace="~{fragments/titlebar :: titleWithCancel('支店の選択')}"></div> -->
+<div class="titlebar" th:fragment="titleWithCancel(title)">
+    <h1 th:text="${title}">見出し</h1>
+    <button class="link-cancel" type="submit" form="cancelForm">中止</button>
+</div>
+
+</body>
+</html>

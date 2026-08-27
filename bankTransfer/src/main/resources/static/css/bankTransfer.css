@@ -6,11 +6,13 @@
 
 :root {
     /* ---- 配色 ---- */
-    --ground:        #E3EFF3;   /* ページの下地。アクセントと同じ色相(195°)を、彩度を落として敷いている */
-    --surface:       #FFFFFF;   /* カードの面 */
+    --surface:       #FFFFFF;   /* 面。帯より下はこれ一枚で、下地に色は敷かない */
     --accent:        #1998CF;   /* 主要な操作・現在地 */
     --accent-hover:  #157FAE;   /* --accent を同じ比率で暗くしたもの */
     --accent-soft:   #E5F6FC;
+    --commit:        #EA580C;   /* 実行（振込）だけの色。青の手順から外れた1押しだと分かるよう色相を変える */
+    --commit-hover:  #C2410C;   /* 押し下げは、以前ここに使っていた濃い橙 */
+    --panel-fill:    #EAF8FD;   /* 読むだけの情報を敷く面。面は白一枚なので、ここだけ水色で浮かせる */
     --neutral-btn:   #E0E1E2;   /* 副次的な操作 */
     --field-fill:    #F1F3F5;   /* 検索欄の塗り */
     --neutral-hover: #CCCCCC;
@@ -23,6 +25,9 @@
     --hairline:      #E3E6EA;
     --field-border:  #B8BEC6;
     --row-hover:     #F5FAFC;
+
+    /* ---- 寸法 ---- */
+    --appbar-h:      60px;      /* 上の帯。画面に収める高さの計算で引く */
 
     /* ---- タイポグラフィ ----
        欧文を先に置くことで、英数字はSegoe UI、日本語はメイリオに振り分かる。
@@ -43,30 +48,124 @@
     box-sizing: border-box;
 }
 
+/* hidden を付けた要素は必ず消す。
+   ブラウザ既定の [hidden]{display:none} は要素セレクタ相当の弱さしかなく、
+   クラスで display を指定していると負ける。実際 .payeelist li に
+   display:flex を足したとき、絞り込みで隠したはずの行が消えなくなった。
+   隠す指定は他の見た目より優先されるべきなので !important を付ける */
+[hidden] {
+    display: none !important;
+}
+
 body {
     margin: 0;
-    padding: 40px 0;
+    /* 上は帯が埋めるので空けない */
+    padding: 0 0 24px;
     min-height: 100vh;
-    background-color: var(--ground);
+    background-color: var(--surface);
     color: var(--ink);
     font-family: var(--font);
     font-size: var(--size-body);
     line-height: var(--lh-body);
 }
 
+/* 下地に色を敷くのをやめたので、カードとして浮かせる意味が無くなった。
+   影・角丸・面の色は外し、幅を決めて中央に置くだけにする。
+   幅の上限は用途で分ける。入力と確認の画面は、1行が長いと読み終わって
+   目を左に戻すのがつらくなるので 640px で止める。入力欄自体も12em前後なので、
+   これ以上広げてもラベルと欄の間が空くだけ。一覧の画面だけ下で広げる */
 .content {
-    background-color: var(--surface);
     width: 80%;
-    max-width: 880px;
+    max-width: 640px;
     margin: 0 auto;
     padding: 24px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, .1);
+}
+
+/* ============================================================
+   上の帯（全画面共通）
+   ============================================================ */
+/* 高さは --appbar-h に固定する。入口の画面は「帯の下に収まる高さ」を
+   計算して一覧を送るので、中身なりに伸び縮みすると計算が合わなくなる */
+.appbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: var(--appbar-h);
+    padding: 0 24px;
+    background-color: var(--accent);
+    color: var(--surface);
+}
+
+/* 銀行名は入口へ戻る導線を兼ねる */
+.appbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* 大きさは決めた表（14/16/24/32）から採る。帯の中では太さで差を付ける */
+    font-size: var(--size-body);
+    font-weight: 600;
+    color: inherit;
+    text-decoration: none;
+}
+
+.appbar-brand:focus-visible {
+    outline: 2px solid var(--surface);
+    outline-offset: 4px;
+}
+
+.appbar-mark {
+    width: 24px;
+    height: 24px;
+}
+
+/* まだ機能が無いので、押せる見た目（塗り・枠・カーソル）は与えない */
+.appbar-icons {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.appbar-icons svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* ============================================================
+   パンくず
+   ============================================================ */
+/* いま銀行のどこにいるかの目印。ホームがまだ無いのでリンクにはしていない */
+.crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 8px;
+    margin: 0 0 8px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
+}
+
+.crumbs-sep {
+    color: var(--hairline);
 }
 
 /* ============================================================
    見出し
    ============================================================ */
+/* 見出しと「中止」を1行に並べる。中止は手順から抜ける操作なので、
+   手順の中を動かす下の行（戻る・次へ）から離して上に置く */
+.titlebar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 20px;
+}
+
+.titlebar h1 {
+    margin: 0;
+}
+
 h1 {
     margin: 0 0 20px;
     font-size: var(--size-heading);
@@ -173,8 +272,21 @@ h1 {
    フォーム部品は font-size を継承しないので必ず明示する。
    16px は iOS Safari がフォーカス時に自動拡大しない境界値でもある
    ============================================================ */
+/* 項目どうしの切れ目に細い線を引く。ラベル・入力欄・注釈が縦に続くと
+   どこまでが1つの項目か分からないので、線で区切って読む単位を作る。
+   線は項目の上側に付け、フォームの先頭の項目だけ外す
+   （見出しのすぐ下に線が来ると、見出しまで表の一部に見える）。
+   一覧の行を分ける線（1px）より太くして、項目の切れ目のほうを強く見せる */
 .field {
     margin: 0 0 20px;
+    padding-top: 20px;
+    border-top: 2px solid var(--hairline);
+}
+
+form > .field:first-child,
+form > .radios:first-child {
+    padding-top: 0;
+    border-top: none;
 }
 
 .field-label {
@@ -194,6 +306,18 @@ h1 {
     background-color: var(--surface);
     border: 1px solid var(--field-border);
     border-radius: 6px;
+}
+
+/* 欄の幅は「何がどれだけ入るか」の予告として読まれる。
+   入る文字数が決まっている欄は、その長さで止める。
+   width:100% は残してあるので、狭い画面では今までどおり画面幅まで縮む。
+   口座名義（20文字）と検索欄は、入る長さが決まっていないので横いっぱいのまま */
+.form-control.is-short {
+    max-width: 12em;    /* 2,000,000（9文字）と 2026-08-27 が入る幅 */
+}
+
+.form-control.is-tiny {
+    max-width: 10em;    /* 口座番号7桁 */
 }
 
 .form-control::placeholder {
@@ -260,8 +384,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 /* ラジオボタン。丸い部品に四角い枠が付かないよう、選択肢全体を囲む形にする */
 .radios {
     margin: 0 0 20px;
-    padding: 0;
+    padding: 20px 0 0;
+    /* fieldset の既定の枠は消し、項目の切れ目の線だけ引く */
     border: none;
+    border-top: 2px solid var(--hairline);
 }
 
 .radios legend {
@@ -325,10 +451,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     margin-top: 28px;
 }
 
-.actions .spacer {
-    flex: 1;
-}
-
 /* 一覧が長くても常に押せるよう、画面の下に貼り付ける。
    position:fixed ではなく sticky にしているのは、カードの幅と余白に
    そのまま乗ってくれるため。一番下まで送ると、そこで収まって止まる。
@@ -341,7 +463,70 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     padding: 16px 24px;
     background-color: var(--surface);
     border-top: 1px solid var(--hairline);
-    border-radius: 0 0 10px 10px;
+}
+
+/* 入口の画面だけ、カードを画面の高さに収めて一覧の中だけを送る。
+   見出し・操作・タブ・絞り込みが流れていかないので、件数が増えても
+   「振り込む」がいつでも押せる。
+   max-height なので、行が少ないうちはカードが縮んでスクロールも出ない。
+   dvh はモバイルでURLバーの出入りに追従する。読めない環境用に vh を先に置く */
+.content.is-list {
+    display: flex;
+    flex-direction: column;
+    /* 一覧は1行が短いので、広い画面では横を使って件数を見せたほうがいい */
+    max-width: 880px;
+    /* 見出しまわりを詰めた分を一覧に回す */
+    padding-top: 16px;
+    /* 引くのは 帯 + 画面の下余白24px。
+       ただし 600px より下では抑えない。低い画面でそのまま詰めると
+       一覧が1〜2行になり、窓から覗いているようで一覧に見えないため。
+       その場合はカードが画面からはみ出してページごと送る形になるが、
+       下の操作は position:sticky で画面の下端に貼り付いたままなので押せる。
+       max-height なので、行が少ないうちはカードが縮む（600pxまで伸びはしない） */
+    max-height: max(calc(100vh - var(--appbar-h) - 24px), 600px);
+    max-height: max(calc(100dvh - var(--appbar-h) - 24px), 600px);
+}
+
+.content.is-list h1 {
+    margin-bottom: 12px;
+}
+
+/* 入口の2つは行き先がまったく別（振り込む／登録する）なので、横に並べると
+   どちらを押すのか読み取りにくい。縦に積んで、上から順に選ばせる。
+   帯そのものはカードの端まで伸ばしたままなので、幅は中のボタンで抑える */
+.content.is-list .actions {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    /* 縦に積むと帯が厚くなる。その分だけ一覧が痩せるので、余白は削る */
+    margin-top: 16px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+/* 一覧の下で受け止める操作なので、行より押しやすい高さにする。
+   横幅は全部使わない。指も目も端まで運ばずに済む */
+.content.is-list .actions .form-control-button {
+    width: 100%;
+    max-width: 360px;
+    padding-top: 13px;
+    padding-bottom: 13px;
+    border-radius: 6px;
+}
+
+/* 高さが足りないとき縮むのは一覧だけ。ほかは自然な高さのまま */
+.content.is-list > * {
+    flex: 0 0 auto;
+}
+
+/* 余りを受け取り、足りなければ縮む。min-height:0 が無いと
+   flex アイテムは中身の高さより縮まず、カードからはみ出す */
+.content.is-list .payeelist {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 
@@ -367,17 +552,70 @@ a.form-control-button {
     background-color: var(--accent);
 }
 
+/* 実行（振込）だけの色。ここまで青で進めてきた手順から色を変えることで、
+   「もう1段進む」ではなく「ここでお金が動く」と分かる。
+   白文字とのコントラストは 3.6:1 で、以前の濃い橙（#C2410C, 5.2:1）より下がる。
+   画面の中でいちばん目立たせたい1押しなので、明るさを優先すると決めた。
+   これ以上明るくすると（#F97316 で 2.8:1）白文字が読みにくくなる */
+/* 文字は見出しと同じ大きさにして太くする。強調を2つ重ねるのは他ではやらないが、
+   この1押しだけは画面の中で最も強くていい（押した瞬間にお金が動く操作） */
+.form-commit-button {
+    color: var(--surface);
+    background-color: var(--commit);
+    font-size: var(--size-heading);
+    line-height: var(--lh-heading);
+    font-weight: 700;
+}
+
+.form-commit-button:hover {
+    background-color: var(--commit-hover);
+}
+
 .form-confirmation-button:hover {
     background-color: var(--accent-hover);
 }
 
-.form-clear-button {
-    color: var(--ink);
-    background-color: var(--neutral-btn);
+/* 実行の一押しは中央に置く。3列にして真ん中の桁だけボタンに使い、
+   左右は同じ幅の余りにする。こうすると「戻る」の文字数が変わっても
+   ボタンは画面の中心から動かない */
+.actions.is-commit {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
 }
 
-.form-clear-button:hover {
-    background-color: var(--neutral-hover);
+.actions.is-commit .form-clear-button {
+    justify-self: start;
+}
+
+.actions.is-commit .form-commit-button {
+    grid-column: 2;
+    min-width: 220px;
+}
+
+/* 「戻る」は塗らない。塗りのボタンを画面に1つ（主たる操作）だけにすると、
+   どこを押せば進むのかが色だけで決まる。
+   a.form-control-button の display を上書きするため、クラス2つで指定する */
+.form-control-button.form-clear-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+    color: var(--ink-muted);
+    background-color: transparent;
+}
+
+/* 山形を添えて、読むだけの文字ではなく「戻る先がある」ことを示す */
+.form-control-button.form-clear-button::before {
+    content: "‹";
+    font-size: 20px;
+    line-height: 1;
+}
+
+.form-control-button.form-clear-button:hover {
+    color: var(--ink);
+    text-decoration: underline;
 }
 
 /* 灰色に埋もれさせたくないが、主要操作でもない操作。
@@ -394,15 +632,29 @@ a.form-control-button {
 }
 
 /* 中止。押し間違えると入力が消えるので、塗らずに一番目立たせない */
-.form-cancel-button {
-    padding: 10px 16px;
+/* 見出しの行に置く「中止」。塗りも枠も持たせず、下線だけで押せると示す
+   （この画面で唯一、進まずに全部捨てる操作なので、目立たせない） */
+.link-cancel {
+    padding: 2px 4px;
+    font-family: var(--font);
+    font-size: var(--size-body);
+    line-height: var(--lh-body);
     color: var(--ink-muted);
     background-color: transparent;
+    border: none;
     text-decoration: underline;
+    cursor: pointer;
+    /* 見出しが折り返しても、中止だけは1行に保つ */
+    white-space: nowrap;
 }
 
-.form-cancel-button:hover {
+.link-cancel:hover {
     color: var(--ink);
+}
+
+.link-cancel:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .form-control-button:focus-visible {
@@ -738,18 +990,21 @@ a.startlist-row:focus-visible {
    リンクなので「塗り＋角丸」を与えてよい。選ばれている方は
    白く浮かせるだけにして、太さや色は動かさない
    ============================================================ */
+/* 下線で今どちらを見ているかを示す。帯の下線は行全体に引き、
+   選ばれているタブだけ太い線で上書きする。
+   タブは「面」ではなく「見出しの並び」なので、塗りも枠も与えない */
 .tabs {
-    display: inline-flex;
-    gap: 4px;
-    margin: 0 0 20px;
-    padding: 4px;
-    background-color: var(--ground);
-    border-radius: 999px;
+    display: flex;
+    gap: 8px;
+    margin: 0 0 16px;
+    border-bottom: 1px solid var(--hairline);
 }
 
 .tab {
-    padding: 8px 28px;
-    border-radius: 999px;
+    padding: 10px 12px;
+    /* 選ばれたときに文字が動かないよう、太さの差の分だけ透明な線を先に敷く */
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
     font-size: var(--size-body);
     line-height: var(--lh-body);
     color: var(--ink-muted);
@@ -761,14 +1016,14 @@ a.startlist-row:focus-visible {
 }
 
 .tab.is-current {
-    background-color: var(--surface);
     color: var(--ink);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+    font-weight: 600;
+    border-bottom-color: var(--accent);
 }
 
 .tab:focus-visible {
     outline: 2px solid var(--accent);
-    outline-offset: 2px;
+    outline-offset: -2px;
 }
 
 /* 目には見せないが読み上げには残すラベル */
@@ -794,7 +1049,10 @@ a.startlist-row:focus-visible {
     border-top: 1px solid var(--hairline);
 }
 
+/* 行と削除を横に並べる。削除は行のボタンの外側に置いたまま、高さの真ん中に合わせる */
 .payeelist li {
+    display: flex;
+    align-items: center;
     border-bottom: 1px solid var(--hairline);
 }
 
@@ -802,13 +1060,22 @@ a.startlist-row:focus-visible {
     margin: 0;
 }
 
+/* 行のボタンが残りの幅を全部取る。min-width:0 が無いと、
+   中身の長い行が縮まずに削除を押し出す */
+.payeelist li > form:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 左に相手、右に前回の金額と日付、いちばん右に山形。
+   金額の桁数で左の欄が動かないよう、右の列は内容なりの幅（auto）にする */
 .payee-row {
     display: grid;
-    grid-template-columns: 1fr 1.2em;
+    grid-template-columns: 1fr auto 1.2em;
     align-items: center;
     gap: 12px;
     width: 100%;
-    padding: 14px 12px;
+    padding: 16px 12px;
     font-family: var(--font);
     font-size: var(--size-body);
     line-height: var(--lh-body);
@@ -828,35 +1095,69 @@ a.startlist-row:focus-visible {
     outline-offset: -2px;
 }
 
+.payee-main,
 .payee-bank,
-.payee-account,
-.payee-last {
+.payee-account {
     display: block;
 }
 
-/* 口座番号は桁を数えるので、字幅を揃える */
+/* 口座番号は桁を数えるので、字幅を揃える。
+   銀行・支店・科目・番号は語の途中で折らず、項目ごとに折り返す */
 .payee-account {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 12px;
+    margin-top: 2px;
+    font-size: var(--size-caption);
+    line-height: var(--lh-caption);
+    color: var(--ink-muted);
     font-variant-numeric: tabular-nums;
 }
 
-.payee-last {
-    margin-top: 2px;
+/* 右側は右端で揃える。金額と日付は縦に積む */
+.payee-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    text-align: right;
+}
+
+/* 金額は桁がずれると読めないので、字幅を揃える */
+.payee-amount {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.payee-date {
     font-size: var(--size-caption);
     line-height: var(--lh-caption);
     color: var(--ink-muted);
 }
 
-/* 登録先の呼び名。一覧で最初に目に入るので、太さだけで差をつける */
+/* 山形はいちばん右の列に置く。登録済みの行には右側（金額と日付）が無く、
+   位置を決めずにおくと中央の列へ寄ってしまう */
+.payee-row .picklist-chevron {
+    grid-column: 3;
+}
+
+/* この一覧では金額が主役なので、山形は行き先の合図として控えめにする。
+   金融機関や支店を選ぶ一覧では、山形が唯一の「進める」合図なので色は変えない */
+.payeelist .picklist-chevron {
+    color: var(--ink-muted);
+}
+
+/* 相手の名前（登録先は呼び名）。一覧で最初に目に入るので、太さだけで差をつける */
 .payee-nickname {
     display: block;
     font-weight: 700;
 }
 
-/* 削除。振り込む操作と取り違えないよう、行の外に小さく置く */
+/* 削除。振り込む操作と取り違えないよう、行のボタンの外に小さく置く。
+   隣り合うので、間は指が触れない程度に空ける */
 .payee-delete {
     margin: 0;
-    padding: 0 12px 12px;
-    text-align: right;
+    padding: 0 12px 0 16px;
 }
 
 .link-danger {
@@ -897,6 +1198,19 @@ a.startlist-row:focus-visible {
 .search .form-control {
     padding-left: 38px;
     background-color: var(--field-fill);
+}
+
+/* 入口の絞り込みも、他の画面の検索欄と同じ灰色に塗る。
+   同じ「探す」欄が画面によって白だったり灰色だったりすると、同じ部品に見えない。
+   下に一覧が続くので、高さと角丸だけ少し大きくして行と紛れないようにする */
+.content.is-list .search {
+    margin-bottom: 8px;
+}
+
+.content.is-list .search .form-control {
+    padding-top: 11px;
+    padding-bottom: 11px;
+    border-radius: 8px;
 }
 
 .search-icon {
@@ -941,13 +1255,17 @@ a.startlist-row:focus-visible {
 /* ============================================================
    確認・完了の内容表示
    ============================================================ */
-/* 前の画面までに決まった内容の控え。
-   この画面では「塗り＋枠＋角丸」が入力欄とボタンの合図なので、
-   読むだけの情報に同じ見た目を与えない */
+/* 前の画面までに決まった内容の控え。薄い水色の面で囲い、
+   これから決めるもの（白地の入力欄）と、すでに決まったものを分ける。
+   塗りだけで枠は付けない。「塗り＋枠＋角丸」は操作できるものの合図なので、
+   読むだけの情報に3つとも与えると押せるように見える。
+   色は専用の --panel-fill。金額の画面には日付のチップが同居しており、
+   ホバー色(--accent-soft)をそのまま敷くと紛らわしいため分けている */
 .recap {
     margin: 0 0 24px;
-    padding: 0 0 16px;
-    border-bottom: 1px solid var(--hairline);
+    padding: 12px 16px;
+    background-color: var(--panel-fill);
+    border-radius: 6px;
 }
 
 .recap-title {
@@ -1030,9 +1348,17 @@ a.startlist-row:focus-visible {
 /* ============================================================
    狭い幅
    ============================================================ */
+/* 段は1本だけにする。増やすほど見て回る組み合わせが増えるので、
+   実際に壊れる幅にだけ引く。
+   ステッパーの段は flex:1 の等分なので、ラベル4文字（金融機関＝56px）が
+   1列に収まるかどうかで決まる。ここより上の幅では収まっている */
 @media (max-width: 640px) {
     body {
-        padding: 20px 0;
+        padding: 0 0 16px;
+    }
+
+    .appbar {
+        padding: 0 16px;
     }
 
     .content {
@@ -1040,12 +1366,20 @@ a.startlist-row:focus-visible {
         padding: 20px 16px;
     }
 
-    /* カードの余白が変わるので、はみ出させる量も合わせる */
+    /* 引くのは 帯 + 画面の下余白16px */
+    .content.is-list {
+        max-height: max(calc(100vh - var(--appbar-h) - 16px), 600px);
+        max-height: max(calc(100dvh - var(--appbar-h) - 16px), 600px);
+    }
+
+    /* 左右の余白が変わるので、はみ出させる量も合わせる */
     .actions.is-sticky {
         margin: 20px -16px -20px;
         padding: 12px 16px;
     }
 
+    /* この幅から下は1列が52pxを切り、「金融機関」が2行に折れる。
+       段を並べるのをやめて「3 / 6」の表記に替える */
     .stepper {
         display: none;
     }
@@ -1083,5 +1417,36 @@ a.startlist-row:focus-visible {
     .form-control-button {
         flex: 1;
         padding: 10px 16px;
+    }
+
+    /* 横に並べると溢れる幅（360pxの端末では「戻る」80px＋ボタン220pxで足りない）。
+       縦に積み、主たる操作を先（上）に置いて読む順と押す順を揃える */
+    .actions.is-commit {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .actions.is-commit .form-commit-button {
+        grid-column: 1;
+        grid-row: 1;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .actions.is-commit .form-clear-button {
+        grid-column: 1;
+        grid-row: 2;
+        justify-self: stretch;
+        justify-content: center;
+    }
+
+    /* 指で触る的は44px角を目安にする。文字の大きさは変えず、
+       上下の余白だけで確保する（大きさを変えると強調に見える） */
+    .link-edit,
+    .link-danger,
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
     }
 }

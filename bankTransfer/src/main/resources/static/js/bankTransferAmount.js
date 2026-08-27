@@ -6,10 +6,40 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // 全角で打たれた数字は半角に直してから数える。口座番号の欄と同じ規則なので、
+    // 変換そのものは bankTransferText.js が持っている
+    const toHalfDigits = window.bankTransferText.toHalfDigits;
+
+    // 上限を超える桁はそもそも打てないようにする。上限が2,000,000なら8桁目から先は入らない。
+    // 打ててから確認画面で怒られるより、入らないほうが早い。
+    // ただし桁で止めても上限は超えられる（9,999,999は7桁）ので、値でも見て知らせる。
+    // 上限そのものはサーバが持っていて、data-max で受け取る
+    const maxTransfer = Number(moneyInput.dataset.max) || 0;
+    const maxDigits = maxTransfer > 0 ? String(maxTransfer).length : 0;
+
+    // 数字にもカンマにもならない字は入れない。何が入らなかったのかを知らせる
+    const warn = document.querySelector('[data-warn-for="money"]');
+    const tell = (dropped, over) => {
+        if (warn === null) {
+            return;
+        }
+        let message = '';
+        if (over) {
+            message = '1回の振込は ' + maxTransfer.toLocaleString('ja-JP') + ' 円までです';
+        } else if (dropped !== '') {
+            message = '数字以外は入力できません';
+        }
+        warn.textContent = message;
+        warn.hidden = message === '';
+    };
+
     // 数字以外を取り除いたうえで3桁ごとにカンマを入れる
     // Numberを経由すると桁数が大きいときに値が変わってしまうため、文字列のまま組み立てる
     const format = (value) => {
-        const digits = value.replace(/[^0-9]/g, '');
+        let digits = toHalfDigits(value).replace(/[^0-9]/g, '');
+        if (maxDigits > 0) {
+            digits = digits.slice(0, maxDigits);
+        }
         let formatted = '';
         for (let i = 0; i < digits.length; i++) {
             if (i > 0 && (digits.length - i) % 3 === 0) {
@@ -42,9 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     moneyInput.addEventListener('input', () => {
-        const digitsBeforeCaret = moneyInput.value.slice(0, moneyInput.selectionStart).replace(/[^0-9]/g, '').length;//カーソルより前を切り出す
+        const before = toHalfDigits(moneyInput.value);
+        const digitsBeforeCaret = toHalfDigits(moneyInput.value.slice(0, moneyInput.selectionStart)).replace(/[^0-9]/g, '').length;//カーソルより前を切り出す
         moneyInput.value = format(moneyInput.value);//コンマを追加
         moveCaret(digitsBeforeCaret);//カーソルをずらす
+        // 入らなかった字と、入ったけれど上限を超えている額を知らせる
+        const shown = Number(moneyInput.value.replace(/,/g, '') || 0);
+        tell(before.replace(/[0-9,]/g, ''), maxTransfer > 0 && shown > maxTransfer);
     });
 
     // 入力エラーで入力画面に戻ってきたときのために、表示時にも整形しておく

@@ -67,7 +67,7 @@ class BankTransferControllerTest {
             new Branch(TransferFee.OWN_BANK_CODE, "001", "本店");
     private static final RecentPayee PAYEE = new RecentPayee(
             "0001", "AAA銀行", "001", "A1支店", "普通", "1234567", "ﾔﾏﾀﾞ ﾀﾛｳ",
-            java.time.LocalDate.of(2026, 8, 20));
+            50000, java.time.LocalDate.of(2026, 8, 20));
     private static final Payee SAVED = new Payee(
             7, "家賃", "0001", "AAA銀行", "001", "A1支店", "普通", "1234567", "ﾔﾏﾀﾞ ﾀﾛｳ");
     private static final Branch BRANCH = new Branch("0001", "001", "A1支店");
@@ -189,13 +189,6 @@ class BankTransferControllerTest {
                     .andExpect(model().attribute("payees", List.of(SAVED)));
         }
 
-        @Test
-        @DisplayName("古い履歴一覧のURLは入口へ送る")
-        void 履歴URLは入口へ() throws Exception {
-            mockMvc.perform(get("/bankTransfer/history"))
-                    .andExpect(redirectedUrl("/bankTransfer"));
-        }
-
 
         @Test
         @DisplayName("画面1に金融機関の一覧が出る")
@@ -291,6 +284,30 @@ class BankTransferControllerTest {
             String html = renderCompletion();
 
             assertThat(html).contains("振込が完了しました").contains("done-check");
+        }
+
+        @Test
+        @DisplayName("履歴から入ったときは完了画面も3段のまま")
+        void 履歴から来たときのステッパー() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            mockMvc.perform(post("/bankTransfer/history")
+                    .param("bankCode", "0001").param("branchCode", "001")
+                    .param("bankAccountType", "普通").param("bankAccountNum", "1234567")
+                    .session(session));
+            mockMvc.perform(post("/bankTransfer/amount").session(session)
+                    .param("money", "1000").param("transferDateTime", tomorrow()));
+            mockMvc.perform(get("/bankTransfer/confirmation").session(session));
+            String token = session.getAttribute(TOKEN_KEY).toString();
+            MvcResult posted = mockMvc.perform(post("/bankTransfer/completion")
+                    .param(TOKEN_KEY, token).session(session)).andReturn();
+
+            String html = mockMvc.perform(get("/bankTransfer/completion")
+                            .session(session).flashAttrs(posted.getFlashMap()))
+                    .andReturn().getResponse().getContentAsString();
+
+            // 通ってきたのは 金額・確認・完了 の3段。経路の記憶を早く消すと、
+            // 行っていない画面まで並ぶ6段に戻ってしまう
+            assertThat(countOccurrences(html, "stepper-item")).isEqualTo(3);
         }
 
         @Test
@@ -761,6 +778,25 @@ class BankTransferControllerTest {
         }
 
         @Test
+        @DisplayName("新しい振込先を指定し直すと、履歴から入れた内容は残らない")
+        void 新規の入口で持ち越さない() throws Exception {
+            // 履歴から入って金額まで入れ、確認画面まで進む
+            MockHttpSession session = pickFromHistory();
+            mockMvc.perform(post("/bankTransfer/amount").session(session)
+                    .param("money", "1000").param("transferDateTime", tomorrow()));
+            mockMvc.perform(get("/bankTransfer/confirmation").session(session));
+
+            // 帯の銀行名から入口へ戻り、そこから新しい振込先を指定し直す
+            mockMvc.perform(get("/bankTransfer").session(session));
+            mockMvc.perform(get("/bankTransfer/new").session(session))
+                    .andExpect(redirectedUrl("/bankTransfer/bank"));
+
+            // 前の相手も、金額も、発行済みのトークンも残っていない
+            assertThat(session.getAttribute(INPUT_KEY)).isNull();
+            assertThat(session.getAttribute(TOKEN_KEY)).isNull();
+        }
+
+        @Test
         @DisplayName("金額と振込指定日は引き継がない")
         void 金額は空になる() throws Exception {
             MockHttpSession session = pickFromHistory();
@@ -806,7 +842,9 @@ class BankTransferControllerTest {
             // 入口から「新しい振込先を指定する」へ入り直す
             mockMvc.perform(get("/bankTransfer/new").session(session))
                     .andExpect(redirectedUrl("/bankTransfer/bank"));
-            String html = mockMvc.perform(get("/bankTransfer/amount").session(session))
+            // 入力は捨てられているので、確かめるのは入り直した先の画面1。
+            // ここで金額画面を見に行くと、前の入力が残っている前提の確認になってしまう
+            String html = mockMvc.perform(get("/bankTransfer/bank").session(session))
                     .andReturn().getResponse().getContentAsString();
 
             assertThat(countOccurrences(html, "stepper-item")).isEqualTo(6);

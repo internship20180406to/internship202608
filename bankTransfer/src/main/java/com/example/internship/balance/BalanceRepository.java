@@ -22,9 +22,7 @@ public class BalanceRepository {
 
     // 今の残高。まだ無ければ初期残高で作ってから返す
     public int amountOf(String userId) {
-        Integer amount = jdbcTemplate.query(
-                "SELECT amount FROM balance WHERE userId = ?",
-                rs -> rs.next() ? rs.getInt("amount") : null, userId);
+        Integer amount = read(userId);
         if (amount != null) {
             return amount;
         }
@@ -33,7 +31,19 @@ public class BalanceRepository {
                 INSERT INTO balance (userId, amount) VALUES (?, ?)
                     ON DUPLICATE KEY UPDATE amount = amount
                 """, userId, INITIAL_AMOUNT);
-        return amountOf(userId);
+        // 作った直後にもう一度だけ読む。ここで自分を呼び直すと、
+        // 何かの事情で読めないときに終わらない繰り返しになる
+        Integer created = read(userId);
+        if (created == null) {
+            throw new IllegalStateException("残高の行を作れませんでした: " + userId);
+        }
+        return created;
+    }
+
+    private Integer read(String userId) {
+        return jdbcTemplate.query(
+                "SELECT amount FROM balance WHERE userId = ?",
+                rs -> rs.next() ? rs.getInt("amount") : null, userId);
     }
 
     // 残高から引く。足りなければ引かずに false を返す。

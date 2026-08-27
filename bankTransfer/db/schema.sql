@@ -2,16 +2,21 @@
 --  bankTransfer のスキーマ
 --  アプリからは自動実行しない。MySQL へ手動で流す想定。
 --    mysql -h127.0.0.1 -uroot -p internship < db/schema.sql
+--
+--  ここには「アプリが動くのに要る形」だけを置く。
+--  デモ用のデータ（ふくよか銀行などの金融機関・支店・残高）は
+--  db/006_demo_banks_and_fee.sql にあるので、必要ならそちらも流す。
 -- ============================================================
 
 -- ------------------------------------------------------------
 -- 金融機関マスタ
---   bankName の長さは bankTransfer_table.bankName(varchar(7)) に合わせている。
---   ここを広げるなら、あちらも同時に広げないと登録時にSQLエラーになる。
+--   bankName の長さは bankTransfer_table.bankName に合わせている。
+--   ここを広げるなら、あちらも同時に広げないと登録時にSQLエラーになる
+--   （「ウォーターほ銀行」が8文字で、varchar(7) には入らなかった）。
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS bank_master (
-    bankCode CHAR(4)    NOT NULL,
-    bankName VARCHAR(7) NOT NULL,
+    bankCode CHAR(4)     NOT NULL,
+    bankName VARCHAR(20) NOT NULL,
     -- 画面の一覧に出すかどうか。出さないものは検索でのみ到達できる
     isMajor  TINYINT(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (bankCode),
@@ -39,6 +44,16 @@ CREATE TABLE IF NOT EXISTS branch_master (
 ALTER TABLE bankTransfer_table
     ADD COLUMN bankCode   CHAR(4) NULL AFTER id,
     ADD COLUMN branchCode CHAR(3) NULL AFTER bankName;
+
+-- ------------------------------------------------------------
+-- 申し込み記録に手数料を追加し、金融機関名の桁を広げる
+--   money は「相手が受け取る額」。口座から引かれるのは money + fee。
+--   手数料を残さないと、後から記録を見ても引かれた額が復元できない。
+--   （既に 006 を当てたDBではこの2行は不要。新しく作るときのために置いている）
+-- ------------------------------------------------------------
+ALTER TABLE bankTransfer_table
+    ADD COLUMN fee INT NULL AFTER money,
+    MODIFY COLUMN bankName VARCHAR(20) NULL;
 
 -- ------------------------------------------------------------
 -- 初期データ：銀行6行
@@ -92,7 +107,7 @@ CREATE TABLE IF NOT EXISTS payee (
     -- 画面で見分けるための呼び名。口座番号だけでは選びにくいため
     nickname        VARCHAR(20)  NOT NULL,
     bankCode        CHAR(4)      NOT NULL,
-    bankName        VARCHAR(7)   NOT NULL,
+    bankName        VARCHAR(20)  NOT NULL,
     branchCode      CHAR(3)      NOT NULL,
     branchName      VARCHAR(20)  NOT NULL,
     bankAccountType VARCHAR(5)   NOT NULL,

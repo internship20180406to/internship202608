@@ -2,11 +2,15 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('支店の選択')}"></head>
 <body>
+<div th:replace="~{fragments/appbar :: appbar}"></div>
 <div class="content">
     <div th:replace="${registering} ? ~{fragments/stepper :: stepperRegister(2)}
                                     : ~{fragments/stepper :: stepper(2)}"></div>
-    <h1>支店の選択</h1>
+    <div th:replace="~{fragments/titlebar :: titleWithCancel('支店の選択')}"></div>
     <div th:replace="~{fragments/recap :: recap(${input})}"></div>
+    <!-- 一覧を出さないこの画面は、打つまで何も現れない。
+         何を打てばよく、打った後どうするのかを先に書く -->
+    <p class="lead">支店名または支店コードを入力し、出てきた候補から選んでください。</p>
 
     <form th:action="@{/bankTransfer/branch}" method="post">
         <div class="field">
@@ -23,15 +27,11 @@
                     data-param-name="branchCode"
                     data-no-hit="該当する支店が見つかりません"></ul>
             </div>
-            <span class="hint">支店名または支店コードを入力すると候補が表示されます</span>
         </div>
     </form>
 
     <div class="actions">
         <a class="form-control-button form-clear-button" th:href="@{/bankTransfer/bank}">戻る</a>
-                <button class="form-control-button form-cancel-button" type="submit"
-                form="cancelForm">中止</button>
-<span class="spacer"></span>
     </div>
 </div>
 <div th:replace="~{fragments/cancel :: cancel}"></div>

@@ -2,10 +2,14 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('金融機関の選択')}"></head>
 <body>
+<div th:replace="~{fragments/appbar :: appbar}"></div>
 <div class="content">
     <div th:replace="${registering} ? ~{fragments/stepper :: stepperRegister(1)}
                                     : ~{fragments/stepper :: stepper(1)}"></div>
-    <h1>金融機関の選択</h1>
+    <div th:replace="~{fragments/titlebar :: titleWithCancel('金融機関の選択')}"></div>
+    <!-- この画面に「次へ」は無い。一覧の行そのものが送信ボタンで、押すと次へ進む。
+         それが見ただけでは分からないので、何をすればいいかを先に書く -->
+    <p class="lead">振込先の金融機関を選んでください。一覧に無いときは検索できます。</p>
 
     <!-- 行そのものが送信ボタン。JSが無くても選べる -->
     <form th:action="@{/bankTransfer/bank}" method="post">
@@ -42,9 +46,6 @@
 
     <div class="actions">
         <a class="form-control-button form-clear-button" th:href="${registering} ? @{/bankTransfer/payees} : @{/bankTransfer}">戻る</a>
-                <button class="form-control-button form-cancel-button" type="submit"
-                form="cancelForm">中止</button>
-<span class="spacer"></span>
     </div>
 </div>
 <div th:replace="~{fragments/cancel :: cancel}"></div>
