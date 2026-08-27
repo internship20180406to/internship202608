@@ -1,0 +1,88 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>銘柄情報(行員モード)</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
+    <style>
+        .content {
+            width: 95%;
+            max-width: 900px;
+            margin: 35px auto 50px;
+        }
+
+        .back-link {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .table-card {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            background-color: var(--color-primary);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/appHeader :: header(pageStatus='行員モード - 銘柄情報')}"></div>
+<!-- 投資信託 行員モード: 銘柄ごとの手数料率・固定基準価格を確認する画面(閲覧専用) -->
+<div class="content">
+    <p class="back-link">
+        <a th:href="@{/investmentTrust/staff}">注文一覧に戻る</a>
+        ｜ <a th:href="@{/investmentTrust/staff/customers}">顧客一覧</a>
+    </p>
+    <p class="price-note" style="margin-top:0;">※各手数料率・基準価格は固定値としてDBに設定されています。行員モードからの編集は今回は行いません。</p>
+
+    <div class="table-card">
+        <table>
+            <thead>
+            <tr>
+                <th>銘柄コード</th>
+                <th>銘柄名</th>
+                <th>購入時手数料率</th>
+                <th>信託報酬率(年率)</th>
+                <th>信託財産留保額率</th>
+                <th>基準価格(口数計算用・1万口あたり)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="fund : ${fundList}">
+                <td th:text="${fund.fundCode}"></td>
+                <td th:text="${fund.fundName}"></td>
+                <td th:text="${fund.purchaseFeeRate}"></td>
+                <td th:text="${fund.trustFeeRate}"></td>
+                <td th:text="${fund.redemptionReserveRate}"></td>
+                <td th:text="${#numbers.formatInteger(fund.referencePrice, 1, 'COMMA')} + '円'"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

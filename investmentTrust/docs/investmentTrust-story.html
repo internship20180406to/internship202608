@@ -1,0 +1,305 @@
+<title>投資信託にこめた想い</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=BIZ+UDPGothic:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #eef1f5;
+    --surface: #ffffff;
+    --surface-alt: #f5f8fb;
+    --ink: #1a2233;
+    --ink-soft: #5b6472;
+    --ink-faint: #8993a3;
+    --accent: #0b5aa0;
+    --accent-soft: #e2edf9;
+    --rule: #dde3ea;
+    --leaf: #1a9563;
+    --leaf-soft: #e4f3ec;
+    --shadow: rgba(20, 40, 70, 0.10);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1520;
+      --surface: #161d2b;
+      --surface-alt: #1b2334;
+      --ink: #e7ecf3;
+      --ink-soft: #a7b0c0;
+      --ink-faint: #6d7789;
+      --accent: #71b3ef;
+      --accent-soft: #1c3350;
+      --rule: #2a3346;
+      --leaf: #5fd2a8;
+      --leaf-soft: rgba(95, 210, 168, 0.14);
+      --shadow: rgba(0, 0, 0, 0.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1520;
+    --surface: #161d2b;
+    --surface-alt: #1b2334;
+    --ink: #e7ecf3;
+    --ink-soft: #a7b0c0;
+    --ink-faint: #6d7789;
+    --accent: #71b3ef;
+    --accent-soft: #1c3350;
+    --rule: #2a3346;
+    --leaf: #5fd2a8;
+    --leaf-soft: rgba(95, 210, 168, 0.14);
+    --shadow: rgba(0, 0, 0, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "BIZ UDPGothic", "Yu Gothic", "Hiragino Sans", sans-serif;
+    font-size: 16px;
+    line-height: 1.95;
+  }
+
+  h1, h2 {
+    font-family: "Shippori Mincho", "Yu Mincho", serif;
+    font-weight: 700;
+    color: var(--ink);
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  code, .mono { font-family: "JetBrains Mono", "BIZ UDPGothic", monospace; }
+
+  .shell {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 24px 100px;
+  }
+
+  header {
+    padding-bottom: 30px;
+    margin-bottom: 44px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    display: block;
+    margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(28px, 4.5vw, 36px); line-height: 1.4; }
+
+  header p {
+    color: var(--ink-soft);
+    max-width: 58ch;
+    margin: 16px 0 0;
+    font-size: 15.5px;
+  }
+
+  section { margin-bottom: 52px; }
+  section:last-of-type { margin-bottom: 0; }
+
+  .sec-eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  section h2 { font-size: 22px; margin-bottom: 16px; }
+
+  p { margin: 0 0 14px; max-width: 66ch; }
+  p:last-child { margin-bottom: 0; }
+
+  .lede { color: var(--ink-soft); }
+
+  /* 機能リスト */
+  .feature-groups {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 620px) { .feature-groups { grid-template-columns: 1fr; } }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px var(--shadow);
+    padding: 22px 24px;
+  }
+
+  .feature-card h3 {
+    font-family: "BIZ UDPGothic", sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: var(--accent);
+  }
+
+  .feature-card ul {
+    margin: 0;
+    padding-left: 1.2em;
+    font-size: 14.5px;
+  }
+  .feature-card li { margin-bottom: 8px; color: var(--ink); }
+  .feature-card li:last-child { margin-bottom: 0; }
+
+  /* 想いカード */
+  .belief {
+    background: var(--surface);
+    border-left: 3px solid var(--leaf);
+    border-radius: 0 10px 10px 0;
+    box-shadow: 0 2px 8px var(--shadow);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .belief:last-child { margin-bottom: 0; }
+
+  .belief h3 {
+    font-family: "Shippori Mincho", serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 8px;
+  }
+
+  .belief p { color: var(--ink-soft); font-size: 14.5px; margin: 0; }
+
+  /* こだわりリスト */
+  .detail-list {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px var(--shadow);
+    padding: 22px 24px;
+  }
+  .detail-list ul { margin: 0; padding-left: 1.3em; }
+  .detail-list li { margin-bottom: 9px; font-size: 14.5px; }
+  .detail-list li:last-child { margin-bottom: 0; }
+
+  /* これから */
+  .future-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .future-item {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    background: var(--leaf-soft);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14.5px;
+  }
+  .future-item .mark { color: var(--leaf); font-weight: bold; flex-shrink: 0; }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-faint);
+    font-size: 12.5px;
+  }
+</style>
+
+<div class="shell">
+  <header>
+    <span class="eyebrow">investmentTrust</span>
+    <h1>投資信託にこめた想い</h1>
+    <p>このアプリにどんな機能があるか、そしてそれぞれをどんな考えで作ってきたかをまとめた記録。</p>
+  </header>
+
+  <section>
+    <span class="sec-eyebrow">about</span>
+    <h2>このアプリについて</h2>
+    <p class="lede">investmentTrustは、投資信託の注文を受け付けるアプリ。もともとは金融機関名や銘柄をプルダウンから選んでDBに保存するだけの、最小限の学習用アプリだった。そこから少しずつ、「実際の投資信託アプリを使うときの安心感」に近づけることを目標に、機能を積み重ねてきた。</p>
+  </section>
+
+  <section>
+    <span class="sec-eyebrow">features</span>
+    <h2>主な機能</h2>
+    <div class="feature-groups">
+      <div class="feature-card">
+        <h3>お客様向け</h3>
+        <ul>
+          <li>投資信託の紹介ページ(ログイン不要ですぐ申し込みへ進める)</li>
+          <li>金融機関・支店・銘柄をコードで管理し、支店の候補が選択に応じて動的に絞り込まれる</li>
+          <li>銘柄を選ぶと、その場で購入手数料の見込みが表示される</li>
+          <li>平日15時の締切を考慮した約定日の自動判定</li>
+          <li>注文金額の内訳表示(投資される金額と手数料を分けて表示)</li>
+          <li>お客様情報・口座情報・注文内容をセクションで分離した入力画面</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <h3>行員向け</h3>
+        <ul>
+          <li>全お客様の注文履歴を一覧で確認できる管理画面</li>
+          <li>ID/パスワードによる保護(表示切替つき)</li>
+          <li>閲覧専用に限定し、注文の編集・削除はできない設計</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="sec-eyebrow">beliefs</span>
+    <h2>大事にした思い</h2>
+    <p class="lede" style="margin-bottom:20px;">実装の途中で、繰り返し立ち返ってきた考えがいくつかある。</p>
+
+    <div class="belief">
+      <h3>お客様を迷わせない</h3>
+      <p>「お客様情報」と「口座情報」がひとまとまりになっていて分かりにくい、という声から、セクションを分けた。姓と名を分けたのも、氏名・住所・連絡先のような個人情報と、金融機関・口座番号のような口座情報を、はっきり区別して入力してもらいたかったから。入力が終わった項目が緑の✓に変わるのも、同じ理由。</p>
+    </div>
+
+    <div class="belief">
+      <h3>隠さない、その場で見せる</h3>
+      <p>手数料や約定日は、注文を確定する前にその場で確認できるようにした。「あとで分かる」のではなく「選んだ瞬間に分かる」ことが、安心して申し込んでもらうために大事だと考えたから。手数料が0円の銘柄があれば、「無料」だとはっきり書くようにしたのも同じ考え。</p>
+    </div>
+
+    <div class="belief">
+      <h3>やりすぎない</h3>
+      <p>行員モードにパスワードを付けたが、Spring Securityのような本格的な認証基盤は入れていない。今のアプリの規模と目的に対して、必要な分だけを丁寧に作ることを優先した。顧客をIDで管理する仕組みも、今回はあえて作らず先送りにしている。</p>
+    </div>
+
+    <div class="belief">
+      <h3>すでにあるものに気づく</h3>
+      <p>入力画面をセクションに分けるためのCSSは、実は最初から用意されていたのに使われていなかった。ゼロから作るのではなく、すでにあるものに気づいて活かす、という視点も大事にした。</p>
+    </div>
+  </section>
+
+  <section>
+    <span class="sec-eyebrow">details</span>
+    <h2>細部へのこだわり</h2>
+    <div class="detail-list">
+      <ul>
+        <li>購入金額を入力すると、打つそばからカンマが付く(<code>1,000,000</code>)</li>
+        <li>口座番号は7桁に満たないと、入力欄を離れたときに自動で先頭が0埋めされる</li>
+        <li>必須項目を入力すると「※」が緑の「✓」に変わり、どこまで終わったかが一目でわかる</li>
+        <li>ステップ表示は、よくある丸+線のデザインではなく、シェブロン(矢印)型にした</li>
+        <li>入力内容をクリアすると、チェックマークや手数料プレビューもきちんと未入力状態に戻る</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <span class="sec-eyebrow">next</span>
+    <h2>これから</h2>
+    <div class="future-list">
+      <div class="future-item"><span class="mark">→</span><span>顧客をIDで管理し、同じお客様の申し込み履歴をまとめて追えるようにする</span></div>
+      <div class="future-item"><span class="mark">→</span><span>祝日カレンダーに対応した、より正確な約定日計算</span></div>
+      <div class="future-item"><span class="mark">→</span><span>行員モードのより本格的な認証(複数アカウント・ロール管理)</span></div>
+    </div>
+  </section>
+
+  <footer>investmentTrust プロジェクト・Claude Codeとの対話を通じて作成</footer>
+</div>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>注文状況の確認</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
+    <style>
+        .content {
+            width: 90%;
+            max-width: 700px;
+            margin: 50px auto;
+        }
+
+        .status-card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-card);
+            box-shadow: 0 2px 8px rgba(30, 58, 95, 0.08);
+            border: 1px solid var(--color-border);
+            padding: 30px 35px;
+            margin-bottom: 25px;
+        }
+
+        .status-card p {
+            margin: 0;
+            padding: 10px 0;
+            font-size: 14px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .status-card p:last-child {
+            border-bottom: none;
+        }
+
+        .status-card span.value {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--color-text);
+        }
+
+        h1 {
+            font-size: 20px;
+        }
+
+        h2 {
+            font-size: 16px;
+            color: var(--color-primary);
+            margin: 0 0 12px;
+        }
+
+        .history-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .history-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--color-border);
+            font-size: 14px;
+        }
+
+        .history-list li:last-child {
+            border-bottom: none;
+        }
+
+        .history-actor {
+            color: var(--color-text-muted);
+            font-size: 12px;
+        }
+
+        .button-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/appHeader :: header(pageStatus='注文状況の確認')}"></div>
+<!-- お客様向け: ログイン機構がないため、注文完了時に案内された専用URLからのみアクセスするステータス確認画面 -->
+<div class="content">
+    <p style="text-align: right;"><a th:href="@{/investmentTrust/glossary}" target="_blank">用語の意味はこちら</a></p>
+
+    <div class="status-card">
+        <p>銘柄: <span class="value" th:text="${order.fundName}"></span></p>
+        <p>購入金額: <span class="value" th:text="${#numbers.formatInteger(order.purchaseAmount, 1, 'COMMA')} + '円'"></span></p>
+        <p>注文日時: <span class="value" th:text="${#temporals.format(order.orderDatetime, 'yyyy年M月d日 HH:mm')}"></span></p>
+        <p>約定日: <span class="value" th:text="${#temporals.format(order.tradeDate, 'yyyy年M月d日')}"></span>
+            <span th:if="${sameDayTrade}" class="badge badge-same-day">本日中の約定</span>
+            <span th:unless="${sameDayTrade}" class="badge badge-next-day">翌営業日扱い</span>
+        </p>
+        <p>現在のステータス：
+            <span th:if="${order.status == '申込受付'}" class="badge badge-status-received">申込受付</span>
+            <span th:if="${order.status == '発注済み'}" class="badge badge-status-placed">発注済み</span>
+            <span th:if="${order.status == '約定済み'}" class="badge badge-status-executed">約定済み</span>
+        </p>
+        <p>
+            <span th:if="${order.confirmedUnits != null}">
+                確定口数: <span class="value" th:text="${#numbers.formatInteger(order.confirmedUnits, 1, 'COMMA')} + '口'"></span>
+            </span>
+            <span th:if="${order.confirmedUnits == null}">
+                概算購入口数(参考): <span class="value" th:text="${#numbers.formatInteger(order.estimatedUnits, 1, 'COMMA')} + '口'"></span>
+            </span>
+        </p>
+        <p th:if="${accruedTrustFee != null}">
+            信託報酬 概算累計額(約定日からの経過日数分・参考表示): <span class="value" th:text="${#numbers.formatInteger(accruedTrustFee, 1, 'COMMA')} + '円'"></span>
+        </p>
+    </div>
+
+    <div class="status-card">
+        <h2>ステータス変更履歴</h2>
+        <ul class="history-list">
+            <li th:each="entry : ${history}">
+                <span th:if="${entry.status == '申込受付'}" class="badge badge-status-received">申込受付</span>
+                <span th:if="${entry.status == '発注済み'}" class="badge badge-status-placed">発注済み</span>
+                <span th:if="${entry.status == '約定済み'}" class="badge badge-status-executed">約定済み</span>
+                <span th:text="${#temporals.format(entry.changedAt, 'yyyy年M月d日 HH:mm')}"></span>
+                <span class="history-actor" th:text="'(' + ${entry.changedBy} + ')'"></span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="button-area">
+        <input type="button"
+               value="戻る"
+               class="form-control-button form-edit-button"
+               onclick="history.back();"/>
+
+        <input type="button"
+               value="投資信託トップへ"
+               class="form-control-button"
+               onclick="window.location='/investmentTrust';"/>
+    </div>
+</div>
+</body>
+</html>

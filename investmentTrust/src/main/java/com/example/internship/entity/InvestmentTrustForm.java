@@ -32,6 +32,9 @@ public class InvestmentTrustForm {
 //    連絡先
     @NonNull
     private String contact;
+//    お客様モード(注文履歴確認)のログイン用パスワード(平文のまま画面間をhiddenで引き継ぎ、DB保存時にのみハッシュ化する)
+    @NonNull
+    private String password;
 //    銘柄コード
     @NonNull
     private String fundCode;
@@ -42,7 +45,8 @@ public class InvestmentTrustForm {
     @NonNull
     private String branchCode;
 //    購入金額
-    @NonNull
+//    3画面分割の申し込みフローでは、Step1の時点ではまだ未入力(null)のままhiddenで引き継がれるため@NonNullは付けない
+//    (必須であること自体はStep2画面側のHTML required属性でチェックする)
     private Integer purchaseAmount;
 
 //    Integerを使用しているのは、未入力をnull状態で表現するため
@@ -51,4 +55,6 @@ public class InvestmentTrustForm {
     private Integer purchaseFee;
     private LocalDateTime orderDatetime;
     private LocalDate tradeDate;
+    // 申込時点の直近の基準価額で計算した概算口数
+    private Long estimatedUnits;
 }

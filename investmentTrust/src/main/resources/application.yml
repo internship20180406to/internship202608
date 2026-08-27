@@ -1,8 +1,16 @@
 server:
   port: 8083
+  servlet:
+    encoding:
+      charset: UTF-8
+      # デフォルトではリクエストの文字コードが未指定の場合のみUTF-8扱いになり、
+      # フォーム送信(application/x-www-form-urlencoded)の日本語がISO-8859-1として誤解釈され文字化けする。
+      # force: true でリクエスト・レスポンス双方を常にUTF-8として扱う
+      force: true
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/internship
+    # useUnicode/characterEncodingを明示しないと、日本語(氏名・住所等)がDB保存時に文字化けするため必須
+    url: jdbc:mysql://localhost:3306/internship?useUnicode=true&characterEncoding=UTF-8
     username: root
     password: root_password
 

@@ -1,0 +1,395 @@
+/* 投資信託 共通テーマ: 銀行らしい落ち着き・信頼感を意識した配色・デザイン */
+:root {
+    /* メインカラー: ネイビー〜ダークブルー(誠実さ・安定感) */
+    --color-primary: #1E3A5F;
+    --color-primary-dark: #16293F;
+    --color-primary-tint: #E8EDF2;
+
+    /* 背景: オフホワイト〜ごく薄いグレー */
+    --color-bg: #F7F8FA;
+    --color-surface: #FFFFFF;
+    --color-border: #DCE1E8;
+
+    /* アクセント: ゴールド(行員モードの識別・重要な操作に最小限使用) */
+    --color-accent-gold: #B08D57;
+    --color-accent-gold-dark: #8F7040;
+
+    /* アクセント: 深いグリーン(完了・当日約定などの肯定的な状態) */
+    --color-accent-green: #2F5233;
+    --color-accent-green-tint: #E7EEE8;
+
+    /* テキスト: チャコールグレー〜ダークネイビー */
+    --color-text: #2D3748;
+    --color-text-muted: #6B7280;
+
+    /* 状態色 */
+    --color-danger: #B3423C;
+    --color-warning: #A85B2A;
+    --color-warning-tint: #FBEEE6;
+
+    /* 形状: ボタン以外は角を四角くし、Webアプリらしいフラットな見た目にする(ボタンだけ従来通り角丸を残す) */
+    --radius-control: 0;
+    --radius-card: 0;
+    --radius-pill: 0;
+    --radius-button: 4px;
+
+    /* フォント: ゴシック体で可読性と現代的な信頼感を両立する */
+    --font-base: "Yu Gothic", "YuGothic", "游ゴシック体", "Noto Sans JP",
+        -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    /* 上部固定ヘッダーの高さ分、本文が隠れないように余白を確保する */
+    padding: 56px 0 0;
+    background-color: var(--color-bg);
+    font-family: var(--font-base);
+    color: var(--color-text);
+}
+
+/* 全画面共通の固定ヘッダー(四角いバー。角丸にはしない)。現在の画面名を中央に表示する */
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+    background-color: var(--color-primary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 20;
+}
+
+/* 現在いる画面の名称(常に見える固定ヘッダー内に表示することで、スクロールしても「今どこにいるか」が分かるようにする)。
+   画面名が長い場合、狭い画面ではヘッダーの外にはみ出さず「…」で省略する */
+.app-header-status {
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    min-width: 0;
+    max-width: calc(100vw - 48px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+h1 {
+    text-align: center;
+    color: var(--color-primary);
+    font-size: 28px;
+    margin: 0 0 20px;
+    font-weight: 600;
+}
+
+/* カード状のコンテナ共通(入力欄セクション・確認画面・完了画面・行員モード各画面) */
+.form-section,
+.login-card,
+.setting-card,
+.table-card {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-card);
+    box-shadow: 0 2px 8px rgba(30, 58, 95, 0.08);
+    border: 1px solid var(--color-border);
+}
+
+/* セクションタイトル(入力画面の各見出しバー) */
+.section-title {
+    color: #fff;
+    background-color: var(--color-primary);
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--color-text);
+}
+
+.text-danger {
+    color: var(--color-danger);
+    font-size: 11px;
+    margin-left: 6px;
+    font-weight: normal;
+}
+
+/* 入力中のフォーマット不正をその場で知らせるエラーメッセージ(該当欄の直下に表示する) */
+.field-error {
+    display: block;
+    min-height: 14px;
+    margin: 4px 0 0;
+    color: var(--color-danger);
+    font-size: 12px;
+}
+
+/* 入力欄共通: 四角い枠で囲むのではなく、下線だけで項目を区切るリスト形式にする */
+.form-control {
+    width: 100%;
+    height: 44px;
+    padding: 10px 2px;
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
+    background-color: transparent;
+    font-size: 14px;
+    color: var(--color-text);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus {
+    border-bottom-color: var(--color-primary);
+    box-shadow: 0 1px 0 0 var(--color-primary);
+}
+
+select.form-control {
+    cursor: pointer;
+}
+
+/* ボタン共通(既定では主要ボタンの配色: 確認する・申し込む・ログイン・設定を保存) */
+.form-control-button {
+    min-width: 140px;
+    height: 45px;
+    padding: 10px 25px;
+    margin: 5px;
+    border: none;
+    border-radius: var(--radius-button);
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+    background-color: var(--color-primary);
+    transition: background-color 0.15s ease;
+}
+
+.form-control-button:hover,
+.form-confirmation-button:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* その場で完結する操作(クリア・修正・キャンセル)は主要ボタンより控えめな配色にする */
+.form-clear-button,
+.form-edit-button {
+    color: var(--color-text);
+    background-color: var(--color-primary-tint);
+}
+
+.form-clear-button:hover,
+.form-edit-button:hover {
+    background-color: #DCE3EA;
+}
+
+/* ステップ表示(シェブロン矢印型)
+   position: sticky によって、内容が画面に収まらずスクロールが発生した場合でも
+   常に見える位置に留まる(収まる場合は通常のレイアウトのまま見た目は変わらない) */
+.chevron-row {
+    display: flex;
+    max-width: 560px;
+    margin: 0 auto 30px;
+    position: sticky;
+    /* 固定ヘッダーのすぐ下に張り付くようにする */
+    top: 56px;
+    background-color: var(--color-bg);
+    z-index: 5;
+    padding-top: 10px;
+}
+
+.chevron {
+    flex: 1 1 0;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    background-color: var(--color-primary-tint);
+    color: var(--color-text-muted);
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 18px 50%);
+}
+
+.chevron:first-child {
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
+}
+
+.chevron:last-child {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 18px 50%);
+}
+
+.chevron:not(:first-child) {
+    margin-left: -18px;
+}
+
+.chevron.active {
+    background-color: var(--color-primary);
+    color: #fff;
+}
+
+.chevron.done {
+    background-color: var(--color-accent-green);
+    color: #fff;
+}
+
+/* 約定区分・ステータスバッジ */
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.badge-same-day {
+    background-color: var(--color-accent-green-tint);
+    color: var(--color-accent-green);
+}
+
+.badge-next-day {
+    background-color: var(--color-warning-tint);
+    color: var(--color-warning);
+}
+
+.badge-status-received {
+    background-color: var(--color-primary-tint);
+    color: var(--color-text-muted);
+}
+
+.badge-status-placed {
+    background-color: var(--color-primary-tint);
+    color: var(--color-primary);
+}
+
+.badge-status-executed {
+    background-color: var(--color-accent-green-tint);
+    color: var(--color-accent-green);
+}
+
+.cost-disclosure {
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
+/* 「次へ」「戻る」などのボタンエリア共通。position: sticky により、
+   画面が窮屈でスクロールが発生した場合でもボタンが常に見える位置に留まる
+   (各テンプレート側のdisplay/margin-top等のローカル指定と組み合わさる) */
+.button-area {
+    position: sticky;
+    bottom: 0;
+    background-color: var(--color-bg);
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-top: 1px solid var(--color-border);
+    z-index: 5;
+    /* 狭い画面で2つのボタンが収まりきらない場合は折り返す(横はみ出し防止) */
+    flex-wrap: wrap;
+}
+
+.price-note {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+/* 同意確認チェックボックス(クリック時に見た目が変化する。チェックが入るまで対象ボタンをdisabledにする制御はJS側で行う) */
+.agreement-check {
+    display: flex;
+    align-items: center;
+    padding: 16px 5px;
+    border-bottom: none !important;
+}
+
+.agreement-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.agreement-label {
+    display: flex !important;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px !important;
+    font-weight: normal !important;
+    color: var(--color-text);
+}
+
+.agreement-mark {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background-color: var(--color-surface);
+    position: relative;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.agreement-mark::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.2s ease;
+}
+
+.agreement-checkbox:checked + .agreement-label .agreement-mark {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+}
+
+.agreement-checkbox:checked + .agreement-label .agreement-mark::after {
+    transform: rotate(45deg) scale(1);
+}
+
+.agreement-checkbox:focus-visible + .agreement-label .agreement-mark {
+    box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.25);
+}
+
+/* 行員モードへの導線(顧客画面からの切替リンク・行員モード内の戻る導線)
+   ゴールドのアクセントで「行員モード領域」であることを最小限で示す */
+.staff-mode-link a,
+.back-link a {
+    color: var(--color-accent-gold-dark);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.staff-mode-link a:hover,
+.back-link a:hover {
+    text-decoration: underline;
+}
+
+/* スマートフォン幅対応: ステップ表示の文字を詰めて、長いラベルでも折り返し・はみ出しを抑える */
+@media (max-width: 480px) {
+    .chevron {
+        font-size: 11px;
+        padding: 4px 6px;
+    }
+
+    .staff-mode-link,
+    .back-link {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+}

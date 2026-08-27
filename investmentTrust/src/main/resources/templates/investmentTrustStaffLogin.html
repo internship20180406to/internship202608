@@ -1,0 +1,130 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>行員モード ログイン</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
+    <style>
+        .content {
+            width: 90%;
+            max-width: 420px;
+            margin: 90px auto;
+        }
+
+        .login-card {
+            padding: 35px 35px 30px;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 25px;
+        }
+
+        label {
+            margin-bottom: 6px;
+        }
+
+        .error-message {
+            color: var(--color-danger);
+            font-size: 13px;
+            margin: 0 0 15px;
+        }
+
+        /* パスワード欄と表示切替ボタンを横並びにするラッパー */
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap .form-control {
+            padding-right: 70px;
+        }
+
+        /* パスワード表示・非表示の切替ボタン */
+        .toggle-password {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            color: var(--color-primary);
+            font-size: 12.5px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 6px 8px;
+        }
+
+        .toggle-password:hover {
+            text-decoration: underline;
+        }
+
+        .field-group {
+            margin-bottom: 18px;
+        }
+
+        /* ボタン1つだけの短いログインカードなので、複数ボタン用の右寄せ・仕切り線付き足元バー(共通button-area)は使わず、
+           中央配置でパスワード欄のすぐ下に来るよう上書きする */
+        .button-area {
+            position: static;
+            text-align: center;
+            margin-top: 14px;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-top: none;
+            background-color: transparent;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/appHeader :: header(pageStatus='行員モード - ログイン')}"></div>
+<!-- 行員モード ログイン画面: 固定パスワードを照合し、正しければ一覧画面へ進む -->
+<div class="content">
+    <div class="login-card">
+        <!-- パスワード不一致のときだけ表示するエラーメッセージ -->
+        <p class="error-message" th:if="${loginError}">パスワードが正しくありません。</p>
+
+        <form th:action="@{/investmentTrust/staff/login}" method="post">
+            <div class="field-group">
+                <label for="id">ID</label>
+                <input type="text" id="id" name="id" class="form-control" required autofocus>
+            </div>
+
+            <div class="field-group">
+                <label for="password">パスワード</label>
+                <!-- 入力中の内容を周りから見えないようにtype="password"で隠しつつ、
+                     本人が確認したいときだけ「表示」ボタンで見えるように切り替える -->
+                <div class="password-wrap">
+                    <input type="password" id="password" name="password" class="form-control" required>
+                    <button type="button" class="toggle-password" id="togglePassword">表示</button>
+                </div>
+            </div>
+
+            <div class="button-area">
+                <input type="submit" value="ログイン" class="form-control-button">
+            </div>
+        </form>
+
+        <p class="back-link"><a th:href="@{/investmentTrust}">顧客モードに戻る</a></p>
+    </div>
+</div>
+
+<!-- 「表示」ボタンでパスワード欄のtype属性をpassword⇔textに切り替える -->
+<script>
+    const passwordField = document.getElementById("password");
+    const toggleButton = document.getElementById("togglePassword");
+
+    toggleButton.addEventListener("click", function () {
+        const isHidden = passwordField.type === "password";
+        passwordField.type = isHidden ? "text" : "password";
+        toggleButton.textContent = isHidden ? "非表示" : "表示";
+    });
+</script>
+</body>
+</html>

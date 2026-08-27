@@ -1,0 +1,77 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>投資信託 用語集</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
+    <style>
+        .content {
+            width: 90%;
+            max-width: 700px;
+            margin: 50px auto;
+        }
+
+        .back-link {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            text-align: center;
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin: -15px 0 25px;
+        }
+
+        .glossary-card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-card);
+            box-shadow: 0 2px 8px rgba(30, 58, 95, 0.08);
+            border: 1px solid var(--color-border);
+            padding: 5px 25px;
+        }
+
+        .glossary-item {
+            padding: 18px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .glossary-item:last-child {
+            border-bottom: none;
+        }
+
+        .glossary-term {
+            margin: 0 0 6px;
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .glossary-description {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--color-text);
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/appHeader :: header(pageStatus='用語集')}"></div>
+<!-- 投資信託が初めてのお客様向けの用語集画面。閲覧専用で、行員モードからの追加・編集は行わない -->
+<div class="content">
+    <p class="back-link">
+        <a th:href="@{/investmentTrust}">投資信託トップへ戻る</a>
+    </p>
+
+    <p class="description">投資信託が初めての方向けに、画面に出てくる専門用語をわかりやすく説明します。</p>
+
+    <div class="glossary-card">
+        <div class="glossary-item" th:each="glossaryTerm : ${terms}">
+            <p class="glossary-term" th:text="${glossaryTerm.term}"></p>
+            <p class="glossary-description" th:text="${glossaryTerm.description}"></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

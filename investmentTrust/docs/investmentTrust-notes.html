@@ -1,0 +1,678 @@
+<title>投資信託実装ノート</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=BIZ+UDPGothic:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #eef1f5;
+    --surface: #ffffff;
+    --surface-alt: #f5f8fb;
+    --ink: #1a2233;
+    --ink-soft: #5b6472;
+    --ink-faint: #8993a3;
+    --accent: #0b5aa0;
+    --accent-ink: #ffffff;
+    --accent-soft: #e2edf9;
+    --rule: #dde3ea;
+    --new-fg: #0f7a5c;
+    --new-bg: #e2f3ec;
+    --mod-fg: #a3690a;
+    --mod-bg: #faf0dd;
+    --code-bg: #101826;
+    --code-ink: #dbe6f5;
+    --code-comment: #7d93b8;
+    --shadow: rgba(20, 40, 70, 0.10);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1520;
+      --surface: #161d2b;
+      --surface-alt: #1b2334;
+      --ink: #e7ecf3;
+      --ink-soft: #a7b0c0;
+      --ink-faint: #6d7789;
+      --accent: #71b3ef;
+      --accent-ink: #0b1626;
+      --accent-soft: #1c3350;
+      --rule: #2a3346;
+      --new-fg: #5fd2a8;
+      --new-bg: rgba(95, 210, 168, 0.14);
+      --mod-fg: #e6b35c;
+      --mod-bg: rgba(230, 179, 92, 0.14);
+      --code-bg: #0a0f18;
+      --code-ink: #cddcf0;
+      --code-comment: #6b7fa3;
+      --shadow: rgba(0, 0, 0, 0.45);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0f1520;
+    --surface: #161d2b;
+    --surface-alt: #1b2334;
+    --ink: #e7ecf3;
+    --ink-soft: #a7b0c0;
+    --ink-faint: #6d7789;
+    --accent: #71b3ef;
+    --accent-ink: #0b1626;
+    --accent-soft: #1c3350;
+    --rule: #2a3346;
+    --new-fg: #5fd2a8;
+    --new-bg: rgba(95, 210, 168, 0.14);
+    --mod-fg: #e6b35c;
+    --mod-bg: rgba(230, 179, 92, 0.14);
+    --code-bg: #0a0f18;
+    --code-ink: #cddcf0;
+    --code-comment: #6b7fa3;
+    --shadow: rgba(0, 0, 0, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "BIZ UDPGothic", "Yu Gothic", "Hiragino Sans", sans-serif;
+    font-size: 15.5px;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: "Shippori Mincho", "Yu Mincho", serif;
+    font-weight: 700;
+    color: var(--ink);
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  code, .mono {
+    font-family: "JetBrains Mono", "BIZ UDPGothic", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- shell ---------- */
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 28px 100px;
+    display: grid;
+    grid-template-columns: 236px minmax(0, 1fr);
+    gap: 48px;
+  }
+
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; padding: 24px 18px 70px; }
+  }
+
+  /* ---------- header ---------- */
+  .masthead {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 8px;
+  }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .masthead h1 {
+    font-size: clamp(28px, 4vw, 38px);
+    line-height: 1.3;
+  }
+
+  .masthead p {
+    max-width: 62ch;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .chip {
+    font-size: 12.5px;
+    padding: 4px 11px;
+    border-radius: 100px;
+    border: 1px solid var(--rule);
+    color: var(--ink-soft);
+    background: var(--surface);
+  }
+
+  /* ---------- nav ---------- */
+  .toc {
+    align-self: start;
+    position: sticky;
+    top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .toc-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+
+  .toc a {
+    text-decoration: none;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border-left: 2px solid transparent;
+  }
+
+  .toc a:hover { color: var(--ink); background: var(--surface); }
+
+  @media (max-width: 860px) {
+    .toc {
+      position: static;
+      flex-direction: row;
+      overflow-x: auto;
+      gap: 6px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .toc-label { display: none; }
+    .toc a { white-space: nowrap; border: 1px solid var(--rule); border-radius: 100px; }
+  }
+
+  /* ---------- content ---------- */
+  .content { min-width: 0; display: flex; flex-direction: column; gap: 64px; }
+
+  section { scroll-margin-top: 24px; }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .sec-num {
+    font-family: "JetBrains Mono", monospace;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  section h2 { font-size: 23px; }
+
+  .lede { color: var(--ink-soft); max-width: 68ch; margin: 10px 0 24px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px var(--shadow);
+    padding: 22px 24px;
+  }
+
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+
+  h3.sub {
+    font-size: 16px;
+    font-family: "BIZ UDPGothic", sans-serif;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+
+  p { margin: 0 0 12px; max-width: 70ch; }
+  p:last-child { margin-bottom: 0; }
+
+  ul, ol { margin: 0 0 12px; padding-left: 1.35em; max-width: 66ch; }
+  li { margin-bottom: 5px; }
+  li:last-child { margin-bottom: 0; }
+
+  /* ---------- table ---------- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--surface); }
+  th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  thead th {
+    background: var(--surface-alt);
+    color: var(--ink-soft);
+    font-weight: 700;
+    font-size: 12.5px;
+    letter-spacing: 0.04em;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.mono, th.mono { font-size: 13px; }
+
+  /* ---------- badges ---------- */
+  .badge {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.02em;
+  }
+  .badge.new { color: var(--new-fg); background: var(--new-bg); }
+  .badge.mod { color: var(--mod-fg); background: var(--mod-bg); }
+  .badge.get { color: var(--new-fg); background: var(--new-bg); }
+  .badge.post { color: var(--mod-fg); background: var(--mod-bg); }
+
+  /* ---------- code block ---------- */
+  pre {
+    margin: 0;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  pre code { font-family: "JetBrains Mono", "BIZ UDPGothic", monospace; }
+  .cm { color: var(--code-comment); }
+
+  /* ---------- callout ---------- */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+  }
+  .callout p { color: var(--ink); }
+  .callout .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 640px) { .why-grid { grid-template-columns: 1fr; } }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .flow .node {
+    background: var(--surface-alt);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 6px 12px;
+    color: var(--ink);
+  }
+  .flow .arrow { color: var(--ink-faint); }
+
+  footer {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-faint);
+    font-size: 12.5px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    a, .chip { transition: color .15s ease, background-color .15s ease; }
+  }
+</style>
+
+<div class="shell">
+  <header class="masthead">
+    <span class="eyebrow">investmentTrust · コード解説</span>
+    <h1>投資信託アプリ 全コード解説</h1>
+    <p>investmentTrust プロジェクトの現在の全ファイルを、レイヤーごとに解説するリファレンス。Controller・Entity・Repository・Service・画面(テンプレート)・JavaScript・DBスキーマの順に、それぞれ何をしているかをまとめる。</p>
+    <div class="meta-row">
+      <span class="chip">Spring Boot 3 / Java 21</span>
+      <span class="chip">Thymeleaf + JdbcTemplate</span>
+      <span class="chip">MySQL(internship DB)</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <span class="toc-label">目次</span>
+    <a href="#overview">01 全体像</a>
+    <a href="#flow">02 画面遷移マップ</a>
+    <a href="#controller">03 Controller</a>
+    <a href="#entity">04 Entity / Form</a>
+    <a href="#repository">05 Repository</a>
+    <a href="#service">06 Service</a>
+    <a href="#templates">07 画面(テンプレート)</a>
+    <a href="#js">08 JavaScript</a>
+    <a href="#db">09 DBスキーマ</a>
+    <a href="#config">10 設定ファイル</a>
+    <a href="#limits">11 既知の制約</a>
+  </nav>
+
+  <div class="content">
+
+    <section id="overview">
+      <div class="sec-head"><span class="sec-num">01</span><h2>全体像</h2></div>
+      <p class="lede">Spring Boot(Java 21) + Thymeleaf + MySQL で作られた投資信託の注文アプリ。ORM は使わず、<code>JdbcTemplate</code>で素のSQLを書くスタイル。Controller → Service → Repository → DB という素直な3層構成に、画面間でデータを運ぶ<code>InvestmentTrustForm</code>が1つ通っている。</p>
+      <div class="card stack">
+        <p><strong>パッケージ構成(<code>com.example.internship</code>)</strong></p>
+        <pre><code>controller/ <span class="cm">… HTTPエンドポイント(1ファイルに集約)</span>
+entity/     <span class="cm">… 画面間データ(Form)とDB1行を表すクラス群</span>
+repository/ <span class="cm">… JdbcTemplateでのSQL実行</span>
+service/    <span class="cm">… 手数料計算・約定日計算などのビジネスロジック</span></code></pre>
+        <p>画面は顧客向け4枚(紹介・入力・確認・完了)、行員向け2枚(ログイン・一覧)の計6枚。金融機関・支店・銘柄は<code>institution_master</code> / <code>branch_master</code> / <code>fund_master</code>というマスタテーブルにコードで持たせ、注文データ(<code>investmentTrust_table</code>)側は名称ではなくコードだけを保存する設計になっている。</p>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div class="sec-head"><span class="sec-num">02</span><h2>画面遷移マップ</h2></div>
+      <p class="lede">顧客側の申し込みフローと、行員側の閲覧フローは完全に独立している。</p>
+      <div class="card stack">
+        <div>
+          <p><strong>顧客側</strong></p>
+          <div class="flow">
+            <span class="node">紹介ページ<br><span style="color:var(--ink-faint)">GET /investmentTrust/intro</span></span>
+            <span class="arrow">→</span>
+            <span class="node">入力画面<br><span style="color:var(--ink-faint)">GET /investmentTrust</span></span>
+            <span class="arrow">POST →</span>
+            <span class="node">確認画面<br><span style="color:var(--ink-faint)">/investmentTrustConfirmation</span></span>
+            <span class="arrow">POST →</span>
+            <span class="node">完了画面<br><span style="color:var(--ink-faint)">/investmentTrustCompletion</span></span>
+          </div>
+          <p style="margin-top:10px;">確認画面の「入力画面に戻る」「入力内容の修正」は、どちらも<code>POST /investmentTrust</code>(<code>edit()</code>)に送信して入力済みの値ごと入力画面へ差し戻す。</p>
+        </div>
+        <div>
+          <p><strong>行員側</strong></p>
+          <div class="flow">
+            <span class="node">ログイン画面<br><span style="color:var(--ink-faint)">/investmentTrust/staff/login</span></span>
+            <span class="arrow">POST 認証OK →</span>
+            <span class="node">一覧画面<br><span style="color:var(--ink-faint)">/investmentTrust/staff</span></span>
+            <span class="arrow">→</span>
+            <span class="node">ログアウト<br><span style="color:var(--ink-faint)">/investmentTrust/staff/logout</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="controller">
+      <div class="sec-head"><span class="sec-num">03</span><h2>Controller</h2></div>
+      <p class="lede"><code class="mono">controller/InvestmentTrustController.java</code> — 全9エンドポイントがこの1クラスに集約されている。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>メソッド</th><th>パス</th><th>役割</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge get">GET</span></td><td class="mono">/investmentTrust/intro</td><td><code>intro()</code> — 紹介ページ。銘柄一覧をModelへ</td></tr>
+            <tr><td><span class="badge get">GET</span></td><td class="mono">/investmentTrust</td><td><code>showForm()</code> — 入力画面。3マスタをModelへ</td></tr>
+            <tr><td><span class="badge post">POST</span></td><td class="mono">/investmentTrustConfirmation</td><td><code>confirmation()</code> — 手数料確定計算、名称解決、約定日見込み計算</td></tr>
+            <tr><td><span class="badge post">POST</span></td><td class="mono">/investmentTrust</td><td><code>edit()</code> — 確認画面から入力画面へ、入力値を保持したまま差し戻す</td></tr>
+            <tr><td><span class="badge post">POST</span></td><td class="mono">/investmentTrustCompletion</td><td><code>completion()</code> — 注文日時・約定日を確定し<code>orderInvestmentTrust()</code>でDB保存</td></tr>
+            <tr><td><span class="badge get">GET</span></td><td class="mono">/investmentTrust/staff/login</td><td><code>staffLogin()</code> — ログインフォーム表示</td></tr>
+            <tr><td><span class="badge post">POST</span></td><td class="mono">/investmentTrust/staff/login</td><td><code>staffLoginSubmit()</code> — ID/パスワード照合、成功でセッションに認証フラグ</td></tr>
+            <tr><td><span class="badge get">GET</span></td><td class="mono">/investmentTrust/staff/logout</td><td><code>staffLogout()</code> — 認証フラグを削除</td></tr>
+            <tr><td><span class="badge get">GET</span></td><td class="mono">/investmentTrust/staff</td><td><code>staffList()</code> — 未認証ならログイン画面へ差し戻し。認証済みなら全注文一覧を表示</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3 class="sub">行員モードの認証まわり</h3>
+        <pre><code>@Value("${investment-trust.staff.id}")
+private String staffId;
+@Value("${investment-trust.staff.password}")
+private String staffPassword;
+
+<span class="cm">// staffId・staffPasswordの両方が一致したときだけセッションに認証済みフラグを立てる</span>
+if (staffId.equals(id) &amp;&amp; staffPassword.equals(password)) {
+    session.setAttribute("staffAuthenticated", true);
+    return "redirect:/investmentTrust/staff";
+}</code></pre>
+        <p style="margin-top:14px;">Spring Securityは使わず、<code>HttpSession</code>に真偽値を1つ立てるだけの軽量な実装。<code>staffList()</code>の冒頭でこのフラグを確認し、なければ<code>/investmentTrust/staff/login</code>へリダイレクトする。ID/パスワードは<code>application.yml</code>の固定値。</p>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3 class="sub">名称解決のprivateメソッド</h3>
+        <p><code>resolveInstitutionName</code> / <code>resolveBranchName</code> / <code>resolveFundName</code> は、確認画面表示のために <strong>コード→名称</strong> を引く。裏側はマスタRepositoryの<code>findAll()</code>を都度呼んでJavaのStreamで絞り込んでいる(データ件数が小さい前提のシンプルな実装)。</p>
+      </div>
+    </section>
+
+    <section id="entity">
+      <div class="sec-head"><span class="sec-num">04</span><h2>Entity / Form</h2></div>
+      <p class="lede"><code class="mono">entity/</code>配下は5クラス。役割は「画面間を流れる書き込み用データ」「マスタ1行」「一覧表示専用の読み取りデータ」の3種類に分かれる。</p>
+
+      <div class="stack">
+        <div class="card">
+          <h3 class="sub">InvestmentTrustForm — 画面間を流れるメインのデータ</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>フィールド</th><th>由来</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">institutionCode / branchCode / bankAccountNum / bankSubject</td><td>口座情報セクションの入力値</td></tr>
+                <tr><td class="mono">lastName / firstName / address / contact</td><td>お客様情報セクションの入力値</td></tr>
+                <tr><td class="mono">fundCode / purchaseAmount</td><td>注文内容セクションの入力値</td></tr>
+                <tr><td class="mono">purchaseFee / orderDatetime / tradeDate</td><td>ユーザー入力ではなく<strong>サーバーが計算して埋める</strong>値。確認画面・完了画面へ運ぶための「入れ物」も兼ねている</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top:14px;">Lombokの<code>@Data</code>で全フィールドのgetter/setterを自動生成。<code>@NonNull</code>はユーザー入力必須項目に付けてあるが、これはあくまで「Lombokが生成するsetterにnullチェックを足す」だけの効果で、フォームバリデーションの主役はHTML側の<code>required</code>属性。</p>
+        </div>
+
+        <div class="card">
+          <h3 class="sub">InvestmentTrustOrderView — 行員一覧専用の読み取りDTO</h3>
+          <p>行員モード一覧で表示する1行分を表す。<code>InvestmentTrustForm</code>と似ているが、コードではなく<strong>解決済みの名称</strong>(<code>institutionName</code>, <code>branchName</code>, <code>fundName</code>)を持つ点が違う。書き込み(Form)と読み取り(OrderView)でクラスを分けているのは、両者の形が本質的に異なる(名称解決の有無)ため。</p>
+        </div>
+
+        <div class="card">
+          <h3 class="sub">InstitutionMaster / BranchMaster / FundMaster — マスタEntity</h3>
+          <p><code>institution_master</code>・<code>branch_master</code>・<code>fund_master</code>の1行にそのまま対応する素朴なクラス。<code>FundMaster</code>だけ<code>purchaseFeeRate</code>(<code>BigDecimal</code>)を持ち、手数料計算の元になる。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="repository">
+      <div class="sec-head"><span class="sec-num">05</span><h2>Repository</h2></div>
+      <p class="lede"><code class="mono">repository/</code>配下は4クラス。すべて<code>JdbcTemplate</code>を直接使い、SQL文字列を自前で組み立てるスタイルで統一されている。</p>
+
+      <div class="stack">
+        <div class="card">
+          <h3 class="sub">InvestmentTrustRepository</h3>
+          <p><code>create()</code> — 1件の注文を<code>investmentTrust_table</code>にINSERTする。カラム名は<code>InvestmentTrustForm</code>のフィールド名と1対1で対応させてあり、位置引数のズレによるバグを起こしにくくしてある。</p>
+          <pre><code>SELECT im.institution_name, bm.branch_name, ...
+FROM investmentTrust_table t
+JOIN institution_master im ON im.institution_code = t.institution_code
+JOIN branch_master bm ON bm.institution_code = t.institution_code
+                       AND bm.branch_code = t.branch_code
+JOIN fund_master fm ON fm.fund_code = t.fund_code
+ORDER BY t.order_datetime DESC</code></pre>
+          <p style="margin-top:14px;"><code>findAllOrders()</code> — 行員モード一覧用。3マスタとJOINしてコードを名称に変換した状態で、新しい注文から順に返す。</p>
+        </div>
+        <div class="card">
+          <h3 class="sub">InstitutionMasterRepository / BranchMasterRepository / FundMasterRepository</h3>
+          <p>それぞれ対応するマスタテーブルの<code>findAll()</code>を持つ。<code>FundMasterRepository</code>だけ<code>findByCode(fundCode)</code>も持ち、手数料計算(<code>OrderInvestmentTrustService</code>)と名称解決(Controller)の両方から使われる。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="service">
+      <div class="sec-head"><span class="sec-num">06</span><h2>Service</h2></div>
+      <p class="lede">ビジネスロジックを担当する2クラス。どちらもDBやWeb層に直接依存しない範囲を意識して切り出してある。</p>
+
+      <div class="stack">
+        <div class="card">
+          <h3 class="sub">OrderInvestmentTrustService</h3>
+          <pre><code><span class="cm">// 円未満切り捨て</span>
+BigDecimal fee = fundMaster.getPurchaseFeeRate()
+        .multiply(BigDecimal.valueOf(purchaseAmount))
+        .setScale(0, RoundingMode.DOWN);</code></pre>
+          <p style="margin-top:14px;"><code>resolvePurchaseFee()</code>が手数料計算の本体。<code>orderInvestmentTrust()</code>はこれを呼んだうえで<code>TradeDateCalculator</code>で約定日を確定させ、最後に<code>InvestmentTrustRepository.create()</code>を呼んでDB保存する — つまり「確定処理の入り口」としてこの2つを1メソッドにまとめている。</p>
+        </div>
+        <div class="card">
+          <h3 class="sub">TradeDateCalculator</h3>
+          <pre><code>calculate(orderDatetime):
+    if 土日: return 次の月曜日
+    if 時刻 &lt; 15:00: return 当日
+    else: return 翌営業日(土日はスキップ)</code></pre>
+          <p style="margin-top:14px;">締切時刻(平日15:00)を基準に約定日を1日ずらすロジック。祝日カレンダーは持たないため、平日判定は<code>isBusinessDay()</code>で「土日でないこと」のみをチェックしている。DB・Web層への依存が一切ないので、単体テストが書きやすい形になっている。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="templates">
+      <div class="sec-head"><span class="sec-num">07</span><h2>画面(テンプレート)</h2></div>
+      <p class="lede"><code class="mono">templates/</code>配下は6枚。Thymeleafのレイアウト機能(fragment)は使わず、各画面が<code>&lt;style&gt;</code>込みで完結した1ファイルになっている。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ファイル</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">investmentTrustIntro.html</td><td>紹介ページ。ヒーロー+特徴4カード+実データの取扱ラインナップ表+CTAボタン</td></tr>
+            <tr><td class="mono">investmentTrustMain.html</td><td>入力画面。「お客様情報」「口座情報」「注文内容」の3セクション(<code>.form-section</code>)構成</td></tr>
+            <tr><td class="mono">investmentTrustConfirmation.html</td><td>確認画面。金額の内訳表示、hiddenフィールドでコードを次画面へ引き継ぐ</td></tr>
+            <tr><td class="mono">investmentTrustCompletion.html</td><td>完了画面。注文日時・約定日を表示</td></tr>
+            <tr><td class="mono">investmentTrustStaffLogin.html</td><td>行員ログイン画面。ID/パスワード+パスワード表示切替</td></tr>
+            <tr><td class="mono">investmentTrustStaffList.html</td><td>行員一覧画面。全注文をテーブル表示</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="stack" style="margin-top:16px;">
+        <div class="card">
+          <h3 class="sub">入力画面の3セクション構成</h3>
+          <p>すべて元から用意されていたが未使用だった<code>.form-section</code>/<code>.section-title</code>のCSSを使って、フィールドを意味のあるグループに分けている。</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>セクション</th><th>フィールド</th></tr></thead>
+              <tbody>
+                <tr><td>お客様情報</td><td>姓・名・住所・連絡先</td></tr>
+                <tr><td>口座情報</td><td>金融機関名・口座番号・支店名・科目名</td></tr>
+                <tr><td>注文内容</td><td>銘柄選択・購入金額・購入手数料(見込み)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="sub">支店の動的絞り込み(institutionCode → branchCode)</h3>
+          <p>支店selectは初期状態で空。金融機関を選ぶと、Thymeleafが埋め込んだ<code>branchMasterList</code>(JSON)をJSがフィルタして、その金融機関に属する支店だけを動的に追加する。</p>
+        </div>
+
+        <div class="card">
+          <h3 class="sub">確認画面の金額内訳</h3>
+          <p>「注文金額(10,000円) ＝ 投資される金額(9,670円) ＋ 手数料(330円)」という式をそのままHTMLに表現。<code>investedAmount</code>(投資される金額)はControllerが<code>購入金額 − 手数料</code>で計算してModelに積んでいる。手数料が0円の場合は<code>th:unless</code>で分岐し「購入手数料 0円（無料）」と表示する。</p>
+        </div>
+
+        <div class="card">
+          <h3 class="sub">ステップ表示(シェブロン型)</h3>
+          <p>入力・確認・完了の3画面共通で、CSSの<code>clip-path</code>を使った矢印形のセグメントを表示。<code>.chevron.active</code>(現在地・青)、<code>.chevron.done</code>(完了済み・緑)、無指定(未実施・グレー)の3状態を各画面で静的に切り替えている(JSではなく画面ごとにHTMLをハードコード)。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="js">
+      <div class="sec-head"><span class="sec-num">08</span><h2>JavaScript</h2></div>
+      <p class="lede"><code class="mono">static/js/</code>配下は2ファイル。どちらもフレームワークを使わない素のDOM操作。</p>
+
+      <div class="stack">
+        <div class="card">
+          <h3 class="sub">investmentTrust.js(入力画面)</h3>
+          <ul>
+            <li><strong>支店の絞り込み</strong> — <code>populateBranchOptions()</code></li>
+            <li><strong>手数料プレビュー</strong> — <code>updateFeePreview()</code>。銘柄・金額の変更のたびに概算を再計算(最終確定は必ずサーバー側で再計算するため、ここはあくまでUX目的)</li>
+            <li><strong>購入金額のカンマ整形</strong> — <code>formatWithCommas()</code> / <code>parseAmount()</code>。表示はカンマ付き、送信直前に<code>parseAmount()</code>でカンマを外した数値へ戻す</li>
+            <li><strong>口座番号の整形</strong> — 数字以外を除去して7桁に切り捨て、フォーカスが外れたら7桁未満を先頭0埋め</li>
+            <li><strong>入力済みチェックマーク</strong> — <code>requiredFieldIds</code>配列に載っている全項目を対象に、入力/選択されたら「※」を隠して「✓」を表示する<code>updateFieldCheck()</code></li>
+            <li><strong>リセット時の再同期</strong> — <code>form</code>の<code>reset</code>イベント後、<code>setTimeout</code>で1tick待ってから支店選択肢・手数料プレビュー・チェックマークを未入力状態に戻す(ブラウザのネイティブresetは値のクリアが先、イベント発火はその後という順序に依存)</li>
+            <li><strong>高額注文の確認ダイアログ</strong> — 送信時、金額が100万円以上なら<code>confirm()</code>で最終確認</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="sub">investmentTrustConfirmation.js(確認画面)</h3>
+          <p>「申し込む」ボタン押下時に、画面に表示されている科目名・銘柄名・購入金額を<code>textContent</code>から読み取って確認ダイアログの文言を組み立てる。購入金額はカンマ付き表示のため、<code>replace(/[^0-9]/g, "")</code>で数字だけを取り出してから<code>Number()</code>に渡している。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="db">
+      <div class="sec-head"><span class="sec-num">09</span><h2>DBスキーマ</h2></div>
+      <p class="lede"><code class="mono">db/schema_v2.sql</code> に定義。自動マイグレーションの仕組みは組んでおらず、手動実行が前提。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>テーブル</th><th>役割</th><th>主なカラム</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">institution_master</td><td>金融機関マスタ</td><td class="mono">institution_code(PK), institution_name</td></tr>
+            <tr><td class="mono">branch_master</td><td>支店マスタ(金融機関に従属)</td><td class="mono">institution_code+branch_code(複合PK), branch_name</td></tr>
+            <tr><td class="mono">fund_master</td><td>銘柄マスタ</td><td class="mono">fund_code(PK), fund_name, purchase_fee_rate</td></tr>
+            <tr><td class="mono">investmentTrust_table</td><td>注文データ本体</td><td class="mono">id(PK), institution_code, branch_code, bank_account_num, bank_subject, last_name, first_name, address, contact, fund_code, purchase_amount, purchase_fee, order_datetime, trade_date</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout" style="margin-top:16px;">
+        <span class="label">補足</span>
+        <p><code>investmentTrust_table</code>は<code>(institution_code, branch_code)</code>で<code>branch_master</code>へ、<code>fund_code</code>で<code>fund_master</code>へ外部キー制約を張っている。<code>bank_account_num</code>は先頭0を保持するため<code>VARCHAR(7)</code>(Integerではない)。<code>last_name</code>/<code>first_name</code>は元々1つの<code>purchaser_name</code>列だったものを分割した経緯があり、<code>address</code>/<code>contact</code>とあわせて後から<code>ALTER TABLE</code>で追加している。</p>
+      </div>
+    </section>
+
+    <section id="config">
+      <div class="sec-head"><span class="sec-num">10</span><h2>設定ファイル</h2></div>
+      <p class="lede"><code class="mono">application.yml</code></p>
+      <div class="card">
+        <pre><code>server:
+  port: 8083
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/internship
+    username: root
+    password: root_password
+
+<span class="cm"># 行員モードの固定ID/パスワード(簡易実装)</span>
+investment-trust:
+  staff:
+    id: FITokabe
+    password: okabejyo</code></pre>
+        <p style="margin-top:14px;">行員モードのID/パスワードはコードに直接書かず設定ファイルに出してあり、Controllerでは<code>@Value("${investment-trust.staff.id}")</code>のように注入して使う。</p>
+      </div>
+    </section>
+
+    <section id="limits">
+      <div class="sec-head"><span class="sec-num">11</span><h2>既知の制約・今後の課題</h2></div>
+      <div class="card">
+        <ul>
+          <li><strong>顧客マスタがない</strong> — 姓名・住所・連絡先は注文ごとの自由入力で、同一人物かどうかを判定する仕組みは持たない。顧客ID管理は将来対応として先送りされている</li>
+          <li><strong>祝日カレンダー非対応</strong> — <code>TradeDateCalculator</code>は土日のみをスキップし、祝日は平日として扱う</li>
+          <li><strong>行員モード認証はセッションベースの簡易実装</strong> — Spring Securityは未導入。単一の固定ID/パスワードのみで、複数アカウントやロール管理はできない</li>
+          <li><strong>schema_v2.sqlはDROP前提</strong> — 冒頭で既存テーブルを<code>DROP TABLE</code>するため、新規構築用のスクリプトとしては使えるが、稼働中のDBに直接流すと過去データが消える(稼働中DBへの追加変更は個別に<code>ALTER TABLE</code>を実行してきた)</li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>investmentTrust プロジェクト・現在のソースコードに基づく解説(Claude Codeとの作業ログより作成)</footer>
+</div>

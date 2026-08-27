@@ -1,0 +1,146 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>投資信託注文一覧(行員モード)</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
+    <style>
+        .content {
+            width: 95%;
+            max-width: 1100px;
+            margin: 35px auto 50px;
+        }
+
+        .back-link {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .table-card {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            background-color: var(--color-primary);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty {
+            padding: 30px;
+            text-align: center;
+            color: var(--color-text-muted);
+        }
+
+        .badge {
+            white-space: nowrap;
+        }
+
+        /* 「発注する」ボタン(申込受付の注文にのみ表示) */
+        .place-order-button {
+            padding: 5px 12px;
+            border: none;
+            border-radius: var(--radius-control);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            background-color: var(--color-primary);
+            white-space: nowrap;
+        }
+        .place-order-button:hover {
+            background-color: var(--color-primary-dark);
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/appHeader :: header(pageStatus='行員モード - 注文一覧')}"></div>
+<!-- 投資信託 行員モード一覧画面: 全顧客の注文を閲覧専用で一覧表示する画面(認証なしの簡易切替) -->
+<div class="content">
+    <p class="back-link">
+        <a th:href="@{/investmentTrust/staff/customers}">顧客一覧</a>
+        ｜ <a th:href="@{/investmentTrust/staff/funds}">銘柄情報</a>
+        ｜ <a th:href="@{/investmentTrust/staff/logout}">ログアウト</a>
+    </p>
+
+    <div class="table-card">
+        <table th:if="${not #lists.isEmpty(orders)}">
+            <thead>
+            <tr>
+                <th>注文日時</th>
+                <th>約定日</th>
+                <th>区分</th>
+                <th>ステータス</th>
+                <th></th>
+                <th>氏名</th>
+                <th>住所</th>
+                <th>連絡先</th>
+                <th>金融機関名</th>
+                <th>支店名</th>
+                <th>口座番号</th>
+                <th>科目名</th>
+                <th>銘柄</th>
+                <th>購入金額</th>
+                <th>購入手数料</th>
+                <th>口数</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${#temporals.format(order.orderDatetime, 'yyyy年M月d日 HH:mm')}"></td>
+                <td th:text="${#temporals.format(order.tradeDate, 'yyyy年M月d日')}"></td>
+                <td th:with="orderDateStr=${#temporals.format(order.orderDatetime, 'yyyyMMdd')}, tradeDateStr=${#temporals.format(order.tradeDate, 'yyyyMMdd')}">
+                    <span th:if="${orderDateStr == tradeDateStr}" class="badge badge-same-day">当日扱い</span>
+                    <span th:unless="${orderDateStr == tradeDateStr}" class="badge badge-next-day">翌営業日扱い</span>
+                </td>
+                <!-- ステータス: DB上の3値(申込受付/発注済み/約定済み)をそのまま表示する -->
+                <td>
+                    <span th:if="${order.status == '申込受付'}" class="badge badge-status-received">申込受付</span>
+                    <span th:if="${order.status == '発注済み'}" class="badge badge-status-placed">発注済み</span>
+                    <span th:if="${order.status == '約定済み'}" class="badge badge-status-executed">約定済み</span>
+                </td>
+                <td>
+                    <form th:if="${order.status == '申込受付'}" th:action="@{'/investmentTrust/staff/orders/' + ${order.id} + '/place'}" method="post" style="margin:0;">
+                        <button type="submit" class="place-order-button">発注する</button>
+                    </form>
+                </td>
+                <td th:text="${order.lastName} + ' ' + ${order.firstName}"></td>
+                <td th:text="${order.address}"></td>
+                <td th:text="${order.contact}"></td>
+                <td th:text="${order.institutionName}"></td>
+                <td th:text="${order.branchName}"></td>
+                <td th:text="${order.bankAccountNum}"></td>
+                <td th:text="${order.bankSubject}"></td>
+                <td th:text="${order.fundName}"></td>
+                <td th:text="${#numbers.formatInteger(order.purchaseAmount, 1, 'COMMA')} + '円'"></td>
+                <td th:text="${#numbers.formatInteger(order.purchaseFee, 1, 'COMMA')} + '円'"></td>
+                <td>
+                    <span th:if="${order.confirmedUnits != null}" th:text="'確定: ' + ${#numbers.formatInteger(order.confirmedUnits, 1, 'COMMA')} + '口'"></span>
+                    <span th:if="${order.confirmedUnits == null}" th:text="'概算: ' + ${#numbers.formatInteger(order.estimatedUnits, 1, 'COMMA')} + '口'"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="empty" th:if="${#lists.isEmpty(orders)}">注文データがありません。</p>
+    </div>
+</div>
+</body>
+</html>

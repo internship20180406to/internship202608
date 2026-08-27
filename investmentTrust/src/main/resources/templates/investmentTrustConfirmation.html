@@ -2,30 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>投資信託注文確認画面</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
 
     <style>
-        /* 全体 */
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-
-            background-color: #f4f8fc;
-
-            font-family:
-                    -apple-system,
-                    BlinkMacSystemFont,
-                    "Segoe UI",
-                    "Noto Sans JP",
-                    sans-serif;
-
-            color: #333;
-        }
-
         /* メイン */
         form {
             width: 90%;
@@ -33,16 +14,16 @@
 
             margin: 35px auto 50px;
 
-            background-color: white;
+            background-color: var(--color-surface);
 
             padding: 35px;
 
-            border-radius: 12px;
+            border-radius: var(--radius-card);
 
             box-shadow:
-                    0 3px 12px rgba(0, 60, 120, 0.08);
+                    0 2px 8px rgba(30, 58, 95, 0.08);
 
-            border: 1px solid #e1eaf2;
+            border: 1px solid var(--color-border);
         }
 
         /* タイトル */
@@ -51,13 +32,6 @@
             max-width: 850px;
 
             margin: 35px auto 30px;
-
-            text-align: center;
-
-            color: #005bac;
-
-            font-size: 28px;
-            font-weight: 600;
         }
 
         /* 確認項目 */
@@ -66,7 +40,7 @@
 
             padding: 16px 5px;
 
-            border-bottom: 1px solid #e1eaf2;
+            border-bottom: 1px solid var(--color-border);
 
             font-size: 14px;
         }
@@ -76,166 +50,58 @@
             font-size: 16px;
             font-weight: normal;
 
-            color: #333;
+            color: var(--color-text);
         }
 
         /* 購入金額だけ目立たせる */
         form > p:last-of-type span {
-            color: #005bac;
+            color: var(--color-primary);
             font-size: 20px;
             font-weight: bold;
         }
 
-        /* ボタン部分 */
-        form p:last-child {
-            text-align: center;
+        /* ボタン部分(次の画面へ進む「申し込む」だけ右、その他は左) */
+        .confirmation-buttons {
+            display: flex;
+            align-items: center;
 
             border-bottom: none;
 
             margin-top: 30px;
         }
 
-        /* ボタン共通 */
-        input[type="submit"],
-        input[type="button"] {
-            min-width: 140px;
-            height: 45px;
-
-            padding: 10px 25px;
-            margin: 5px;
-
-            border: none;
-            border-radius: 6px;
-
-            cursor: pointer;
-
-            font-size: 15px;
-            font-weight: bold;
-
-            transition: 0.2s;
-        }
-
-        /* 申込ボタン */
-        input[type="submit"] {
-            color: white;
-
-            background-color: #0072c6;
-
-            box-shadow:
-                    0 3px 6px rgba(0, 114, 198, 0.25);
-        }
-
-        /* 申込ボタン hover */
-        input[type="submit"]:hover {
-            background-color: #005bac;
-
-            transform: translateY(-1px);
-        }
-
-        /* 入力内容の修正ボタン */
-        /* １６：３１ */
-        .form-edit-button {
-            color: #555;
-
-            background-color: #e7edf3;
-        }
-
-        /* 入力内容の修正ボタン hover */
-        /* １５：２１ */
-        .form-edit-button:hover {
-            background-color: #d8e1e9;
-
-            transform: translateY(-1px);
-        }
-
-        /* キャンセルボタン */
-        input[type="button"] {
-            color: #555;
-
-            background-color: #e7edf3;
-        }
-
-        /* キャンセル hover */
-        input[type="button"]:hover {
-            background-color: #d8e1e9;
-        }
-
-        /* ステップ表示(シェブロン矢印型。入力→確認→完了の進み具合を示す) */
-        .chevron-row {
-            display: flex;
-            max-width: 560px;
-            margin: 35px auto 0;
-        }
-        .chevron {
-            flex: 1 1 0;
-            height: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: bold;
-            background-color: #eef1f5;
-            color: #8993a3;
-            clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 18px 50%);
-        }
-        .chevron:first-child {
-            clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
-        }
-        .chevron:last-child {
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 18px 50%);
-        }
-        .chevron:not(:first-child) {
-            margin-left: -18px;
-        }
-        .chevron.active {
-            background-color: #0072c6;
-            color: #fff;
-        }
-        .chevron.done {
-            background-color: #1a9563;
-            color: #fff;
+        .confirmation-buttons .form-confirmation-button {
+            margin-left: auto;
         }
 
         /* 購入金額の内訳(注文金額＝投資される金額＋手数料) */
         .fee-breakdown {
             font-size: 15px;
         }
+
         .fee-breakdown span {
             font-weight: bold;
-            color: #005bac;
+            color: var(--color-primary);
         }
 
-        /* 「戻る」をリンクのように見せるボタン(入力内容を保持したまま入力画面へ戻す) */
-        .link-button {
-            background: none;
-            border: none;
-            padding: 0;
-            color: #0072c6;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .link-button:hover {
-            color: #005bac;
+        .badge {
+            margin-left: 8px;
         }
     </style>
 </head>
 <body>
+<div th:replace="~{fragments/appHeader :: header(pageStatus='ご注文内容の確認')}"></div>
 <!-- 投資信託 確認画面: 名称解決済みの入力内容・確定手数料・約定日見込みを表示して最終確認する画面 -->
 
-<!-- ステップ2/3: 確認中(入力は完了済み) -->
+<!-- ステップ3/4: 確認中(入力2画面は完了済み) -->
 <div class="chevron-row">
-    <div class="chevron done">入力 ✓</div>
+    <div class="chevron done">お客様情報・口座情報 ✓</div>
+    <div class="chevron done">注文内容 ✓</div>
     <div class="chevron active">確認</div>
     <div class="chevron">完了</div>
 </div>
 
-<h1>投資信託注文確認画面</h1>
 <form action="#" th:action="@{/investmentTrustCompletion}" th:object="${investmentTrustApplication}" method="post">
-    <!-- 入力内容を保持したまま入力画面に戻る(下部の「入力内容の修正」ボタンと同じ送信先) -->
-    <p style="border-bottom: none; padding-bottom: 0;">
-        <button type="submit" formaction="/investmentTrust" class="link-button">← 入力画面に戻る</button>
-    </p>
     <p>金融機関名: <span th:text="${institutionName}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
     <p>支店名： <span th:text="${branchName}"></span></p>
@@ -252,7 +118,33 @@
         <span th:if="${investmentTrustApplication.purchaseFee > 0}">手数料(<span id="purchaseFee" th:text="${#numbers.formatInteger(investmentTrustApplication.purchaseFee, 1, 'COMMA')}"></span>円)</span>
         <span th:unless="${investmentTrustApplication.purchaseFee > 0}">購入手数料 <span id="purchaseFee" th:text="0">0</span>円（無料）</span>
     </p>
-    <p>約定日(見込み)： <span th:text="${#temporals.format(tradeDatePreview, 'yyyy年M月d日')}"></span></p>
+    <!-- 信託報酬・信託財産留保額は購入代金からは差し引かれないため、参考情報として料率と概算額を開示する -->
+    <p class="cost-disclosure">
+        信託報酬(年率)： <span th:text="${trustFeeRatePercent}"></span>
+        (概算年間費用: <span th:text="${#numbers.formatInteger(trustFeeEstimate, 1, 'COMMA')}"></span>円)
+        ／
+        信託財産留保額：
+        <span th:unless="${hasRedemptionReserve}">なし</span>
+        <span th:if="${hasRedemptionReserve}"
+              th:text="${redemptionReserveRatePercent} + '(解約時概算: ' + ${#numbers.formatInteger(redemptionReserveEstimate, 1, 'COMMA')} + '円)'"></span>
+        ／ <a th:href="@{/investmentTrust/glossary}" target="_blank">用語の意味はこちら</a>
+    </p>
+    <p>約定日(見込み)： <span th:text="${#temporals.format(tradeDatePreview, 'yyyy年M月d日')}"></span>
+        <span th:if="${sameDayTrade}" class="badge badge-same-day">本日中の約定</span>
+        <span th:unless="${sameDayTrade}" class="badge badge-next-day">翌営業日扱い</span>
+    </p>
+    <!-- 直近の基準価額をもとにした概算購入口数。約定後、正式な基準価額で確定口数に置き換わる -->
+    <p>概算購入口数(参考)： <span th:text="${#numbers.formatInteger(estimatedUnitsPreview, 1, 'COMMA')} + '口'"></span></p>
+
+    <!-- 同意確認チェック: チェックが入るまで「申し込む」ボタンを押せないようにする(investmentTrustConfirmation.jsで制御) -->
+    <div class="agreement-check">
+        <input type="checkbox" id="agreeTerms" class="agreement-checkbox">
+        <label for="agreeTerms" class="agreement-label">
+            <span class="agreement-mark"></span>
+            上記の注文内容を確認し、同意します
+        </label>
+    </div>
+
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
     <input type="hidden" name="institutionCode" th:value="*{institutionCode}"/>
     <input type="hidden" name="branchCode" th:value="*{branchCode}"/>
@@ -261,28 +153,29 @@
     <input  type="hidden" name="firstName" th:value="*{firstName}"/>
     <input  type="hidden" name="address" th:value="*{address}"/>
     <input  type="hidden" name="contact" th:value="*{contact}"/>
+    <input  type="hidden" name="password" th:value="*{password}"/>
     <input  type="hidden" name="fundCode" th:value="*{fundCode}"/>
     <input  type="hidden" name="purchaseAmount" th:value="*{purchaseAmount}"/>
     <input  type="hidden" name="purchaseFee" th:value="*{purchaseFee}"/>
 
 
-    <p>
+    <div class="confirmation-buttons">
         <!--入力内容の修正        -->
         <!-- １６：１０入力画面に戻るための送信先を指定 -->
         <input type="submit"
                id="action"
                name="action"
-               value="入力内容の修正"
-               class="form-contorol-button form-edit-button"
-               formaction="/investmentTrust"/>
-
-        <!--申し込みボタン-->
-        <input type="submit" id="submit" name="action" value="申し込む"
-               class="form-control-button form-confirmation-button"/>
+               value="修正内容に戻る"
+               class="form-control-button form-edit-button"
+               formaction="/investmentTrust/order"/>
 
         <!--キャンセル-->
-        <input type="button" value="注文をキャンセル" onclick="window.location='/investmentTrust';"/>
-    </p>
+        <input type="button" value="注文をキャンセル" class="form-control-button form-clear-button" onclick="window.location='/investmentTrust';"/>
+
+        <!--申し込みボタン(次の画面=完了画面へ進むので右配置)。同意チェックが入るまではdisabled-->
+        <input type="submit" id="submit" name="action" value="申し込む" disabled
+               class="form-control-button form-confirmation-button"/>
+    </div>
 </form>
 <script th:inline="javascript" src="/js/investmentTrustConfirmation.js"></script>
 </body>

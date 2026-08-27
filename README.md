@@ -22,6 +22,3 @@
 2. ▶ を押し、実行を押す（二回目からは右上の▶や`shift`+`F10`で最近起動したものを再起動できる）
 3. 実行後、実行ログで `Started InternshipApplication`を確認する
 4. `http://localhost:8083/investmentTrust` にブラウザでアクセス
-
-自分用　
-'http://localhost:8083/investmentTrust/intro'

@@ -1,0 +1,128 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>注文履歴・状況の確認</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
+    <style>
+        .content {
+            width: 90%;
+            max-width: 420px;
+            margin: 90px auto;
+        }
+
+        .login-card {
+            padding: 35px 35px 30px;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .lead {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin: 0 0 20px;
+        }
+
+        label {
+            margin-bottom: 6px;
+        }
+
+        .error-message {
+            color: var(--color-danger);
+            font-size: 13px;
+            margin: 0 0 15px;
+        }
+
+        .field-group {
+            margin-bottom: 18px;
+        }
+
+        /* ボタン1つだけの短いカードなので、複数ボタン用の右寄せ・仕切り線付き足元バー(共通button-area)は使わず、
+           中央配置で直前の入力欄のすぐ下に来るよう上書きする */
+        .button-area {
+            position: static;
+            text-align: center;
+            margin-top: 14px;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-top: none;
+            background-color: transparent;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/appHeader :: header(pageStatus='注文履歴・状況の確認 - ログイン')}"></div>
+<!-- お客様向け: 申し込み時に登録した連絡先+パスワードで本人を特定するログイン画面 -->
+<div class="content">
+    <div class="login-card">
+        <p class="lead">お申し込み時にご登録いただいた「連絡先」と「パスワード」を入力してください。</p>
+
+        <!-- 入力内容が一致しなかったときだけ表示するエラーメッセージ -->
+        <p class="error-message" th:if="${loginError}">連絡先またはパスワードが正しくありません。</p>
+
+        <form th:action="@{/investmentTrust/myOrders/login}" method="post">
+            <div class="field-group">
+                <label for="contact">連絡先</label>
+                <input type="text" id="contact" name="contact" class="form-control" placeholder="090-1234-5678" inputmode="numeric" maxlength="13" required autofocus>
+            </div>
+
+            <div class="field-group">
+                <label for="password">パスワード</label>
+                <div class="password-wrap">
+                    <input type="password" id="password" name="password" class="form-control" required>
+                    <button type="button" class="toggle-password" id="togglePassword">表示</button>
+                </div>
+            </div>
+
+            <div class="button-area">
+                <input type="submit" value="照会する" class="form-control-button">
+            </div>
+        </form>
+
+        <p class="back-link"><a th:href="@{/investmentTrust}">投資信託トップに戻る</a></p>
+    </div>
+</div>
+
+<!-- 「表示」ボタンでパスワード欄のtype属性をpassword⇔textに切り替える -->
+<script>
+    const passwordField = document.getElementById("password");
+    const toggleButton = document.getElementById("togglePassword");
+
+    toggleButton.addEventListener("click", function () {
+        const isHidden = passwordField.type === "password";
+        passwordField.type = isHidden ? "text" : "password";
+        toggleButton.textContent = isHidden ? "非表示" : "表示";
+    });
+</script>
+
+<!-- 連絡先は、お客様情報入力画面(investmentTrustMain.js)と同じ090-1234-5678形式のハイフンを自動整形する -->
+<script>
+    const contactField = document.getElementById("contact");
+
+    function formatPhoneNumber(value) {
+        const digits = value.replace(/[^0-9]/g, "").slice(0, 11);
+        if (digits.length <= 3) {
+            return digits;
+        }
+        if (digits.length <= 7) {
+            return digits.slice(0, 3) + "-" + digits.slice(3);
+        }
+        return digits.slice(0, 3) + "-" + digits.slice(3, 7) + "-" + digits.slice(7);
+    }
+
+    contactField.addEventListener("input", function () {
+        contactField.value = formatPhoneNumber(contactField.value);
+    });
+</script>
+</body>
+</html>

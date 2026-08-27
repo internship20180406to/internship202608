@@ -1,0 +1,191 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>注文内容入力画面</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
+    <style>
+        .content {
+            width: 90%;
+            max-width: 850px;
+            margin: 35px auto 50px;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+            padding: 0 35px 30px;
+        }
+
+        .section-title {
+            margin: 0 -35px 25px;
+            padding: 15px 25px;
+        }
+
+        .button-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .field-done {
+            display: none;
+            color: var(--color-accent-green);
+            font-weight: bold;
+            margin-left: 6px;
+        }
+
+        /* 締切時間の案内文 */
+        .cutoff-notice {
+            text-align: center;
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin: -15px 0 20px;
+        }
+
+        /* レスポンシブ対応: 画面幅に十分な余裕がある場合は銘柄選択・購入金額を2カラムに並べ、縦の高さを抑える。
+           手数料プレビューは横幅いっぱいに表示する(ノートPC・タブレットでも窮屈にならないようにする) */
+        @media (min-width: 900px) {
+            .form-section {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                column-gap: 30px;
+            }
+
+            .section-title,
+            .fund-price-preview,
+            .fee-preview-row {
+                grid-column: 1 / -1;
+            }
+        }
+
+        /* レスポンシブ対応: 画面の高さが小さい(ノートPC・タブレット程度)場合は、余白・文字サイズ・価格一覧の行の高さを詰めてスクロールなしで収まりやすくする */
+        @media (max-height: 800px) {
+            .content {
+                margin: 15px auto 20px;
+            }
+
+            h1 {
+                font-size: clamp(20px, 2.5vh, 28px);
+                margin-bottom: 10px;
+            }
+
+            .cutoff-notice {
+                margin: -5px 0 10px;
+            }
+
+            .form-section {
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+            }
+
+            .section-title {
+                padding: 10px 25px;
+                margin-bottom: 15px;
+            }
+
+            .form-control {
+                height: 40px;
+                padding: 8px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/appHeader :: header(pageStatus='注文内容の入力')}"></div>
+<!-- 投資信託 申し込みStep2: 注文内容(銘柄・購入金額)を入力する画面 -->
+<div class="content">
+
+    <!-- ステップ2/4: 注文内容を入力中 -->
+    <div class="chevron-row">
+        <div class="chevron done">お客様情報・口座情報 ✓</div>
+        <div class="chevron active">注文内容</div>
+        <div class="chevron">確認</div>
+        <div class="chevron">完了</div>
+    </div>
+
+    <!-- 締切時間の案内(実際に本日中/翌営業日扱いのどちらになるかは確認画面で確定表示する) -->
+    <p class="cutoff-notice">
+        平日<span th:text="${#temporals.format(cutoffTime, 'HH:mm')}"></span>までのご注文が本日中の約定扱いとなります。
+        それ以降のご注文、および非営業日のご注文は翌営業日扱いとなります。
+        ／ <a th:href="@{/investmentTrust/glossary}" target="_blank">用語の意味はこちら</a>
+    </p>
+
+    <form action="#" th:action="@{/investmentTrustConfirmation}" th:object="${investmentTrustApplication}" method="post">
+
+        <!-- セクション3: 注文内容(銘柄・金額・手数料プレビュー) -->
+        <div class="form-section">
+            <div class="section-title">注文内容</div>
+
+            <!-----銘柄選択（SelectBoX）------->
+            <p>
+                <label class="ml-1">銘柄選択: <small class="text-danger ml-1" id="required-fundCode">※</small><span class="field-done" id="done-fundCode">✓</span></label><br>
+                <select id="fundCode" th:field="*{fundCode}" class="form-control" required>
+                    <option value="">選択してください</option>
+                    <option th:each="fund : ${fundList}"
+                            th:value="${fund.fundCode}"
+                            th:text="${fund.fundName} + '(基準価格: ' + ${#numbers.formatInteger(fund.referencePrice, 1, 'COMMA')} + '円/1万口・手数料率 ' + ${#numbers.formatDecimal(fund.purchaseFeeRate * 100, 1, 1)} + '%)'"></option>
+                </select>
+            </p>
+            <p class="price-note fund-price-preview" id="fundPricePreview" style="margin: -10px 0 16px;">銘柄を選択すると基準価格が表示されます</p>
+
+            <!-------購入金額-------->
+            <p>
+                <!-最低限１０００円マックス----->
+                <label class="ml-1">購入金額: <small class="text-danger ml-1" id="required-purchaseAmount">※</small><span class="field-done" id="done-purchaseAmount">✓</span></label><br>
+                <input type="text"
+                       id="purchaseAmount"
+                       th:field="*{purchaseAmount}"
+                       class="form-control"
+                       placeholder="1000円以上の金額を入力してください"
+                       inputmode="numeric"
+                       required>
+            </p>
+
+            <!-------購入手数料(見込み)-------->
+            <p class="fee-preview-row">
+                <label class="ml-1">購入手数料(見込み):</label><br>
+                <span id="feePreview">銘柄と購入金額を入力してください</span>
+            </p>
+        </div>
+
+        <!-- 他ステップ(お客様情報・口座情報)の入力内容は、このステップでは表示せずhiddenで引き継ぐ -->
+        <input type="hidden" name="lastName" th:value="*{lastName}"/>
+        <input type="hidden" name="firstName" th:value="*{firstName}"/>
+        <input type="hidden" name="address" th:value="*{address}"/>
+        <input type="hidden" name="contact" th:value="*{contact}"/>
+        <input type="hidden" name="password" th:value="*{password}"/>
+        <input type="hidden" name="institutionCode" th:value="*{institutionCode}"/>
+        <input type="hidden" name="branchCode" th:value="*{branchCode}"/>
+        <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
+        <input type="hidden" name="bankSubject" th:value="*{bankSubject}"/>
+
+        <div class="button-area">
+            <input type="submit"
+                   value="修正内容に戻る"
+                   class="form-control-button form-edit-button"
+                   formaction="/investmentTrust"/>
+
+            <input type="submit"
+                   value="確認する"
+                   class="form-control-button form-confirmation-button"/>
+        </div>
+    </form>
+</div>
+
+<!-- サーバー側のマスタデータをJSに渡す(手数料プレビュー用) -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const fundMasterList = /*[[${fundList}]]*/ [];
+    const requiredFieldIds = ["fundCode", "purchaseAmount"];
+    /*]]>*/
+</script>
+<script src="/js/investmentTrustOrderInfo.js"></script>
+<script src="/js/investmentTrustFieldCheck.js"></script>
+
+</body>
+</html>

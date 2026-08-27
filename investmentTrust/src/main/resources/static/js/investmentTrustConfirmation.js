@@ -1,8 +1,14 @@
 // 投資信託 確認画面(investmentTrustConfirmation.html)の動作を制御するJS
 // 「申し込む」ボタン押下時に、最終確認ダイアログを表示する
-
+// また、同意確認チェックボックスがチェックされるまで「申し込む」ボタンを押せないようにする
 
 const submitButton = document.getElementById("submit");
+
+// 同意確認チェックボックス: チェックが入るまで「申し込む」ボタンをdisabledのままにする
+const agreeCheckbox = document.getElementById("agreeTerms");
+agreeCheckbox.addEventListener("change", function () {
+    submitButton.disabled = !agreeCheckbox.checked;
+});
 // 申し込みボタンがクリックすされた時の処理、
 submitButton.addEventListener("click", function(event) {
     // 科目名の取得

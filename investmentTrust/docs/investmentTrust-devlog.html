@@ -1,0 +1,337 @@
+<title>投資信託開発ログ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=BIZ+UDPGothic:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #eef1f5;
+    --surface: #ffffff;
+    --surface-alt: #f5f8fb;
+    --ink: #1a2233;
+    --ink-soft: #5b6472;
+    --ink-faint: #8993a3;
+    --accent: #0b5aa0;
+    --accent-soft: #e2edf9;
+    --rule: #dde3ea;
+    --fix-fg: #a3690a;
+    --fix-bg: #faf0dd;
+    --shadow: rgba(20, 40, 70, 0.10);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1520;
+      --surface: #161d2b;
+      --surface-alt: #1b2334;
+      --ink: #e7ecf3;
+      --ink-soft: #a7b0c0;
+      --ink-faint: #6d7789;
+      --accent: #71b3ef;
+      --accent-soft: #1c3350;
+      --rule: #2a3346;
+      --fix-fg: #e6b35c;
+      --fix-bg: rgba(230, 179, 92, 0.14);
+      --shadow: rgba(0, 0, 0, 0.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1520;
+    --surface: #161d2b;
+    --surface-alt: #1b2334;
+    --ink: #e7ecf3;
+    --ink-soft: #a7b0c0;
+    --ink-faint: #6d7789;
+    --accent: #71b3ef;
+    --accent-soft: #1c3350;
+    --rule: #2a3346;
+    --fix-fg: #e6b35c;
+    --fix-bg: rgba(230, 179, 92, 0.14);
+    --shadow: rgba(0, 0, 0, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "BIZ UDPGothic", "Yu Gothic", "Hiragino Sans", sans-serif;
+    font-size: 15.5px;
+    line-height: 1.85;
+  }
+
+  h1, h2 {
+    font-family: "Shippori Mincho", "Yu Mincho", serif;
+    font-weight: 700;
+    color: var(--ink);
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  code, .mono { font-family: "JetBrains Mono", "BIZ UDPGothic", monospace; }
+
+  .shell {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 24px 90px;
+  }
+
+  header {
+    padding-bottom: 26px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 40px;
+  }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  h1 { font-size: clamp(26px, 4vw, 32px); line-height: 1.35; }
+
+  header p {
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 12px 0 0;
+  }
+
+  .summary-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+
+  .chip {
+    font-size: 12.5px;
+    padding: 4px 11px;
+    border-radius: 100px;
+    border: 1px solid var(--rule);
+    color: var(--ink-soft);
+    background: var(--surface);
+  }
+
+  /* タイムライン */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--rule);
+  }
+
+  .entry {
+    position: relative;
+    margin-bottom: 34px;
+  }
+
+  .entry::before {
+    content: "";
+    position: absolute;
+    left: -28px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  .entry.fix::before {
+    background: var(--fix-fg);
+    box-shadow: 0 0 0 1px var(--fix-fg);
+  }
+
+  .entry-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
+  .entry h2 { font-size: 17.5px; margin: 4px 0 10px; }
+
+  .entry .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px var(--shadow);
+    padding: 16px 20px;
+  }
+
+  .entry p { margin: 0 0 8px; color: var(--ink); max-width: 66ch; }
+  .entry p:last-child { margin-bottom: 0; }
+  .entry .why { color: var(--ink-soft); font-size: 14px; }
+
+  .badge {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .badge.fix { color: var(--fix-fg); background: var(--fix-bg); }
+
+  ul { margin: 8px 0 0; padding-left: 1.3em; }
+  li { margin-bottom: 4px; }
+
+  footer {
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-faint);
+    font-size: 12.5px;
+  }
+</style>
+
+<div class="shell">
+  <header>
+    <span class="eyebrow">investmentTrust · devlog</span>
+    <h1>本日の開発ログ</h1>
+    <p>investmentTrust プロジェクトに対して本日行った変更を、着手順にまとめた記録。それぞれ「何をしたか」と「なぜそうしたか」を残す。</p>
+    <div class="summary-row">
+      <span class="chip">対象: investmentTrust のみ</span>
+      <span class="chip">全13項目</span>
+      <span class="chip">DBスキーマ変更3回</span>
+    </div>
+  </header>
+
+  <div class="timeline">
+
+    <div class="entry">
+      <span class="entry-num">01</span>
+      <h2>コードマスタ化・手数料表示・約定日ロジック・行員モード(初版)</h2>
+      <div class="card">
+        <p>金融機関・支店・銘柄をハードコードの選択肢からDBマスタ(<code>institution_master</code> / <code>branch_master</code> / <code>fund_master</code>)に切り出し。銘柄選択時の購入手数料プレビュー、締切時刻(平日15時)を考慮した約定日の自動計算、行員が全注文を閲覧できる行員モード一覧画面を新規実装した。</p>
+        <p class="why">実際の投資信託アプリに近づけたいという要望が起点。既存の<code>InvestmentTrustRepository</code>にあったDBカラム名とフィールド名の不一致も、この時にテーブルを作り直して解消した。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">02</span>
+      <h2>ステップ表示の追加、その後デザイン変更</h2>
+      <div class="card">
+        <p>入力→確認→完了の進み具合を示すステップ表示を追加。最初は丸+線のステッパーで作ったが、「他の人と被る」との理由でシェブロン(矢印)型に作り替えた。</p>
+        <p class="why">3画面すべてで、CSSの<code>clip-path</code>による矢印セグメントに統一。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">03</span>
+      <h2>入力済み項目の緑チェックマーク表示</h2>
+      <div class="card">
+        <p>必須項目を入力/選択すると、「※」マークが緑の「✓」に切り替わるようにした。「入力内容をクリア」ボタンでフォームがリセットされたときも、全項目のチェックマークが正しく外れるように対応。</p>
+        <p class="why">どこまで入力が終わっているかを一目でわかりやすくしたいという要望。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">04</span>
+      <h2>口座番号: 7桁フォーマットの徹底</h2>
+      <div class="card">
+        <p><code>type="number"</code>では<code>maxlength</code>が効かない不具合を修正し、数字以外を自動除去・7桁超は自動切り捨て。さらに入力欄からフォーカスが外れたとき、7桁に満たなければ先頭を0で埋める処理を追加(例: <code>444</code> → <code>0000444</code>)。</p>
+        <p class="why">先頭0を保持するため、サーバー側の型も<code>Integer</code>から<code>String</code>に変更した(DBカラムも<code>VARCHAR(7)</code>に変更)。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">05</span>
+      <h2>購入金額のカンマ区切り表示</h2>
+      <div class="card">
+        <p>購入金額の入力欄に、入力しながら<code>1,000,000</code>のようにカンマが付くようにした。送信時は内部でカンマなしの数値に戻してからサーバーへ送る。</p>
+        <p class="why">見やすさのため。<code>type="number"</code>ではカンマを扱えないため<code>type="text"</code>+<code>inputmode="numeric"</code>に変更。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">06</span>
+      <h2>確認画面: 金額の内訳表示</h2>
+      <div class="card">
+        <p>「注文金額(10,000円) ＝ 投資される金額(9,670円) ＋ 手数料(330円)」という内訳を確認画面に追加。手数料が0円の場合は「購入手数料 0円（無料）」と表示する分岐も用意。</p>
+        <p class="why">実際の投資信託アプリの体験に近づけるための要望。<code>investedAmount</code>(投資される金額)はControllerで<code>購入金額 − 手数料</code>として計算。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">07</span>
+      <h2>投資信託 紹介・案内ページの新規作成</h2>
+      <div class="card">
+        <p><code>/investmentTrust/intro</code>を新規作成。実際の銀行サイト(MUFG投資信託ページ)を参考にしつつ、大規模な構成(Web完結・500銘柄・ポイント還元・NISA・FAQ等)とは違う、このアプリの実機能に絞ったコンパクトな独自構成にした。ヒーロー+特徴4カード+実データの取扱ラインナップ表+CTAボタン。</p>
+        <p class="why">「投資信託を始める」入り口となる案内ページが欲しいという要望。ログイン機能は作らず、ボタン1つで入力画面に進める設計。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">08</span>
+      <h2>表示形式の統一</h2>
+      <div class="card">
+        <p>行員モード一覧の日付形式(<code>yyyy/MM/dd</code>)と金額表示(カンマなし)が他画面と揃っていなかったため、全画面で<code>yyyy年M月d日</code>形式・カンマ区切りに統一。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">09</span>
+      <h2>行員モードのパスワード保護</h2>
+      <div class="card">
+        <p>以前は認証なしの簡易切替だった行員モードに、ID/パスワードによるログインを追加(方針変更)。<code>HttpSession</code>を使った軽量な実装で、Spring Securityは導入していない。パスワード欄には「表示」ボタンで一時的に平文表示できる切替も追加。</p>
+        <p class="why">仕様書で「パスワードがないと入れない」ことが明示的に要求されたため、以前の合意(認証なし)から方針を変更した。固定ID/パスワードは<code>application.yml</code>で管理。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">10</span>
+      <h2>フォームのセクション分離 + 住所・連絡先の追加</h2>
+      <div class="card">
+        <p>入力画面を「お客様情報」「口座情報」「注文内容」の3セクションに分離。もともと未使用だった<code>.form-section</code>/<code>.section-title</code>のCSSを活用した。住所・連絡先を新規フィールドとして追加。</p>
+        <p class="why">「お客様情報」と「口座番号」が1つにまとまっていて分かりにくい、誤入力・混同を防ぎたいという要望。顧客マスタ(顧客ID管理)は将来対応として先送りし、今回は注文ごとの入力値として追加した。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">11</span>
+      <h2>氏名を姓・名に分割</h2>
+      <div class="card">
+        <p>1つの「購入者名」欄を「姓」「名」の2つの入力欄に分割。DBも<code>purchaser_name</code>列を廃止し<code>last_name</code>/<code>first_name</code>の2列に変更(既存データはスペース区切りで自動振り分け)。確認画面・行員モード一覧では「姓 名」として表示。</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <span class="entry-num">12</span>
+      <h2>各画面への「戻る」導線追加</h2>
+      <div class="card">
+        <p>入力画面に「紹介ページに戻る」リンクを追加(それまで紹介ページへの戻り手段がなかった)。確認画面の上部にも「入力画面に戻る」を追加し、入力済みの内容を保持したまま入力画面に戻れるようにした。</p>
+        <p class="why">完了画面は注文確定後で内容を修正できないため、既存の「投資信託トップへ」ボタンをそのまま維持している。</p>
+      </div>
+    </div>
+
+    <div class="entry fix">
+      <span class="entry-num">13</span>
+      <h2>トラブルシューティング <span class="badge fix">FIX</span></h2>
+      <div class="card">
+        <ul>
+          <li><strong>MySQLクライアントの文字化け</strong>: Windows環境のmysqlクライアントは既定の文字コードが<code>cp932</code>になっており、UTF-8のSQLファイルを流すと日本語が<code>Incorrect string value</code>エラーになった。<code>--default-character-set=utf8mb4</code>を付けて解決。</li>
+          <li><strong>ブラウザキャッシュ</strong>: JS更新後にカンマ区切りが反映されない不具合は、ブラウザが古いJSファイルをキャッシュしていたことが原因。強制再読み込み(Ctrl+Shift+R)で解決。</li>
+          <li><strong>SpEL型解決エラー</strong>: 紹介ページの手数料率パーセント変換で<code>BigDecimal.valueOf(100)</code>の型があいまいでエラーになったため、<code>fund.purchaseFeeRate * 100</code>という単純な掛け算に修正。</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>investmentTrust プロジェクト・Claude Codeとの本日の作業ログより作成</footer>
+</div>

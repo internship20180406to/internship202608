@@ -1,0 +1,111 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>顧客一覧(行員モード)</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
+    <style>
+        .content {
+            width: 95%;
+            max-width: 1000px;
+            margin: 35px auto 50px;
+        }
+
+        .back-link {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .table-card {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            background-color: var(--color-primary);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty {
+            padding: 30px;
+            text-align: center;
+            color: var(--color-text-muted);
+        }
+
+        /* 「履歴を見る」ボタン */
+        .history-button {
+            padding: 5px 12px;
+            border: none;
+            border-radius: var(--radius-control);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            background-color: var(--color-primary);
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .history-button:hover {
+            background-color: var(--color-primary-dark);
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/appHeader :: header(pageStatus='行員モード - 顧客一覧')}"></div>
+<!-- 投資信託 行員モード 顧客一覧画面: 姓名+連絡先で名寄せした顧客ごとに、申し込み件数・最終申し込み日時を一覧表示する画面 -->
+<div class="content">
+    <p class="back-link">
+        <a th:href="@{/investmentTrust/staff}">注文一覧に戻る</a>
+        ｜ <a th:href="@{/investmentTrust/staff/funds}">銘柄情報</a>
+        ｜ <a th:href="@{/investmentTrust/staff/logout}">ログアウト</a>
+    </p>
+
+    <div class="table-card">
+        <table th:if="${not #lists.isEmpty(customers)}">
+            <thead>
+            <tr>
+                <th>氏名</th>
+                <th>住所</th>
+                <th>連絡先</th>
+                <th>申し込み回数</th>
+                <th>最終申し込み日時</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="customer : ${customers}">
+                <td th:text="${customer.lastName} + ' ' + ${customer.firstName}"></td>
+                <td th:text="${customer.address}"></td>
+                <td th:text="${customer.contact}"></td>
+                <td th:text="${customer.orderCount} + '回'"></td>
+                <td th:text="${#temporals.format(customer.lastOrderDatetime, 'yyyy年M月d日 HH:mm')}"></td>
+                <td>
+                    <a th:href="@{'/investmentTrust/staff/customers/' + ${customer.customerId}}" class="history-button">履歴を見る</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="empty" th:if="${#lists.isEmpty(customers)}">顧客データがありません。</p>
+    </div>
+</div>
+</body>
+</html>

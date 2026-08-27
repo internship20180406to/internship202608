@@ -2,28 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>投資信託注文情報入力画面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>お客様情報・口座情報入力画面</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-        /*全体*/
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f4f8fc;
-            font-family:
-                /*フォント（）文字の書式設定・*/
-                    -apple-system,
-                    BlinkMacSystemFont,
-                    "Segoe UI",
-                    "Noto Sans JP",
-                    sans-serif;
-            color: #333;
-        }
-
-
-
         .header-title {
             max-width: 900px;
             margin: 0 auto;
@@ -40,230 +22,100 @@
 
         /* ページタイトル */
         h1 {
-            text-align: center;
-            color: #005bac;
-            font-size: 28px;
-            margin: 0 0 30px;
-            font-weight: 600;
+            margin-bottom: 30px;
         }
 
         /* セクション */
         .form-section {
-            background-color: white;
-            border-radius: 12px;
             margin-bottom: 25px;
             padding: 0 35px 30px;
-            box-shadow: 0 3px 12px rgba(0, 60, 120, 0.08);
-            border: 1px solid #e1eaf2;
         }
 
         /* セクションタイトル */
         .section-title {
             margin: 0 -35px 25px;
             padding: 15px 25px;
-
-            color: white;
-            background-color: #005bac;
-            /*角マルク↓*/
-            border-radius: 12px 12px 0 0;
-
-            font-size: 17px;
-            font-weight: bold;
         }
 
-        /* 入力項目 */
-
-
-        /* ラベル口座番号とか */
-        label {
-            display: block;
-
-
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        /* 必須マーク */
-        .text-danger {
-            color: #d60000;
-            font-size: 11px;
-            margin-left: 6px;
-            font-weight: normal;
-        }
-
-        /* 入力欄 */
-        .form-control {
-            width: 100%;
-            height: 44px;
-
-            padding: 10px 14px;
-
-            border: 1px solid #c7d5e2;
-            border-radius: 7px;
-
-            background-color: #fff;
-
-            font-size: 14px;
-            color: #333;
-
-            outline: none;
-
-            transition: all 0.2s ease;
-        }
-
-        /* フォーカス */
-        .form-control:focus {
-            border-color: #0072c6;
-
-            box-shadow:
-                    0 0 0 2px rgba(0, 114, 198, 0.15);
-        }
-
-        /* select 押したところを指さしで視覚的にわかりやすく*/
-        select.form-control {
-            cursor: pointer;
-        }
-
-        /* ボタンエリア */
+        /* ボタンエリア(次の画面へ進むボタンは右、その場で完結するボタンは左) */
         .button-area {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
             margin-top: 30px;
-        }
-
-        /* ボタン共通　 */
-        .form-control-button {
-            min-width: 140px;
-            height: 45px;
-            padding: 10px 25px;
-            margin: 5px;
-            border: none;
-            border-radius: 6px;
-
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-
-        /* 確認ボタン */
-        .form-confirmation-button {
-            color: white;
-            background-color: #0072c6;
-            /*ボタンに影をつけて浮いているように*/
-            box-shadow:
-                    0 3px 6px rgba(0, 114, 198, 0.25);
-        }
-        /*まうすをカーソルの上に乗せたときに見た目を変更する*/
-        .form-confirmation-button:hover {
-            background-color: #005bac;
-            transform: translateY(-1px);
-        }
-        /* クリア */
-        .form-clear-button {
-            color: #555;
-            background-color: #e7edf3;
-        }
-        .form-clear-button:hover {
-            background-color: #d8e1e9;
-        }
-        /* スマホ６００いかはここをしよう */
-        /*      @media (max-width: 600px) {    いったんいらない
-
-                  .header {
-                      padding: 15px 20px;
-                  }
-
-                  .content {
-                      width: 95%;
-                      margin-top: 25px;
-                  }
-
-                  .form-section {
-                      padding: 0 20px 25px;
-                  }
-
-                  .section-title {
-                      margin-left: -20px;
-                      margin-right: -20px;
-                  }
-
-                  h1 {
-                      font-size: 23px;
-                  }
-
-                  .form-control-button {
-                      width: 90%;
-                      margin: 5px auto;
-                  }
-              }*/
-
-        /* ステップ表示(シェブロン矢印型。入力→確認→完了の進み具合を示す) */
-        .chevron-row {
-            display: flex;
-            max-width: 560px;
-            margin: 0 auto 30px;
-        }
-        .chevron {
-            flex: 1 1 0;
-            height: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: bold;
-            background-color: #eef1f5;
-            color: #8993a3;
-            clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 18px 50%);
-        }
-        .chevron:first-child {
-            clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
-        }
-        .chevron:last-child {
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 18px 50%);
-        }
-        .chevron:not(:first-child) {
-            margin-left: -18px;
-        }
-        /* 現在のステップ */
-        .chevron.active {
-            background-color: #0072c6;
-            color: #fff;
-        }
-        /* 完了済みのステップ */
-        .chevron.done {
-            background-color: #1a9563;
-            color: #fff;
         }
 
         /* 項目ごとの入力済みマーク(入力が終わると※から緑の✓に切り替わる) */
         .field-done {
             display: none;
-            color: #1a9563;
+            color: var(--color-accent-green);
             font-weight: bold;
             margin-left: 6px;
+        }
+
+        /* レスポンシブ対応: 画面幅に十分な余裕がある場合は項目を2カラムに並べ、縦の高さを抑える(ノートPC・タブレットでも窮屈にならないようにする) */
+        @media (min-width: 900px) {
+            .form-section {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                column-gap: 30px;
+            }
+
+            .section-title {
+                grid-column: 1 / -1;
+            }
+        }
+
+        /* レスポンシブ対応: 画面の高さが小さい(ノートPC・タブレット程度)場合は、余白・文字サイズを詰めてスクロールなしで収まりやすくする */
+        @media (max-height: 800px) {
+            .content {
+                margin: 15px auto 20px;
+            }
+
+            h1 {
+                font-size: clamp(20px, 2.5vh, 28px);
+                margin-bottom: 15px;
+            }
+
+            .form-section {
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+            }
+
+            .section-title {
+                padding: 10px 25px;
+                margin-bottom: 15px;
+            }
+
+            .form-control {
+                height: 40px;
+                padding: 8px 14px;
+            }
         }
     </style>
 </head>
 <body>
-<!-- 投資信託 入力画面: 顧客が金融機関・支店・銘柄・購入金額などを入力する画面 -->
+<div th:replace="~{fragments/appHeader :: header(pageStatus='お客様情報・口座情報の入力')}"></div>
+<!-- 投資信託 申し込みStep1: お客様情報(姓・名・住所・連絡先・パスワード)と口座情報(金融機関・支店・口座番号・科目名)をまとめて入力する画面 -->
 <div class="content">
-    <p style="display: flex; justify-content: space-between;">
-        <a th:href="@{/investmentTrust/intro}">← 紹介ページに戻る</a>
-        <a th:href="@{/investmentTrust/staff/login}">行員モードへ切替</a>
+    <p class="staff-mode-link" style="display: flex; justify-content: space-between;">
+        <a th:href="@{/investmentTrust/glossary}" target="_blank">投資信託が初めての方へ(用語集)</a>
+        <span>
+            <a th:href="@{/investmentTrust/myOrders/login}">注文履歴・状況の確認</a>
+            ｜ <a th:href="@{/investmentTrust/staff/login}">行員モードへ切替</a>
+        </span>
     </p>
 
-    <!-- ステップ1/3: 入力中 -->
+    <!-- ステップ1/4: お客様情報・口座情報を入力中 -->
     <div class="chevron-row">
-        <div class="chevron active">入力</div>
+        <div class="chevron active">お客様情報・口座情報</div>
+        <div class="chevron">注文内容</div>
         <div class="chevron">確認</div>
         <div class="chevron">完了</div>
     </div>
 
-    <h1>投資信託注文情報入力</h1>
-    <form action="#" th:action="@{/investmentTrustConfirmation}" th:object="${investmentTrustApplication}" method="post">
+    <form action="#" th:action="@{/investmentTrust/order}" th:object="${investmentTrustApplication}" method="post">
 
-        <!-- セクション1: お客様情報(氏名・住所・連絡先。口座情報とは分けて誤入力・混同を防ぐ) -->
+        <!-- セクション1: お客様情報(氏名・住所・連絡先・パスワード。口座情報とは見出しを分けて誤入力・混同を防ぐ) -->
         <div class="form-section">
             <div class="section-title">お客様情報</div>
 
@@ -286,7 +138,14 @@
             <!-------連絡先-------->
             <p>
                 <label class="ml-1">連絡先: <small class="text-danger ml-1" id="required-contact">※</small><span class="field-done" id="done-contact">✓</span></label><br>
-                <input type="text" id="contact" th:field="*{contact}" class="form-control" placeholder="090-1234-5678" required>
+                <input type="text" id="contact" th:field="*{contact}" class="form-control" placeholder="090-1234-5678" inputmode="numeric" maxlength="13" required>
+                <span class="field-error" id="error-contact"></span>
+            </p>
+
+            <!-------パスワード(お客様モードでの注文履歴確認時、連絡先とあわせて使用)-------->
+            <p>
+                <label class="ml-1">パスワード(注文履歴確認用): <small class="text-danger ml-1" id="required-password">※</small><span class="field-done" id="done-password">✓</span></label><br>
+                <input type="password" id="password" th:field="*{password}" class="form-control" placeholder="半角英数字4文字以上" minlength="4" required>
             </p>
         </div>
 
@@ -304,7 +163,8 @@
 
             <!----口座番号------>
             <p><label class="ml-1">口座番号: <small class="text-danger ml-1" id="required-bankAccountNum">※</small><span class="field-done" id="done-bankAccountNum">✓</span></label><br>
-                <input type="text" id="bankAccountNum" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" maxlength="7" inputmode="numeric" pattern="[0-9]{7}" required></p>
+                <input type="text" id="bankAccountNum" th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" maxlength="7" inputmode="numeric" pattern="[0-9]{7}" required>
+                <span class="field-error" id="error-bankAccountNum"></span></p>
 
             <!-----支店名------->
             <p>
@@ -326,65 +186,34 @@
             </p>
         </div>
 
-        <!-- セクション3: 注文内容(銘柄・金額・手数料プレビュー) -->
-        <div class="form-section">
-            <div class="section-title">注文内容</div>
+        <!-- 他ステップ(注文内容)の入力内容は、このステップでは表示せずhiddenで引き継ぐ -->
+        <input type="hidden" name="fundCode" th:value="*{fundCode}"/>
+        <input type="hidden" name="purchaseAmount" th:value="*{purchaseAmount}"/>
 
-            <!-----銘柄選択（SelectBoX）------->
-            <p>
-                <label class="ml-1">銘柄選択: <small class="text-danger ml-1" id="required-fundCode">※</small><span class="field-done" id="done-fundCode">✓</span></label><br>
-                <select id="fundCode" th:field="*{fundCode}" class="form-control" required>
-                    <option value="">選択してください</option>
-                    <option th:each="fund : ${fundList}"
-                            th:value="${fund.fundCode}"
-                            th:text="${fund.fundName}"></option>
-                </select>
-            </p>
-
-            <!-------購入金額-------->
-            <p>
-                <!-最低限１０００円マックス----->
-                <label class="ml-1">購入金額: <small class="text-danger ml-1" id="required-purchaseAmount">※</small><span class="field-done" id="done-purchaseAmount">✓</span></label><br>
-                <input type="text"
-                       id="purchaseAmount"
-                       th:field="*{purchaseAmount}"
-                       class="form-control"
-                       placeholder="1000円以上の金額を入力してください"
-                       inputmode="numeric"
-                       required>
-            </p>
-
-            <!-------購入手数料(見込み)-------->
-            <p>
-                <label class="ml-1">購入手数料(見込み):</label><br>
-                <span id="feePreview">銘柄と購入金額を入力してください</span>
-            </p>
-        </div>
-
-        <p style="text-align: center;">
-            <input type="submit"
-                   value="注文内容を確認する"
-                   class="form-control-button form-confirmation-button"/>
-
+        <div class="button-area">
             <input type="reset"
                    value="入力内容をクリア"
                    class="form-control-button form-clear-button"/>
-        </p>
+
+            <input type="submit"
+                   value="次へ"
+                   class="form-control-button form-confirmation-button"/>
+        </div>
     </form>
 </div>
 
-<!-- サーバー側のマスタデータをJSに渡す(支店の絞り込み・手数料プレビュー用) -->
+<!-- サーバー側のマスタデータをJSに渡す(支店の絞り込みに使う)。必須項目の✓マーク切替は共通スクリプトが担当する -->
 <script th:inline="javascript">
     /*<![CDATA[*/
     const branchMasterList = /*[[${branchList}]]*/ [];
-    const fundMasterList = /*[[${fundList}]]*/ [];
-    // 修正で入力画面に戻ってきた場合に、支店選択肢の初期復元に使う
     const initialBranchCode = /*[[${investmentTrustApplication.branchCode}]]*/ '';
+    const requiredFieldIds = ["lastName", "firstName", "address", "contact", "password",
+        "institutionCode", "bankAccountNum", "branchCode", "bankSubject"];
     /*]]>*/
 </script>
-<!-- STEP1：購入金額チェック用JavaScript -->
-<script src="/js/investmentTrust.js"></script>
-<!--外部javascript読み込みここではinvestmentTrust.jsダイヤログ-->
+<script src="/js/investmentTrustMain.js"></script>
+<script src="/js/investmentTrustAccountInfo.js"></script>
+<script src="/js/investmentTrustFieldCheck.js"></script>
 
 </body>
 

@@ -1,0 +1,174 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>顧客詳細・申し込み履歴(行員モード)</title>
+    <link rel="stylesheet" th:href="@{/css/bank-theme.css}"/>
+    <style>
+        .content {
+            width: 95%;
+            max-width: 1000px;
+            margin: 35px auto 50px;
+        }
+
+        .back-link {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        /* 顧客の基本情報カード */
+        .customer-card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-card);
+            box-shadow: 0 2px 8px rgba(30, 58, 95, 0.08);
+            border: 1px solid var(--color-border);
+            padding: 20px 25px;
+            margin-bottom: 25px;
+        }
+
+        .customer-card p {
+            margin: 0;
+            padding: 8px 0;
+            font-size: 14px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .customer-card p:last-child {
+            border-bottom: none;
+        }
+
+        .customer-card span {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--color-text);
+        }
+
+        h2 {
+            font-size: 16px;
+            color: var(--color-primary);
+            margin: 0 0 12px;
+        }
+
+        .table-card {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            background-color: var(--color-primary);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .empty {
+            padding: 30px;
+            text-align: center;
+            color: var(--color-text-muted);
+        }
+
+        .badge-status-received {
+            background-color: var(--color-primary-tint);
+            color: var(--color-text-muted);
+        }
+        .badge-status-placed {
+            background-color: var(--color-primary-tint);
+            color: var(--color-primary);
+        }
+        .badge-status-executed {
+            background-color: var(--color-accent-green-tint);
+            color: var(--color-accent-green);
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/appHeader :: header(pageStatus='行員モード - 顧客詳細')}"></div>
+<!-- 投資信託 行員モード 顧客詳細画面: 選択した顧客の基本情報と、これまでの申し込み履歴を新しい順に一覧表示する画面(閲覧専用) -->
+<div class="content">
+    <p class="back-link">
+        <a th:href="@{/investmentTrust/staff/customers}">← 顧客一覧に戻る</a>
+        ｜ <a th:href="@{/investmentTrust/staff}">注文一覧</a>
+        ｜ <a th:href="@{/investmentTrust/staff/funds}">銘柄情報</a>
+    </p>
+
+    <div class="customer-card">
+        <p>氏名: <span th:text="${customer.lastName} + ' ' + ${customer.firstName}"></span></p>
+        <p>住所: <span th:text="${customer.address}"></span></p>
+        <p>連絡先: <span th:text="${customer.contact}"></span></p>
+    </div>
+
+    <h2>申し込み履歴</h2>
+    <div class="table-card">
+        <table th:if="${not #lists.isEmpty(orders)}">
+            <thead>
+            <tr>
+                <th>注文日時</th>
+                <th>約定日</th>
+                <th>区分</th>
+                <th>ステータス</th>
+                <th>金融機関名</th>
+                <th>支店名</th>
+                <th>口座番号</th>
+                <th>科目名</th>
+                <th>銘柄</th>
+                <th>購入金額</th>
+                <th>購入手数料</th>
+                <th>口数</th>
+                <th>状況・履歴</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${#temporals.format(order.orderDatetime, 'yyyy年M月d日 HH:mm')}"></td>
+                <td th:text="${#temporals.format(order.tradeDate, 'yyyy年M月d日')}"></td>
+                <td th:with="orderDateStr=${#temporals.format(order.orderDatetime, 'yyyyMMdd')}, tradeDateStr=${#temporals.format(order.tradeDate, 'yyyyMMdd')}">
+                    <span th:if="${orderDateStr == tradeDateStr}" class="badge badge-same-day">当日扱い</span>
+                    <span th:unless="${orderDateStr == tradeDateStr}" class="badge badge-next-day">翌営業日扱い</span>
+                </td>
+                <td>
+                    <span th:if="${order.status == '申込受付'}" class="badge badge-status-received">申込受付</span>
+                    <span th:if="${order.status == '発注済み'}" class="badge badge-status-placed">発注済み</span>
+                    <span th:if="${order.status == '約定済み'}" class="badge badge-status-executed">約定済み</span>
+                </td>
+                <td th:text="${order.institutionName}"></td>
+                <td th:text="${order.branchName}"></td>
+                <td th:text="${order.bankAccountNum}"></td>
+                <td th:text="${order.bankSubject}"></td>
+                <td th:text="${order.fundName}"></td>
+                <td th:text="${#numbers.formatInteger(order.purchaseAmount, 1, 'COMMA')} + '円'"></td>
+                <td th:text="${#numbers.formatInteger(order.purchaseFee, 1, 'COMMA')} + '円'"></td>
+                <td>
+                    <span th:if="${order.confirmedUnits != null}" th:text="'確定: ' + ${#numbers.formatInteger(order.confirmedUnits, 1, 'COMMA')} + '口'"></span>
+                    <span th:if="${order.confirmedUnits == null}" th:text="'概算: ' + ${#numbers.formatInteger(order.estimatedUnits, 1, 'COMMA')} + '口'"></span>
+                </td>
+                <td>
+                    <a th:href="@{'/investmentTrust/orders/' + ${order.id} + '/status'}">状況・履歴を見る</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="empty" th:if="${#lists.isEmpty(orders)}">申し込み履歴がありません。</p>
+    </div>
+</div>
+</body>
+</html>

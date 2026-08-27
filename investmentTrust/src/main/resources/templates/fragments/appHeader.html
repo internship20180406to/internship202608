@@ -1,0 +1,10 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- 全画面共通: 画面上部に固定表示するヘッダー。呼び出し元テンプレートからpageStatusを渡すことで、
+     中央に「今どの画面にいるか」を常に表示する -->
+<header class="app-header" th:fragment="header(pageStatus)">
+    <span class="app-header-status" th:if="${pageStatus}" th:text="${pageStatus}"></span>
+</header>
+</body>
+</html>
