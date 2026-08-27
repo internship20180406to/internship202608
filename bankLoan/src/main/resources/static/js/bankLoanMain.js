@@ -106,15 +106,25 @@ const loanAmount = document.getElementById('loanAmount');
 // ==============================
 // 無操作タイムアウト用
 // ==============================
-const TIMEOUT_TIME = 10 * 60 * 1000;
-const WARNING_TIME = 8 * 60 * 1000;
-const sessionTimer =
-    document.getElementById('sessionTimer');
+const WARNING_TIME =
+    9 * 60 * 1000;
 
-let warningTimer;
-let timeoutTimer;
-let timeoutDeadline;
-let countdownInterval;
+const sessionNormalMessage =
+    document.getElementById(
+        'sessionNormalMessage'
+    );
+
+const sessionWarning =
+    document.getElementById(
+        'sessionWarning'
+    );
+
+const sessionTimer =
+    document.getElementById(
+        'sessionTimer'
+    );
+
+let expiresAt = 0;
 
 function calculateLoanLimit() {
     const income = Number(annualIncomeInput.value);
@@ -615,69 +625,136 @@ function validateBirthDate() {
     }
 }
 
-function resetTimeout() {
+async function loadSessionStatus() {
 
-    // 現在時刻から10分後を期限にする
-    timeoutDeadline = Date.now() + TIMEOUT_TIME;
-
-    updateTimer();
-}
-
-function updateTimer() {
-
-    const remainingTime =
-        timeoutDeadline - Date.now();
-
-    // タイムアウト
-    if (remainingTime <= 0) {
-
-        clearInterval(countdownInterval);
-
-        sessionTimer.textContent = '00:00';
-
-        alert(
-            'セキュリティ保護のため、一定時間操作がなかったため申込内容を破棄しました。'
+    const response =
+        await fetch(
+            '/bankLoan/sessionStatus'
         );
 
-        window.location.href = '/bankLoan';
+    const data =
+        await response.json();
 
+    if (data.expired) {
+        handleSessionTimeout();
+        return;
+    }
+    expiresAt =
+        Date.now() + data.remainingMillis;
+}
+
+    async function updateSessionActivity() {
+
+        const response =
+            await fetch(
+                '/bankLoan/sessionActivity',
+                {
+                    method: 'POST'
+                }
+            );
+
+        const data =
+            await response.json();
+
+        expiresAt =
+            data.expiresAt;
+
+        sessionNormalMessage.style.display =
+            'inline';
+
+        sessionWarning.style.display =
+            'none';
+    }
+
+    function updateSessionTimer() {
+
+        const remainingTime = expiresAt - Date.now();
+
+        if (remainingTime <= 0) {
+            handleSessionTimeout();
+            return;
+        }
+
+        if (remainingTime <= WARNING_TIME) {
+
+            sessionNormalMessage.style.display = 'none';
+            sessionWarning.style.display = 'inline';
+
+            const totalSeconds =
+                Math.ceil(remainingTime / 1000);
+
+            const minutes =
+                Math.floor(totalSeconds / 60);
+
+            const seconds =
+                totalSeconds % 60;
+
+            sessionTimer.textContent =
+                String(minutes).padStart(2, '0')
+                + ':'
+                + String(seconds).padStart(2, '0');
+
+        } else {
+
+            sessionNormalMessage.style.display = 'inline';
+            sessionWarning.style.display = 'none';
+        }
+    }
+
+function handleSessionTimeout() {
+
+    alert(
+        'セキュリティ保護のため、'
+        + '一定時間操作がなかったため'
+        + '申込内容を破棄しました。'
+    );
+
+    window.location.href =
+        '/bankLoan';
+}
+
+let lastActivitySend = 0;
+
+function handleUserActivity() {
+
+    const now = Date.now();
+
+    if (
+        now - lastActivitySend
+        < 1000
+    ) {
         return;
     }
 
-    const totalSeconds =
-        Math.ceil(remainingTime / 1000);
+    lastActivitySend = now;
 
-    const minutes =
-        Math.floor(totalSeconds / 60);
-
-    const seconds =
-        totalSeconds % 60;
-
-    sessionTimer.textContent =
-        String(minutes).padStart(2, '0')
-        + ':'
-        + String(seconds).padStart(2, '0');
+    updateSessionActivity();
 }
+
+
 
 [
     'mousedown',
     'keydown',
+    'input',
     'scroll',
     'touchstart'
 ].forEach(function (eventName) {
 
     document.addEventListener(
         eventName,
-        resetTimeout
+        handleUserActivity
     );
-
 });
 
 
-resetTimeout();
+loadSessionStatus();
 
-countdownInterval =
-    setInterval(updateTimer, 1000);
+setInterval(
+    updateSessionTimer,
+    1000
+);
+
 
 lastNameInput.addEventListener('input', validateLastName);
 lastNameInput.addEventListener('blur', validateLastName);

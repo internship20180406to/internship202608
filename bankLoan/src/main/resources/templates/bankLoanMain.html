@@ -8,12 +8,15 @@
 <body>
 <div class="container">
     <div class="form-card">
-        <div class="form-card">
+        <div class="session-info">
+            <span id="sessionNormalMessage">
+                セキュリティ保護のため、一定時間操作がない場合は自動終了します
+            </span>
 
-            <div class="session-timer">
-                タイムアウトまで
-                <span id="sessionTimer">10:00</span>
-            </div>
+            <span id="sessionWarning" class="session-warning">
+                あと <strong id="sessionTimer">02:00</strong> で自動終了します
+            </span>
+        </div>
 
         <h1>カードローン申込情報入力</h1>
         <form action="#" th:action="@{/bankLoanConfirmation}" th:object="${bankLoanApplication}" method="post">

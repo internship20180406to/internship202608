@@ -240,3 +240,27 @@ select.form-control {
     color: #263238;
     font-weight: bold;
 }
+
+.form-card {
+    position: relative;
+}
+
+.session-info {
+    text-align: right;
+    margin-bottom: 12px;
+
+    color: #78909c;
+    font-size: 12px;
+}
+
+.session-warning {
+    display: none;
+
+    color: #d97706;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#sessionTimer {
+    font-size: 14px;
+}
