@@ -1,5 +1,6 @@
 package com.example.internship.service;
 
+import com.example.internship.entity.Fund;
 import com.example.internship.entity.InvestmentTrustForm;
 import com.example.internship.repository.InvestmentTrustRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ public class OrderInvestmentTrustService {
 
     @Autowired
     private InvestmentTrustRepository investmentTrustRepository;
+
 
     public void orderInvestmentTrust(
             InvestmentTrustForm investmentTrustForm) {
@@ -32,8 +34,18 @@ public class OrderInvestmentTrustService {
         );
     }
 
+
     public List<InvestmentTrustForm> getHistory() {
 
         return investmentTrustRepository.findAll();
+    }
+
+
+    /**
+     * DBから銘柄一覧を取得
+     */
+    public List<Fund> getFunds() {
+
+        return investmentTrustRepository.findFunds();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.internship.repository;
 
+import com.example.internship.entity.Fund;
 import com.example.internship.entity.InvestmentTrustForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,6 +15,10 @@ public class InvestmentTrustRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+
+    /**
+     * 投資信託の注文を登録
+     */
     public void create(InvestmentTrustForm form) {
 
         String sql =
@@ -35,6 +40,10 @@ public class InvestmentTrustRepository {
         );
     }
 
+
+    /**
+     * 投資信託の注文履歴を取得
+     */
     public List<InvestmentTrustForm> findAll() {
 
         String sql =
@@ -44,43 +53,155 @@ public class InvestmentTrustRepository {
                         "FROM investmentTrust_table " +
                         "ORDER BY applicationDate DESC";
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> {
 
-            InvestmentTrustForm form = new InvestmentTrustForm();
+                    InvestmentTrustForm form =
+                            new InvestmentTrustForm();
 
-            form.setBankName(rs.getString("bankName"));
-            form.setBranchName(rs.getString("branchName"));
-            form.setBankAccountTypeName(
-                    rs.getString("bankAccountType")
-            );
-            form.setBankAccountNum(
-                    rs.getString("bankAccountNum")
-            );
-            form.setName(rs.getString("name"));
-            form.setFundName(rs.getString("fundName"));
-            form.setMoney(rs.getInt("money"));
+                    form.setBankName(
+                            rs.getString("bankName")
+                    );
 
-            Timestamp applicationTimestamp =
-                    rs.getTimestamp("applicationDate");
+                    form.setBranchName(
+                            rs.getString("branchName")
+                    );
 
-            if (applicationTimestamp != null) {
-                form.setApplicationDate(
-                        applicationTimestamp.toLocalDateTime()
-                );
-            }
+                    form.setBankAccountTypeName(
+                            rs.getString("bankAccountType")
+                    );
 
-            Timestamp purchaseTimestamp =
-                    rs.getTimestamp("purchaseDate");
+                    form.setBankAccountNum(
+                            rs.getString("bankAccountNum")
+                    );
 
-            if (purchaseTimestamp != null) {
-                form.setPurchaseDate(
-                        purchaseTimestamp.toLocalDateTime()
-                );
-            }
+                    form.setName(
+                            rs.getString("name")
+                    );
 
-            form.setStatus(rs.getString("status"));
+                    form.setFundName(
+                            rs.getString("fundName")
+                    );
 
-            return form;
-        });
+                    form.setMoney(
+                            rs.getInt("money")
+                    );
+
+                    Timestamp applicationTimestamp =
+                            rs.getTimestamp("applicationDate");
+
+                    if (applicationTimestamp != null) {
+
+                        form.setApplicationDate(
+                                applicationTimestamp.toLocalDateTime()
+                        );
+                    }
+
+                    Timestamp purchaseTimestamp =
+                            rs.getTimestamp("purchaseDate");
+
+                    if (purchaseTimestamp != null) {
+
+                        form.setPurchaseDate(
+                                purchaseTimestamp.toLocalDateTime()
+                        );
+                    }
+
+                    form.setStatus(
+                            rs.getString("status")
+                    );
+
+                    return form;
+                }
+        );
+    }
+
+
+    /**
+     * 金融機関名をDBから取得
+     */
+    public List<String> findBankNames() {
+
+        String sql =
+                "SELECT bankName " +
+                        "FROM bank_table " +
+                        "ORDER BY id";
+
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) ->
+                        rs.getString("bankName")
+        );
+    }
+
+
+    /**
+     * 支店名をDBから取得
+     */
+    public List<String> findBranchNames() {
+
+        String sql =
+                "SELECT branchName " +
+                        "FROM branch_table " +
+                        "ORDER BY id";
+
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) ->
+                        rs.getString("branchName")
+        );
+    }
+
+
+    /**
+     * 科目名をDBから取得
+     */
+    public List<String> findBankAccountTypes() {
+
+        String sql =
+                "SELECT bankAccountType " +
+                        "FROM bankAccountType_table " +
+                        "ORDER BY id";
+
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) ->
+                        rs.getString("bankAccountType")
+        );
+    }
+
+
+    /**
+     * 銘柄名と1口価格をDBから取得
+     */
+    public List<Fund> findFunds() {
+
+        String sql =
+                "SELECT id, fundName, unitPrice " +
+                        "FROM fund_table " +
+                        "ORDER BY id";
+
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> {
+
+                    Fund fund = new Fund();
+
+                    fund.setId(
+                            rs.getInt("id")
+                    );
+
+                    fund.setFundName(
+                            rs.getString("fundName")
+                    );
+
+                    fund.setUnitPrice(
+                            rs.getInt("unitPrice")
+                    );
+
+                    return fund;
+                }
+        );
     }
 }

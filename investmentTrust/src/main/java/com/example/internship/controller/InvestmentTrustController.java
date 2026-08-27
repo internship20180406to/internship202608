@@ -1,6 +1,8 @@
 package com.example.internship.controller;
 
+import com.example.internship.entity.Fund;
 import com.example.internship.entity.InvestmentTrustForm;
+import com.example.internship.repository.InvestmentTrustRepository;
 import com.example.internship.service.OrderInvestmentTrustService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,6 +20,13 @@ public class InvestmentTrustController {
     @Autowired
     private OrderInvestmentTrustService orderInvestmentTrustService;
 
+    @Autowired
+    private InvestmentTrustRepository investmentTrustRepository;
+
+
+    /**
+     * 投資信託注文入力画面
+     */
     @GetMapping("/investmentTrust")
     public String investmentTrust(Model model) {
 
@@ -28,12 +37,23 @@ public class InvestmentTrustController {
 
         setOptions(model);
 
-        model.addAttribute("targetStep", 1);
-        model.addAttribute("editMode", false);
+        model.addAttribute(
+                "targetStep",
+                1
+        );
+
+        model.addAttribute(
+                "editMode",
+                false
+        );
 
         return "investmentTrustMain";
     }
 
+
+    /**
+     * 注文履歴画面
+     */
     @GetMapping("/investmentTrustHistory")
     public String history(Model model) {
 
@@ -45,6 +65,10 @@ public class InvestmentTrustController {
         return "rireki";
     }
 
+
+    /**
+     * 確認画面
+     */
     @PostMapping("/investmentTrustConfirmation")
     public String confirmation(
             @ModelAttribute InvestmentTrustForm investmentTrustForm,
@@ -58,6 +82,10 @@ public class InvestmentTrustController {
         return "investmentTrustConfirmation";
     }
 
+
+    /**
+     * 入力画面へ戻る
+     */
     @PostMapping("/investmentTrustEdit")
     public String edit(
             @ModelAttribute InvestmentTrustForm investmentTrustForm,
@@ -69,15 +97,25 @@ public class InvestmentTrustController {
                 investmentTrustForm
         );
 
-        model.addAttribute("targetStep", targetStep);
+        model.addAttribute(
+                "targetStep",
+                targetStep
+        );
 
         setOptions(model);
 
-        model.addAttribute("editMode", true);
+        model.addAttribute(
+                "editMode",
+                true
+        );
 
         return "investmentTrustMain";
     }
 
+
+    /**
+     * 注文完了
+     */
     @PostMapping("/investmentTrustCompletion")
     public String completion(
             @ModelAttribute InvestmentTrustForm investmentTrustForm,
@@ -90,43 +128,57 @@ public class InvestmentTrustController {
         return "investmentTrustCompletion";
     }
 
+
+    /**
+     * プルダウンの選択肢をDBから取得
+     */
     private void setOptions(Model model) {
+
+        /*
+         * 金融機関名
+         */
+        List<String> bankNames =
+                investmentTrustRepository.findBankNames();
 
         model.addAttribute(
                 "bankNameOptions",
-                List.of(
-                        "山陰共同銀行",
-                        "ながれぼし銀行",
-                        "その他"
-                )
+                bankNames
         );
+
+
+        /*
+         * 支店名
+         */
+        List<String> branchNames =
+                investmentTrustRepository.findBranchNames();
 
         model.addAttribute(
                 "branchNameOptions",
-                List.of(
-                        "本店",
-                        "福岡支店",
-                        "その他"
-                )
+                branchNames
         );
+
+
+        /*
+         * 科目
+         */
+        List<String> bankAccountTypes =
+                investmentTrustRepository.findBankAccountTypes();
 
         model.addAttribute(
                 "bankAccountTypeOptions",
-                List.of(
-                        "普通",
-                        "当座",
-                        "貯蓄"
-                )
+                bankAccountTypes
         );
 
+
+        /*
+         * 銘柄
+         */
+        List<Fund> funds =
+                investmentTrustRepository.findFunds();
+
         model.addAttribute(
-                "fundNameOptions",
-                List.of(
-                        "A株式会社",
-                        "B株式会社",
-                        "C株式会社",
-                        "D株式会社"
-                )
+                "fundOptions",
+                funds
         );
     }
 }

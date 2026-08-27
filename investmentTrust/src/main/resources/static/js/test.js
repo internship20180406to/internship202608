@@ -246,19 +246,39 @@ function validateName() {
 
 function updatePrice() {
 
-    const fundName =
-        document.getElementById("fundName").value;
+    const fundSelect = document.getElementById("fundName");
+    const unitPriceInput = document.getElementById("unitPrice");
 
-    const unitPrice =
-        document.getElementById("unitPrice");
-
-    if (fundName === "") {
-        unitPrice.value = "";
+    if (!fundSelect || !unitPriceInput) {
         return;
     }
 
-    unitPrice.value =
-        prices[fundName] + "円";
+    const selectedOption =
+        fundSelect.options[fundSelect.selectedIndex];
+
+    if (!selectedOption || !selectedOption.value) {
+
+        unitPriceInput.value = "";
+
+        calculateQuantity();
+
+        return;
+    }
+
+    const price =
+        selectedOption.dataset.price;
+
+    if (price) {
+
+        unitPriceInput.value =
+            Number(price).toLocaleString() + "円";
+
+    } else {
+
+        unitPriceInput.value = "";
+    }
+
+    calculateQuantity();
 }
 
 
