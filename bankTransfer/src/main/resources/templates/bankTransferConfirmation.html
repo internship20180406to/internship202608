@@ -39,16 +39,44 @@
 
 <h1>銀行振込確認画面</h1>
 <form action="#" th:action="@{/bankTransferCompletion}" th:object="${bankTransferApplication}" method="post">
-    <p>金融機関名: <span th:text="*{bankName}"></span></p>
-    <p>支店名: <span th:text="*{branchName}"></span></p>
-    <p>科目名: <span th:text="*{bankAccountType}"></span></p>
-    <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
+    <p class="confirmation-row confirmation-row--editable">
+        金融機関名: <span th:text="*{bankName}"></span>
+        <a class="edit-row-button"
+           th:href="@{/bankTransfer(startStep=2, bankName=*{bankName}, branchName=*{branchName}, bankAccountType=*{bankAccountType}, bankAccountNum=*{bankAccountNum}, name=*{name}, money=*{money}, transferDateTime=*{transferDateTime})}">編集</a>
+    </p>
+    <p class="confirmation-row confirmation-row--editable">
+        支店名: <span th:text="*{branchName}"></span>
+        <a class="edit-row-button"
+           th:href="@{/bankTransfer(startStep=2, bankName=*{bankName}, branchName=*{branchName}, bankAccountType=*{bankAccountType}, bankAccountNum=*{bankAccountNum}, name=*{name}, money=*{money}, transferDateTime=*{transferDateTime})}">編集</a>
+    </p>
+    <p class="confirmation-row confirmation-row--editable">
+        科目名: <span th:text="*{bankAccountType}"></span>
+        <a class="edit-row-button"
+           th:href="@{/bankTransfer(startStep=3, bankName=*{bankName}, branchName=*{branchName}, bankAccountType=*{bankAccountType}, bankAccountNum=*{bankAccountNum}, name=*{name}, money=*{money}, transferDateTime=*{transferDateTime})}">編集</a>
+    </p>
+    <p class="confirmation-row confirmation-row--editable">
+        口座番号: <span th:text="*{bankAccountNum}"></span>
+        <a class="edit-row-button"
+           th:href="@{/bankTransfer(startStep=3, bankName=*{bankName}, branchName=*{branchName}, bankAccountType=*{bankAccountType}, bankAccountNum=*{bankAccountNum}, name=*{name}, money=*{money}, transferDateTime=*{transferDateTime})}">編集</a>
+    </p>
 
-    <p>口座名義: <span th:text="*{name}"></span></p>
-    <p>振込金額: <span th:text="${#numbers.formatInteger(money, 1, 'COMMA')}"></span>円</p>
-    <p>振込手数料: <span th:text="${#numbers.formatInteger(fee, 1, 'COMMA')}"></span>円</p>
-    <p>合計引落金額: <span th:text="${#numbers.formatInteger(totalDebit, 1, 'COMMA')}"></span>円</p>
-    <p>振込指定日: <span th:text="*{transferDateTime}"></span></p>
+    <p class="confirmation-row confirmation-row--editable">
+        口座名義: <span th:text="*{name}"></span>
+        <a class="edit-row-button"
+           th:href="@{/bankTransfer(startStep=3, bankName=*{bankName}, branchName=*{branchName}, bankAccountType=*{bankAccountType}, bankAccountNum=*{bankAccountNum}, name=*{name}, money=*{money}, transferDateTime=*{transferDateTime})}">編集</a>
+    </p>
+    <p class="confirmation-row confirmation-row--editable">
+        振込金額: <span th:text="${#numbers.formatInteger(money, 1, 'COMMA') + '円'}"></span>
+        <a class="edit-row-button"
+           th:href="@{/bankTransfer(startStep=4, bankName=*{bankName}, branchName=*{branchName}, bankAccountType=*{bankAccountType}, bankAccountNum=*{bankAccountNum}, name=*{name}, money=*{money}, transferDateTime=*{transferDateTime})}">編集</a>
+    </p>
+    <p class="confirmation-row">振込手数料: <span th:text="${#numbers.formatInteger(fee, 1, 'COMMA') + '円'}"></span></p>
+    <p class="confirmation-row">合計引落金額: <span th:text="${#numbers.formatInteger(totalDebit, 1, 'COMMA') + '円'}"></span></p>
+    <p class="confirmation-row confirmation-row--editable">
+        振込指定日: <span th:text="*{transferDateTime}"></span>
+        <a class="edit-row-button"
+           th:href="@{/bankTransfer(startStep=4, bankName=*{bankName}, branchName=*{branchName}, bankAccountType=*{bankAccountType}, bankAccountNum=*{bankAccountNum}, name=*{name}, money=*{money}, transferDateTime=*{transferDateTime})}">編集</a>
+    </p>
 
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
     <input type="hidden" name="branchName" th:value="*{branchName}"/>
@@ -59,7 +87,7 @@
     <input type="hidden" name="money" th:value="*{money}"/>
     <input type="hidden" name="transferDateTime" th:value="*{transferDateTime}"/>
 
-    <p>
+    <p class="confirmation-checkbox-row">
         <label>
             <input type="checkbox" name="registerFavorite" value="true"/>
             この振込先をお気に入りに登録する

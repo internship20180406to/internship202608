@@ -40,7 +40,8 @@
 
     <p class="text-danger" th:if="${errorMessage}" th:text="${errorMessage}">エラーメッセージ</p>
 
-    <form action="#" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post" id="bankTransferForm" novalidate>
+    <form action="#" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post" id="bankTransferForm" novalidate
+          th:attr="data-start-step=${startStep}">
 
         <!-- {1} 引き落とし口座選択 -->
         <div class="wizard-step active account-select" data-step="0">

@@ -33,7 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const branchName = document.getElementById("branchName").value;
         const accountTypeRadio = document.querySelector('input[name="bankAccountType"]:checked');
         const accountType = accountTypeRadio ? accountTypeRadio.value : "";
-        const bankAccountNum = document.getElementById("bankAccountNum").value;
+        const bankAccountNumRaw = document.getElementById("bankAccountNum").value;
+        // 口座番号はサーバー側（BankTransferForm.setBankAccountNum）と同じく7桁になるよう0埋めして表示する
+        const bankAccountNum = /^[0-9]{1,7}$/.test(bankAccountNumRaw) ? bankAccountNumRaw.padStart(7, "0") : bankAccountNumRaw;
         const name = document.getElementById("name").value;
 
         const step3Preview = document.getElementById("infoPreviewStep3");
@@ -255,10 +257,23 @@ document.addEventListener("DOMContentLoaded", () => {
     moneyDisplay && moneyDisplay.addEventListener("input", syncMoneyDisplay);
     updateFeeBreakdown();
 
+    // 確認画面の「編集」から戻ってきた場合、銀行名・支店名の表示用入力欄にも値を反映する
+    const bankNameHiddenOnLoad = document.getElementById("bankName");
+    const branchNameHiddenOnLoad = document.getElementById("branchName");
+    const bankNameInputOnLoad = document.getElementById("bankNameInput");
+    const branchNameInputOnLoad = document.getElementById("branchNameInput");
+    if (bankNameInputOnLoad && bankNameHiddenOnLoad && bankNameHiddenOnLoad.value) {
+        bankNameInputOnLoad.value = bankNameHiddenOnLoad.value;
+    }
+    if (branchNameInputOnLoad && branchNameHiddenOnLoad && branchNameHiddenOnLoad.value) {
+        branchNameInputOnLoad.value = branchNameHiddenOnLoad.value;
+    }
+
     const form = document.getElementById("bankTransferForm");
     const wizardSteps = Array.from(document.querySelectorAll(".wizard-step"));
     const prevButtons = Array.from(document.querySelectorAll("[data-prev-step]"));
     const nextButtons = Array.from(document.querySelectorAll("[data-next-step]"));
+    const requestedStartStep = form ? Number(form.dataset.startStep) : NaN;
     let currentStepIndex = 0;
 
     const attachLiveValidation = () => {
@@ -339,8 +354,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const clearFieldError = (fieldId) => setFieldError(fieldId, "");
 
+    // 振込先選択画面まで戻ってきたら、それまでに入力した振込先情報をすべて初期化する
+    const resetRecipientFields = () => {
+        syncComboValue("bankNameInput", "bankName", "");
+        syncComboValue("branchNameInput", "branchName", "");
+        document.querySelectorAll('input[name="bankAccountType"]').forEach((radio) => {
+            radio.checked = false;
+        });
+        const bankAccountNum = document.getElementById("bankAccountNum");
+        if (bankAccountNum) bankAccountNum.value = "";
+        const nameField = document.getElementById("name");
+        if (nameField) nameField.value = "";
+        if (moneyDisplay) moneyDisplay.value = "";
+        if (moneyHidden) moneyHidden.value = "";
+        const transferDate = document.getElementById("transferDateTime");
+        if (transferDate) transferDate.value = "";
+
+        recipientCandidateCards.forEach((card) => card.classList.remove("selected"));
+        closeCandidateLists();
+
+        ["bankNameInput", "branchNameInput", "bankAccountType", "bankAccountNum", "name", "money", "transferDateTime"]
+            .forEach(clearFieldError);
+
+        updateFeeBreakdown();
+    };
+
     const showStep = (index) => {
+        const previousStepIndex = currentStepIndex;
         currentStepIndex = Math.max(0, Math.min(index, wizardSteps.length - 1));
+        if (currentStepIndex === 1 && previousStepIndex > 1) {
+            resetRecipientFields();
+        }
         wizardSteps.forEach((step, stepIndex) => {
             step.classList.toggle("active", stepIndex === currentStepIndex);
         });
@@ -511,5 +555,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     attachLiveValidation();
-    showStep(currentStepIndex);
+    const isValidStartStep = Number.isInteger(requestedStartStep)
+        && requestedStartStep >= 0
+        && requestedStartStep < wizardSteps.length;
+    showStep(isValidStartStep ? requestedStartStep : currentStepIndex);
 });

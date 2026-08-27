@@ -30,8 +30,12 @@ import java.time.LocalDate;
     }
 
     @GetMapping("/bankTransfer")
-    public String bankTransfer(Model model) {
+    public String bankTransfer(
+            @ModelAttribute("bankTransferApplication") BankTransferForm bankTransferForm,
+            @RequestParam(name = "startStep", required = false) Integer startStep,
+            Model model) {
         addBankTransferMainAttributes(model);
+        model.addAttribute("startStep", startStep);
         return "bankTransferMain";
     }
 
