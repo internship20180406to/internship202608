@@ -1,10 +1,13 @@
 package com.example.internship.controller;
 
 import com.example.internship.constant.InvestmentTrustOptions;
+import com.example.internship.entity.AccountBalance;
 import com.example.internship.entity.Bank;
 import com.example.internship.entity.Branch;
 import com.example.internship.entity.InvestmentTrustForm;
+import com.example.internship.service.AccountBalanceService;
 import com.example.internship.service.BankMasterService;
+import com.example.internship.service.InsufficientBalanceException;
 import com.example.internship.service.OrderInvestmentTrustService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +37,9 @@ public class InvestmentTrustController {
 
     @Autowired
     private BankMasterService bankMasterService;
+
+    @Autowired
+    private AccountBalanceService accountBalanceService;
 
     /**
      * 送信された文字列の前後の空白を取り除き、空文字はnullに変換する。
@@ -68,18 +75,33 @@ public class InvestmentTrustController {
     @PostMapping("/investmentTrustConfirmation")
     public String confirmation(
             @Valid @ModelAttribute("investmentTrustApplication") InvestmentTrustForm investmentTrustForm,
-            BindingResult bindingResult) {
-        validateSelectedOptions(investmentTrustForm, bindingResult);
+            BindingResult bindingResult, Model model) {
+        AccountBalance balance = validateSelectedOptions(investmentTrustForm, bindingResult);
         if (bindingResult.hasErrors()) {
             return MAIN_VIEW;   // エラーがあれば確認画面に進ませず、入力画面に戻して理由を表示する
         }
+        // 申込前に、今の残高と引き落とし後の残高を見せる
+        model.addAttribute("currentBalance", balance.getBalance());
+        model.addAttribute("balanceAfter", balance.getBalance() - investmentTrustForm.getMoney());
         return "investmentTrustConfirmation";
     }
 
+    /**
+     * 申込を確定する。
+     *
+     * 処理後に画面をそのまま返さず、リダイレクトしてから完了画面を表示している（PRGパターン）。
+     * POSTの結果をそのまま表示すると、ブラウザの再読み込みで同じPOSTがもう一度送られ、
+     * 二重に申込・引き落としが行われてしまうため。
+     * リダイレクト後はGETなので、何度再読み込みしても登録は起きない。
+     *
+     * 表示に必要な値は addFlashAttribute でリダイレクト先へ渡す。
+     * flash attribute は1回だけ取り出せる一時的な入れ物で、URLに出ないので
+     * 申込内容がアドレスバーに残らない。
+     */
     @PostMapping("/investmentTrustCompletion")
     public String completion(
             @Valid @ModelAttribute("investmentTrustApplication") InvestmentTrustForm investmentTrustForm,
-            BindingResult bindingResult) {
+            BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         // 確認画面はhidden項目で値を持ち回っているだけなので、登録直前にもう一度検証する。
         // 金融機関名・支店名もここでマスタから引き直されるため、
         // hidden項目を書き換えて別の名称を登録させることはできない。
@@ -87,17 +109,78 @@ public class InvestmentTrustController {
         if (bindingResult.hasErrors()) {
             return MAIN_VIEW;
         }
-        orderInvestmentTrustService.orderInvestmentTrust(investmentTrustForm);
+        try {
+            long balanceAfter = orderInvestmentTrustService.orderInvestmentTrust(investmentTrustForm);
+            redirectAttributes.addFlashAttribute("completedOrder", investmentTrustForm);
+            redirectAttributes.addFlashAttribute("balanceAfter", balanceAfter);
+            return "redirect:/investmentTrustCompletion";
+        } catch (InsufficientBalanceException e) {
+            // 確認画面を見てから「申込」を押すまでの間に、別の申込で残高が減っていた場合など。
+            // 上のチェックを通っていても、最終的な判定は引き落としのUPDATE文が行う。
+            bindingResult.rejectValue("money", "insufficientBalance",
+                    "残高が不足しています。もう一度ご確認ください。");
+            return MAIN_VIEW;
+        }
+    }
+
+    /**
+     * 完了画面の表示。
+     *
+     * 直前のPOSTからリダイレクトされてきたときだけ表示するものがある。
+     * 完了画面をブックマークして開いた場合や、リダイレクト後にもう一度再読み込みした場合は
+     * flash attribute が空なので、入力画面に戻す。
+     */
+    @GetMapping("/investmentTrustCompletion")
+    public String completed(Model model) {
+        if (!model.containsAttribute("balanceAfter")) {
+            return "redirect:/investmentTrust";
+        }
         return "investmentTrustCompletion";
     }
 
-    /** 画面の選択肢・マスタに存在しない値が送られてきていないかを確認する */
-    private void validateSelectedOptions(InvestmentTrustForm form, BindingResult bindingResult) {
+    /**
+     * 画面の選択肢・マスタに存在しない値が送られてきていないかを確認し、
+     * 併せて対象の口座を返す。エラーがあって口座を特定できない場合はnullを返す。
+     */
+    private AccountBalance validateSelectedOptions(InvestmentTrustForm form, BindingResult bindingResult) {
         validateAndResolveMaster(form, bindingResult);
         rejectIfNotAllowed(bindingResult, "bankAccountType", form.getBankAccountType(),
                 InvestmentTrustOptions.ACCOUNT_TYPES, "科目名を選択してください。");
         rejectIfNotAllowed(bindingResult, "fundName", form.getFundName(),
                 InvestmentTrustOptions.FUND_NAMES, "銘柄を選択してください。");
+        return validateAccountAndBalance(form, bindingResult);
+    }
+
+    /**
+     * 口座が実在するかと、残高が購入金額に足りているかを確認する。
+     *
+     * ここでの残高チェックは「申込前に気づかせる」ためのもので、最終的な判定ではない。
+     * この確認から実際の引き落としまでの間に別の申込で残高が減る可能性があるため、
+     * 引き落とし自体もUPDATE文の中で残高を判定している
+     * （AccountBalanceRepository#withdraw を参照）。
+     */
+    private AccountBalance validateAccountAndBalance(InvestmentTrustForm form, BindingResult bindingResult) {
+        // 口座は「金融機関コード＋支店コード＋科目＋口座番号」の4点で決まるので、
+        // どれか1つでもエラーになっていると口座を特定できない。
+        if (bindingResult.hasFieldErrors("bankCode") || bindingResult.hasFieldErrors("branchCode")
+                || bindingResult.hasFieldErrors("bankAccountType")
+                || bindingResult.hasFieldErrors("bankAccountNum")) {
+            return null;
+        }
+
+        Optional<AccountBalance> account = accountBalanceService.findByForm(form);
+        if (account.isEmpty()) {
+            bindingResult.rejectValue("bankAccountNum", "accountNotFound",
+                    "該当する口座がありません。金融機関・支店・科目・口座番号をご確認ください。");
+            return null;
+        }
+
+        // 金額そのものが不正（未入力・範囲外）なら、残高との比較はしない
+        if (!bindingResult.hasFieldErrors("money") && account.get().getBalance() < form.getMoney()) {
+            bindingResult.rejectValue("money", "insufficientBalance",
+                    String.format("残高が不足しています。（残高: %,d円）", account.get().getBalance()));
+        }
+        return account.get();
     }
 
     /**

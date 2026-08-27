@@ -1,0 +1,22 @@
+# テスト実行時だけ使われる設定。
+#
+# src/test/resources のファイルは src/main/resources のものより優先されるので、
+# テストはここに書いた接続先（internship_test）を見る。
+# 開発用の internship には一切触らないため、テストで申込を登録しても
+# 画面で確認しているデータが増えたり残高が減ったりしない。
+#
+# ※このファイルは main 側の application.yml と「合成」されるのではなく「置き換わる」。
+#   接続情報は省略せず全部書くこと。
+#
+# テスト用DBの作り方（初回のみ）:
+#   mysql -uroot -p -e "CREATE DATABASE internship_test DEFAULT CHARSET=utf8mb4"
+#   cd investmentTrust/src/main/resources/db
+#   mysql -uroot -p --default-character-set=utf8mb4 internship_test < 01_schema.sql
+#   mysql -uroot -p --default-character-set=utf8mb4 internship_test < 02_master_data.sql
+#   mysql -uroot -p --default-character-set=utf8mb4 internship_test < 03_balance_data.sql
+#   mysql -uroot -p --default-character-set=utf8mb4 internship_test < 05_not_null.sql
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/internship_test
+    username: root
+    password: root_password

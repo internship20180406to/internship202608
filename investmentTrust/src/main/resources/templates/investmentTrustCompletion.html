@@ -1,12 +1,33 @@
 <!doctype html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <title>注文完了画面</title>
 </head>
 <body>
 <h1>注文完了</h1>
+<p>お申込みを受け付けました。</p>
+
+<!-- ここに出している値は、POSTの処理からリダイレクトで渡された flash attribute。
+     flash attribute は1回だけ取り出せる一時的な入れ物で、URLには出ないので
+     申込内容がアドレスバーや履歴に残らない。
+
+     この画面はリダイレクト後のGETなので、再読み込みしても申込は繰り返されない。
+     flash attribute が空のまま直接開かれた場合は、コントローラが入力画面へ戻す。 -->
+<p>金融機関: <span th:text="${completedOrder.bankCode}"></span>
+    <span th:text="${completedOrder.bankName}"></span></p>
+<p>支店: <span th:text="${completedOrder.branchCode}"></span>
+    <span th:text="${completedOrder.branchName}"></span></p>
+<p>科目名: <span th:text="${completedOrder.bankAccountType}"></span></p>
+<p>口座番号: <span th:text="${completedOrder.bankAccountNum}"></span></p>
+<p>購入者名: <span th:text="${completedOrder.name}"></span></p>
+<p>銘柄: <span th:text="${completedOrder.fundName}"></span></p>
+<p>購入金額: <span th:text="${#numbers.formatInteger(completedOrder.money, 1, 'COMMA')}"></span>円</p>
+
+<hr/>
+<p><strong>引き落とし後の残高:
+    <span th:text="${#numbers.formatInteger(balanceAfter, 1, 'COMMA')}"></span>円</strong></p>
+
 <p><input type="button" value="注文に戻る" onclick="window.location='/investmentTrust';"/></p>
 </body>
-
 </html>
