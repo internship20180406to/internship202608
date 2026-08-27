@@ -1,0 +1,27 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>口座登録完了画面</title>
+</head>
+<body>
+<h1>口座登録完了</h1>
+<p>下記の口座を登録しました。この口座で投資信託の申込ができます。</p>
+
+<!-- 表示している値はリダイレクト元から flash attribute で渡されたもの。
+     この画面はリダイレクト後のGETなので、再読み込みしても口座が二重に登録されることはない。 -->
+<p>金融機関: <span th:text="${registeredAccount.bankCode}"></span>
+    <span th:text="${registeredBankName}"></span></p>
+<p>支店: <span th:text="${registeredAccount.branchCode}"></span>
+    <span th:text="${registeredBranchName}"></span></p>
+<p>科目名: <span th:text="${registeredAccount.accountType}"></span></p>
+<p>口座番号: <span th:text="${registeredAccount.accountNum}"></span></p>
+<p>口座名義: <span th:text="${registeredAccount.accountName}"></span></p>
+<p>残高: <span th:text="${#numbers.formatInteger(registeredAccount.balance, 1, 'COMMA')}"></span>円</p>
+
+<p>
+    <input type="button" value="続けて登録" onclick="window.location='/accountRegistration';"/>
+    <input type="button" value="投資信託の申込へ" onclick="window.location='/investmentTrust';"/>
+</p>
+</body>
+</html>

@@ -70,4 +70,22 @@ public class AccountBalanceRepository {
                 + "   AND balance >= ?";
         return jdbcTemplate.update(sql, amount, bankCode, branchCode, accountType, accountNum, amount);
     }
+
+    /**
+     * 口座を新規に登録する。
+     *
+     * 同じ4点セットの口座が既にあると、主キー重複で DuplicateKeyException が投げられる。
+     * 呼び出し側で「登録前に存在チェック」もしているが、
+     * チェックから登録までの隙間に別の登録が入る可能性があるので、
+     * 最終的にはDBの主キーが重複を防いでいる。
+     *
+     * updatedAt は列定義の DEFAULT CURRENT_TIMESTAMP で自動的に入る。
+     */
+    public void insert(String bankCode, String branchCode, String accountType,
+                       String accountNum, String accountName, long balance) {
+        String sql = "INSERT INTO account_balance"
+                + "(bankCode, branchCode, accountType, accountNum, accountName, balance)"
+                + " VALUES(?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, bankCode, branchCode, accountType, accountNum, accountName, balance);
+    }
 }

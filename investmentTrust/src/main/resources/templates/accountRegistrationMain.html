@@ -1,0 +1,201 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>口座登録画面</title>
+    <style>
+        body {
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        justify-content: center;
+        align-items: center;
+        min-height: 85vh;
+        overflow: auto;
+        }
+        .content {
+         background-color: #ffffff;
+         width: 80%;
+         padding: 20px;
+         border-radius: 10px;
+         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+         min-height: 50vh;
+         overflow: auto;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        .text-danger { color: red; }
+        .form_hint {
+            color: #666666;
+            font-size: 0.85em;
+            display: inline-block;
+            margin-top: 2px;
+        }
+        .form_error { color: red; }
+        .input-error {
+            border: 1px solid red;
+            background-color: #fff5f5;
+        }
+        .form-control-button {
+        width: 80px;
+        padding: 10px 20px;
+        margin-top: 10px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        }
+        .form-register-button {
+        color: white;
+        background-color: #21BA45;
+        }
+        .form-register-button:hover { background-color: #1ea83c; }
+        .form-clear-button {
+        color: black;
+        background-color: #E0E1E2;
+        }
+        .form-clear-button:hover { background-color: #CCCCCC; }
+        .hidden { display: none; }
+        /* ラジオボタンは選択肢全体をこの枠で囲み、エラー時はこの枠に .input-error を付ける。
+           あらかじめ透明の枠を確保しておくことで、赤枠が出たときに位置がずれないようにしている */
+        .radio-group {
+            display: inline-block;
+            padding: 6px 8px;
+            margin: 5px 0;
+            border: 1px solid transparent;
+            box-sizing: border-box;
+        }
+        .radio-label {
+            margin-right: 16px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .form-control-code {
+            width: 8em;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        .form-select-button {
+            width: auto;
+            padding: 8px 16px;
+            margin-top: 0;
+            color: black;
+            background-color: #E0E1E2;
+            vertical-align: middle;
+        }
+        .form-select-button:hover { background-color: #CCCCCC; }
+        .master_name {
+            margin-left: 12px;
+            font-weight: bold;
+        }
+        /* コード入力中に下へ出す候補一覧。
+           p要素の中に置くので ul/li ではなく span を並べている */
+        .candidate-list {
+            display: block;
+            max-width: 320px;
+            max-height: 168px;
+            overflow-y: auto;
+            margin-top: 4px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            background-color: #ffffff;
+        }
+        .candidate {
+            display: block;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+        .candidate:hover { background-color: #f0f6ff; }
+        .candidate.selected {
+            background-color: #2185D0;
+            color: #ffffff;
+        }
+        .candidate-empty {
+            display: block;
+            padding: 6px 10px;
+            color: #666666;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    <h1>口座登録</h1>
+    <p class="form_hint">投資信託の申込は、ここで登録した口座に対してのみ行えます。</p>
+
+    <form id="accountRegistrationForm" action="#" th:action="@{/accountRegistrationCompletion}"
+          th:object="${accountRegistration}" method="post" novalidate>
+
+        <!-- 金融機関・支店の入力は申込画面とまったく同じ作り。
+             動きは共通の bankBranchPicker.js が担当していて、
+             要素のidもあちらが探しにくる名前に合わせている。 -->
+        <p><label>金融機関コード: <small class="text-danger">※</small></label><br>
+            <small class="form_hint">半角数字4桁（例: 0001）。入力すると候補が表示されます。
+                候補を選んで「選択」を押すと確定します。</small><br>
+            <input type="text" id="bankCode" th:field="*{bankCode}" class="form-control-code"
+                   placeholder="0001" maxlength="4" inputmode="numeric" autocomplete="off"
+                   th:errorclass="input-error"/>
+            <input type="button" id="bankCodeSelect" value="選択" class="form-control-button form-select-button"/>
+            <span class="master_name" id="bankName_view"></span>
+            <span class="candidate-list hidden" id="bankCode_candidates"></span>
+            <span class="form_error" id="bankCode_error" th:text="${#strings.listJoin(#fields.errors('bankCode'), ' ')}"></span></p>
+
+        <p><label>支店コード: <small class="text-danger">※</small></label><br>
+            <small class="form_hint">半角数字3桁（例: 002）。金融機関コードを先に選択してください。</small><br>
+            <input type="text" id="branchCode" th:field="*{branchCode}" class="form-control-code"
+                   placeholder="002" maxlength="3" inputmode="numeric" autocomplete="off"
+                   th:errorclass="input-error"/>
+            <input type="button" id="branchCodeSelect" value="選択" class="form-control-button form-select-button"/>
+            <span class="master_name" id="branchName_view"></span>
+            <span class="candidate-list hidden" id="branchCode_candidates"></span>
+            <span class="form_error" id="branchCode_error" th:text="${#strings.listJoin(#fields.errors('branchCode'), ' ')}"></span></p>
+
+        <p><label>科目名: <small class="text-danger">※</small></label><br>
+            <span class="radio-group" id="accountType_group"
+                  th:classappend="${#fields.hasErrors('accountType')} ? 'input-error' : ''">
+                <label class="radio-label" th:each="type : ${typeOptions}">
+                    <input type="radio" th:field="*{accountType}" th:value="${type}"/>
+                    <span th:text="${type}">選択肢</span>
+                </label>
+            </span><br>
+            <span class="form_error" id="accountType_error" th:text="${#strings.listJoin(#fields.errors('accountType'), ' ')}"></span></p>
+
+        <p><label>口座番号: <small class="text-danger">※</small></label><br>
+            <input type="text" id="accountNum" th:field="*{accountNum}" class="form-control"
+                   placeholder="1234567" maxlength="7" inputmode="numeric" th:errorclass="input-error"/>
+            <span class="form_error" id="accountNum_error" th:text="${#strings.listJoin(#fields.errors('accountNum'), ' ')}"></span></p>
+
+        <p><label>口座名義: <small class="text-danger">※</small></label><br>
+            <small class="form_hint">半角カナと半角スペースで入力してください（例: ﾔﾏﾀﾞ ﾀﾛｳ）。<br>
+                かな・全角カナで入力しても自動で半角カナに変換されます。</small><br>
+            <input type="text" id="accountName" th:field="*{accountName}" class="form-control"
+                   placeholder="ﾔﾏﾀﾞ ﾀﾛｳ" maxlength="20" th:errorclass="input-error"/>
+            <span class="form_error" id="accountName_error" th:text="${#strings.listJoin(#fields.errors('accountName'), ' ')}"></span></p>
+
+        <p><label>初期残高: <small class="text-danger">※</small></label><br>
+            <small class="form_hint">0円以上10,000,000,000円以下。</small><br>
+            <input type="text" id="balance" th:field="*{balance}" class="form-control"
+                   placeholder="1,000,000" maxlength="14" inputmode="numeric" th:errorclass="input-error"/>
+            <span class="form_error" id="balance_error" th:text="${#strings.listJoin(#fields.errors('balance'), ' ')}"></span></p>
+
+        <p style="text-align: center;">
+            <input type="submit" id="register" value="登録" class="form-control-button form-register-button"/>
+            <input type="reset" id="clear" value="クリア" class="form-control-button form-clear-button"/></p>
+    </form>
+    <p><a href="/investmentTrust">投資信託の申込画面へ</a></p>
+
+    <!-- bankBranchPicker.js が先。accountRegistration.js はそこで定義された
+         BANK_CODE_PATTERN / setupBankBranchPickers などを使うため -->
+    <script src="/js/bankBranchPicker.js"></script>
+    <script src="/js/numberFormat.js"></script>
+    <script src="/js/hankakuKana.js"></script>
+    <script src="/js/accountRegistration.js"></script>
+</div>
+</body>
+</html>

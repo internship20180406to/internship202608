@@ -229,6 +229,13 @@
                                               class="form-control-button form-confirmation-button"/>
             <input type="reset" id="clear" value="クリア" class="form-control-button form-clear-button"/></p>
     </form>
+    <!-- 共通の部品を先に読み込む。inputConfirmation.js はここで定義された
+         BANK_CODE_PATTERN / setupBankBranchPickers / setupCommaInput / setupHankakuInput
+         などを使うため、順番を入れ替えないこと。
+         これらは口座登録画面（accountRegistrationMain.html）でも同じものを使っている。 -->
+    <script src="/js/bankBranchPicker.js"></script>
+    <script src="/js/numberFormat.js"></script>
+    <script src="/js/hankakuKana.js"></script>
     <script th:inline="javascript" src="/js/inputConfirmation.js"></script>
 
 </div>

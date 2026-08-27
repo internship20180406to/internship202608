@@ -1,30 +1,30 @@
 /*
- * 投資信託注文情報入力画面のフロント側入力チェック・入力支援。
+ * 口座登録画面のフロント側入力チェック・入力支援。
  *
- * サーバサイド（InvestmentTrustForm のアノテーション）と同じ条件をここでも判定し、
+ * サーバサイド（AccountRegistrationForm のアノテーション）と同じ条件をここでも判定し、
  * 送信前にその場でエラーを表示する。
  * JSは開発者ツールで無効化できるので、これは「入力しやすくするための仕組み」であり、
  * 最終的な可否の判断は必ずサーバサイドで行う。
+ *
+ * ★共通部品を先に読み込んでおくこと（accountRegistrationMain.html を参照）
+ *     bankBranchPicker.js … 金融機関・支店のコード入力と候補一覧
+ *     numberFormat.js     … 3桁ごとのカンマ区切り
+ *     hankakuKana.js      … 半角カナへの自動変換
  */
 
-// サーバサイドの @Pattern / @Size / @Min / @Max と同じ条件をここでも定義する
-//  金融機関コード・支店コードの書式（BANK_CODE_PATTERN / BRANCH_CODE_PATTERN）は
-//  bankBranchPicker.js が定義している。あちらを先に読み込むこと。
 const ACCOUNT_NUM_PATTERN = /^[0-9]{7}$/;   //  半角数字7桁ちょうど
-//  MONEY_PATTERN は numberFormat.js、KANA_PATTERN は hankakuKana.js が定義している。
-//  どちらもこのファイルより先に読み込むこと。
-const NAME_MAX_LENGTH = 20;                 //  DBの name 列 varchar(20) に合わせる
-const MONEY_MIN = 10000;
-const MONEY_MAX = 10000000;
+const ACCOUNT_NAME_MAX_LENGTH = 20;         //  DBの accountName 列 varchar(20) に合わせる
+const BALANCE_MIN = 0;
+const BALANCE_MAX = 10000000000;
 
-const form = document.getElementById("investmentTrustForm");
-const nameInput = document.getElementById("name");
-const moneyInput = document.getElementById("money");
+const form = document.getElementById("accountRegistrationForm");
+const accountNameInput = document.getElementById("accountName");
+const balanceInput = document.getElementById("balance");
 
 /*
  * 入力欄ごとの判定ルール。
- * validate は入力値（前後の空白を除いたもの）を受け取り、
- * エラーメッセージを返す。問題が無ければ空文字を返す。
+ * validate は入力値を受け取り、エラーメッセージを返す。問題が無ければ空文字を返す。
+ * 並び順は画面の並びと合わせてある（最初にエラーになった項目へカーソルを移すため）。
  */
 const rules = [
     {
@@ -42,18 +42,6 @@ const rules = [
         }
     },
     {
-        id: "bankAccountNum",
-        validate: (value) => {
-            if (value === "") {
-                return "口座番号を入力してください。";
-            }
-            if (!ACCOUNT_NUM_PATTERN.test(value)) {
-                return "口座番号は半角数字7桁で入力してください。";
-            }
-            return "";
-        }
-    },
-    {
         id: "branchCode",
         validate: (value) => {
             if (value === "") {
@@ -66,44 +54,52 @@ const rules = [
         }
     },
     {
-        id: "bankAccountType",
+        id: "accountType",
         radio: true,    //  ラジオボタンの項目。値の取り出し方などが他の欄と違うので目印を付けている
         validate: (value) => (value === "" ? "科目名を選択してください。" : "")
     },
     {
-        id: "name",
+        id: "accountNum",
         validate: (value) => {
             if (value === "") {
-                return "購入者名を入力してください。";
+                return "口座番号を入力してください。";
             }
-            if (!KANA_PATTERN.test(value)) {
-                return "購入者名は半角カナ（半角スペース可）で入力してください。";
-            }
-            if (value.length > NAME_MAX_LENGTH) {
-                return "購入者名は" + NAME_MAX_LENGTH + "文字以内で入力してください。";
+            if (!ACCOUNT_NUM_PATTERN.test(value)) {
+                return "口座番号は半角数字7桁で入力してください。";
             }
             return "";
         }
     },
     {
-        id: "fundName",
-        validate: (value) => (value === "" ? "銘柄を選択してください。" : "")
-    },
-    {
-        id: "money",
+        id: "accountName",
         validate: (value) => {
             if (value === "") {
-                return "金額を入力してください。";
+                return "口座名義を入力してください。";
+            }
+            if (!KANA_PATTERN.test(value)) {
+                return "口座名義は半角カナ（半角スペース可）で入力してください。";
+            }
+            if (value.length > ACCOUNT_NAME_MAX_LENGTH) {
+                return "口座名義は" + ACCOUNT_NAME_MAX_LENGTH + "文字以内で入力してください。";
+            }
+            return "";
+        }
+    },
+    {
+        id: "balance",
+        validate: (value) => {
+            if (value === "") {
+                return "初期残高を入力してください。";
             }
             if (!MONEY_PATTERN.test(value)) {
-                return "金額は半角数字（1円単位）で入力してください。";
+                return "初期残高は半角数字（1円単位）で入力してください。";
             }
-            const money = Number(value.replace(/,/g, ""));   //  表示用のカンマを外してから比較する
-            if (money < MONEY_MIN) {
-                return "金額は" + MONEY_MIN.toLocaleString() + "円以上で入力してください。";
+            const balance = Number(value.replace(/,/g, ""));    //  表示用のカンマを外してから比較する
+            if (balance < BALANCE_MIN) {
+                return "初期残高は" + BALANCE_MIN.toLocaleString() + "円以上で入力してください。";
             }
-            if (money > MONEY_MAX) {
-                return "金額は" + MONEY_MAX.toLocaleString() + "円以下で入力してください。";
+            if (balance > BALANCE_MAX) {
+                return "初期残高は" + BALANCE_MAX.toLocaleString() + "円以下で入力してください。";
             }
             return "";
         }
@@ -111,10 +107,11 @@ const rules = [
 ];
 
 /* ============================================================================
- * ラジオボタン（科目名）は1つの項目が選択肢の数だけ <input> に分かれるため、
+ * 判定結果の表示
+ *
+ * 申込画面（inputConfirmation.js）と同じ作り。
+ * ラジオボタンは1つの項目が選択肢の数だけ input に分かれるため、
  * 「値の取り出し方」「赤枠を付ける場所」「イベントを登録する対象」が他の欄と異なる。
- * th:field を付けた影響で id も bankAccountType1, bankAccountType2 … と連番になるので、
- * radio: true が付いた項目だけ、以下のヘルパーで扱いを切り替えている。
  * ========================================================================== */
 
 /** 項目に属する入力欄をすべて返す。ラジオボタンは選択肢の数だけ存在するのでnameで取得する */
@@ -170,32 +167,24 @@ const clearAllErrors = () => {
 };
 
 /* ============================================================================
- * 金融機関コード・支店コードの入力部品
- *
- * 「コードを打つと候補が並び、選んで『選択』ボタンで確定する」という動きは
- * bankBranchPicker.js にまとめてあり、口座登録画面と共通で使っている。
- * ここから渡しているのは「値が変わったら、その項目の入力チェックを掛け直す」という
- * この画面側の都合だけ。
+ * 共通部品の組み込み
  * ========================================================================== */
+
 setupBankBranchPickers(showResultById);
 
+//  戻り値は、送信直前など手動で整形・変換したいときに呼ぶための関数
+const formatBalance = setupCommaInput(balanceInput, () => refreshIfShowing("balance"));
+const convertAccountNameToHankaku =
+    setupHankakuInput(accountNameInput, () => refreshIfShowing("accountName"));
+
 /* ============================================================================
- * 金額欄と購入者名欄の入力支援
- *
- * 3桁ごとのカンマ区切り（numberFormat.js）と、半角カナへの自動変換（hankakuKana.js）は
- * 口座登録画面でも同じものを使うので、別ファイルに切り出してある。
- * ここでは「対象の入力欄」と「変換したあとに何をするか」だけを渡す。
+ * 送信・リセット
  * ========================================================================== */
 
-//  戻り値は、送信直前など手動で整形・変換したいときに呼ぶための関数
-const formatMoney = setupCommaInput(moneyInput, () => refreshIfShowing("money"));
-const convertNameToHankaku = setupHankakuInput(nameInput, () => refreshIfShowing("name"));
-
-// 送信時にすべての項目を判定する。
-// 「確認」ボタンのclickではなくformのsubmitを見ることで、
+// 「登録」ボタンのclickではなくformのsubmitを見ることで、
 // 入力欄でEnterキーを押して送信された場合もチェックが効くようにしている。
 form.addEventListener("submit", (e) => {
-    convertNameToHankaku();     //  変換されないまま送信されるのを防ぐ
+    convertAccountNameToHankaku();      //  変換されないまま送信されるのを防ぐ
     let firstErrorRule = null;
 
     rules.forEach((rule) => {
@@ -205,17 +194,17 @@ form.addEventListener("submit", (e) => {
     });
 
     if (firstErrorRule !== null) {
-        e.preventDefault();                             //  送信を中止する
-        getFocusTarget(firstErrorRule).focus();         //  最初にエラーになった項目へカーソルを移す
+        e.preventDefault();                         //  送信を中止する
+        getFocusTarget(firstErrorRule).focus();     //  最初にエラーになった項目へカーソルを移す
         return;
     }
-    moneyInput.value = toDigits(moneyInput.value);          //  サーバへは表示用のカンマを外した数字だけを送る
+    balanceInput.value = toDigits(balanceInput.value);  //  サーバへは表示用のカンマを外した数字だけを送る
 });
 
 rules.forEach((rule) => {
     const errorArea = document.getElementById(rule.id + "_error");
 
-    // ラジオボタンは選択肢の数だけ <input> があるので、そのすべてに登録する
+    //  ラジオボタンは選択肢の数だけ input があるので、そのすべてに登録する
     getInputs(rule).forEach((input) => {
         // 入力途中で誤ったメッセージを出さないよう、
         // すでにエラーが出ている項目だけ入力のたびに再判定する（直したらすぐ消える）
@@ -225,7 +214,7 @@ rules.forEach((rule) => {
             }
         });
 
-        // 入力を終えて別の項目へ移ったタイミング、およびプルダウンやラジオボタンを選び直したタイミングで判定する
+        // 入力を終えて別の項目へ移ったタイミング、ラジオボタンを選び直したタイミングで判定する
         input.addEventListener("change", () => showResult(rule));
     });
 });
@@ -235,8 +224,5 @@ rules.forEach((rule) => {
 form.addEventListener("reset", () => window.setTimeout(() => {
     clearAllErrors();
     resetBankBranchPickers();
-    formatMoney();
+    formatBalance();
 }, 0));
-
-//  入力エラーでサーバから戻ってきたときなど、最初から値が入っている場合の整形は
-//  setupCommaInput の中で済ませている

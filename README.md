@@ -43,6 +43,52 @@ MySQLの `ALTER TABLE` には `ADD COLUMN IF NOT EXISTS` が無いため、他�
 申込時に `Field 'bankCode' doesn't have a default value` で失敗するようになります。
 Repositoryの改修が終わってから実行してください。
 
+## テスト
+テストは開発用の `internship` ではなく、**テスト専用DB `internship_test`** に接続します
+（接続先は `investmentTrust/src/test/resources/application.yml` で切り替えています）。
+そのため、テストを何度実行しても画面で確認しているデータが増えたり残高が減ったりしません。
+
+### テスト用DBの作成（初回のみ）
+
+```
+mysql -uroot -p -e "CREATE DATABASE internship_test DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+cd investmentTrust/src/main/resources/db
+mysql -uroot -p --default-character-set=utf8mb4 internship_test < 01_schema.sql
+mysql -uroot -p --default-character-set=utf8mb4 internship_test < 02_master_data.sql
+mysql -uroot -p --default-character-set=utf8mb4 internship_test < 03_balance_data.sql
+mysql -uroot -p --default-character-set=utf8mb4 internship_test < 05_not_null.sql
+```
+
+`04_alter.sql` は実行しません。`01_schema.sql` が最初からコード列を含む形でテーブルを作るためです。
+
+### 実行
+
+```
+cd investmentTrust
+./mvnw test
+```
+
+| テストクラス | 内容 | DB |
+|---|---|---|
+| `InvestmentTrustFormValidationTest` | 入力チェック（アノテーション）。Springを起動しない | 不要 |
+| `InvestmentTrustControllerTest` | 確認画面へ進むときのサーバ側チェック | 参照のみ |
+| `InvestmentTrustCompletionTest` | 申込の確定・残高引き落とし・二重送信対策 | 更新あり |
+| `AccountBalanceRepositoryTest` | 残高の引き落とし・複合キーの判定 | 更新あり |
+| `OrderInvestmentTrustServiceTest` | 残高不足時にトランザクションごと成立しないこと | 更新あり |
+
+更新を伴うテストには `@Transactional` が付いており、各テストの最後に自動でロールバックされます。
+テスト用DBのデータが壊れた場合は、上のセットアップ手順を流し直せば元に戻ります。
+
+### 開発用DBのデータを初期状態に戻す
+画面から申込を試して残高が減った場合は、下記で初期値に戻せます。
+
+```
+cd investmentTrust/src/main/resources/db
+mysql -uroot -p --default-character-set=utf8mb4 internship < 03_balance_data.sql
+```
+
+申込データそのものを消す場合は `DELETE FROM investmenttrust_table;` を実行してください。
+
 ## 動作方法
 ローンの場合
 1. `internship\bankLoan\src\main\java\com\example\internship\InternshipApplication.java`に行く
