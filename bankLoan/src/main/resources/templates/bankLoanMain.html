@@ -157,6 +157,48 @@
             border-radius: 0 4px 4px 0;
             line-height: 1.5;
         }
+        /* リアルタイムシミュレーション用ボックスのスタイル */
+        .live-calc-box {
+            background-color: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-top: 15px;
+        }
+        .live-calc-title {
+            font-size: 12px;
+            color: #2b6cb0;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .live-calc-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .live-calc-item {
+            flex: 1;
+        }
+        .live-calc-label {
+            font-size: 11px;
+            color: #4a5568;
+        }
+        .live-calc-value {
+            font-size: 17px;
+            font-weight: bold;
+            color: #1a365d;
+        }
+        .live-calc-value span {
+            font-size: 12px;
+            font-weight: normal;
+        }
+        /* ボーナス月の入力欄ラッパー */
+        #bonusAmountWrapper {
+            display: none;
+            margin-top: 8px;
+            padding-left: 12px;
+            border-left: 3px solid #cbd5e0;
+        }
         .form-control-button {
             width: 110px;
             padding: 10px 15px;
@@ -316,6 +358,17 @@
                     <span class="error-msg" th:if="${#fields.hasErrors('accountType')}" th:errors="*{accountType}"></span>
                 </div>
 
+                <!-- ★ 追加：金利タイプ -->
+                <div class="form-group">
+                    <label for="interestType">金利タイプ <small class="text-danger">※</small></label>
+                    <select id="interestType" name="interestType" class="form-control">
+                        <option value="変動金利">変動金利</option>
+                        <option value="固定金利3年">固定金利3年</option>
+                        <option value="固定金利5年">固定金利5年</option>
+                        <option value="固定金利10年">固定金利10年</option>
+                    </select>
+                </div>
+
                 <!-- 返済方式（返済プラン） -->
                 <div class="form-group">
                     <label for="repaymentMethod">返済プラン（返済方式） <small class="text-danger">※</small></label>
@@ -325,6 +378,20 @@
                         <option value="元金均等返済">元金均等返済</option>
                     </select>
                     <span class="error-msg" th:if="${#fields.hasErrors('repaymentMethod')}" th:errors="*{repaymentMethod}"></span>
+                </div>
+
+                <!-- ★ 追加：ボーナス併用払い -->
+                <div class="form-group">
+                    <label for="bonusOption">ボーナス併用払い <small class="text-danger">※</small></label>
+                    <select id="bonusOption" name="bonusOption" class="form-control">
+                        <option value="利用しない">利用しない</option>
+                        <option value="利用する">利用する（年2回ボーナス月増額）</option>
+                    </select>
+                    <div id="bonusAmountWrapper">
+                        <label style="margin-top:6px; font-weight:normal; font-size:13px;">ボーナス月追加返済額（1回あたり）</label>
+                        <input type="text" id="bonusAmount" name="bonusAmount" class="form-control" value="0" placeholder="例：50,000"/>
+                        <small style="display: block; color: #718096; font-size: 11px; margin-top: 2px;">※半角数字で入力してください</small>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -359,7 +426,22 @@
                     <label for="interestRate">金利（％） <small class="text-danger">※</small></label>
                     <input type="number" step="0.01" id="interestRate" th:field="*{interestRate}" class="form-control" th:classappend="${#fields.hasErrors('interestRate')} ? 'is-invalid' : ''" placeholder="1.5" required/>
 
-                    <div class="interest-notice">
+                    <!-- ★ 追加：リアルタイム試算プレビューエリア -->
+                    <div class="live-calc-box">
+                        <div class="live-calc-title">📊 ご返済額シミュレーション（リアルタイム試算）</div>
+                        <div class="live-calc-grid">
+                            <div class="live-calc-item">
+                                <div class="live-calc-label">毎月の返済額（目安）</div>
+                                <div class="live-calc-value" id="liveMonthlyPay">-- <span>円</span></div>
+                            </div>
+                            <div class="live-calc-item">
+                                <div class="live-calc-label">総返済額（目安）</div>
+                                <div class="live-calc-value" id="liveTotalPay">-- <span>円</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interest-notice" style="margin-top: 12px;">
                         ℹ️ 表示されている金利は目安です。実際の適用金利は審査結果やご選択いただく返済プラン、市場金利の動向によって変動する場合があります。
                     </div>
 
@@ -391,6 +473,14 @@
         "カードローン": 14.00
     };
 
+    // 金利タイプごとの上乗せ or 基準金利マップ
+    const interestTypeRates = {
+        "変動金利": 0.0,
+        "固定金利3年": 0.3,
+        "固定金利5年": 0.5,
+        "固定金利10年": 0.8
+    };
+
     const loanLimits = {
         "住宅ローン": { min: 1000000, max: 100000000, minStr: "100万円", maxStr: "1億円" },
         "マイカーローン": { min: 100000, max: 5000000, minStr: "10万円", maxStr: "500万円" },
@@ -404,6 +494,7 @@
     const birthDateInput = document.getElementById('birthDate');
     const underageWarning = document.getElementById('underageWarning');
     const accountTypeSelect = document.getElementById('accountType');
+    const interestTypeSelect = document.getElementById('interestType');
     const repaymentMethodSelect = document.getElementById('repaymentMethod');
     const interestRateInput = document.getElementById('interestRate');
     const loanLimitGuide = document.getElementById('loanLimitGuide');
@@ -411,6 +502,16 @@
     const loanAmountInput = document.getElementById('loanAmount');
     const annualIncomeInput = document.getElementById('annualIncome');
     const bankAccountNumInput = document.getElementById('bankAccountNum');
+
+    // ボーナス併用払いの連動要素
+    const bonusOption = document.getElementById('bonusOption');
+    const bonusAmountWrapper = document.getElementById('bonusAmountWrapper');
+    const bonusAmountInput = document.getElementById('bonusAmount');
+
+    // リアルタイム試算の表示先
+    const liveMonthlyPay = document.getElementById('liveMonthlyPay');
+    const liveTotalPay = document.getElementById('liveTotalPay');
+    const loanYearsSelect = document.getElementById('loanYears');
 
     function updateBranchOptions(selectedBranchValue = "") {
         if (!bankNameSelect || !branchNameSelect) return;
@@ -444,6 +545,49 @@
         }
     }
 
+    // 金利の自動連動計算を更新する関数
+    function updateInterestRate() {
+        const selectedType = accountTypeSelect.value;
+        const selectedInterestType = interestTypeSelect.value;
+
+        let baseRate = defaultInterestRates[selectedType] !== undefined ? defaultInterestRates[selectedType] : 1.5;
+        let addRate = interestTypeRates[selectedInterestType] !== undefined ? interestTypeRates[selectedInterestType] : 0.0;
+
+        interestRateInput.value = (baseRate + addRate).toFixed(2);
+        calculateLiveSimulation();
+    }
+
+    // リアルタイムご返済額シミュレーション計算
+    function calculateLiveSimulation() {
+        if (!loanAmountInput || !loanYearsSelect || !interestRateInput) return;
+
+        const rawAmount = loanAmountInput.value.replace(/,/g, '');
+        const principal = parseFloat(rawAmount) || 0;
+        const years = parseInt(loanYearsSelect.value) || 0;
+        const annualRate = parseFloat(interestRateInput.value) || 0;
+
+        if (principal > 0 && years > 0) {
+            const months = years * 12;
+            const monthlyRate = (annualRate / 100) / 12;
+            let monthlyPayment = 0;
+
+            if (monthlyRate === 0) {
+                monthlyPayment = principal / months;
+            } else {
+                monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+            }
+
+            const totalPayment = monthlyPayment * months;
+
+            liveMonthlyPay.innerHTML = Math.round(monthlyPayment).toLocaleString() + " <span>円</span>";
+            liveTotalPay.innerHTML = Math.round(totalPayment).toLocaleString() + " <span>円</span>";
+        } else {
+            liveMonthlyPay.innerHTML = "-- <span>円</span>";
+            liveTotalPay.innerHTML = "-- <span>円</span>";
+        }
+    }
+
+    // イベントリスナー設定
     if (bankNameSelect) {
         bankNameSelect.addEventListener('change', function() {
             updateBranchOptions();
@@ -455,6 +599,50 @@
         });
     }
 
+    if (accountTypeSelect) {
+        accountTypeSelect.addEventListener('change', function() {
+            updateInterestRate();
+            updateLoanLimitGuide();
+        });
+    }
+
+    if (interestTypeSelect) {
+        interestTypeSelect.addEventListener('change', updateInterestRate);
+    }
+
+    if (loanYearsSelect) {
+        loanYearsSelect.addEventListener('change', calculateLiveSimulation);
+    }
+
+    if (loanAmountInput) {
+        loanAmountInput.addEventListener('input', function() {
+            let val = this.value.replace(/[^0-9]/g, '');
+            if (val !== '') {
+                this.value = Number(val).toLocaleString();
+            } else {
+                this.value = '';
+            }
+            calculateLiveSimulation();
+        });
+    }
+
+    if (bonusOption) {
+        bonusOption.addEventListener('change', function() {
+            if (this.value === '利用する') {
+                bonusAmountWrapper.style.display = 'block';
+            } else {
+                bonusAmountWrapper.style.display = 'none';
+                if (bonusAmountInput) bonusAmountInput.value = '0';
+            }
+        });
+    }
+
+    if (bonusAmountInput) {
+        bonusAmountInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    }
+
     if (bankAccountNumInput) {
         bankAccountNumInput.addEventListener('input', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
@@ -462,50 +650,11 @@
 
         bankAccountNumInput.addEventListener('blur', function() {
             let val = this.value.trim();
-            if (val !== '' && !isNaN(val)) {
-                if (val.length < 7) {
-                    this.value = val.padStart(7, '0');
-                }
+            if (val !== '' && !isNaN(val) && val.length < 7) {
+                this.value = val.padStart(7, '0');
             }
         });
     }
-
-    function validateRequiredInput(input) {
-        const formGroup = input.closest('.form-group');
-        if (!formGroup) return;
-
-        let value = input.value.trim();
-        formGroup.querySelectorAll('.error-msg-js').forEach(el => el.remove());
-
-        if (!value) {
-            input.classList.add('is-invalid');
-            const msg = document.createElement('span');
-            msg.className = 'error-msg error-msg-js';
-            msg.innerText = '※ この項目を入力（選択）してください。';
-            formGroup.appendChild(msg);
-        } else {
-            input.classList.remove('is-invalid');
-        }
-    }
-
-    document.querySelectorAll('[required]').forEach(input => {
-        input.addEventListener('blur', function() {
-            validateRequiredInput(this);
-        });
-
-        const clearErrorOnInput = function() {
-            if (this.classList.contains('is-invalid')) {
-                const formGroup = this.closest('.form-group');
-                if (formGroup) {
-                    formGroup.querySelectorAll('.error-msg-js').forEach(el => el.remove());
-                }
-                this.classList.remove('is-invalid');
-            }
-        };
-
-        input.addEventListener('input', clearErrorOnInput);
-        input.addEventListener('change', clearErrorOnInput);
-    });
 
     function initBirthDateSettings() {
         if (birthDateInput) {
@@ -550,18 +699,6 @@
         birthDateInput.addEventListener('input', checkAgeWarning);
     }
 
-    if (accountTypeSelect) {
-        accountTypeSelect.addEventListener('change', function() {
-            const selectedType = this.value;
-            if (defaultInterestRates.hasOwnProperty(selectedType)) {
-                interestRateInput.value = defaultInterestRates[selectedType];
-            } else if (selectedType === "") {
-                interestRateInput.value = "";
-            }
-            updateLoanLimitGuide();
-        });
-    }
-
     if (postalCodeInput) {
         postalCodeInput.addEventListener('input', function() {
             let value = this.value.replace(/[^0-9]/g, '');
@@ -578,17 +715,6 @@
         });
     }
 
-    if (loanAmountInput) {
-        loanAmountInput.addEventListener('input', function() {
-            let val = this.value.replace(/[^0-9]/g, '');
-            if (val !== '') {
-                this.value = Number(val).toLocaleString();
-            } else {
-                this.value = '';
-            }
-        });
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
         const initialBranchValue = /*[[${bankLoanApplication.branchName}]]*/ "";
 
@@ -596,45 +722,18 @@
             branchNameSelect.disabled = false;
         }
 
-        // URLパラメータからの値補完フォールバック処理（Thymeleaf側で未設定の場合の対策）
-        const urlParams = new URLSearchParams(window.location.search);
-
-        if (repaymentMethodSelect && !repaymentMethodSelect.value) {
-            const paramRepayment = urlParams.get('repayment');
-            if (paramRepayment) {
-                repaymentMethodSelect.value = paramRepayment;
-            }
-        }
-
-        const loanYearsSelect = document.getElementById('loanYears');
-        if (loanYearsSelect && !loanYearsSelect.value) {
-            const paramYears = urlParams.get('years');
-            if (paramYears) {
-                loanYearsSelect.value = paramYears;
-            }
-        }
-
         if (loanAmountInput && loanAmountInput.value) {
             let rawVal = loanAmountInput.value.replace(/,/g, '');
             if (!isNaN(rawVal) && rawVal !== '') {
                 loanAmountInput.value = Number(rawVal).toLocaleString();
             }
-        } else {
-            const paramAmount = urlParams.get('amount');
-            if (paramAmount && loanAmountInput) {
-                loanAmountInput.value = Number(paramAmount).toLocaleString();
-            }
-        }
-
-        const paramRate = urlParams.get('rate');
-        if (interestRateInput && !interestRateInput.value && paramRate) {
-            interestRateInput.value = paramRate;
         }
 
         updateBranchOptions(initialBranchValue);
         initBirthDateSettings();
         checkAgeWarning();
         updateLoanLimitGuide();
+        updateInterestRate();
     });
 
     const phoneInput = document.getElementById('phoneNumber');
@@ -650,6 +749,7 @@
         });
     }
 
+    // フォーム送信時のチェック＆確認ダイアログ
     document.getElementById('loanForm').addEventListener('submit', function(e) {
         let isValid = true;
         const requiredInputs = this.querySelectorAll('[required]');
@@ -775,6 +875,7 @@
             if (loanLimitGuide) loanLimitGuide.style.display = 'none';
 
             updateBranchOptions();
+            updateInterestRate();
         }
     });
 </script>
