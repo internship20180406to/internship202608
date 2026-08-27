@@ -4,16 +4,16 @@
     --surface: #ffffff;
 
     /* 重要部分に使用する水色 */
-    --primary: #279bc9;
-    --primary-dark: #187ca5;
-    --primary-border: #b9dfed;
+    --primary: #59a8eb;
+    --primary-dark: #4583b7;
+    --primary-border: #bcdcf5;
 
     /* 文字・枠線 */
     --text-primary: #24313a;
     --text-secondary: #667680;
     --text-muted: #9ca7ad;
     --border: #dce6eb;
-    --focus-ring: rgba(39, 155, 201, 0.18);
+    --focus-ring: rgba(89, 168, 235, 0.18);
 
     --font-system:
             -apple-system,
@@ -76,12 +76,12 @@ body {
     position: relative;
 
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     align-items: start;
 
     width: 100%;
-    margin: 0 0 28px;
-    padding: 0 4px 22px;
+    margin: 0 0 32px;
+    padding: 0 4px 24px;
 
     border-bottom: 1px solid var(--border);
 }
@@ -90,12 +90,13 @@ body {
 .progress-steps::before,
 .progress-steps::after {
     position: absolute;
-    top: 17px;
-    left: 16.6667%;
+    top: 14px;
+    left: 10%;
     z-index: 0;
 
-    width: 66.6667%;
+    width: 80%;
     height: 2px;
+    border-radius: 2px;
 
     content: "";
 }
@@ -111,18 +112,28 @@ body {
     transition: transform 200ms ease;
 }
 
-/* 入力画面 */
+/* 金融機関選択 */
 .progress-steps.step-1::after {
     transform: scaleX(0);
 }
 
-/* 確認画面 */
+/* 口座情報入力 */
 .progress-steps.step-2::after {
+    transform: scaleX(0.25);
+}
+
+/* 振込内容入力 */
+.progress-steps.step-3::after {
     transform: scaleX(0.5);
 }
 
-/* 完了画面 */
-.progress-steps.step-3::after {
+/* 内容確認 */
+.progress-steps.step-4::after {
+    transform: scaleX(0.75);
+}
+
+/* 完了 */
+.progress-steps.step-5::after {
     transform: scaleX(1);
 }
 
@@ -142,8 +153,8 @@ body {
 
 .step-number {
     display: grid;
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     place-items: center;
 
     border-radius: 50%;
@@ -151,8 +162,8 @@ body {
     color: var(--text-muted);
     background: #eef1f3;
 
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
     line-height: 1;
 
     transition:
@@ -161,26 +172,31 @@ body {
 }
 
 .step-label {
-    margin-top: 9px;
+    margin-top: 8px;
 
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
+    letter-spacing: -0.005em;
     line-height: 1.4;
     text-align: center;
     white-space: nowrap;
 }
 
-/* 現在・通過済みのステップ文字 */
-.progress-steps.step-1 .step:nth-of-type(1),
-.progress-steps.step-2 .step:nth-of-type(-n + 2),
-.progress-steps.step-3 .step {
-    color: var(--primary);
+/* テキストは階調のみ、色は指標にだけ使う */
+.progress-steps.step-1 .step:nth-of-type(-n + 1) .step-label,
+.progress-steps.step-2 .step:nth-of-type(-n + 2) .step-label,
+.progress-steps.step-3 .step:nth-of-type(-n + 3) .step-label,
+.progress-steps.step-4 .step:nth-of-type(-n + 4) .step-label,
+.progress-steps.step-5 .step-label {
+    color: #1d1d1f;
 }
 
 /* 現在・通過済みのステップ番号 */
-.progress-steps.step-1 .step:nth-of-type(1) .step-number,
+.progress-steps.step-1 .step:nth-of-type(-n + 1) .step-number,
 .progress-steps.step-2 .step:nth-of-type(-n + 2) .step-number,
-.progress-steps.step-3 .step-number {
+.progress-steps.step-3 .step:nth-of-type(-n + 3) .step-number,
+.progress-steps.step-4 .step:nth-of-type(-n + 4) .step-number,
+.progress-steps.step-5 .step-number {
     color: #ffffff;
     background: var(--primary);
 }
@@ -246,6 +262,47 @@ h1 {
 }
 
 /* =========================
+   振込内容の詳細一覧
+========================= */
+
+.completion-details {
+    margin-top: 18px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+.completion-details > p {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    align-items: center;
+    min-height: 58px;
+    margin: 0;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    background: var(--surface);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.completion-details > p:last-of-type {
+    border-bottom: none;
+}
+
+.completion-details > p:nth-of-type(odd) {
+    background: #f7fafc;
+}
+
+.completion-details > p > span {
+    min-width: 0;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+/* =========================
    ボタン
 ========================= */
 
@@ -256,37 +313,35 @@ h1 {
 
 input[type="button"] {
     min-width: 150px;
-    height: 44px;
-    padding: 0 22px;
+    height: 50px;
+    padding: 0 24px;
 
-    border: 1px solid transparent;
-    border-radius: 6px;
+    border: none;
+    border-radius: 980px;
 
     color: #ffffff;
     background: var(--primary);
 
-    box-shadow: 0 3px 8px rgba(39, 155, 201, 0.2);
+    box-shadow: none;
 
     cursor: pointer;
 
     font-family: var(--font-system);
-    font-size: 14px;
-    font-weight: 650;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
 
     transition:
             background-color 150ms ease,
-            box-shadow 150ms ease,
             transform 100ms ease;
 }
 
 input[type="button"]:hover {
     background: var(--primary-dark);
-    box-shadow: 0 4px 10px rgba(39, 155, 201, 0.25);
 }
 
 input[type="button"]:active {
-    box-shadow: none;
-    transform: translateY(1px);
+    transform: scale(0.98);
 }
 
 input[type="button"]:focus-visible {
@@ -325,6 +380,12 @@ input[type="button"]:focus-visible {
     .completion-message {
         padding: 26px 18px;
     }
+
+    .completion-details > p {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding: 13px 14px;
+    }
 }
 
 @media (max-width: 390px) {
@@ -333,8 +394,8 @@ input[type="button"]:focus-visible {
     }
 
     .step-number {
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
     }
 
     .step-label {
@@ -344,7 +405,7 @@ input[type="button"]:focus-visible {
 
     .progress-steps::before,
     .progress-steps::after {
-        top: 15px;
+        top: 12px;
     }
 
     input[type="button"] {

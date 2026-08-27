@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 
-import java.util.List;
-
 
 @Controller
 
@@ -46,13 +44,15 @@ import java.util.List;
     }
 
     private void addBankTransferMainAttributes(Model model) {
-        model.addAttribute("nameOptionsBankName", List.of( "山陰共同銀行", "ながれぼし銀行", "青空銀行"));
-        model.addAttribute("nameOptionsBranchName",  List.of("山陰共同支店", "本店", "中央支店"));
+        model.addAttribute("nameOptionsBankName", applyBankTransferService.getBankNames());
+        model.addAttribute("branchOptions", applyBankTransferService.getBranchOptions());
         model.addAttribute("today", LocalDate.now());
         model.addAttribute("recentTransfers", applyBankTransferService.getRecentTransfers());
         model.addAttribute("favoriteTransfers", applyBankTransferService.getFavorites());
         model.addAttribute("balance", applyBankTransferService.getBalance());
         model.addAttribute("todayAvailable", applyBankTransferService.getTodayAvailableAmount());
+        model.addAttribute("myBankName", applyBankTransferService.getMyBankName());
+        model.addAttribute("myAccount", applyBankTransferService.getMyAccount());
     }
 
     @PostMapping("/bankTransferConfirmation")
@@ -66,6 +66,11 @@ import java.util.List;
         model.addAttribute("money", bankTransferForm.getMoney());
         model.addAttribute("transferDateTime", bankTransferForm.getTransferDateTime());
 
+        int fee = applyBankTransferService.calculateFee(bankTransferForm.getBankName(), bankTransferForm.getMoney());
+        model.addAttribute("fee", fee);
+        model.addAttribute("totalDebit", bankTransferForm.getMoney() + fee);
+        model.addAttribute("requiresReconfirmation", applyBankTransferService.requiresReconfirmation(bankTransferForm));
+
         model.addAttribute("bankTransferApplication", bankTransferForm);
 
         return "bankTransferConfirmation";
@@ -76,9 +81,21 @@ import java.util.List;
             @ModelAttribute("bankTransferApplication")
             BankTransferForm bankTransferForm,
             @RequestParam(name = "registerFavorite", defaultValue = "false")
-            boolean registerFavorite) {
+            boolean registerFavorite,
+            Model model) {
 
-        applyBankTransferService.applyBankTransfer(bankTransferForm, registerFavorite);
+        ApplyBankTransferService.TransferResult result = applyBankTransferService.applyBankTransfer(bankTransferForm, registerFavorite);
+
+        model.addAttribute("bankName", bankTransferForm.getBankName());
+        model.addAttribute("branchName", bankTransferForm.getBranchName());
+        model.addAttribute("bankAccountType", bankTransferForm.getBankAccountType());
+        model.addAttribute("bankAccountNum", bankTransferForm.getBankAccountNum());
+        model.addAttribute("name", bankTransferForm.getName());
+        model.addAttribute("money", bankTransferForm.getMoney());
+        model.addAttribute("fee", result.fee());
+        model.addAttribute("totalDebit", result.totalDebit());
+        model.addAttribute("transferDateTime", bankTransferForm.getTransferDateTime());
+        model.addAttribute("isCompleted", result.isCompleted());
 
         return "bankTransferCompletion";
     }

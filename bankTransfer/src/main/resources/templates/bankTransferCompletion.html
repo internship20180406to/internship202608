@@ -8,24 +8,50 @@
 </head>
 <body>
 <div class="content">
-    <div class="progress-steps step-3">
+    <div class="progress-steps step-5">
         <div class="step">
             <span class="step-number">1</span>
-            <span class="step-label">銀行振込入力</span>
+            <span class="step-label">金融機関選択</span>
         </div>
         <div class="step">
             <span class="step-number">2</span>
-            <span class="step-label">振込内容確認</span>
+            <span class="step-label">口座情報入力</span>
         </div>
 
         <div class="step">
             <span class="step-number">3</span>
-            <span class="step-label">振込完了</span>
+            <span class="step-label">振込内容入力</span>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <span class="step-label">内容確認</span>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <span class="step-label">完了</span>
         </div>
     </div>
 
     <h1>振込完了</h1>
-    <p class="completion-message">振込の受付が完了しました。</p>
+    <p class="completion-message"
+       th:text="${isCompleted}
+           ? '以下の通り、振込を完了しました。'
+           : '以下の通り、振込を受け付けました。'">振込の受付が完了しました。</p>
+
+    <div class="completion-details">
+        <p>金融機関名: <span th:text="${bankName}"></span></p>
+        <p>支店名: <span th:text="${branchName}"></span></p>
+        <p>科目名: <span th:text="${bankAccountType}"></span></p>
+        <p>口座番号: <span th:text="${bankAccountNum}"></span></p>
+        <p>口座名義: <span th:text="${name}"></span></p>
+        <p>振込金額: <span th:text="${#numbers.formatInteger(money, 1, 'COMMA')}"></span>円</p>
+        <p>振込手数料: <span th:text="${#numbers.formatInteger(fee, 1, 'COMMA')}"></span>円</p>
+        <p>合計引落金額: <span th:text="${#numbers.formatInteger(totalDebit, 1, 'COMMA')}"></span>円</p>
+        <p>振込指定日: <span th:text="${transferDateTime}"></span></p>
+    </div>
+
     <p><input type="button" value="振込に戻る" onclick="window.location='/bankTransfer';"/></p>
 
 </div>

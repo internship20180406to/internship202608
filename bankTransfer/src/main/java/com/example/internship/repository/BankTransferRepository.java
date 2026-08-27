@@ -28,9 +28,9 @@ public class BankTransferRepository {
             TransferStatus.valueOf(rs.getString("status"))
     );
 
-    public void create(BankTransferForm bankTransferForm, TransferStatus status) {
-        String sql = "INSERT INTO bankTransfer_table(bankName, branchName, bankAccountType, bankAccountNum,name,money,transferDateTime,status) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, bankTransferForm.getBankName(), bankTransferForm.getBranchName(), bankTransferForm.getBankAccountType(), bankTransferForm.getBankAccountNum(), bankTransferForm.getName(), bankTransferForm.getMoney(), bankTransferForm.getTransferDateTime(), status.name());
+    public void create(BankTransferForm bankTransferForm, int fee, TransferStatus status) {
+        String sql = "INSERT INTO bankTransfer_table(bankName, branchName, bankAccountType, bankAccountNum,name,money,transferDateTime,status,fee) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, bankTransferForm.getBankName(), bankTransferForm.getBranchName(), bankTransferForm.getBankAccountType(), bankTransferForm.getBankAccountNum(), bankTransferForm.getName(), bankTransferForm.getMoney(), bankTransferForm.getTransferDateTime(), status.name(), fee);
     }
     // 直近の振込先を最大3件取得する
     public List<BankTransferForm> findRecentTransfers() {
@@ -56,12 +56,20 @@ public class BankTransferRepository {
 
     // 指定日を迎えたのにまだ残高が減算されていない予約振込を取得する
     public List<PendingTransfer> findDueUnprocessedTransfers(LocalDate today) {
-        String sql = "SELECT id, money FROM bankTransfer_table WHERE status = 'PENDING' AND transferDateTime <= ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new PendingTransfer(rs.getInt("id"), rs.getInt("money")), today);
+        String sql = "SELECT id, money, fee FROM bankTransfer_table WHERE status = 'PENDING' AND transferDateTime <= ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new PendingTransfer(rs.getInt("id"), rs.getInt("money"), rs.getInt("fee")), today);
     }
 
     public void markCompleted(int id) {
         jdbcTemplate.update("UPDATE bankTransfer_table SET status = 'COMPLETED' WHERE id = ?", id);
+    }
+
+    // 同一口座（bankName, branchName, bankAccountType, bankAccountNum）への振込実績があるか判定する（CANCELLEDは除く）
+    public boolean hasPriorTransferTo(String bankName, String branchName, String bankAccountType, String bankAccountNum) {
+        String sql = "SELECT EXISTS(SELECT 1 FROM bankTransfer_table "
+                + "WHERE bankName = ? AND branchName = ? AND bankAccountType = ? AND bankAccountNum = ? "
+                + "AND status <> 'CANCELLED')";
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, bankName, branchName, bankAccountType, bankAccountNum));
     }
 
     // 振込内容確認画面用の一覧を振込指定日の新しい順で取得する
@@ -84,6 +92,6 @@ public class BankTransferRepository {
         return jdbcTemplate.update(sql, id);
     }
 
-    public record PendingTransfer(int id, int money) {
+    public record PendingTransfer(int id, int money, int fee) {
     }
 }

@@ -10,10 +10,10 @@
     --gray-700: #354149;
     --gray-900: #1f292f;
 
-    --accent: #279bc9;
-    --accent-dark: #187ca5;
-    --accent-border: #8bc9df;
-    --focus-ring: rgba(39, 155, 201, 0.16);
+    --accent: #59a8eb;
+    --accent-dark: #4583b7;
+    --accent-border: #bcdcf5;
+    --focus-ring: rgba(89, 168, 235, 0.16);
 
     --danger: #d64545;
 
@@ -67,22 +67,27 @@ body {
 .progress-steps {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     align-items: start;
     width: 100%;
-    margin: 0 0 28px;
-    padding: 0 4px 22px;
+    margin: 0 0 32px;
+    padding: 0 4px 24px;
     border-bottom: 1px solid var(--gray-200);
+}
+
+.progress-steps[hidden] {
+    display: none;
 }
 
 .progress-steps::before,
 .progress-steps::after {
     position: absolute;
-    top: 17px;
-    left: 16.6667%;
+    top: 14px;
+    left: 10%;
     z-index: 0;
-    width: 66.6667%;
+    width: 80%;
     height: 2px;
+    border-radius: 2px;
     content: "";
 }
 
@@ -91,17 +96,29 @@ body {
 }
 
 .progress-steps::after {
-    background: var(--accent);
+    background: #59a8eb;
     transform: scaleX(0);
     transform-origin: left center;
-    transition: transform 180ms ease;
+    transition: transform 220ms ease;
+}
+
+.progress-steps.step-1::after {
+    transform: scaleX(0);
 }
 
 .progress-steps.step-2::after {
-    transform: scaleX(0.5);
+    transform: scaleX(0.25);
 }
 
 .progress-steps.step-3::after {
+    transform: scaleX(0.5);
+}
+
+.progress-steps.step-4::after {
+    transform: scaleX(0.75);
+}
+
+.progress-steps.step-5::after {
     transform: scaleX(1);
 }
 
@@ -112,50 +129,53 @@ body {
     flex-direction: column;
     align-items: center;
     min-width: 0;
-    color: var(--gray-500);
+    color: var(--gray-400);
 }
 
 .step-number {
     display: grid;
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     place-items: center;
-    border: 1px solid var(--gray-200);
+    border: none;
     border-radius: 50%;
     color: var(--gray-500);
-    background: var(--white);
-    font-size: 14px;
-    font-weight: 700;
+    background: var(--gray-100);
+    font-size: 12px;
+    font-weight: 600;
     line-height: 1;
+    transition: background-color 200ms ease, color 200ms ease;
 }
 
 .step-label {
-    margin-top: 9px;
-    color: inherit;
-    font-size: 12px;
+    margin-top: 8px;
+    color: var(--gray-500);
+    font-size: 11px;
     font-weight: 600;
+    letter-spacing: -0.005em;
     line-height: 1.4;
     text-align: center;
     white-space: nowrap;
 }
 
-/* 現在地までを水色にする */
-.progress-steps.step1 .step:nth-of-type(1),
-.progress-steps.step-1 .step:nth-of-type(1),
-.progress-steps.step-2 .step:nth-of-type(-n + 2),
-.progress-steps.step-3 .step,
-.step.active {
-    color: var(--accent-dark);
+/* 現在地までを進捗として示す（テキストは階調のみ、色は指標にだけ使う） */
+.progress-steps.step-1 .step:nth-of-type(-n + 1) .step-label,
+.progress-steps.step-2 .step:nth-of-type(-n + 2) .step-label,
+.progress-steps.step-3 .step:nth-of-type(-n + 3) .step-label,
+.progress-steps.step-4 .step:nth-of-type(-n + 4) .step-label,
+.progress-steps.step-5 .step-label,
+.step.active .step-label {
+    color: #1d1d1f;
 }
 
-.progress-steps.step1 .step:nth-of-type(1) .step-number,
-.progress-steps.step-1 .step:nth-of-type(1) .step-number,
+.progress-steps.step-1 .step:nth-of-type(-n + 1) .step-number,
 .progress-steps.step-2 .step:nth-of-type(-n + 2) .step-number,
-.progress-steps.step-3 .step-number,
+.progress-steps.step-3 .step:nth-of-type(-n + 3) .step-number,
+.progress-steps.step-4 .step:nth-of-type(-n + 4) .step-number,
+.progress-steps.step-5 .step-number,
 .step.active .step-number {
-    border-color: var(--accent);
     color: var(--white);
-    background: var(--accent);
+    background: #59a8eb;
 }
 
 .step-arrow {
@@ -180,40 +200,303 @@ h1 {
 
 
 /* ========================================
-   共通のセクションタイトル
+   引き落とし口座選択
 ======================================== */
 
-.recent-transfers h2,
-.favorite-transfers h2,
-.new-transfer-heading h2 {
-   margin: 0;
-   padding-left: 12px;
-   border-left: 4px solid var(--accent);
-   color: var(--gray-900);
-   font-size: 18px;
-   font-weight: 700;
-   line-height: 1.4;
+.account-card {
+   padding: 20px 22px;
+   border: 1px solid var(--gray-200);
+   border-radius: 8px;
+   background: var(--gray-50);
 }
 
-.recent-transfers-description,
-.favorite-transfers-description,
-.new-transfer-heading > p {
-   margin: 6px 0 16px;
+.account-card-row {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 6px 14px;
+   color: var(--gray-900);
+   font-size: 16px;
+   font-weight: 700;
+}
+
+.account-card-divider {
+   margin: 16px 0;
+   border-top: 1px solid var(--gray-200);
+}
+
+.account-card-balance {
+   display: flex;
+   align-items: baseline;
+   gap: 8px;
+}
+
+.account-card-balance-label {
+   color: var(--gray-500);
+   font-size: 13px;
+   font-weight: 600;
+}
+
+.account-card-balance-amount {
+   color: var(--gray-900);
+   font-size: 24px;
+   font-weight: 700;
+}
+
+.account-card-balance-yen {
+   color: var(--gray-500);
+   font-size: 13px;
+}
+
+
+/* ----------------------------------------
+   引き落とし口座選択（Apple 風リファイン）
+   このステップだけに閉じたスコープ変数
+---------------------------------------- */
+
+.account-select {
+    --as-blue: #59a8eb;
+    --as-blue-dark: #4583b7;
+    --as-blue-tint: #eef6fd;
+    --as-ink: #1d1d1f;
+    --as-secondary: #6e6e73;
+    --as-border: #d2d2d7;
+}
+
+.account-select-header {
+    margin: 0 0 20px;
+    text-align: center;
+}
+
+.account-select-header h2 {
+    margin: 0;
+    color: var(--as-ink);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.account-select-subtitle {
+    margin: 6px 0 0;
+    color: var(--as-secondary);
+    font-size: 13px;
+}
+
+.account-select-card {
+    padding: 26px 28px;
+    border: 1px solid var(--as-border);
+    border-radius: 20px;
+    background: var(--white);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 16px 36px rgba(89, 168, 235, 0.16);
+}
+
+.account-select-card .account-card-divider {
+    margin: 20px 0;
+    border-top: 1px solid var(--gray-100);
+}
+
+.account-select-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.account-select-bank {
+    color: var(--as-ink);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.account-select-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.account-select-badge {
+    padding: 2px 9px;
+    border-radius: 980px;
+    color: var(--as-blue);
+    background: var(--as-blue-tint);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.account-select-num {
+    color: var(--as-secondary);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+
+.account-select-card .account-card-balance-label {
+    color: var(--as-secondary);
+}
+
+.account-select-card .account-card-balance-amount {
+    color: var(--as-ink);
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.account-select-card .account-card-balance-yen {
+    color: var(--as-secondary);
+}
+
+.account-select .wizard-actions {
+    justify-content: stretch;
+}
+
+.account-select-next.form-confirmation-button {
+    width: 100%;
+    height: 50px;
+    border-radius: 980px;
+    background: var(--as-blue);
+    box-shadow: none;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    transition: background-color 150ms ease, transform 100ms ease;
+}
+
+.account-select-next.form-confirmation-button:hover {
+    background: var(--as-blue-dark);
+}
+
+.account-select-next.form-confirmation-button:active {
+    transform: scale(0.98);
+}
+
+.account-select-next.form-confirmation-button:focus-visible {
+    outline: 3px solid rgba(89, 168, 235, 0.3);
+    outline-offset: 2px;
+}
+
+
+/* ========================================
+   振込先を選択してください（新規／登録済み／過去）
+   ― 引き落とし口座選択と同じトーン（階調＋#59a8eb）で統一
+======================================== */
+
+.wizard-step-header.no-number h2 {
+    font-weight: 600;
+    letter-spacing: -0.015em;
+}
+
+.recipient-method-primary {
+   display: block;
+   width: 100%;
+   height: 50px;
+   padding: 0;
+   border: none;
+   border-radius: 980px;
+   color: var(--white);
+   background: #59a8eb;
+   box-shadow: none;
+   cursor: pointer;
+   font-family: var(--font-system);
+   font-size: 16px;
+   font-weight: 600;
+   letter-spacing: -0.01em;
+   text-align: center;
+   transition: background-color 150ms ease, transform 100ms ease;
+}
+
+.recipient-method-primary:hover {
+   background: #4583b7;
+}
+
+.recipient-method-primary:active {
+   transform: scale(0.98);
+}
+
+.recipient-method-primary:focus-visible {
+   outline: 3px solid rgba(89, 168, 235, 0.3);
+   outline-offset: 2px;
+}
+
+.recipient-method-divider {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   margin: 22px 0;
+   color: var(--gray-400);
+   font-size: 11px;
+   font-weight: 600;
+   letter-spacing: 0.02em;
+}
+
+.recipient-method-divider::before,
+.recipient-method-divider::after {
+   flex: 1;
+   height: 1px;
+   background: var(--gray-200);
+   content: "";
+}
+
+.recipient-method-secondary {
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+}
+
+.recipient-method-toggle {
+   width: 100%;
+   height: 50px;
+   padding: 0 16px;
+   border: none;
+   border-radius: 980px;
+   color: #1d1d1f;
+   background: #f5f5f7;
+   cursor: pointer;
+   font-family: var(--font-system);
+   font-size: 14px;
+   font-weight: 600;
+   text-align: center;
+   transition: background-color 150ms ease;
+}
+
+.recipient-method-toggle:hover {
+   background: #ebebee;
+}
+
+.recipient-method-toggle:focus-visible {
+   outline: 3px solid rgba(89, 168, 235, 0.3);
+   outline-offset: 2px;
+}
+
+
+/* ========================================
+   入力済みの振込先情報のプレビュー
+======================================== */
+
+.entered-info-preview:not(:empty) {
+   margin: 0 0 18px;
+   padding: 12px 14px;
+   border: 1px solid var(--gray-200);
+   border-radius: 6px;
+   color: var(--gray-700);
+   background: var(--gray-50);
+   font-size: 13px;
+   font-weight: 650;
+}
+
+.wizard-step .recipient-candidate-list p.recipient-candidate-description {
+   margin: 0 0 12px;
+   padding: 0;
+   border-bottom: none;
    color: var(--gray-500);
    font-size: 13px;
    line-height: 1.6;
 }
 
-
-/* ========================================
-   登録済み口座 / 最近の振込先
-======================================== */
-
-.favorite-transfers,
-.recent-transfers {
-   margin-top: 24px;
-   padding-bottom: 22px;
-   background: var(--white);
+.recipient-candidate-list {
+   margin-top: 20px;
+   padding-bottom: 4px;
 }
 
 .favorite-transfer-list,
@@ -235,65 +518,69 @@ h1 {
    gap: 8px 16px;
    width: 100%;
    min-height: 66px;
-   padding: 13px 15px;
-   border: 1px solid var(--gray-300);
-   border-radius: 6px;
-   color: var(--gray-900);
-   background: var(--white);
+   padding: 14px 18px;
+   border: none;
+   border-radius: 14px;
+   color: #1d1d1f;
+   background: #f5f5f7;
    cursor: pointer;
    font-family: var(--font-system);
    text-align: left;
    transition:
-           border-color 150ms ease,
+           background-color 150ms ease,
            box-shadow 150ms ease;
 }
 
 .favorite-transfer-card strong,
 .recent-transfer-card strong {
-   color: var(--gray-900);
+   color: #1d1d1f;
    font-size: 15px;
-   font-weight: 700;
+   font-weight: 600;
+   letter-spacing: -0.01em;
 }
 
 .favorite-transfer-card span,
 .recent-transfer-card span {
-   color: var(--gray-500);
+   color: #6e6e73;
    font-size: 13px;
 }
 
 .favorite-transfer-card span:last-child,
 .recent-transfer-card span:last-child {
    text-align: right;
+   font-variant-numeric: tabular-nums;
 }
 
 .favorite-transfer-card:hover,
 .recent-transfer-card:hover {
-   border-color: var(--gray-500);
-   box-shadow: 0 2px 7px rgba(31, 41, 47, 0.07);
+   background: #ebebee;
 }
 
 .favorite-transfer-card:focus-visible,
 .recent-transfer-card:focus-visible {
-   outline: 3px solid var(--focus-ring);
+   outline: 3px solid rgba(89, 168, 235, 0.3);
    outline-offset: 2px;
 }
 
-/* 選択したカードだけ水色で示す */
+/* 選択したカードだけ #59a8eb で示す */
 .favorite-transfer-card.selected,
 .recent-transfer-card.selected {
-   border-color: var(--accent);
-    background: var(--white);
-   box-shadow: 0 0 0 2px var(--focus-ring);
+   background: #eef6fd;
+   box-shadow: inset 0 0 0 1.5px #59a8eb;
+}
+
+.favorite-transfer-card.selected strong,
+.recent-transfer-card.selected strong {
+   color: #1d1d1f;
 }
 
 .favorite-transfer-card.selected strong::after,
 .recent-transfer-card.selected strong::after {
    display: inline-block;
    margin-left: 8px;
-   padding: 1px 7px;
-   border: 1px solid var(--accent);
-   border-radius: 10px;
-   color: var(--accent-dark);
+   padding: 1px 8px;
+   border-radius: 980px;
+   color: #4583b7;
    background: var(--white);
    content: "✓ 選択中";
    font-size: 10px;
@@ -302,62 +589,114 @@ h1 {
 }
 
 
-/* ========================================
-   過去入力と新規入力の区切り
-======================================== */
-
-.choice-separator {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin: 4px 0 24px;
-}
-
-.choice-separator::before,
-.choice-separator::after {
-    flex: 1;
-    height: 2px;
-    background: var(--accent-border);
-    content: "";
-}
-
-.choice-separator span {
-    flex-shrink: 0;
-    color: var(--gray-500);
-    background: var(--white);
-    font-size: 12px;
-    font-weight: 600;
-}
-
-
-/* ========================================
-   新しい振込先
-======================================== */
-
-.new-transfer-heading {
-    background: var(--white);
-}
-
 form {
     display: block;
     margin-top: 0;
     background: var(--white);
 }
 
-/* 入力項目はグレーの線で区切る */
-form > p {
+.wizard-step {
+    display: none;
+    padding: 8px 2px 0;
+}
+
+.wizard-step.active {
+    display: block;
+}
+
+.wizard-step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.wizard-step-header h2 {
+    margin: 0;
+    color: var(--gray-900);
+    font-size: 18px;
+}
+
+.wizard-step-header.no-number h2 {
+    font-size: 20px;
+}
+
+.wizard-step p {
     margin: 0;
     padding: 18px 2px 20px;
     border-bottom: 1px solid var(--gray-200);
 }
 
-form > p > .ml-1 {
+/* 金額〜振込指定日の間は区切り線を1本だけにする */
+.wizard-step p.money-field {
+    border-bottom: none;
+    padding-bottom: 4px;
+}
+
+.fee-breakdown p {
+    padding: 3px 2px;
+    border-bottom: none;
+}
+
+.fee-breakdown p.fee-line-muted {
+    color: var(--gray-500);
+    font-size: 13px;
+}
+
+.fee-breakdown-divider {
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.wizard-step p > .ml-1 {
     display: inline-flex;
     align-items: center;
     margin: 0 0 8px;
     color: var(--gray-700);
     font-size: 14px;
     font-weight: 650;
+}
+
+.wizard-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 18px;
+}
+
+.field-error-message {
+    display: block;
+    min-height: 18px;
+    margin-top: 7px;
+    color: var(--danger);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.form-control.is-invalid,
+.combo-input-wrapper .form-control.is-invalid,
+.bank-account-type-group.is-invalid {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(214, 69, 69, 0.12);
+}
+
+.bank-account-type-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+    padding: 8px 10px;
+    border: 1px solid var(--gray-300);
+    border-radius: 5px;
+    background: var(--white);
+}
+
+.bank-account-type-group label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .text-danger {
@@ -371,6 +710,23 @@ form > p > .ml-1 {
 /* ========================================
    入力欄
 ======================================== */
+
+.amount-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.amount-input-group .form-control {
+    flex: 1;
+}
+
+.amount-input-suffix {
+    flex: none;
+    color: var(--gray-500);
+    font-size: 15px;
+    font-weight: 600;
+}
 
 .form-control {
     width: 100%;
@@ -387,7 +743,7 @@ form > p > .ml-1 {
     font-size: 15px;
     transition:
             border-color 150ms ease,
-            box-shadow 150msms ease;
+            box-shadow 150ms ease;
 }
 
 .form-control:hover {
@@ -409,6 +765,71 @@ form > p > .ml-1 {
     opacity: 1;
 }
 
+.combo {
+    position: relative;
+    width: 100%;
+}
+
+.combo-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.combo-input-wrapper .form-control {
+    padding-right: 42px;
+}
+
+.combo-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 4px;
+    color: var(--gray-700);
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.combo-toggle:hover,
+.combo-toggle:focus-visible {
+    background: var(--gray-100);
+    outline: none;
+}
+
+.combo-list {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 6px 0;
+    border: 1px solid var(--gray-300);
+    border-radius: 6px;
+    background: var(--white);
+    box-shadow: 0 8px 20px rgba(31, 41, 47, 0.12);
+    list-style: none;
+}
+
+.combo-list li {
+    padding: 9px 12px;
+    color: var(--gray-900);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.combo-list li:hover,
+.combo-list li.highlight {
+    background: var(--gray-100);
+}
+
 select.form-control,
 input[type="date"].form-control {
     cursor: pointer;
@@ -423,25 +844,6 @@ select.form-control option {
 /* ========================================
    科目名のラジオボタン
 ======================================== */
-
-form > p:nth-of-type(3) > label:not(.ml-1) {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 38px;
-    margin: 2px 12px 2px 0;
-    padding: 7px 10px;
-    border: 1px solid var(--gray-300);
-    border-radius: 5px;
-    color: var(--gray-700);
-    background: var(--white);
-    cursor: pointer;
-    font-size: 14px;
-}
-
-form > p:nth-of-type(3) > label:not(.ml-1):hover {
-    border-color: var(--gray-500);
-}
 
 input[type="radio"] {
     width: 17px;
@@ -471,37 +873,29 @@ form > p > small:not(.text-danger) {
    操作ボタン
 ======================================== */
 
-form > p:last-of-type {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    padding: 24px 2px 0;
-    border-bottom: 0;
-}
-
 .form-control-button {
     width: auto;
     min-width: 130px;
     height: 44px;
     margin: 0;
     padding: 0 22px;
-    border: 1px solid transparent;
-    border-radius: 5px;
+    border: none;
+    border-radius: 980px;
     cursor: pointer;
     font-family: var(--font-system);
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 600;
+    letter-spacing: -0.005em;
     transition:
             background-color 150ms ease,
-            border-color 150ms ease,
-            box-shadow 150ms ease;
+            transform 100ms ease;
 }
 
 /* 主要操作だけ水色 */
 .form-confirmation-button {
     color: var(--white);
     background: var(--accent);
-    box-shadow: 0 2px 6px rgba(39, 155, 201, 0.2);
+    box-shadow: none;
 }
 
 .form-confirmation-button:hover {
@@ -509,27 +903,32 @@ form > p:last-of-type {
 }
 
 .form-clear-button {
-    border-color: var(--gray-300);
-    color: var(--gray-700);
-    background: var(--white);
+    color: #1d1d1f;
+    background: #f5f5f7;
 }
 
 .form-clear-button:hover {
-    border-color: var(--gray-500);
-    background: var(--gray-50);
+    background: #ebebee;
 }
 
 /* 振込履歴確認ボタン（ステータスボタン） */
+.wizard-step p.status-button-row {
+    margin: 0 0 16px;
+    padding: 0;
+    border-bottom: none;
+}
+
 .status-button {
     display: inline-block;
-    padding: 8px 14px;
-    border-radius: 6px;
+    padding: 8px 16px;
+    border-radius: 980px;
     background: var(--accent);
     color: var(--white);
-    font-weight: 700;
+    font-weight: 600;
     text-decoration: none;
-    border: 1px solid transparent;
-    box-shadow: 0 2px 6px rgba(39,155,201,0.12);
+    border: none;
+    box-shadow: none;
+    transition: background-color 150ms ease, transform 100ms ease;
 }
 
 .status-button:hover {
@@ -537,8 +936,7 @@ form > p:last-of-type {
 }
 
 .status-button:active {
-    box-shadow: none;
-    transform: translateY(1px);
+    transform: scale(0.98);
 }
 
 .status-button.small {
@@ -547,7 +945,7 @@ form > p:last-of-type {
 }
 
 .form-control-button:active {
-    box-shadow: none;
+    transform: scale(0.98);
 }
 
 .form-control-button:focus-visible {

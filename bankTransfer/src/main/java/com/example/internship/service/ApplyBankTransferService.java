@@ -4,6 +4,7 @@ import com.example.internship.entity.BankTransferForm;
 import com.example.internship.entity.TransferRecord;
 import com.example.internship.entity.TransferStatus;
 import com.example.internship.repository.AccountRepository;
+import com.example.internship.repository.BankRepository;
 import com.example.internship.repository.BankTransferRepository;
 import com.example.internship.repository.BankTransferRepository.PendingTransfer;
 import com.example.internship.repository.FavoriteRepository;
@@ -17,33 +18,70 @@ import java.util.Optional;
 @Service
 @Transactional
 public class ApplyBankTransferService {
+    private static final int RECONFIRMATION_AMOUNT_THRESHOLD = 100_000;
+
     @Autowired
     private BankTransferRepository bankTransferRepository;
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
     private FavoriteRepository favoriteRepository;
+    @Autowired
+    private BankRepository bankRepository;
 
-    public void applyBankTransfer(BankTransferForm bankTransferForm, boolean registerFavorite) {
+    public TransferResult applyBankTransfer(BankTransferForm bankTransferForm, boolean registerFavorite) {
+        int fee = calculateFee(bankTransferForm.getBankName(), bankTransferForm.getMoney());
         boolean isToday = bankTransferForm.getTransferDateTime().isEqual(LocalDate.now());
         if (isToday) {
-            int updatedRows = accountRepository.decreaseBalance(bankTransferForm.getMoney());
+            int updatedRows = accountRepository.decreaseBalance(bankTransferForm.getMoney() + fee);
             if (updatedRows == 0) {
                 throw new InsufficientBalanceException("口座残高が不足しています");
             }
         }
         // 未来日の場合は予約振込として記録するだけで、残高はまだ減らさない
-        bankTransferRepository.create(bankTransferForm, isToday ? TransferStatus.COMPLETED : TransferStatus.PENDING);
+        TransferStatus status = isToday ? TransferStatus.COMPLETED : TransferStatus.PENDING;
+        bankTransferRepository.create(bankTransferForm, fee, status);
         if (registerFavorite) {
             favoriteRepository.create(bankTransferForm);
         }
+        return new TransferResult(status, fee, bankTransferForm.getMoney() + fee);
+    }
+
+    public record TransferResult(TransferStatus status, int fee, int totalDebit) {
+        public boolean isCompleted() {
+            return status == TransferStatus.COMPLETED;
+        }
+    }
+
+    // 振込手数料を計算する：振込先が自分と同じ銀行なら0円、異なる銀行なら3万円未満220円・3万円以上440円
+    public int calculateFee(String recipientBankName, int money) {
+        String myBankName = accountRepository.findBankName();
+        if (myBankName.equals(recipientBankName)) {
+            return 0;
+        }
+        return money >= 30_000 ? 440 : 220;
+    }
+
+    // 振込先が「初めての振込先」かどうかを判定する（CANCELLEDのみの履歴は初めて扱い）
+    public boolean isFirstTimeRecipient(BankTransferForm bankTransferForm) {
+        return !bankTransferRepository.hasPriorTransferTo(
+                bankTransferForm.getBankName(),
+                bankTransferForm.getBranchName(),
+                bankTransferForm.getBankAccountType(),
+                bankTransferForm.getBankAccountNum());
+    }
+
+    // 再確認モーダル表示要否を判定する（高額 or 初めての振込先）
+    public boolean requiresReconfirmation(BankTransferForm bankTransferForm) {
+        boolean isHighAmount = bankTransferForm.getMoney() != null && bankTransferForm.getMoney() >= RECONFIRMATION_AMOUNT_THRESHOLD;
+        return isHighAmount || isFirstTimeRecipient(bankTransferForm);
     }
 
     // 指定日を迎えた予約振込の残高を減算する（バッチ処理から呼ばれる）
     public void processDueReservedTransfers() {
         LocalDate today = LocalDate.now();
         for (PendingTransfer pending : bankTransferRepository.findDueUnprocessedTransfers(today)) {
-            int updatedRows = accountRepository.decreaseBalance(pending.money());
+            int updatedRows = accountRepository.decreaseBalance(pending.money() + pending.fee());
             if (updatedRows > 0) {
                 bankTransferRepository.markCompleted(pending.id());
             }
@@ -72,6 +110,14 @@ public class ApplyBankTransferService {
         return accountRepository.findBalance();
     }
 
+    public String getMyBankName() {
+        return accountRepository.findBankName();
+    }
+
+    public AccountRepository.MyAccount getMyAccount() {
+        return accountRepository.findMyAccount();
+    }
+
     // 本日の振込可能額を計算する（1日の上限は5,000,000円）
     public Integer getTodayAvailableAmount() {
         final int DAILY_LIMIT = 5_000_000;
@@ -83,5 +129,13 @@ public class ApplyBankTransferService {
 
     public List<BankTransferForm> getFavorites() {
         return favoriteRepository.findAll();
+    }
+
+    public List<String> getBankNames() {
+        return bankRepository.findAllBankNames();
+    }
+
+    public List<BankRepository.BranchOption> getBranchOptions() {
+        return bankRepository.findAllBranchOptions();
     }
 }

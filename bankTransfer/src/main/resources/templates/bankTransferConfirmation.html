@@ -10,20 +10,30 @@
 
 <div class="content">
 
-    <div class="progress-steps step-2">
+    <div class="progress-steps step-4">
         <div class="step">
             <span class="step-number">1</span>
-            <span class="step-label">銀行振込入力</span>
+            <span class="step-label">金融機関選択</span>
         </div>
 
         <div class="step">
             <span class="step-number">2</span>
-            <span class="step-label">振込内容確認</span>
+            <span class="step-label">口座情報入力</span>
         </div>
 
         <div class="step">
             <span class="step-number">3</span>
-            <span class="step-label">振込完了</span>
+            <span class="step-label">振込内容入力</span>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <span class="step-label">内容確認</span>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <span class="step-label">完了</span>
         </div>
     </div>
 
@@ -35,7 +45,9 @@
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
 
     <p>口座名義: <span th:text="*{name}"></span></p>
-    <p>金額:<span><span th:text="*{money}"></span>円</span>（手数料：0円）</p>
+    <p>振込金額: <span th:text="${#numbers.formatInteger(money, 1, 'COMMA')}"></span>円</p>
+    <p>振込手数料: <span th:text="${#numbers.formatInteger(fee, 1, 'COMMA')}"></span>円</p>
+    <p>合計引落金額: <span th:text="${#numbers.formatInteger(totalDebit, 1, 'COMMA')}"></span>円</p>
     <p>振込指定日: <span th:text="*{transferDateTime}"></span></p>
 
     <input type="hidden" name="bankName" th:value="*{bankName}"/>
@@ -55,10 +67,35 @@
     </p>
 
     <p>
-        <input type="submit" id="submit" value="振込"/>
+        <input type="submit" id="transferSubmitButton" value="振込" th:attr="data-requires-reconfirmation=${requiresReconfirmation}"/>
         <input type="button" value="キャンセル" onclick="window.location='/bankTransfer';"/>
     </p>
 </form>
+
+<div id="reconfirmModalOverlay" class="reconfirm-modal-overlay" hidden>
+    <div class="reconfirm-modal" role="alertdialog" aria-modal="true"
+         aria-labelledby="reconfirmModalTitle" aria-describedby="reconfirmModalDesc">
+        <h2 id="reconfirmModalTitle">振込内容をもう一度ご確認ください</h2>
+        <p id="reconfirmModalDesc">この振込は、高額な振込または初めての振込先への振込です。</p>
+        <p>
+            <label>
+                <input type="checkbox" id="reconfirmCheck1"/>
+                振込先・口座名義・振込金額に間違いありません
+            </label>
+        </p>
+        <p>
+            <label>
+                <input type="checkbox" id="reconfirmCheck2"/>
+                電話やSNSなどで、知らない相手から振込を指示されていません
+            </label>
+        </p>
+        <p class="reconfirm-modal__actions">
+            <button type="button" id="reconfirmBackButton" class="reconfirm-modal__back-btn">戻って確認する</button>
+            <button type="button" id="reconfirmConfirmButton" class="reconfirm-modal__confirm-btn" disabled>確認して振り込む</button>
+        </p>
+    </div>
+</div>
+
 <script th:inline="javascript" src="/js/bankTransferConfirmation.js"></script>
 </div>
 </body>
