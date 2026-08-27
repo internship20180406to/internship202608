@@ -21,11 +21,18 @@ mysql -uroot -p --default-character-set=utf8mb4 internship < 04_alter.sql
 
 | ファイル | 内容 | 再実行 |
 |---|---|---|
-| `01_schema.sql` | 金融機関マスタ・支店マスタ・口座残高テーブルの作成 | 何度でも可 |
+| `01_schema.sql` | 金融機関マスタ・支店マスタ・口座残高・**投資信託の申込**テーブルの作成 | 何度でも可 |
 | `02_master_data.sql` | 金融機関・支店の初期データ | 何度でも可 |
 | `03_balance_data.sql` | 動作確認用の口座と残高（流し直すと残高が初期値に戻る） | 何度でも可 |
-| `04_alter.sql` | 申込テーブルへのコード列追加と、既存データの移行 | **一度だけ** |
-| `05_not_null.sql` | コード列を NOT NULL にする | **一度だけ・Repository改修後** |
+| `04_alter.sql` | 申込テーブルへのコード列追加と、既存データの移行 | **一度だけ・既存環境のみ** |
+| `05_not_null.sql` | コード列を NOT NULL にし、桁数をマスタに合わせる | **一度だけ・Repository改修後** |
+
+新しく作った環境では `04_alter.sql` は実行しません。`01_schema.sql` が最初からコード列を含む形で
+申込テーブルを作るためです（流すと `Duplicate column name 'bankCode'` になるだけ）。
+必要なのは「コード列が無い時代のテーブルが既にある環境」だけです。
+
+テーブル定義は `01_schema.sql` に集約しています。**リポジトリ外の古い create table スクリプトは使わないでください。**
+流すとコード列の無い構造に戻り、申込時に `Unknown column 'bankCode'` で失敗するようになります。
 
 `04_alter.sql` は2回目を実行すると `Duplicate column name 'bankCode'` で止まります。
 MySQLの `ALTER TABLE` には `ADD COLUMN IF NOT EXISTS` が無いため、他のファイルのように

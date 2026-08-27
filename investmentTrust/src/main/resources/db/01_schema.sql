@@ -78,3 +78,38 @@ CREATE TABLE IF NOT EXISTS account_balance (
     CONSTRAINT chk_balance_not_negative CHECK (balance >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
   COMMENT='口座残高';
+
+-- ----------------------------------------------------------------------------
+-- 投資信託の申込
+--
+-- ★この定義をここに置いている理由:
+--   以前はテーブル作成用のSQLがリポジトリの外（手元の資料など）にあり、
+--   それを流し直すとコード列の無い古い構造に戻ってしまった。
+--   定義をこのファイルに一本化しておけば、テーブルを作り直しても正しい形に戻せる。
+--   古い create table のスクリプトは、もう使わないこと。
+--
+-- ★コードと名称の両方を持たせている。
+--   コードだけでも正規化としては足りるが、名称も「申込時点のスナップショット」として
+--   残しておくと、あとからマスタの名称が変わっても当時どう表示されていたかが分かる。
+--   マスタへの外部キーはあえて張っていない
+--   （マスタから消えた金融機関の申込データも、そのまま残せるようにするため）。
+--
+-- ★bankCode / branchCode はNULL許容で作る。
+--   既存環境を移行した直後（04_alter.sql を流した状態）と同じ形に揃えるため。
+--   NOT NULLにするのは 05_not_null.sql の役割で、新規・既存どちらの環境も
+--   05を流した時点で同じ形になる。
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS investmentTrust_table (
+    id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    bankCode        CHAR(4)      NULL COMMENT '金融機関コード4桁',
+    branchCode      CHAR(3)      NULL COMMENT '支店コード3桁',
+    bankName        VARCHAR(20)  NULL COMMENT '申込時点の金融機関名。bank_masterに合わせて20文字',
+    branchName      VARCHAR(20)  NULL COMMENT '申込時点の支店名',
+    bankAccountType VARCHAR(5)   NULL COMMENT '科目（普通/当座/貯蓄/その他）',
+    bankAccountNum  CHAR(7)      NULL COMMENT '口座番号7桁。先頭の0が意味を持つのでCHAR',
+    name            VARCHAR(20)  NULL COMMENT '購入者名（半角カナ）',
+    fundName        VARCHAR(20)  NULL COMMENT '銘柄名',
+    money           INT          NULL COMMENT '購入金額（円）',
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+  COMMENT='投資信託の申込';

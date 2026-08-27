@@ -39,5 +39,19 @@ ALTER TABLE investmenttrust_table
     MODIFY COLUMN bankCode   CHAR(4) NOT NULL COMMENT '金融機関コード4桁',
     MODIFY COLUMN branchCode CHAR(3) NOT NULL COMMENT '支店コード3桁';
 
+-- ----------------------------------------------------------------------------
+-- 3) 金融機関名の桁数をマスタに合わせる
+--
+-- 申込テーブルの bankName は varchar(7) で作られていた。
+-- 一方 bank_master.bankName は VARCHAR(20) なので、8文字以上の金融機関名を
+-- マスタに追加した瞬間、申込のINSERTが桁あふれで失敗するようになる。
+-- 今のマスタは最長6文字（山陰共同銀行）なので表面化していないが、先に揃えておく。
+--
+-- ※01_schema.sql は最初から VARCHAR(20) で作るので、
+--   新規環境と既存環境がこの時点で同じ形になる。
+-- ----------------------------------------------------------------------------
+ALTER TABLE investmenttrust_table
+    MODIFY COLUMN bankName VARCHAR(20) NULL COMMENT '申込時点の金融機関名';
+
 -- 確認用
 SHOW COLUMNS FROM investmenttrust_table;
