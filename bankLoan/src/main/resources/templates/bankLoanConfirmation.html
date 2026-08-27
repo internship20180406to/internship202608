@@ -26,120 +26,132 @@
 
             <h1>カードローン申込確認</h1>
 
-        <p class="confirmation-message">
-            以下の内容をご確認ください。
-        </p>
+            <p class="confirmation-message">
+                以下の内容をご確認ください。
+            </p>
 
-        <form id="bankLoanConfirmationForm"
-              th:action="@{/bankLoanCompletion}"
-              th:object="${bankLoanApplication}"
-              method="post">
+            <form id="bankLoanConfirmationForm"
+                  th:action="@{/bankLoanCompletion}"
+                  th:object="${bankLoanApplication}"
+                  method="post">
 
-            <div class="confirmation-list">
+                <div class="confirmation-list">
 
-                <div class="confirmation-row">
-                    <span class="confirmation-label">氏名</span>
-                    <span class="confirmation-value">
+                    <div class="confirmation-row">
+                        <span class="confirmation-label">氏名</span>
+                        <span class="confirmation-value">
                         <span th:text="*{lastName}"></span>&nbsp;
                         <span th:text="*{firstName}"></span>
                     </span>
-                </div>
+                    </div>
 
-                <div class="confirmation-row">
-                    <span class="confirmation-label">フリガナ</span>
-                    <span class="confirmation-value">
+                    <div class="confirmation-row">
+                        <span class="confirmation-label">フリガナ</span>
+                        <span class="confirmation-value">
                         <span th:text="*{lastNameKana}"></span>&nbsp;
                         <span th:text="*{firstNameKana}"></span>
                     </span>
-                </div>
+                    </div>
 
-                <div class="confirmation-row">
-                    <span class="confirmation-label">生年月日</span>
-                    <span class="confirmation-value"
-                          th:text="*{birthDate}">
+                    <div class="confirmation-row">
+                        <span class="confirmation-label">生年月日</span>
+                        <span class="confirmation-value"
+                              th:text="*{birthDate}">
                     </span>
-                </div>
+                    </div>
 
-                <div class="confirmation-row">
-                    <span class="confirmation-label">金融機関名</span>
-                    <span class="confirmation-value"
-                          th:text="*{bankName}"></span>
-                </div>
+                    <div class="confirmation-row">
+                        <span class="confirmation-label">金融機関名</span>
+                        <span class="confirmation-value"
+                              th:text="*{bankName}"></span>
+                    </div>
 
-                <div class="confirmation-row">
-                    <span class="confirmation-label">支店名</span>
-                    <span class="confirmation-value"
-                          th:text="*{branchName}"></span>
-                </div>
+                    <div class="confirmation-row">
+                        <span class="confirmation-label">支店名</span>
+                        <span class="confirmation-value"
+                              th:text="*{branchName}"></span>
+                    </div>
 
-                <div class="confirmation-row">
-                    <span class="confirmation-label">科目名</span>
-                    <span class="confirmation-value"
-                          th:text="*{bankAccountType}"></span>
-                </div>
+                    <div class="confirmation-row">
+                        <span class="confirmation-label">科目名</span>
+                        <span class="confirmation-value"
+                              th:text="*{bankAccountType}"></span>
+                    </div>
 
-                <div class="confirmation-row">
-                    <span class="confirmation-label">口座番号</span>
-                    <span class="confirmation-value"
-                          th:text="*{bankAccountNum}"></span>
-                </div>
+                    <div class="confirmation-row">
+                        <span class="confirmation-label">口座番号</span>
 
-                <div class="confirmation-row">
-                    <span class="confirmation-label">借入金額</span>
-                    <span class="confirmation-value">
+                        <span class="confirmation-value account-number-confirm-area">
+
+                    <input type="password"
+                           id="bankAccountNumConfirm"
+                           th:value="*{bankAccountNum}"
+                           class="account-number-confirm"
+                           readonly>
+                        <button type="button"
+                                id="toggleAccountNumberConfirm"
+                                class="account-toggle-button">
+                            表示
+                        </button>
+
+                        </span>
+                    </div>
+                    <div class="confirmation-row">
+                        <span class="confirmation-label">借入金額</span>
+                        <span class="confirmation-value">
                         <span th:text="*{loanAmount}"></span>万円
                     </span>
-                </div>
+                    </div>
 
-                <div class="confirmation-row">
-                    <span class="confirmation-label">年収</span>
-                    <span class="confirmation-value">
+                    <div class="confirmation-row">
+                        <span class="confirmation-label">年収</span>
+                        <span class="confirmation-value">
                         <span th:text="*{annualIncome}"></span>万円
                     </span>
-                </div>
+                    </div>
 
-                <div class="confirmation-row">
-                    <span class="confirmation-label">金利</span>
-                    <span class="confirmation-value">
+                    <div class="confirmation-row">
+                        <span class="confirmation-label">金利</span>
+                        <span class="confirmation-value">
                         <span th:text="*{interestRate}"></span>％
                     </span>
+                    </div>
+
                 </div>
 
-            </div>
+                <input type="hidden" name="bankName" th:value="*{bankName}"/>
+                <input type="hidden" name="branchName" th:value="*{branchName}"/>
+                <input type="hidden" name="bankAccountType" th:value="*{bankAccountType}"/>
+                <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
+                <input type="hidden" name="lastName" th:value="*{lastName}"/>
+                <input type="hidden" name="firstName" th:value="*{firstName}"/>
+                <input type="hidden" name="lastNameKana" th:value="*{lastNameKana}"/>
+                <input type="hidden" name="firstNameKana" th:value="*{firstNameKana}"/>
+                <input type="hidden" name="birthDate" th:value="*{birthDate}"/>
+                <input type="hidden" name="loanAmount" th:value="*{loanAmount}"/>
+                <input type="hidden" name="annualIncome" th:value="*{annualIncome}"/>
+                <input type="hidden" name="interestRate" th:value="*{interestRate}"/>
 
-            <input type="hidden" name="bankName" th:value="*{bankName}"/>
-            <input type="hidden" name="branchName" th:value="*{branchName}"/>
-            <input type="hidden" name="bankAccountType" th:value="*{bankAccountType}"/>
-            <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
-            <input type="hidden" name="lastName" th:value="*{lastName}"/>
-            <input type="hidden" name="firstName" th:value="*{firstName}"/>
-            <input type="hidden" name="lastNameKana" th:value="*{lastNameKana}"/>
-            <input type="hidden" name="firstNameKana" th:value="*{firstNameKana}"/>
-            <input type="hidden" name="birthDate" th:value="*{birthDate}"/>
-            <input type="hidden" name="loanAmount" th:value="*{loanAmount}"/>
-            <input type="hidden" name="annualIncome" th:value="*{annualIncome}"/>
-            <input type="hidden" name="interestRate" th:value="*{interestRate}"/>
+                <div class="button-area">
 
-            <div class="button-area">
+                    <input type="button"
+                           value="キャンセル"
+                           class="form-button cancel-button"
+                           onclick="window.location='/bankLoan';"/>
 
-                <input type="button"
-                       value="キャンセル"
-                       class="form-button cancel-button"
-                       onclick="window.location='/bankLoan';"/>
+                    <input type="submit"
+                           id="submitButton"
+                           value="申込"
+                           class="form-button submit-button"/>
 
-                <input type="submit"
-                       id="submitButton"
-                       value="申込"
-                       class="form-button submit-button"/>
+                </div>
 
-            </div>
+            </form>
 
-        </form>
-
+        </div>
     </div>
-</div>
-
-<script src="/js/bankLoanConfirmation.js"></script>
+    </div>
+    <script src="/js/bankLoanConfirmation.js"></script>
 
 </body>
 </html>

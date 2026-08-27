@@ -7,12 +7,10 @@ const branchNameSelect = document.getElementById('branchName');
 const branchSearch = document.getElementById('branchSearch');
 const selectedBranchInput = document.getElementById('selectedBranch');
 
-const bankAccountTypeInput =
-    document.getElementById('bankAccountType');
-
-const bankAccountNumInput =
-    document.getElementById('bankAccountNum');
-
+const bankAccountTypeInputs =
+    document.querySelectorAll(
+        'input[name="bankAccountType"]'
+    );
 
 const loanAmountInput =
     document.getElementById('loanAmount');
@@ -41,6 +39,12 @@ const firstNameKanaInput =
 const birthDateInput =
     document.getElementById('birthDate');
 
+const toggleAccountNumberButton =
+    document.getElementById('toggleAccountNumber');
+
+const bankAccountNumInput =
+    document.getElementById('bankAccountNum');
+
 // ==============================
 // クライアントエラー表示
 // ==============================
@@ -54,17 +58,11 @@ const branchNameError =
 const bankAccountTypeError =
     document.getElementById('bankAccountTypeClientError');
 
-const bankAccountNumError =
-    document.getElementById('bankAccountNumClientError');
-
 const loanAmountError =
     document.getElementById('loanAmountClientError');
 
 const annualIncomeError =
     document.getElementById('annualIncomeClientError');
-
-const interestRateError =
-    document.getElementById('interestRateClientError');
 
 const loanLimitError =
     document.getElementById('loanLimitClientError');
@@ -84,6 +82,9 @@ const firstNameKanaError =
 const birthDateError =
     document.getElementById('birthDateClientError');
 
+const bankAccountNumError =
+    document.getElementById('bankAccountNumClientError');
+
 
 // ==============================
 // Spring側エラー
@@ -97,6 +98,9 @@ const birthDateServerError =
 
 const ageServerError =
     document.getElementById('ageServerError');
+
+const bankAccountNumServerError =
+    document.getElementById('bankAccountNumServerError');
 
 const annualIncome = document.getElementById('annualIncome');
 
@@ -155,12 +159,28 @@ function calculateLoanLimit() {
 function clearForm() {
     const form = document.querySelector('form');
 
-    form.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+    form.querySelectorAll(
+        'input[type="text"], input[type="number"], input[type="password"], input[type="date"]'
+    ).forEach(input => {
         input.value = '';
     });
 
     form.querySelectorAll('select').forEach(select => {
         select.selectedIndex = 0;
+    });
+
+    form.querySelectorAll(
+        'input[type="radio"]'
+    ).forEach(radio => {
+        radio.checked = false;
+    });
+
+    form.querySelectorAll('select').forEach(select => {
+        select.selectedIndex = 0;
+    });
+
+    form.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.checked = false;
     });
 
     form.querySelectorAll('.server-error').forEach(error => {
@@ -385,6 +405,7 @@ function clearServerError(element) {
 
     const container =
         element.closest('.name-field') ||
+        element.closest('.form-group') ||
         element.closest('p');
 
     if (!container) {
@@ -456,40 +477,57 @@ branchNameInput.addEventListener('blur', validateBranchName);
 
 function validateBankAccountType() {
 
-    clearServerError(bankAccountTypeInput);
+    const checked =
+        document.querySelector(
+            'input[name="bankAccountType"]:checked'
+        );
 
-    const value = bankAccountTypeInput.value.trim();
+    // Spring側のエラーを消す
+    const firstRadio = bankAccountTypeInputs[0];
 
-    if (value === '') {
-        bankAccountTypeError.textContent = '科目を選択してください';
+    if (firstRadio) {
+        clearServerError(firstRadio);
+    }
+
+    if (!checked) {
+        bankAccountTypeError.textContent =
+            '科目を選択してください';
     } else {
         bankAccountTypeError.textContent = '';
     }
 }
 
-bankAccountTypeInput.addEventListener('input', validateBankAccountType);
-bankAccountTypeInput.addEventListener('blur', validateBankAccountType);
-
 
 function validateBankAccountNum() {
 
-    clearServerError(bankAccountNumInput);
+    // Spring側の古いエラーを消す
+    if (bankAccountNumServerError) {
+        bankAccountNumServerError.textContent = '';
+    }
 
-    const value = bankAccountNumInput.value.trim();
+    const value =
+        bankAccountNumInput.value.trim();
 
     if (value === '') {
-        bankAccountNumError.textContent = '口座番号を入力してください';
+
+        bankAccountNumError.textContent =
+            '口座番号を入力してください';
+
     } else if (!/^[0-9]+$/.test(value)) {
-        bankAccountNumError.textContent = '口座番号は数字で入力してください';
+
+        bankAccountNumError.textContent =
+            '口座番号は数字で入力してください';
+
     } else if (value.length !== 7) {
-        bankAccountNumError.textContent = '口座番号は7桁で入力してください';
+
+        bankAccountNumError.textContent =
+            '口座番号は7桁で入力してください';
+
     } else {
+
         bankAccountNumError.textContent = '';
     }
 }
-
-bankAccountNumInput.addEventListener('input', validateBankAccountNum);
-bankAccountNumInput.addEventListener('blur', validateBankAccountNum);
 
 
 function validateAnnualIncome() {
@@ -632,7 +670,7 @@ function validateBirthDate() {
         age--;
     }
 
-    if (age <= 21) {
+    if (age <= 19) {
         birthDateError.textContent =
             '20歳未満の方はお申し込みいただけません';
     } else {
@@ -764,6 +802,22 @@ setInterval(
     1000
 );
 
+toggleAccountNumberButton.addEventListener(
+    'click',
+    function () {
+
+        if (bankAccountNumInput.type === 'password') {
+
+            bankAccountNumInput.type = 'text';
+            this.textContent = '隠す';
+
+        } else {
+
+            bankAccountNumInput.type = 'password';
+            this.textContent = '表示';
+        }
+    }
+);
 
 lastNameInput.addEventListener('input', validateLastName);
 lastNameInput.addEventListener('blur', validateLastName);
@@ -805,4 +859,23 @@ birthDateInput.addEventListener(
 birthDateInput.addEventListener(
     'blur',
     validateBirthDate
+);
+
+bankAccountTypeInputs.forEach(function(radio) {
+
+    radio.addEventListener(
+        'change',
+        validateBankAccountType
+    );
+
+});
+
+bankAccountNumInput.addEventListener(
+    'input',
+    validateBankAccountNum
+);
+
+bankAccountNumInput.addEventListener(
+    'blur',
+    validateBankAccountNum
 );

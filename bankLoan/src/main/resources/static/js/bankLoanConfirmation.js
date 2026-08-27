@@ -26,3 +26,26 @@ form.addEventListener('submit', async function(event) {
         form.submit();
     }
 });
+
+const bankAccountNumConfirm =
+    document.getElementById('bankAccountNumConfirm');
+
+const toggleAccountNumberConfirm =
+    document.getElementById('toggleAccountNumberConfirm');
+
+toggleAccountNumberConfirm.addEventListener(
+    'click',
+    function () {
+
+        if (bankAccountNumConfirm.type === 'password') {
+
+            bankAccountNumConfirm.type = 'text';
+            this.textContent = '隠す';
+
+        } else {
+
+            bankAccountNumConfirm.type = 'password';
+            this.textContent = '表示';
+        }
+    }
+);

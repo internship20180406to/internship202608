@@ -89,7 +89,7 @@ public class BankLoanForm {
                 LocalDate.now()
         ).getYears();
 
-        return age >= 20;
+        return age >= 19;
     }
 
 

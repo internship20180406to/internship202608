@@ -318,3 +318,56 @@ select.form-control {
         font-size: 11px;
     }
 }
+
+.radio-group {
+    display: flex;
+    gap: 28px;
+    margin-top: 10px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+
+    cursor: pointer;
+}
+
+.account-number-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.account-number-area .form-control {
+    flex: 1;
+}
+
+.account-toggle-button {
+    min-width: 70px;
+    padding: 11px 12px;
+
+    border: 1px solid #cfd8dc;
+    border-radius: 6px;
+
+    background-color: #eceff1;
+    color: #455a64;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.account-toggle-button:hover {
+    background-color: #dfe3e6;
+}

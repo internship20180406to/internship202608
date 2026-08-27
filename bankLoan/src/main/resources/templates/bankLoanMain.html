@@ -130,133 +130,183 @@
                 </span>
             </p>
 
-        <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankName}"
-                    id="bankName"
-                    class="form-control">
-                <option value="">選択してください</option>
+            <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
+                <select th:field="*{bankName}"
+                        id="bankName"
+                        class="form-control">
+                    <option value="">選択してください</option>
 
-                <option th:each="option : ${nameOptions}"
-                        th:value="${option}"
-                        th:text="${option}">選択肢
-                </option>
-            </select>
+                    <option th:each="option : ${nameOptions}"
+                            th:value="${option}"
+                            th:text="${option}">選択肢
+                    </option>
+                </select>
 
-            <span id="bankNameClientError"
-                  class="text-danger client-error">
+                <span id="bankNameClientError"
+                      class="text-danger client-error">
             </span>
-            <span class="text-danger server-error"
-                  th:if="${#fields.hasErrors('bankName')}"
-                  th:errors="*{bankName}">
+                <span class="text-danger server-error"
+                      th:if="${#fields.hasErrors('bankName')}"
+                      th:errors="*{bankName}">
             </span>
-        </p>
+            </p>
 
-        <p>
-            <label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
+            <p>
+                <label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
 
-            <input type="text"
-                   id="branchSearch"
-                   class="form-control"
-                   placeholder="支店名を検索">
+                <input type="text"
+                       id="branchSearch"
+                       class="form-control"
+                       placeholder="支店名を検索">
 
-            <select th:field="*{branchName}"
-                    id="branchName"
-                    class="form-control"
-                    th:data-selected="${branchName}">
+                <select th:field="*{branchName}"
+                        id="branchName"
+                        class="form-control"
+                        th:data-selected="${branchName}">
 
-                <option value="">金融機関を先に選択してください</option>
-            </select>
+                    <option value="">金融機関を先に選択してください</option>
+                </select>
 
-            <input type="hidden"
-                   id="selectedBranch"
-                   th:value="*{branchName}">
+                <input type="hidden"
+                       id="selectedBranch"
+                       th:value="*{branchName}">
 
-            <span class="text-danger server-error"
-                  th:if="${#fields.hasErrors('branchName')}"
-                  th:errors="*{branchName}">
+                <span class="text-danger server-error"
+                      th:if="${#fields.hasErrors('branchName')}"
+                      th:errors="*{branchName}">
             </span>
-            <span id="branchNameClientError"
-                  class="text-danger client-error"></span>
-        </p>
+                <span id="branchNameClientError"
+                      class="text-danger client-error"></span>
+            </p>
 
-        <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{bankAccountType}"
-                    id="bankAccountType"
-                    class="form-control">
-                <option value="">選択してください</option>
-                <option value="普通預金">普通預金</option>
-                <option value="当座預金">当座預金</option>
-            </select>
+            <p>
+                <label class="ml-1">
+                    科目名:
+                    <small class="text-danger ml-1">※</small>
+                </label>
+
+            <div class="radio-group">
+
+                <label class="radio-label">
+                    <input type="radio"
+                           th:field="*{bankAccountType}"
+                           value="普通預金">
+                    普通預金
+                </label>
+
+                <label class="radio-label">
+                    <input type="radio"
+                           th:field="*{bankAccountType}"
+                           value="当座預金">
+                    当座預金
+                </label>
+
+            </div>
 
             <span class="text-danger server-error"
                   th:if="${#fields.hasErrors('bankAccountType')}"
                   th:errors="*{bankAccountType}">
-            </span>
+                </span>
+
             <span id="bankAccountTypeClientError"
-                  class="text-danger client-error"></span>
+                  class="text-danger client-error">
+                </span>
+            </p>
 
-        </p>
+            <p>
+            <div class="form-group">
+                <label for="bankAccountNum">
+                    口座番号:
+                    <small class="text-danger">※</small>
+                </label>
 
-        <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text"
-                   th:field="*{bankAccountNum}"
-                   id="bankAccountNum"
-                   maxlength="7"
-                   inputmode="numeric"
-                   class="form-control"
-                   placeholder="1234567"/>
-            <span class="text-danger server-error"
-                  th:if="${#fields.hasErrors('bankAccountNum')}"
-                  th:errors="*{bankAccountNum}">
+                <div class="account-number-area">
+
+                    <input type="password"
+                           th:field="*{bankAccountNum}"
+                           id="bankAccountNum"
+                           maxlength="7"
+                           inputmode="numeric"
+                           class="form-control"
+                           placeholder="1234567">
+
+                    <button type="button"
+                            id="toggleAccountNumber"
+                            class="account-toggle-button">
+                        表示
+                    </button>
+
+                </div>
+
+                <span id="bankAccountNumServerError"
+                      class="text-danger server-error"
+                      th:if="${#fields.hasErrors('bankAccountNum')}"
+                      th:errors="*{bankAccountNum}">
             </span>
-            <span id="bankAccountNumClientError"
-                  class="text-danger client-error"></span>
-        </p>
 
-        <p><label class="ml-1">年収（万円）: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text"
-                   th:field="*{annualIncome}"
-                   id="annualIncome"
-                   inputmode="numeric"
-                   maxlength="6"
-                   class="form-control"
-                   placeholder="500"/>
-            <span class="text-danger server-error"
-                  th:if="${#fields.hasErrors('annualIncome')}"
-                  th:errors="*{annualIncome}">
-            </span>
-            <span id="annualIncomeClientError"
-                  class="text-danger client-error"></span>
-            <div class="loan-limit-box">
-                <span id="loanLimit">年収を入力してください</span>
+                <span id="bankAccountNumClientError"
+                      class="text-danger client-error">
+                </span>
+
             </div>
-        </p>
+            </p>
 
-        <p><label class="ml-1">希望借入金額（万円）: <small class="text-danger ml-1">※</small></label><br>
-            <input type="text"
-                   th:field="*{loanAmount}"
-                   id="loanAmount"
-                   inputmode="numeric"
-                   maxlength="4"
-                   class="form-control"
-                   placeholder="300"/>
+            <p>
+                <label class="ml-1">
+                    年収（万円）:
+                    <small class="text-danger ml-1">※</small>
+                </label>
+                <br>
 
-            <span id="loanAmountClientError"
-                  class="text-danger client-error">
+                <input type="text"
+                       th:field="*{annualIncome}"
+                       id="annualIncome"
+                       inputmode="numeric"
+                       maxlength="6"
+                       class="form-control"
+                       placeholder="500">
+
+                <span class="text-danger server-error"
+                      th:if="${#fields.hasErrors('annualIncome')}"
+                      th:errors="*{annualIncome}">
+    </span>
+
+                <span id="annualIncomeClientError"
+                      class="text-danger client-error">
+    </span>
+
+            <div class="loan-limit-box">
+        <span id="loanLimit">
+            年収を入力してください
+        </span>
+            </div>
+            </p>
+
+            <p><label class="ml-1">希望借入金額（万円）: <small class="text-danger ml-1">※</small></label><br>
+                <input type="text"
+                       th:field="*{loanAmount}"
+                       id="loanAmount"
+                       inputmode="numeric"
+                       maxlength="4"
+                       class="form-control"
+                       placeholder="300"/>
+
+                <span id="loanAmountClientError"
+                      class="text-danger client-error">
             </span>
-            <span class="text-danger server-error"
-                  th:if="${#fields.hasErrors('loanAmount')}"
-                  th:errors="*{loanAmount}">
+                <span class="text-danger server-error"
+                      th:if="${#fields.hasErrors('loanAmount')}"
+                      th:errors="*{loanAmount}">
             </span>
-            <span id="loanLimitClientError"
-                  class="text-danger client-error">
+                <span id="loanLimitClientError"
+                      class="text-danger client-error">
             </span>
-            <span id="loanLimitServerError"
-                  class="text-danger server-error"
-                  th:if="${#fields.hasErrors('loanAmountWithinLimit')}"
-                  th:errors="*{loanAmountWithinLimit}">
+                <span id="loanLimitServerError"
+                      class="text-danger server-error"
+                      th:if="${#fields.hasErrors('loanAmountWithinLimit')}"
+                      th:errors="*{loanAmountWithinLimit}">
             </span>
-        </p>
+            </p>
             <p>
                 <label>
                     金利（％）
@@ -265,16 +315,16 @@
                     </small>
                 </label>
 
-                <div class="interest-rate-box">
-                    <span id="interestRateDisplay">％</span>
-                </div>
+            <div class="interest-rate-box">
+                <span id="interestRateDisplay">％</span>
+            </div>
 
-                <input type="hidden"
-                       th:field="*{interestRate}"
-                       id="interestRate">
+            <input type="hidden"
+                   th:field="*{interestRate}"
+                   id="interestRate">
             </p>
 
-        <p style="text-align: center;">
+            <p style="text-align: center;">
             <div class="button-area">
                 <input type="button"
                        value="クリア"
@@ -283,7 +333,7 @@
                 <input type="submit"
                        value="確認画面へ"
                        class="form-control-button confirm-button">
-                </div>
+            </div>
             </p>
         </form>
     </div>

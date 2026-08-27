@@ -231,3 +231,43 @@ h1 {
         font-size: 11px;
     }
 }
+
+.account-number-confirm-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.account-number-confirm {
+    flex: 1;
+    min-width: 0;
+
+    padding: 8px 10px;
+
+    border: 1px solid #dfe5e8;
+    border-radius: 5px;
+
+    background-color: #f8fafb;
+    color: #263238;
+
+    font-size: 15px;
+}
+
+.account-toggle-button {
+    padding: 8px 12px;
+
+    border: 1px solid #cfd8dc;
+    border-radius: 5px;
+
+    background-color: #eceff1;
+    color: #455a64;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.account-toggle-button:hover {
+    background-color: #dfe3e6;
+}
