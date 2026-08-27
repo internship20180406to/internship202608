@@ -2,13 +2,10 @@ package com.example.internship.controller;
 
 import com.example.internship.constant.InvestmentTrustOptions;
 import com.example.internship.entity.AccountBalance;
-import com.example.internship.entity.Bank;
-import com.example.internship.entity.Branch;
 import com.example.internship.entity.InvestmentTrustForm;
-import com.example.internship.service.AccountBalanceService;
-import com.example.internship.service.BankMasterService;
 import com.example.internship.service.InsufficientBalanceException;
 import com.example.internship.service.OrderInvestmentTrustService;
+import com.example.internship.validation.InvestmentTrustValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -23,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Controller
@@ -32,22 +28,16 @@ public class InvestmentTrustController {
     /** 入力画面のビュー名。入力エラー時の差し戻し先としても使う */
     private static final String MAIN_VIEW = "investmentTrustMain";
 
-    /**
-     * 口座を特定する4項目。
-     * この4つは「組み合わせ」で1つの口座を指すので、口座が見つからないときは
-     * まとめてエラーにする（下の rejectAccountCombination を参照）。
-     */
-    private static final List<String> ACCOUNT_KEY_FIELDS =
-            List.of("bankCode", "branchCode", "bankAccountType", "bankAccountNum");
-
     @Autowired
     private OrderInvestmentTrustService orderInvestmentTrustService;
 
+    /**
+     * マスタ照会や残高確認といった、アノテーションでは書けない判定はここが持っている。
+     * チャットUIのAPI（InvestmentTrustApiController）も同じものを使うので、
+     * 判定を足すときは必ずこのクラス側に足すこと。
+     */
     @Autowired
-    private BankMasterService bankMasterService;
-
-    @Autowired
-    private AccountBalanceService accountBalanceService;
+    private InvestmentTrustValidator investmentTrustValidator;
 
     /**
      * 送信された文字列の前後の空白を取り除き、空文字はnullに変換する。
@@ -84,7 +74,7 @@ public class InvestmentTrustController {
     public String confirmation(
             @Valid @ModelAttribute("investmentTrustApplication") InvestmentTrustForm investmentTrustForm,
             BindingResult bindingResult, Model model) {
-        AccountBalance balance = validateSelectedOptions(investmentTrustForm, bindingResult);
+        AccountBalance balance = investmentTrustValidator.validate(investmentTrustForm, bindingResult);
         if (bindingResult.hasErrors()) {
             return MAIN_VIEW;   // エラーがあれば確認画面に進ませず、入力画面に戻して理由を表示する
         }
@@ -113,7 +103,7 @@ public class InvestmentTrustController {
         // 確認画面はhidden項目で値を持ち回っているだけなので、登録直前にもう一度検証する。
         // 金融機関名・支店名もここでマスタから引き直されるため、
         // hidden項目を書き換えて別の名称を登録させることはできない。
-        validateSelectedOptions(investmentTrustForm, bindingResult);
+        investmentTrustValidator.validate(investmentTrustForm, bindingResult);
         if (bindingResult.hasErrors()) {
             return MAIN_VIEW;
         }
@@ -145,111 +135,4 @@ public class InvestmentTrustController {
         }
         return "investmentTrustCompletion";
     }
-
-    /**
-     * 画面の選択肢・マスタに存在しない値が送られてきていないかを確認し、
-     * 併せて対象の口座を返す。エラーがあって口座を特定できない場合はnullを返す。
-     */
-    private AccountBalance validateSelectedOptions(InvestmentTrustForm form, BindingResult bindingResult) {
-        validateAndResolveMaster(form, bindingResult);
-        rejectIfNotAllowed(bindingResult, "bankAccountType", form.getBankAccountType(),
-                InvestmentTrustOptions.ACCOUNT_TYPES, "科目名を選択してください。");
-        rejectIfNotAllowed(bindingResult, "fundName", form.getFundName(),
-                InvestmentTrustOptions.FUND_NAMES, "銘柄を選択してください。");
-        return validateAccountAndBalance(form, bindingResult);
-    }
-
-    /**
-     * 口座が実在するかと、残高が購入金額に足りているかを確認する。
-     *
-     * ここでの残高チェックは「申込前に気づかせる」ためのもので、最終的な判定ではない。
-     * この確認から実際の引き落としまでの間に別の申込で残高が減る可能性があるため、
-     * 引き落とし自体もUPDATE文の中で残高を判定している
-     * （AccountBalanceRepository#withdraw を参照）。
-     */
-    private AccountBalance validateAccountAndBalance(InvestmentTrustForm form, BindingResult bindingResult) {
-        // 口座は「金融機関コード＋支店コード＋科目＋口座番号」の4点で決まるので、
-        // どれか1つでもエラーになっていると口座を特定できない。
-        if (bindingResult.hasFieldErrors("bankCode") || bindingResult.hasFieldErrors("branchCode")
-                || bindingResult.hasFieldErrors("bankAccountType")
-                || bindingResult.hasFieldErrors("bankAccountNum")) {
-            return null;
-        }
-
-        Optional<AccountBalance> account = accountBalanceService.findByForm(form);
-        if (account.isEmpty()) {
-            rejectAccountCombination(bindingResult,
-                    "入力された口座は登録されていません。金融機関・支店・科目・口座番号の組み合わせをご確認ください。");
-            return null;
-        }
-
-        // 金額そのものが不正（未入力・範囲外）なら、残高との比較はしない
-        if (!bindingResult.hasFieldErrors("money") && account.get().getBalance() < form.getMoney()) {
-            bindingResult.rejectValue("money", "insufficientBalance",
-                    String.format("残高が不足しています。（残高: %,d円）", account.get().getBalance()));
-        }
-        return account.get();
-    }
-
-    /**
-     * 金融機関コード・支店コードが実在するかをマスタに問い合わせ、
-     * あわせて画面表示・登録に使う名称をフォームに詰める。
-     *
-     * 画面のJSもAjaxで同じことをしているが、JSは開発者ツールで無効化できるので、
-     * ここでの確認が最終的な判定になる。
-     *
-     * 名称は「画面から送られてきた値」ではなく「今マスタに入っている値」を使う。
-     * こうすることで、コードと名称が食い違った組み合わせを送り込まれても影響を受けない。
-     */
-    private void validateAndResolveMaster(InvestmentTrustForm form, BindingResult bindingResult) {
-        // 金融機関:書式エラー（未入力・4桁でない）が既に付いているならマスタ照会はしない。
-        // 1つの項目にメッセージを重ねて出さないため。
-        Optional<Bank> bank = Optional.empty();
-        if (!bindingResult.hasFieldErrors("bankCode")) {
-            bank = bankMasterService.findBank(form.getBankCode());
-            if (bank.isEmpty()) {
-                bindingResult.rejectValue("bankCode", "notFound", "該当する金融機関がありません。");
-            }
-        }
-        form.setBankName(bank.map(Bank::getBankName).orElse(null));
-
-        // 支店:金融機関が確定していないと「その銀行に実在する支店か」を判定できないので、
-        // 金融機関が引けなかった場合は支店の判定を行わない（先に金融機関を直してもらう）。
-        Optional<Branch> branch = Optional.empty();
-        if (bank.isPresent() && !bindingResult.hasFieldErrors("branchCode")) {
-            branch = bankMasterService.findBranch(form.getBankCode(), form.getBranchCode());
-            if (branch.isEmpty()) {
-                bindingResult.rejectValue("branchCode", "notFound", "該当する支店がありません。");
-            }
-        }
-        form.setBranchName(branch.map(Branch::getBranchName).orElse(null));
-    }
-
-    /**
-     * 口座を特定する4項目をまとめてエラーにする。
-     *
-     * 「口座が見つからない」のは4つの値の“組み合わせ”に対するエラーで、
-     * どれか1つが間違っていると分かっているわけではない。
-     * 口座番号だけを赤くすると「口座番号が間違っている」と読み取られてしまうため、
-     *   ・理由はフォーム全体のエラーとして1回だけ表示する
-     *   ・4項目は色（赤枠）だけで示し、同じ文言を4回並べない
-     * という形にしている。
-     */
-    private void rejectAccountCombination(BindingResult bindingResult, String message) {
-        bindingResult.reject("accountNotFound", message);
-        // メッセージを空文字にすると、項目の下には何も出ず赤枠だけが付く
-        ACCOUNT_KEY_FIELDS.forEach(field -> bindingResult.rejectValue(field, "accountNotFound", ""));
-    }
-
-    private void rejectIfNotAllowed(BindingResult bindingResult, String field, String value,
-                                    List<String> allowedValues, String message) {
-        if (bindingResult.hasFieldErrors(field)) {
-            return;     // 未入力エラーなどが既に付いている項目に、メッセージを重ねて出さない
-        }
-        // List.of で作った不変リストは contains(null) でNPEになるため、nullを先に判定する
-        if (value == null || !allowedValues.contains(value)) {
-            bindingResult.rejectValue(field, "invalidOption", message);
-        }
-    }
-
 }

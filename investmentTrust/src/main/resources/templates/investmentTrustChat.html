@@ -1,0 +1,154 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>投資信託注文情報入力（チャット）</title>
+    <style>
+        body {
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 85vh;
+        overflow: auto;
+        }
+        .content {
+         background-color: #ffffff;
+         width: 80%;
+         max-width: 640px;
+         padding: 20px;
+         border-radius: 10px;
+         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+         box-sizing: border-box;
+         display: flex;
+         flex-direction: column;
+         gap: 16px;
+        }
+        .text-danger { color: red; }
+        .form_hint { color: #666666; font-size: 0.85em; }
+        .chat_head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .chat_head h1 { margin: 0; font-size: 20px; }
+        .chat_head_right { display: flex; align-items: center; gap: 12px; }
+        .progress_label { font-size: 13px; color: #666666; white-space: nowrap; }
+        .progress_track { height: 4px; border-radius: 2px; background-color: #f0f0f0; overflow: hidden; }
+        .progress_bar { height: 100%; background-color: #2185D0; width: 0; transition: width 0.2s ease; }
+        .transcript {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            max-height: 46vh;
+            min-height: 220px;
+            padding: 4px 2px;
+        }
+        .row_bot { display: flex; justify-content: flex-start; }
+        .row_user { display: flex; justify-content: flex-end; align-items: center; gap: 6px; }
+        .bubble_bot {
+            max-width: 82%; background-color: #f0f0f0; color: #1a1a1a;
+            padding: 10px 14px; border-radius: 12px; border-top-left-radius: 3px;
+            font-size: 15px; line-height: 1.6; white-space: pre-line;
+        }
+        .bubble_user {
+            max-width: 82%; background-color: #2185D0; color: #ffffff;
+            padding: 10px 14px; border-radius: 12px; border-top-right-radius: 3px;
+            font-size: 15px; line-height: 1.6; white-space: pre-line;
+        }
+        /* エラーは従来画面の .form_error_summary と同じ見た目にそろえている */
+        .bubble_error {
+            max-width: 82%; border: 1px solid red; background-color: #fff5f5; color: red;
+            padding: 10px 12px; border-radius: 4px;
+            font-size: 15px; line-height: 1.6; white-space: pre-line;
+        }
+        /* 回答にカーソルを合わせたときだけ「編集」を出す。
+           常時出すと吹き出しが賑やかになりすぎるため。
+           タッチ端末にはホバーが無いので、その場合は常時表示にする。 */
+        .edit_button { opacity: 0; transition: opacity 0.12s ease; }
+        .row_user:hover .edit_button { opacity: 1; }
+        .edit_button:focus { opacity: 1; }
+        @media (hover: none) { .edit_button { opacity: 1; } }
+        /* 相手が打っている最中を表す3つの点。時間差で上下させる */
+        @keyframes typing_dot {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+        .typing { background-color: #f0f0f0; padding: 13px 16px; border-radius: 12px;
+                  border-top-left-radius: 3px; display: flex; align-items: center; gap: 4px; }
+        .typing span {
+            width: 7px; height: 7px; border-radius: 50%; background-color: #666666;
+            display: inline-block; animation: typing_dot 1.1s infinite ease-in-out;
+        }
+        .typing span:nth-child(2) { animation-delay: 0.15s; }
+        .typing span:nth-child(3) { animation-delay: 0.3s; }
+        /* 動きを減らす設定にしている利用者には動かさない。点は出したまま */
+        @media (prefers-reduced-motion: reduce) { .typing span { animation: none; opacity: 0.6; } }
+        .composer { border-top: 1px solid #f0f0f0; padding-top: 14px;
+                    display: flex; flex-direction: column; gap: 8px; min-height: 96px; }
+        .composer_row { display: flex; gap: 8px; align-items: stretch; }
+        .chat_input {
+            flex-grow: 1; padding: 10px; font-size: 15px;
+            border: 1px solid #cccccc; border-radius: 4px; box-sizing: border-box; min-height: 44px;
+        }
+        .btn { border: none; border-radius: 5px; cursor: pointer; font-size: 15px; min-height: 44px; padding: 10px 20px; }
+        .btn_primary { background-color: #2185D0; color: #ffffff; }
+        .btn_primary:hover { background-color: #1678c2; }
+        .btn_primary:disabled { background-color: #9dc7ea; cursor: default; }
+        .btn_secondary { background-color: #E0E1E2; color: #000000; }
+        .btn_secondary:hover { background-color: #CCCCCC; }
+        .btn_small { padding: 5px 10px; font-size: 12px; min-height: 0; }
+        .btn_head { padding: 7px 12px; font-size: 13px; min-height: 0;
+                    display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
+        /* 候補一覧は従来画面（.candidate-list）と同じ見た目 */
+        .candidate-list {
+            max-width: 320px; max-height: 168px; overflow-y: auto;
+            border: 1px solid #cccccc; border-radius: 4px; background-color: #ffffff;
+        }
+        .candidate { display: block; padding: 8px 12px; font-size: 15px; cursor: pointer; }
+        .candidate:hover { background-color: #f0f6ff; }
+        .candidate-empty { display: block; padding: 8px 12px; font-size: 15px; color: red; }
+        .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+        .choice {
+            padding: 10px 18px; font-size: 15px; border: 1px solid #cccccc;
+            border-radius: 20px; background-color: #ffffff; color: #1a1a1a;
+            min-height: 44px; cursor: pointer;
+        }
+        .choice:hover { background-color: #f0f6ff; }
+        .summary { border: 1px solid #cccccc; border-radius: 4px; overflow: hidden; }
+        .summary_row { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-bottom: 1px solid #f0f0f0; }
+        .summary_row:last-child { border-bottom: none; }
+        .summary_label { width: 92px; flex-shrink: 0; color: #666666; font-size: 13px; }
+        .summary_value { flex-grow: 1; font-size: 15px; }
+        .actions { display: flex; gap: 8px; justify-content: flex-end; }
+    </style>
+</head>
+<body>
+<div class="content">
+    <div class="chat_head">
+        <h1>投資信託のお申込み</h1>
+        <div class="chat_head_right">
+            <span class="progress_label" id="progressLabel"></span>
+            <a class="btn btn_secondary btn_head" href="/accountRegistration">口座登録</a>
+        </div>
+    </div>
+    <div class="progress_track"><div class="progress_bar" id="progressBar"></div></div>
+
+    <div class="transcript" id="transcript"></div>
+    <div class="composer" id="composer"></div>
+
+    <p class="form_hint"><a href="/menu">メニューへ戻る</a> ｜ <a href="/investmentTrust">フォーム版で入力する</a></p>
+</div>
+
+<!-- 科目・銘柄の選択肢はサーバが持っている定数。
+     JSに書き写すと二重管理になるので、ここから渡している。 -->
+<div id="chatOptions" style="display:none"
+     th:attr="data-types=${#strings.listJoin(typeOptions, ',')},data-funds=${#strings.listJoin(fundOptions, ',')}"></div>
+
+<!-- 半角カナ変換とカンマ整形は、フォーム版と同じ共通部品をそのまま使う -->
+<script src="/js/numberFormat.js"></script>
+<script src="/js/hankakuKana.js"></script>
+<script src="/js/investmentTrustChat.js"></script>
+</body>
+</html>
