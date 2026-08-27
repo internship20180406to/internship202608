@@ -245,6 +245,10 @@
                 <td><span th:text="*{accountType}"></span></td>
             </tr>
             <tr>
+                <th>返済プラン（返済方式）</th>
+                <td><span th:text="*{repaymentMethod}"></span></td>
+            </tr>
+            <tr>
                 <th>返済期間（ローン年数）</th>
                 <td><span id="viewLoanYears" th:text="*{loanYears}"></span>年</td>
             </tr>
@@ -275,6 +279,10 @@
         <input type="hidden" th:field="*{postalCode}"/>
         <input type="hidden" th:field="*{address}"/>
         <input type="hidden" th:field="*{accountType}"/>
+
+        <!-- ★ 返済プランの値を維持するためのhiddenフィールド -->
+        <input type="hidden" th:field="*{repaymentMethod}"/>
+
         <input type="hidden" th:field="*{loanYears}"/>
         <input type="hidden" th:field="*{annualIncome}"/>
         <input type="hidden" th:field="*{loanAmount}"/>

@@ -404,6 +404,7 @@
     const birthDateInput = document.getElementById('birthDate');
     const underageWarning = document.getElementById('underageWarning');
     const accountTypeSelect = document.getElementById('accountType');
+    const repaymentMethodSelect = document.getElementById('repaymentMethod');
     const interestRateInput = document.getElementById('interestRate');
     const loanLimitGuide = document.getElementById('loanLimitGuide');
     const postalCodeInput = document.getElementById('postalCode');
@@ -595,17 +596,45 @@
             branchNameSelect.disabled = false;
         }
 
-        updateBranchOptions(initialBranchValue);
-        initBirthDateSettings();
-        checkAgeWarning();
-        updateLoanLimitGuide();
+        // URLパラメータからの値補完フォールバック処理（Thymeleaf側で未設定の場合の対策）
+        const urlParams = new URLSearchParams(window.location.search);
+
+        if (repaymentMethodSelect && !repaymentMethodSelect.value) {
+            const paramRepayment = urlParams.get('repayment');
+            if (paramRepayment) {
+                repaymentMethodSelect.value = paramRepayment;
+            }
+        }
+
+        const loanYearsSelect = document.getElementById('loanYears');
+        if (loanYearsSelect && !loanYearsSelect.value) {
+            const paramYears = urlParams.get('years');
+            if (paramYears) {
+                loanYearsSelect.value = paramYears;
+            }
+        }
 
         if (loanAmountInput && loanAmountInput.value) {
             let rawVal = loanAmountInput.value.replace(/,/g, '');
             if (!isNaN(rawVal) && rawVal !== '') {
                 loanAmountInput.value = Number(rawVal).toLocaleString();
             }
+        } else {
+            const paramAmount = urlParams.get('amount');
+            if (paramAmount && loanAmountInput) {
+                loanAmountInput.value = Number(paramAmount).toLocaleString();
+            }
         }
+
+        const paramRate = urlParams.get('rate');
+        if (interestRateInput && !interestRateInput.value && paramRate) {
+            interestRateInput.value = paramRate;
+        }
+
+        updateBranchOptions(initialBranchValue);
+        initBirthDateSettings();
+        checkAgeWarning();
+        updateLoanLimitGuide();
     });
 
     const phoneInput = document.getElementById('phoneNumber');
