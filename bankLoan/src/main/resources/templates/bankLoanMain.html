@@ -75,6 +75,10 @@
             border-color: #e53e3e;
             background-color: #fff5f5;
         }
+        .form-control:disabled {
+            background-color: #edf2f7;
+            cursor: not-allowed;
+        }
         .input-group {
             display: flex;
             align-items: center;
@@ -89,6 +93,33 @@
             color: #2d3748;
             white-space: nowrap;
         }
+
+        .account-num-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .account-num-container .form-control {
+            margin-top: 0;
+            flex: 1;
+        }
+        .toggle-btn {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #4a5568;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .toggle-btn:hover {
+            background-color: #edf2f7;
+            color: #2b6cb0;
+        }
+
         .text-danger {
             color: #e53e3e;
         }
@@ -155,20 +186,24 @@
         <fieldset>
             <legend>口座情報</legend>
 
-            <!-- 金融機関名 -->
+            <!-- 金融機関名（架空の3行） -->
             <div class="form-group">
-                <label>金融機関名 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{bankName}" list="bankNameOptions" class="form-control" th:classappend="${#fields.hasErrors('bankName')} ? 'is-invalid' : ''" placeholder="例: テスト銀行 （選択または直接入力）" required/>
+                <label for="bankName">金融機関名 <small class="text-danger">※</small></label>
+                <select id="bankName" th:field="*{bankName}" class="form-control" th:classappend="${#fields.hasErrors('bankName')} ? 'is-invalid' : ''" required>
+                    <option value="">-- 金融機関を選択してください --</option>
+                    <option value="あおぞら未来銀行">あおぞら未来銀行</option>
+                    <option value="ネクストワン銀行">ネクストワン銀行</option>
+                    <option value="新日本総合銀行">新日本総合銀行</option>
+                </select>
                 <span class="error-msg" th:if="${#fields.hasErrors('bankName')}" th:errors="*{bankName}"></span>
-                <datalist id="bankNameOptions">
-                    <option th:each="option : ${nameOptions}" th:value="${option}"></option>
-                </datalist>
             </div>
 
-            <!-- 支店名 -->
+            <!-- 支店名（選択された金融機関に応じて動的変更） -->
             <div class="form-group">
-                <label>支店名 <small class="text-danger">※</small></label>
-                <input type="text" th:field="*{branchName}" class="form-control" th:classappend="${#fields.hasErrors('branchName')} ? 'is-invalid' : ''" placeholder="福岡支店" required/>
+                <label for="branchName">支店名 <small class="text-danger">※</small></label>
+                <select id="branchName" th:field="*{branchName}" class="form-control" th:classappend="${#fields.hasErrors('branchName')} ? 'is-invalid' : ''" disabled required>
+                    <option value="">-- 先に金融機関を選択してください --</option>
+                </select>
                 <span class="error-msg" th:if="${#fields.hasErrors('branchName')}" th:errors="*{branchName}"></span>
             </div>
 
@@ -185,10 +220,14 @@
                 <span class="error-msg" th:if="${#fields.hasErrors('bankAccountType')}" th:errors="*{bankAccountType}"></span>
             </div>
 
-            <!-- 口座番号 -->
+            <!-- 口座番号（入力から1秒後に*へマスク） -->
             <div class="form-group">
-                <label for="bankAccountNum">口座番号 <small class="text-danger">※</small></label>
-                <input type="text" id="bankAccountNum" th:field="*{bankAccountNum}" class="form-control" th:classappend="${#fields.hasErrors('bankAccountNum')} ? 'is-invalid' : ''" maxlength="7" autocomplete="off" required/>
+                <label for="bankAccountNumDisplay">口座番号 <small class="text-danger">※</small></label>
+                <div class="account-num-container">
+                    <input type="text" id="bankAccountNumDisplay" class="form-control" th:classappend="${#fields.hasErrors('bankAccountNum')} ? 'is-invalid' : ''" maxlength="7" autocomplete="off" placeholder="半角数字7桁" required/>
+                    <input type="hidden" id="bankAccountNum" th:field="*{bankAccountNum}" />
+                    <button type="button" id="toggleNumBtn" class="toggle-btn">👁 全表示</button>
+                </div>
                 <small style="display: block; color: #718096; font-size: 12px; margin-top: 4px;">※半角数字で入力してください</small>
                 <span class="error-msg" th:if="${#fields.hasErrors('bankAccountNum')}" th:errors="*{bankAccountNum}"></span>
             </div>
@@ -315,12 +354,19 @@
         <!-- 確認ボタン / クリアボタン -->
         <p style="text-align: center; margin-top: 25px;">
             <input type="submit" value="確認" class="form-control-button form-confirmation-button"/>
-            <input type="reset" value="クリア" class="form-control-button form-clear-button"/>
+            <button type="button" class="form-control-button form-clear-button" id="clearBtn">クリア</button>
         </p>
     </form>
 </div>
 
-<script>
+<script th:inline="javascript">
+    /* 架空の金融機関名（3種）とそれぞれの対応支店名（各3種） */
+    const bankBranchMap = {
+        "あおぞら未来銀行": ["さくら中央支店", "ひまわり通り支店", "青葉台支店"],
+        "ネクストワン銀行": ["デジタル本店", "フロンティア支店", "クラウド支店"],
+        "新日本総合銀行": ["丸の内中央支店", "ベイサイド支店", "グランフロント支店"]
+    };
+
     const defaultInterestRates = {
         "住宅ローン": 0.85,
         "マイカーローン": 2.50,
@@ -337,15 +383,182 @@
         "カードローン": { min: 10000, max: 1000000, minStr: "1万円", maxStr: "100万円" }
     };
 
+    const bankNameSelect = document.getElementById('bankName');
+    const branchNameSelect = document.getElementById('branchName');
     const birthDateInput = document.getElementById('birthDate');
     const underageWarning = document.getElementById('underageWarning');
     const accountTypeSelect = document.getElementById('accountType');
     const interestRateInput = document.getElementById('interestRate');
     const loanLimitGuide = document.getElementById('loanLimitGuide');
-    const bankAccountNumInput = document.getElementById('bankAccountNum');
     const postalCodeInput = document.getElementById('postalCode');
     const loanAmountInput = document.getElementById('loanAmount');
     const annualIncomeInput = document.getElementById('annualIncome');
+
+    /* --- 金融機関名と支店名の動的連動処理 --- */
+    function updateBranchOptions(selectedBranchValue = "") {
+        if (!bankNameSelect || !branchNameSelect) return;
+
+        const selectedBank = bankNameSelect.value;
+        branchNameSelect.innerHTML = '';
+
+        if (selectedBank && bankBranchMap[selectedBank]) {
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = "-- 支店を選択してください --";
+            branchNameSelect.appendChild(defaultOption);
+
+            bankBranchMap[selectedBank].forEach(branch => {
+                const opt = document.createElement('option');
+                opt.value = branch;
+                opt.textContent = branch;
+                if (branch === selectedBranchValue) {
+                    opt.selected = true;
+                }
+                branchNameSelect.appendChild(opt);
+            });
+
+            branchNameSelect.disabled = false;
+        } else {
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = "-- 先に金融機関を選択してください --";
+            branchNameSelect.appendChild(defaultOption);
+            branchNameSelect.disabled = true;
+        }
+    }
+
+    if (bankNameSelect) {
+        bankNameSelect.addEventListener('change', function() {
+            updateBranchOptions();
+            if (this.classList.contains('is-invalid')) {
+                const formGroup = this.closest('.form-group');
+                if (formGroup) formGroup.querySelectorAll('.error-msg-js').forEach(el => el.remove());
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
+
+    /* --- 口座番号 1秒後遅延マスク処理 --- */
+    const displayInput = document.getElementById('bankAccountNumDisplay');
+    const hiddenInput = document.getElementById('bankAccountNum');
+    const toggleBtn = document.getElementById('toggleNumBtn');
+
+    let maskTimer = null;
+    let isAlwaysShow = false;
+
+    function renderDisplay() {
+        if (!displayInput) return;
+        const realValue = hiddenInput.value;
+        if (isAlwaysShow) {
+            displayInput.value = realValue;
+        } else {
+            displayInput.value = '*'.repeat(realValue.length);
+        }
+    }
+
+    if (displayInput && hiddenInput) {
+        if (hiddenInput.value) {
+            renderDisplay();
+        }
+
+        displayInput.addEventListener('input', function(e) {
+            clearTimeout(maskTimer);
+
+            let rawInput = this.value.replace(/[^0-9*]/g, '');
+            let currentReal = hiddenInput.value;
+
+            if (rawInput.length < currentReal.length) {
+                currentReal = currentReal.slice(0, rawInput.length);
+            } else if (rawInput.length > currentReal.length) {
+                const addedChar = rawInput.slice(-1);
+                if (/[0-9]/.test(addedChar)) {
+                    currentReal += addedChar;
+                }
+            }
+            hiddenInput.value = currentReal;
+
+            if (isAlwaysShow) {
+                this.value = currentReal;
+            } else {
+                const len = currentReal.length;
+                if (len > 0) {
+                    this.value = '*'.repeat(len - 1) + currentReal.slice(-1);
+                } else {
+                    this.value = '';
+                }
+
+                maskTimer = setTimeout(() => {
+                    renderDisplay();
+                }, 1000);
+            }
+        });
+
+        displayInput.addEventListener('blur', function() {
+            clearTimeout(maskTimer);
+            let val = hiddenInput.value.trim();
+            if (val !== '' && !isNaN(val)) {
+                if (val.length < 7) {
+                    val = val.padStart(7, '0');
+                    hiddenInput.value = val;
+                }
+            }
+            renderDisplay();
+        });
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                isAlwaysShow = !isAlwaysShow;
+                if (isAlwaysShow) {
+                    this.innerText = '🙈 伏せ字にする';
+                } else {
+                    this.innerText = '👁 全表示';
+                }
+                renderDisplay();
+            });
+        }
+    }
+
+    /* --- 即時必須バリデーション（フォーカス外れイベント） --- */
+    function validateRequiredInput(input) {
+        const formGroup = input.closest('.form-group');
+        if (!formGroup) return;
+
+        let value = input.value.trim();
+        if (input.id === 'bankAccountNumDisplay' && hiddenInput) {
+            value = hiddenInput.value.trim();
+        }
+
+        formGroup.querySelectorAll('.error-msg-js').forEach(el => el.remove());
+
+        if (!value) {
+            input.classList.add('is-invalid');
+            const msg = document.createElement('span');
+            msg.className = 'error-msg error-msg-js';
+            msg.innerText = '※ この項目を入力（選択）してください。';
+            formGroup.appendChild(msg);
+        } else {
+            input.classList.remove('is-invalid');
+        }
+    }
+
+    document.querySelectorAll('[required]').forEach(input => {
+        input.addEventListener('blur', function() {
+            validateRequiredInput(this);
+        });
+
+        const clearErrorOnInput = function() {
+            if (this.classList.contains('is-invalid')) {
+                const formGroup = this.closest('.form-group');
+                if (formGroup) {
+                    formGroup.querySelectorAll('.error-msg-js').forEach(el => el.remove());
+                }
+                this.classList.remove('is-invalid');
+            }
+        };
+
+        input.addEventListener('input', clearErrorOnInput);
+        input.addEventListener('change', clearErrorOnInput);
+    });
 
     function initBirthDateSettings() {
         if (birthDateInput) {
@@ -402,21 +615,6 @@
         });
     }
 
-    if (bankAccountNumInput) {
-        bankAccountNumInput.addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
-
-        bankAccountNumInput.addEventListener('blur', function() {
-            let val = this.value.trim();
-            if (val !== '' && !isNaN(val)) {
-                if (val.length < 7) {
-                    this.value = val.padStart(7, '0');
-                }
-            }
-        });
-    }
-
     if (postalCodeInput) {
         postalCodeInput.addEventListener('input', function() {
             let value = this.value.replace(/[^0-9]/g, '');
@@ -445,6 +643,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        const initialBranchValue = branchNameSelect.getAttribute('data-value') || "";
+
+        updateBranchOptions(initialBranchValue);
         initBirthDateSettings();
         checkAgeWarning();
         updateLoanLimitGuide();
@@ -470,17 +671,22 @@
         });
     }
 
+    /* --- 送信（submit）時の全体バリデーション --- */
     document.getElementById('loanForm').addEventListener('submit', function(e) {
         let isValid = true;
         const requiredInputs = this.querySelectorAll('[required]');
 
-        // JavaScript生成のエラーメッセージと赤枠表示を一旦クリア
         this.querySelectorAll('.error-msg-js').forEach(el => el.remove());
         this.querySelectorAll('.form-control').forEach(input => input.classList.remove('is-invalid'));
 
         // 1. 必須チェック
         requiredInputs.forEach(input => {
-            if (!input.value.trim()) {
+            let val = input.value.trim();
+            if (input.id === 'bankAccountNumDisplay' && hiddenInput) {
+                val = hiddenInput.value.trim();
+            }
+
+            if (!val) {
                 isValid = false;
                 input.classList.add('is-invalid');
 
@@ -493,19 +699,20 @@
         });
 
         // 2. 口座番号桁数チェック
-        if (bankAccountNumInput && bankAccountNumInput.value.trim() !== '') {
-            const accVal = bankAccountNumInput.value.trim();
+        if (hiddenInput && hiddenInput.value.trim() !== '') {
+            const accVal = hiddenInput.value.trim();
             if (accVal.length < 7 && /^\d+$/.test(accVal)) {
-                bankAccountNumInput.value = accVal.padStart(7, '0');
+                hiddenInput.value = accVal.padStart(7, '0');
+                renderDisplay();
             }
 
-            if (!/^\d{7}$/.test(bankAccountNumInput.value)) {
+            if (!/^\d{7}$/.test(hiddenInput.value)) {
                 isValid = false;
-                bankAccountNumInput.classList.add('is-invalid');
+                displayInput.classList.add('is-invalid');
                 const msg = document.createElement('span');
                 msg.className = 'error-msg error-msg-js';
                 msg.innerText = '※ 口座番号は7桁の数字で入力してください。';
-                bankAccountNumInput.closest('.form-group').appendChild(msg);
+                displayInput.closest('.form-group').appendChild(msg);
             }
         }
 
@@ -551,7 +758,7 @@
             }
         }
 
-        // 4. バリデーションエラーが無く、借入金額が100万円以上の場合にダイアログ表示
+        // 4. ダイアログ表示処理
         if (isValid) {
             if (loanAmountYen >= 1000000) {
                 const isConfirmed = confirm(`お借入金額が【${loanAmountYen.toLocaleString()}円】に設定されています。\n本当に間違いありませんか？`);
@@ -561,12 +768,17 @@
                 }
             }
 
-            // 送信用にカンマを削除
             if (loanAmountInput && loanAmountInput.value) {
                 loanAmountInput.value = loanAmountInput.value.replace(/,/g, '');
             }
         } else {
             e.preventDefault();
+            if (loanAmountInput && loanAmountInput.value) {
+                let rawVal = loanAmountInput.value.replace(/,/g, '');
+                if (!isNaN(rawVal) && rawVal !== '') {
+                    loanAmountInput.value = Number(rawVal).toLocaleString();
+                }
+            }
             const firstInvalid = this.querySelector('.is-invalid');
             if (firstInvalid) {
                 firstInvalid.focus();
@@ -574,12 +786,34 @@
         }
     });
 
-    document.querySelector('.form-clear-button').addEventListener('click', function() {
-        const form = document.getElementById('loanForm');
-        form.querySelectorAll('.error-msg').forEach(el => el.remove());
-        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        if (underageWarning) underageWarning.style.display = 'none';
-        if (loanLimitGuide) loanLimitGuide.style.display = 'none';
+    /* --- クリアボタン押下時の完全初期化処理 --- */
+    document.getElementById('clearBtn').addEventListener('click', function() {
+        const isOk = confirm("入力された内容をすべてクリアしてもよろしいですか？");
+        if (isOk) {
+            const form = document.getElementById('loanForm');
+
+            // フォーム内のすべての入力コントロール（input, select）の値を強制クリア
+            form.querySelectorAll('input, select').forEach(element => {
+                if (element.type === 'text' || element.type === 'number' || element.type === 'tel' || element.type === 'date' || element.type === 'email' || element.type === 'hidden') {
+                    element.value = '';
+                } else if (element.tagName === 'SELECT') {
+                    element.selectedIndex = 0;
+                }
+            });
+
+            // エラー表示や警告バナー、ガイドの非表示化
+            form.querySelectorAll('.error-msg-js').forEach(el => el.remove());
+            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            if (underageWarning) underageWarning.style.display = 'none';
+            if (loanLimitGuide) loanLimitGuide.style.display = 'none';
+
+            // 口座番号マスク関連の状態も初期化
+            isAlwaysShow = false;
+            if (toggleBtn) toggleBtn.innerText = '👁 全表示';
+
+            // 支店セレクトボックスの連動状態をリセットして無効化
+            updateBranchOptions();
+        }
     });
 </script>
 </body>
