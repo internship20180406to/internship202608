@@ -8,6 +8,13 @@
 <body>
 <div class="container">
     <div class="form-card">
+        <div class="form-card">
+
+            <div class="session-timer">
+                タイムアウトまで
+                <span id="sessionTimer">10:00</span>
+            </div>
+
         <h1>カードローン申込情報入力</h1>
         <form action="#" th:action="@{/bankLoanConfirmation}" th:object="${bankLoanApplication}" method="post">
 

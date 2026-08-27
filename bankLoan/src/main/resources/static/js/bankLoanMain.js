@@ -103,6 +103,18 @@ const annualIncome = document.getElementById('annualIncome');
 const branchNameInput = document.getElementById('branchName');
 const loanAmount = document.getElementById('loanAmount');
 
+// ==============================
+// 無操作タイムアウト用
+// ==============================
+const TIMEOUT_TIME = 10 * 60 * 1000;
+const WARNING_TIME = 8 * 60 * 1000;
+const sessionTimer =
+    document.getElementById('sessionTimer');
+
+let warningTimer;
+let timeoutTimer;
+let timeoutDeadline;
+let countdownInterval;
 
 function calculateLoanLimit() {
     const income = Number(annualIncomeInput.value);
@@ -602,6 +614,70 @@ function validateBirthDate() {
         birthDateError.textContent = '';
     }
 }
+
+function resetTimeout() {
+
+    // 現在時刻から10分後を期限にする
+    timeoutDeadline = Date.now() + TIMEOUT_TIME;
+
+    updateTimer();
+}
+
+function updateTimer() {
+
+    const remainingTime =
+        timeoutDeadline - Date.now();
+
+    // タイムアウト
+    if (remainingTime <= 0) {
+
+        clearInterval(countdownInterval);
+
+        sessionTimer.textContent = '00:00';
+
+        alert(
+            'セキュリティ保護のため、一定時間操作がなかったため申込内容を破棄しました。'
+        );
+
+        window.location.href = '/bankLoan';
+
+        return;
+    }
+
+    const totalSeconds =
+        Math.ceil(remainingTime / 1000);
+
+    const minutes =
+        Math.floor(totalSeconds / 60);
+
+    const seconds =
+        totalSeconds % 60;
+
+    sessionTimer.textContent =
+        String(minutes).padStart(2, '0')
+        + ':'
+        + String(seconds).padStart(2, '0');
+}
+
+[
+    'mousedown',
+    'keydown',
+    'scroll',
+    'touchstart'
+].forEach(function (eventName) {
+
+    document.addEventListener(
+        eventName,
+        resetTimeout
+    );
+
+});
+
+
+resetTimeout();
+
+countdownInterval =
+    setInterval(updateTimer, 1000);
 
 lastNameInput.addEventListener('input', validateLastName);
 lastNameInput.addEventListener('blur', validateLastName);

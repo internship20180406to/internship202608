@@ -215,3 +215,28 @@ select.form-control {
         gap: 10px;
     }
 }
+
+.form-card {
+    position: relative;
+}
+
+.session-timer {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+
+    padding: 6px 10px;
+
+    background-color: #f5f8fa;
+    border: 1px solid #dfe5e8;
+    border-radius: 5px;
+
+    color: #607d8b;
+    font-size: 13px;
+}
+
+#sessionTimer {
+    margin-left: 4px;
+    color: #263238;
+    font-weight: bold;
+}
