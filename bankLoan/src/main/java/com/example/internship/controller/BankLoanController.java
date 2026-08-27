@@ -58,7 +58,7 @@ public class BankLoanController {
     }
 
     // ★ 確認画面から「修正」ボタンで戻ってきたとき（POST）の処理
-    @PostMapping("/bankLoan/edit") // 💡 ここを "/bankLoan/edit" に修正しました！
+    @PostMapping("/bankLoan/edit")
     public String returnToInput(@ModelAttribute("bankLoanApplication") BankLoanForm bankLoanForm, Model model) {
         // セッション等に保持された入力値を維持したまま、選択肢を再設定して入力画面へ戻る
         model.addAttribute("nameOptions", List.of("テスト銀行", "サンプル中央銀行", "デモ信用金庫"));
@@ -163,6 +163,9 @@ public class BankLoanController {
         // 申込確定時の日時を自動生成してModelに登録
         String applicationDate = getNowDateTime();
         model.addAttribute("applicationDate", applicationDate);
+
+        // 💡 完了画面で入力内容（名前や金額）を表示するため、モデルにフォームオブジェクトを登録
+        model.addAttribute("bankLoanApplication", bankLoanForm);
 
         applyBankLoanService.applyBankLoan(bankLoanForm);
         return "bankLoanCompletion";
