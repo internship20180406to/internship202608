@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class InvestmentTrustController {
 
 
     /**
-     * 投資信託注文入力画面
+     * 投資信託注文画面
      */
     @GetMapping("/investmentTrust")
     public String investmentTrust(Model model) {
@@ -37,22 +38,15 @@ public class InvestmentTrustController {
 
         setOptions(model);
 
-        model.addAttribute(
-                "targetStep",
-                1
-        );
-
-        model.addAttribute(
-                "editMode",
-                false
-        );
+        model.addAttribute("targetStep", 1);
+        model.addAttribute("editMode", false);
 
         return "investmentTrustMain";
     }
 
 
     /**
-     * 注文履歴画面
+     * 注文履歴
      */
     @GetMapping("/investmentTrustHistory")
     public String history(Model model) {
@@ -84,7 +78,7 @@ public class InvestmentTrustController {
 
 
     /**
-     * 入力画面へ戻る
+     * 編集
      */
     @PostMapping("/investmentTrustEdit")
     public String edit(
@@ -130,55 +124,49 @@ public class InvestmentTrustController {
 
 
     /**
-     * プルダウンの選択肢をDBから取得
+     * 金融機関・支店・口座種別の選択肢を設定
      */
     private void setOptions(Model model) {
 
-        /*
-         * 金融機関名
-         */
-        List<String> bankNames =
-                investmentTrustRepository.findBankNames();
-
         model.addAttribute(
                 "bankNameOptions",
-                bankNames
+                investmentTrustRepository.findBankNames()
         );
-
-
-        /*
-         * 支店名
-         */
-        List<String> branchNames =
-                investmentTrustRepository.findBranchNames();
 
         model.addAttribute(
                 "branchNameOptions",
-                branchNames
+                investmentTrustRepository.findBranchNames()
         );
-
-
-        /*
-         * 科目
-         */
-        List<String> bankAccountTypes =
-                investmentTrustRepository.findBankAccountTypes();
 
         model.addAttribute(
                 "bankAccountTypeOptions",
-                bankAccountTypes
+                investmentTrustRepository.findBankAccountTypes()
         );
+    }
 
 
-        /*
-         * 銘柄
-         */
-        List<Fund> funds =
-                investmentTrustRepository.findFunds();
+    /**
+     * 銘柄検索API
+     *
+     * /api/funds?keyword=日本
+     */
+    @GetMapping("/api/funds")
+    @ResponseBody
+    public List<Fund> searchFunds(
+            @RequestParam(
+                    value = "keyword",
+                    defaultValue = ""
+            )
+            String keyword) {
 
-        model.addAttribute(
-                "fundOptions",
-                funds
+        if (keyword == null ||
+                keyword.trim().isEmpty()) {
+
+            return List.of();
+        }
+
+        return investmentTrustRepository.searchFunds(
+                keyword.trim()
         );
     }
 }

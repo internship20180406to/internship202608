@@ -33,6 +33,11 @@ public class InvestmentTrustForm {
     @NonNull
     private Integer money;
 
+    /*
+     * 手数料
+     */
+    private Integer fee;
+
     // =========================
     // 履歴用
     // =========================
@@ -98,6 +103,17 @@ public class InvestmentTrustForm {
 
     public void setMoney(Integer money) {
         this.money = money;
+    }
+
+    /*
+     * 手数料
+     */
+    public Integer getFee() {
+        return fee;
+    }
+
+    public void setFee(Integer fee) {
+        this.fee = fee;
     }
 
     public LocalDateTime getApplicationDate() {
