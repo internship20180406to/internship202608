@@ -47,6 +47,20 @@
             border: 1px solid red;
             background-color: #fff5f5;
         }
+        /* ラジオボタンは選択肢全体をこの枠で囲み、エラー時はこの枠に .input-error を付ける。
+           あらかじめ透明の枠を確保しておくことで、赤枠が出たときに位置がずれないようにしている */
+        .radio-group {
+            display: inline-block;
+            padding: 6px 8px;
+            margin: 5px 0;
+            border: 1px solid transparent;
+            box-sizing: border-box;
+        }
+        .radio-label {
+            margin-right: 16px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
         .form-control-button {
         width: 80px;
         padding: 10px 20px;
@@ -110,14 +124,21 @@
             </select>
             <span class="form_error" id="branchName_error" th:text="${#strings.listJoin(#fields.errors('branchName'), ' ')}"></span></p>
 
+        <!-- 科目名はラジオボタン。1つの項目が選択肢の数だけ <input> に分かれる点がプルダウンと異なる。
+             ・th:field を付けると id は bankAccountType1, bankAccountType2 … と連番になるため、
+               JS側は id ではなく name（bankAccountType）でまとめて取得している。
+             ・選択肢ごとに赤枠を付けても見づらいので、エラー時は全体を囲む span に .input-error を付ける。
+               th:errorclass は入力欄そのものに付けるものなので、代わりに th:classappend で判定している。
+             ・未選択のまま送信するとブラウザは値を送らない（bankAccountTypeはnullになる）ので、
+               サーバ側の @NotBlank でそのまま未選択エラーになる。 -->
         <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
-            <select id="bankAccountType" th:field="*{bankAccountType}" class="form-control" th:errorclass="input-error">
-                <option value="">選択してください</option>
-                <option th:each="type : ${typeOptions}"
-                        th:value="${type}"
-                        th:text="${type}">選択肢
-                </option>
-            </select>
+            <span class="radio-group" id="bankAccountType_group"
+                  th:classappend="${#fields.hasErrors('bankAccountType')} ? 'input-error' : ''">
+                <label class="radio-label" th:each="type : ${typeOptions}">
+                    <input type="radio" th:field="*{bankAccountType}" th:value="${type}"/>
+                    <span th:text="${type}">選択肢</span>
+                </label>
+            </span><br>
             <span class="form_error" id="bankAccountType_error" th:text="${#strings.listJoin(#fields.errors('bankAccountType'), ' ')}"></span></p>
 
         <p><label class="ml-1">購入者名: <small class="text-danger ml-1">※</small></label><br>

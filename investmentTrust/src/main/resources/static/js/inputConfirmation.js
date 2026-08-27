@@ -47,6 +47,7 @@ const rules = [
     },
     {
         id: "bankAccountType",
+        radio: true,    //  ラジオボタンの項目。値の取り出し方などが他の欄と違うので目印を付けている
         validate: (value) => (value === "" ? "科目名を選択してください。" : "")
     },
     {
@@ -89,14 +90,44 @@ const rules = [
     }
 ];
 
+/* ============================================================================
+ * ラジオボタン（科目名）は1つの項目が選択肢の数だけ <input> に分かれるため、
+ * 「値の取り出し方」「赤枠を付ける場所」「イベントを登録する対象」が他の欄と異なる。
+ * th:field を付けた影響で id も bankAccountType1, bankAccountType2 … と連番になるので、
+ * radio: true が付いた項目だけ、以下のヘルパーで扱いを切り替えている。
+ * ========================================================================== */
+
+/** 項目に属する入力欄をすべて返す。ラジオボタンは選択肢の数だけ存在するのでnameで取得する */
+const getInputs = (rule) => (rule.radio
+    ? Array.from(document.getElementsByName(rule.id))
+    : [document.getElementById(rule.id)]);
+
+/** 判定に使う値を返す。ラジオボタンは選択中の値、未選択なら空文字 */
+const getValue = (rule) => {
+    if (!rule.radio) {
+        return document.getElementById(rule.id).value.trim();
+    }
+    const checked = getInputs(rule).find((input) => input.checked);
+    return (checked === undefined) ? "" : checked.value;
+};
+
+/** 赤枠を付ける要素。ラジオボタンは1つ1つではなく、選択肢全体を囲む要素に付ける */
+const getErrorTarget = (rule) =>
+    document.getElementById(rule.radio ? rule.id + "_group" : rule.id);
+
+/** エラー時にカーソルを移す要素。ラジオボタンは選択中のもの、未選択なら先頭のボタン */
+const getFocusTarget = (rule) => {
+    const inputs = getInputs(rule);
+    return inputs.find((input) => input.checked) || inputs[0];
+};
+
 /** 判定結果を画面に反映する。戻り値はエラーメッセージ（正常なら空文字） */
 const showResult = (rule) => {
-    const input = document.getElementById(rule.id);
     const errorArea = document.getElementById(rule.id + "_error");
-    const message = rule.validate(input.value.trim());
+    const message = rule.validate(getValue(rule));
 
-    errorArea.textContent = message;                            //  サーバから返ってきたメッセージもここで上書きされる
-    input.classList.toggle("input-error", message !== "");      //  classList.toggle:第2引数がtrueなら付与、falseなら削除
+    errorArea.textContent = message;                                        //  サーバから返ってきたメッセージもここで上書きされる
+    getErrorTarget(rule).classList.toggle("input-error", message !== "");   //  classList.toggle:第2引数がtrueなら付与、falseなら削除
     return message;
 };
 
@@ -111,7 +142,7 @@ const refreshIfShowing = (id) => {
 const clearAllErrors = () => {
     rules.forEach((rule) => {
         document.getElementById(rule.id + "_error").textContent = "";
-        document.getElementById(rule.id).classList.remove("input-error");
+        getErrorTarget(rule).classList.remove("input-error");
     });
 };
 
@@ -253,36 +284,38 @@ moneyInput.addEventListener("input", formatMoney);
 // 入力欄でEnterキーを押して送信された場合もチェックが効くようにしている。
 form.addEventListener("submit", (e) => {
     convertNameToHankaku();     //  変換されないまま送信されるのを防ぐ
-    let firstErrorId = null;
+    let firstErrorRule = null;
 
     rules.forEach((rule) => {
-        if (showResult(rule) !== "" && firstErrorId === null) {
-            firstErrorId = rule.id;
+        if (showResult(rule) !== "" && firstErrorRule === null) {
+            firstErrorRule = rule;
         }
     });
 
-    if (firstErrorId !== null) {
-        e.preventDefault();                                 //  送信を中止する
-        document.getElementById(firstErrorId).focus();      //  最初にエラーになった項目へカーソルを移す
+    if (firstErrorRule !== null) {
+        e.preventDefault();                             //  送信を中止する
+        getFocusTarget(firstErrorRule).focus();         //  最初にエラーになった項目へカーソルを移す
         return;
     }
     moneyInput.value = toDigits(moneyInput.value);          //  サーバへは表示用のカンマを外した数字だけを送る
 });
 
 rules.forEach((rule) => {
-    const input = document.getElementById(rule.id);
     const errorArea = document.getElementById(rule.id + "_error");
 
-    // 入力途中で誤ったメッセージを出さないよう、
-    // すでにエラーが出ている項目だけ入力のたびに再判定する（直したらすぐ消える）
-    input.addEventListener("input", () => {
-        if (errorArea.textContent !== "") {
-            showResult(rule);
-        }
-    });
+    // ラジオボタンは選択肢の数だけ <input> があるので、そのすべてに登録する
+    getInputs(rule).forEach((input) => {
+        // 入力途中で誤ったメッセージを出さないよう、
+        // すでにエラーが出ている項目だけ入力のたびに再判定する（直したらすぐ消える）
+        input.addEventListener("input", () => {
+            if (errorArea.textContent !== "") {
+                showResult(rule);
+            }
+        });
 
-    // 入力を終えて別の項目へ移ったタイミング、およびプルダウンを選び直したタイミングで判定する
-    input.addEventListener("change", () => showResult(rule));
+        // 入力を終えて別の項目へ移ったタイミング、およびプルダウンやラジオボタンを選び直したタイミングで判定する
+        input.addEventListener("change", () => showResult(rule));
+    });
 });
 
 // 「クリア」ボタンで値を戻したときにエラー表示も消す。

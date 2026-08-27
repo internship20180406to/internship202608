@@ -36,7 +36,7 @@ public class InvestmentTrustController {
         binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
     }
 
-    // プルダウンの選択肢は入力画面を表示するたびに必要になる。
+    // プルダウン・ラジオボタンの選択肢は入力画面を表示するたびに必要になる。
     // @ModelAttribute を付けたメソッドはこのコントローラの全ハンドラの実行前に呼ばれるので、
     // 入力エラーで画面を戻すときも選択肢が消えない。
     @ModelAttribute("nameOptions")
@@ -89,7 +89,7 @@ public class InvestmentTrustController {
         return "investmentTrustCompletion";
     }
 
-    /** プルダウンに存在しない値が送られてきていないかを確認する */
+    /** 画面の選択肢に存在しない値が送られてきていないかを確認する */
     private void validateSelectedOptions(InvestmentTrustForm form, BindingResult bindingResult) {
         rejectIfNotAllowed(bindingResult, "bankName", form.getBankName(),
                 InvestmentTrustOptions.BANK_NAMES, "金融機関名を選択してください。");
