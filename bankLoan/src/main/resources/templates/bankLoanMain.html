@@ -643,7 +643,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const initialBranchValue = branchNameSelect.getAttribute('data-value') || "";
+        // 💡 Thymeleafからバインドされた支店名の値を取得
+        const initialBranchValue = /*[[${bankLoanApplication.branchName}]]*/ "";
+
+        // 金融機関が選択済みの場合は支店セレクトボックスを有効化
+        if (bankNameSelect && bankNameSelect.value) {
+            branchNameSelect.disabled = false;
+        }
 
         updateBranchOptions(initialBranchValue);
         initBirthDateSettings();

@@ -214,6 +214,7 @@
 
         <!-- 引き継ぐhiddenデータ -->
         <input type="hidden" th:field="*{bankName}"/>
+        <!-- 💡 以下の支店名（branchName）のhiddenタグが抜けていたため追加しました！ -->
         <input type="hidden" th:field="*{branchName}"/>
         <input type="hidden" th:field="*{bankAccountType}"/>
         <input type="hidden" th:field="*{bankAccountNum}"/>
@@ -233,7 +234,6 @@
         <!-- 最下部の中央寄せボタンエリア（キャンセル・修正・申込） -->
         <div class="bottom-action-area">
             <button type="button" class="form-control-button form-clear-button" onclick="window.location.href='/bankLoan';">キャンセル</button>
-            <!-- 💡 修正ボタン：/bankLoan/edit へデータを保持したままPOST送信 -->
             <button type="submit" class="form-control-button form-edit-button" th:formaction="@{/bankLoan/edit}">修正</button>
             <button type="submit" class="form-control-button form-confirmation-button">申込</button>
         </div>
