@@ -7,18 +7,22 @@
 <body>
 <h1>投資信託注文確認画面</h1>
 <form action="#" th:action="@{/investmentTrustCompletion}" th:object="${investmentTrustApplication}" method="post">
-    <p>金融機関名: <span th:text="*{bankName}"></span></p>
+    <p>金融機関: <span th:text="*{bankCode}"></span> <span th:text="*{bankName}"></span></p>
     <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
-    <p>支店名: <span th:text="*{branchName}"></span></p>
+    <p>支店: <span th:text="*{branchCode}"></span> <span th:text="*{branchName}"></span></p>
     <p>科目名: <span th:text="*{bankAccountType}"></span></p>
     <p>購入者名: <span th:text="*{name}"></span></p>
     <p>銘柄選択: <span th:text="*{fundName}"></span></p>
     <!-- #numbers.formatInteger(値, 最小桁数, 'COMMA') で3桁ごとのカンマ区切りにする。
          hidden項目にはカンマ無しの生の数値を入れて次の画面へ渡す -->
     <p>購入金額: <span th:text="${#numbers.formatInteger(investmentTrustApplication.money, 1, 'COMMA')}"></span></p>
+    <!-- 次の画面へ持ち回るのはコードだけで、金融機関名・支店名は送らない。
+         hidden項目は開発者ツールで書き換えられるので、名称まで送ると
+         「コード0001・名称こぶた銀行」のような食い違った組み合わせを登録できてしまう。
+         名称は登録の直前にサーバがマスタから引き直す。 -->
     <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
-    <input type="hidden" name="bankName" th:value="*{bankName}"/>
-    <input type="hidden" name="branchName" th:value="*{branchName}"/>
+    <input type="hidden" name="bankCode" th:value="*{bankCode}"/>
+    <input type="hidden" name="branchCode" th:value="*{branchCode}"/>
     <input type="hidden" name="bankAccountType" th:value="*{bankAccountType}"/>
     <input type="hidden" name="name" th:value="*{name}"/>
     <input type="hidden" name="fundName" th:value="*{fundName}"/>

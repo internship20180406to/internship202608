@@ -17,8 +17,20 @@ import lombok.Data;
 @Data
 public class InvestmentTrustForm {
 
+    //  ===== 金融機関：コードで指定し、名称はサーバがマスタから引く =====================
+    //  画面から送られてくるのは4桁のコードだけ。
+    //  金融機関名は bank_master から引いた値をサーバ側で bankName にセットする。
+    //
+    //  ※画面のJSはAjaxで名称を表示するが、その名称を hidden項目で送り返す作りにはしない。
+    //    hidden項目は開発者ツールで書き換えられるため、「コード0001・名称こぶた銀行」のような
+    //    食い違った組み合わせを送り込めてしまう。コードだけ受け取って毎回引き直せば起きない。
+    //
     //  @NotBlank:String型に作用。null, 空文字, 空白のみをすべて拒否
-    @NotBlank(message = "金融機関名を選択してください。")
+    @NotBlank(message = "金融機関コードを入力してください。")
+    @Pattern(regexp = "^[0-9]{4}$", message = "金融機関コードは半角数字4桁で入力してください。")
+    private String bankCode;
+
+    //  マスタから引いた金融機関名。画面からの入力ではないので入力チェックは付けない
     private String bankName;
 
     //  ===== 口座番号：String型 + 書式チェック =====================================
@@ -41,7 +53,15 @@ public class InvestmentTrustForm {
     @Pattern(regexp = "^[0-9]{7}$", message = "口座番号は半角数字7桁で入力してください。")
     private String bankAccountNum;
 
-    @NotBlank(message = "支店名を選択してください。")
+    //  ===== 支店：金融機関コードとセットで初めて特定できる ============================
+    //  支店コードは「その銀行の中での通し番号」なので、3桁だけでは支店を特定できない。
+    //  書式（3桁の数字か）はここで、「その銀行に実在する支店か」は
+    //  InvestmentTrustController がマスタに問い合わせて判定する。
+    @NotBlank(message = "支店コードを入力してください。")
+    @Pattern(regexp = "^[0-9]{3}$", message = "支店コードは半角数字3桁で入力してください。")
+    private String branchCode;
+
+    //  マスタから引いた支店名。画面からの入力ではないので入力チェックは付けない
     private String branchName;
 
     @NotBlank(message = "科目名を選択してください。")
@@ -80,6 +100,22 @@ public class InvestmentTrustForm {
     @Min(value = 10000, message = "金額は10,000円以上で入力してください。")
     @Max(value = 10000000, message = "金額は10,000,000円以下で入力してください。")
     private Integer money;
+
+    public String getBankCode() {
+        return bankCode;
+    }
+
+    public void setBankCode(String bankCode) {
+        this.bankCode = bankCode;
+    }
+
+    public String getBranchCode() {
+        return branchCode;
+    }
+
+    public void setBranchCode(String branchCode) {
+        this.branchCode = branchCode;
+    }
 
     public String getBankName() {
         return bankName;

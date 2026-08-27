@@ -8,6 +8,8 @@
  */
 
 // サーバサイドの @Pattern / @Size / @Min / @Max と同じ条件をここでも定義する
+const BANK_CODE_PATTERN = /^[0-9]{4}$/;     //  金融機関コードは半角数字4桁ちょうど
+const BRANCH_CODE_PATTERN = /^[0-9]{3}$/;   //  支店コードは半角数字3桁ちょうど
 const ACCOUNT_NUM_PATTERN = /^[0-9]{7}$/;   //  半角数字7桁ちょうど
 const MONEY_PATTERN = /^[0-9,]+$/;          //  半角数字と、表示用のカンマだけ
 const KANA_PATTERN = /^[ｦ-ﾟ ]+$/;  //  半角カタカナ(U+FF66 ｦ 〜 U+FF9F ﾟ)と半角スペースのみ
@@ -18,6 +20,23 @@ const MONEY_MAX = 10000000;
 const form = document.getElementById("investmentTrustForm");
 const nameInput = document.getElementById("name");
 const moneyInput = document.getElementById("money");
+const bankCodeInput = document.getElementById("bankCode");
+const branchCodeInput = document.getElementById("branchCode");
+const bankNameView = document.getElementById("bankName_view");
+const branchNameView = document.getElementById("branchName_view");
+
+/*
+ * コード入力欄の「マスタに問い合わせた結果」は、入力欄の data-found 属性に持たせている。
+ *   未設定 … まだ問い合わせていない
+ *   "1"    … 見つかった
+ *   "0"    … 見つからなかった
+ *
+ * 真偽値ではなく3状態にしているのは、「まだ問い合わせていない」を区別したいため。
+ * 未問い合わせのまま送信された場合はフロントでは判定せず、サーバの判定に任せる
+ * （フロントで勝手にエラーにすると、通信が遅いだけで送信できなくなってしまう）。
+ */
+const notFoundMessage = (id, message) =>
+    (document.getElementById(id).dataset.found === "0") ? message : "";
 
 /*
  * 入力欄ごとの判定ルール。
@@ -26,8 +45,18 @@ const moneyInput = document.getElementById("money");
  */
 const rules = [
     {
-        id: "bankName",
-        validate: (value) => (value === "" ? "金融機関名を選択してください。" : "")
+        id: "bankCode",
+        validate: (value) => {
+            if (value === "") {
+                return "金融機関コードを入力してください。";
+            }
+            if (!BANK_CODE_PATTERN.test(value)) {
+                return "金融機関コードは半角数字4桁で入力してください。";
+            }
+            //  マスタに問い合わせた結果、見つからなかったと分かっている場合だけエラーにする。
+            //  まだ問い合わせていない場合は判定しない（サーバ側で必ず確認されるため）。
+            return notFoundMessage("bankCode", "該当する金融機関がありません。");
+        }
     },
     {
         id: "bankAccountNum",
@@ -42,8 +71,16 @@ const rules = [
         }
     },
     {
-        id: "branchName",
-        validate: (value) => (value === "" ? "支店名を選択してください。" : "")
+        id: "branchCode",
+        validate: (value) => {
+            if (value === "") {
+                return "支店コードを入力してください。";
+            }
+            if (!BRANCH_CODE_PATTERN.test(value)) {
+                return "支店コードは半角数字3桁で入力してください。";
+            }
+            return notFoundMessage("branchCode", "該当する支店がありません。");
+        }
     },
     {
         id: "bankAccountType",
@@ -131,10 +168,13 @@ const showResult = (rule) => {
     return message;
 };
 
+/** 項目IDを指定して判定し直す */
+const showResultById = (id) => showResult(rules.find((rule) => rule.id === id));
+
 /** エラー表示中の項目だけ、値が変わったタイミングで判定し直す */
 const refreshIfShowing = (id) => {
     if (document.getElementById(id + "_error").textContent !== "") {
-        showResult(rules.find((rule) => rule.id === id));
+        showResultById(id);
     }
 };
 
@@ -145,6 +185,83 @@ const clearAllErrors = () => {
         getErrorTarget(rule).classList.remove("input-error");
     });
 };
+
+/* ============================================================================
+ * 金融機関コード・支店コード:入力されたコードでマスタを引き、名称を表示する
+ *
+ * ここで呼んでいるAPI（/api/banks/...）はあくまで入力支援。
+ * 「APIが200を返したから正しい」とは考えないこと。JSは開発者ツールで無効化でき、
+ * APIを一度も呼ばずに直接POSTすることもできる。
+ * 実在するコードかどうかの最終判定は、サーバ側の
+ * InvestmentTrustController#validateAndResolveMaster が行っている。
+ * ========================================================================== */
+
+/** 名称表示を消し、「まだ問い合わせていない」状態に戻す */
+const clearMasterName = (input, view) => {
+    delete input.dataset.found;
+    view.textContent = "";
+};
+
+/** 問い合わせ結果を画面に反映する。見つからなかった場合は name に null が渡る */
+const applyMasterResult = (input, view, id, name) => {
+    input.dataset.found = (name === null) ? "0" : "1";
+    view.textContent = (name === null) ? "" : name;
+    showResultById(id);     //  「該当なし」をその場で表示する。直っていればエラーが消える
+};
+
+/** 404は「見つからなかった」としてnullを返す。それ以外の異常は例外にする */
+const toJsonOrNull = (response) => {
+    if (response.status === 404) {
+        return null;
+    }
+    if (!response.ok) {
+        throw new Error("APIの呼び出しに失敗しました: " + response.status);
+    }
+    return response.json();
+};
+
+/** 金融機関コードからマスタを引く */
+const lookupBank = () => {
+    const code = bankCodeInput.value.trim();
+    if (!BANK_CODE_PATTERN.test(code)) {
+        clearMasterName(bankCodeInput, bankNameView);   //  4桁になっていない間は問い合わせない
+        return;
+    }
+    fetch("/api/banks/" + encodeURIComponent(code))
+        .then(toJsonOrNull)
+        .then((bank) => {
+            applyMasterResult(bankCodeInput, bankNameView, "bankCode",
+                (bank === null) ? null : bank.bankName);
+            lookupBranch();     //  金融機関が変われば、同じ支店コードでも別の支店になる
+        })
+        //  通信できないときは「分からない」状態に戻し、判定はサーバに任せる
+        .catch(() => clearMasterName(bankCodeInput, bankNameView));
+};
+
+/** 支店コードからマスタを引く。支店は金融機関とセットでないと特定できないので両方渡す */
+const lookupBranch = () => {
+    const bankCode = bankCodeInput.value.trim();
+    const code = branchCodeInput.value.trim();
+    if (!BANK_CODE_PATTERN.test(bankCode) || !BRANCH_CODE_PATTERN.test(code)) {
+        clearMasterName(branchCodeInput, branchNameView);
+        return;
+    }
+    fetch("/api/banks/" + encodeURIComponent(bankCode) + "/branches/" + encodeURIComponent(code))
+        .then(toJsonOrNull)
+        .then((branch) => applyMasterResult(branchCodeInput, branchNameView, "branchCode",
+            (branch === null) ? null : branch.branchName))
+        .catch(() => clearMasterName(branchCodeInput, branchNameView));
+};
+
+//  入力の途中で前に引いた名称が残っていると誤解を招くので、値が変わった時点で消す
+bankCodeInput.addEventListener("input", () => clearMasterName(bankCodeInput, bankNameView));
+branchCodeInput.addEventListener("input", () => clearMasterName(branchCodeInput, branchNameView));
+
+//  入力を終えて別の項目へ移ったとき（change）と、「検索」ボタンを押したときに問い合わせる
+bankCodeInput.addEventListener("change", lookupBank);
+branchCodeInput.addEventListener("change", lookupBranch);
+document.getElementById("bankCodeSearch").addEventListener("click", lookupBank);
+document.getElementById("branchCodeSearch").addEventListener("click", lookupBranch);
 
 /* ============================================================================
  * 金額欄:3桁ごとにカンマを入れて見やすくする
@@ -322,6 +439,8 @@ rules.forEach((rule) => {
 // reset処理が終わったあとに実行したいので setTimeout で後ろにずらしている
 form.addEventListener("reset", () => window.setTimeout(() => {
     clearAllErrors();
+    clearMasterName(bankCodeInput, bankNameView);
+    clearMasterName(branchCodeInput, branchNameView);
     formatMoney();
 }, 0));
 

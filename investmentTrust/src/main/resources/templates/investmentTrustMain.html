@@ -61,6 +61,29 @@
             white-space: nowrap;
             cursor: pointer;
         }
+        /* コード入力欄は桁数が決まっているので、全幅ではなく桁数に合わせた幅にする */
+        .form-control-code {
+            width: 8em;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        .form-search-button {
+            width: auto;
+            padding: 8px 16px;
+            margin-top: 0;
+            color: black;
+            background-color: #E0E1E2;
+            vertical-align: middle;
+        }
+        .form-search-button:hover {
+            background-color: #CCCCCC;
+        }
+        /* コードから引いた名称の表示欄 */
+        .master_name {
+            margin-left: 12px;
+            font-weight: bold;
+        }
         .form-control-button {
         width: 80px;
         padding: 10px 20px;
@@ -98,15 +121,17 @@
          代わりに #fields.errors(...) を文字列化して th:text で埋めている（エラーが無ければ空文字）。 -->
     <form id="investmentTrustForm" action="#" th:action="@{/investmentTrustConfirmation}"
           th:object="${investmentTrustApplication}" method="post" novalidate>
-        <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
-            <select id="bankName" th:field="*{bankName}" class="form-control" th:errorclass="input-error">
-                <option value="">選択してください</option>
-                <option th:each="bank : ${nameOptions}"
-                        th:value="${bank}"
-                        th:text="${bank}">選択肢
-                </option>
-            </select>
-            <span class="form_error" id="bankName_error" th:text="${#strings.listJoin(#fields.errors('bankName'), ' ')}"></span></p>
+        <!-- 金融機関はコードで指定する。名称は入力させず、コードからマスタを引いて表示する。
+             ・入力欄から離れたとき（change）と「検索」ボタンで /api/banks/{bankCode} を呼ぶ
+             ・表示された名称は画面に出すだけで、サーバへは送らない（サーバ側で引き直す）。
+               hidden項目で名称を送り返すと、開発者ツールで書き換えられてしまうため -->
+        <p><label class="ml-1">金融機関コード: <small class="text-danger ml-1">※</small></label><br>
+            <small class="form_hint">半角数字4桁（例: 0001）。入力すると金融機関名が表示されます。</small><br>
+            <input type="text" id="bankCode" th:field="*{bankCode}" class="form-control-code"
+                   placeholder="0001" maxlength="4" inputmode="numeric" th:errorclass="input-error"/>
+            <input type="button" id="bankCodeSearch" value="検索" class="form-control-button form-search-button"/>
+            <span class="master_name" id="bankName_view" th:text="*{bankName}"></span><br>
+            <span class="form_error" id="bankCode_error" th:text="${#strings.listJoin(#fields.errors('bankCode'), ' ')}"></span></p>
 
         <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="text" id="bankAccountNum" th:field="*{bankAccountNum}" class="form-control"
@@ -114,15 +139,16 @@
                    th:errorclass="input-error"/>
             <span class="form_error" id="bankAccountNum_error" th:text="${#strings.listJoin(#fields.errors('bankAccountNum'), ' ')}"></span></p>
 
-        <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
-            <select id="branchName" th:field="*{branchName}" class="form-control" th:errorclass="input-error">
-                <option value="">選択してください</option>
-                <option th:each="branch : ${branchOptions}"
-                        th:value="${branch}"
-                        th:text="${branch}">選択肢
-                </option>
-            </select>
-            <span class="form_error" id="branchName_error" th:text="${#strings.listJoin(#fields.errors('branchName'), ' ')}"></span></p>
+        <!-- 支店コードは金融機関コードとセットで初めて支店を特定できるので、
+             検索も /api/banks/{bankCode}/branches/{branchCode} の形で両方を渡す。
+             金融機関コードが未入力・不正の間は問い合わせを行わない。 -->
+        <p><label class="ml-1">支店コード: <small class="text-danger ml-1">※</small></label><br>
+            <small class="form_hint">半角数字3桁（例: 002）。金融機関コードを先に入力してください。</small><br>
+            <input type="text" id="branchCode" th:field="*{branchCode}" class="form-control-code"
+                   placeholder="002" maxlength="3" inputmode="numeric" th:errorclass="input-error"/>
+            <input type="button" id="branchCodeSearch" value="検索" class="form-control-button form-search-button"/>
+            <span class="master_name" id="branchName_view" th:text="*{branchName}"></span><br>
+            <span class="form_error" id="branchCode_error" th:text="${#strings.listJoin(#fields.errors('branchCode'), ' ')}"></span></p>
 
         <!-- 科目名はラジオボタン。1つの項目が選択肢の数だけ <input> に分かれる点がプルダウンと異なる。
              ・th:field を付けると id は bankAccountType1, bankAccountType2 … と連番になるため、
