@@ -5,8 +5,9 @@
     <title>ながれぼし銀行 - ローン総合ポータル</title>
     <style>
         :root {
-            --primary: #4338ca;
-            --primary-light: #6366f1;
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --accent: #f59e0b;
             --bg-base: #f8fafc;
             --text-main: #0f172a;
             --text-muted: #475569;
@@ -38,8 +39,8 @@
         }
 
         .logo {
-            font-size: 19px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 800;
             color: var(--primary);
             text-decoration: none;
             display: flex;
@@ -66,87 +67,76 @@
         }
 
         .header-btn {
-            background-color: var(--primary);
+            background-color: var(--accent);
             color: white !important;
-            padding: 10px 20px;
+            padding: 10px 22px;
             border-radius: 9999px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(67, 56, 202, 0.2);
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
             transition: background-color 0.2s, transform 0.1s !important;
         }
 
         .header-btn:hover {
-            background-color: var(--primary-light) !important;
+            background-color: #d97706 !important;
             transform: translateY(-1px);
         }
 
-        /* ヒーローセクション */
+        /* メインビジュアル（申込を主役にしたデザイン） */
         .hero {
-            background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
             text-align: center;
-            padding: 70px 20px 80px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .hero-badge {
-            display: inline-block;
-            background-color: #e0e7ff;
-            color: var(--primary);
-            font-size: 13px;
-            font-weight: 600;
-            padding: 6px 16px;
-            border-radius: 9999px;
-            margin-bottom: 24px;
+            padding: 80px 20px 90px;
         }
 
         .hero h1 {
             font-size: 38px;
             font-weight: 800;
-            color: var(--text-main);
             margin: 0 0 16px 0;
             letter-spacing: -0.02em;
         }
 
         .hero p {
             font-size: 17px;
-            color: var(--text-muted);
-            margin: 0 0 36px 0;
+            opacity: 0.9;
+            margin: 0 0 35px 0;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
         }
 
-        .cta-button {
+        /* 最優先の申込ボタン */
+        .hero-cta-btn {
             display: inline-block;
-            background: var(--primary);
+            background: var(--accent);
             color: #ffffff;
             text-decoration: none;
             padding: 18px 48px;
             border-radius: 12px;
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 700;
-            box-shadow: 0 10px 20px -5px rgba(67, 56, 202, 0.4);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
             transition: all 0.2s ease;
         }
 
-        .cta-button:hover {
-            background-color: var(--primary-light);
+        .hero-cta-btn:hover {
+            background-color: #d97706;
             transform: translateY(-2px);
-            box-shadow: 0 14px 24px -5px rgba(67, 56, 202, 0.5);
+            box-shadow: 0 15px 30px rgba(245, 158, 11, 0.5);
         }
 
         /* コンテナセクション */
         .container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 60px auto 80px;
-            padding: 0 24px;
+            padding: 0 20px;
         }
 
         .section-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 32px;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -155,85 +145,186 @@
         .section-title::before {
             content: "";
             display: inline-block;
-            width: 6px;
-            height: 24px;
-            background-color: var(--primary);
+            width: 5px;
+            height: 22px;
+            background-color: var(--primary-light);
             border-radius: 3px;
         }
 
         /* ローン商品グリッド */
         .loan-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 70px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 60px;
         }
 
         .loan-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 24px;
-            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            padding: 20px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         }
 
-        .loan-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-            border-color: #cbd5e1;
-        }
-
         .loan-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 17px;
+            margin: 0 0 8px 0;
+            font-size: 16px;
             font-weight: 700;
-            color: var(--text-main);
+            color: var(--primary);
         }
 
         .loan-card p {
             margin: 0;
-            font-size: 13.5px;
+            font-size: 13px;
             color: var(--text-muted);
-            line-height: 1.5;
         }
 
-        /* 選ばれる理由カード */
-        .features-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .feature-card {
+        /* シミュレーションセクション（下部に配置） */
+        .simulation-box {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px 30px;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            margin-top: 40px;
+        }
+
+        .simulation-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            gap: 8px;
         }
 
-        .feature-number {
-            font-size: 22px;
-            font-weight: 800;
-            color: #c7d2fe;
-            min-width: 40px;
-        }
-
-        .feature-content h4 {
-            margin: 0 0 4px 0;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .feature-content p {
-            margin: 0;
-            font-size: 14px;
+        .simulation-desc {
+            font-size: 13.5px;
             color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .sim-grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .sim-grid-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sim-form-group label {
+            display: block;
+            font-size: 13.5px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            text-align: left;
+        }
+
+        .sim-form-group input, .sim-form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+            background-color: #f8fafc;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .sim-form-group input:focus, .sim-form-group select:focus {
+            border-color: var(--primary-light);
+            background-color: #ffffff;
+        }
+
+        /* シミュレーション実行ボタン */
+        .exec-btn {
+            display: block;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 10px rgba(30, 58, 138, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .exec-btn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        /* 結果カード（初期状態は非表示） */
+        .sim-result-card {
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #c7d2fe;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            display: none;
+        }
+
+        .sim-result-left {
+            text-align: left;
+        }
+
+        .sim-result-label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+
+        .sim-result-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .sim-result-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .sim-result-value span {
+            font-size: 15px;
+            font-weight: normal;
+        }
+
+        .sim-cta-btn {
+            background-color: var(--accent);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+            transition: background-color 0.2s, transform 0.1s;
+            white-space: nowrap;
+        }
+
+        .sim-cta-btn:hover {
+            background-color: #d97706;
+            transform: translateY(-1px);
         }
 
         /* フッター */
@@ -255,28 +346,27 @@
     </a>
     <div class="header-links">
         <a href="#loans">ローン一覧</a>
-        <a href="#features">選ばれる理由</a>
+        <a href="#simulator">返済シミュレーション</a>
         <a href="/bankLoan/form" class="header-btn">今すぐ申し込む</a>
     </div>
 </header>
 
-<!-- メインビジュアル -->
+<!-- メインビジュアル（申込が主役のファーストビュー） -->
 <div class="hero">
-    <div class="hero-badge">スマート＆セキュアなローンポータル</div>
-    <h1>あなたの夢と暮らしを、<br>もっとスマートにサポート。</h1>
-    <p>スマホ完結・低金利で、あなたのライフステージに寄り添う最適なローンをご提案します。</p>
-    <a href="/bankLoan/form" class="cta-button">ネットでかんたんローン申込 ➔</a>
+    <h1>あなたの夢と暮らしを、もっとスマートに。</h1>
+    <p>スマホ完結・最短即日審査。最適なローンのお申込みはこちらから。</p>
+    <a href="/bankLoan/form" class="hero-cta-btn">ネットでかんたんローン申込 ➔</a>
 </div>
 
 <!-- メインコンテンツ -->
 <div class="container">
 
-    <!-- ローン商品ラインナップ -->
+    <!-- ローン商品一覧 -->
     <h2 id="loans" class="section-title">お取り扱いローン商品</h2>
     <div class="loan-grid">
         <div class="loan-card">
             <h3>住宅ローン</h3>
-            <p>マイホームの新築・購入やリフォームに。安心のプランを。</p>
+            <p>マイホームの新築・購入やリフォームに安心のプランを。</p>
         </div>
         <div class="loan-card">
             <h3>マイカーローン</h3>
@@ -288,32 +378,49 @@
         </div>
         <div class="loan-card">
             <h3>フリーローン</h3>
-            <p>旅行や医療費など使い道自由。急な出費にもスムーズに対応。</p>
+            <p>旅行や医療費など使い道自由。急な出費にもスムーズに。</p>
         </div>
     </div>
 
-    <!-- 当行が選ばれる理由 -->
-    <h2 id="features" class="section-title">ながれぼし銀行が選ばれる理由</h2>
-    <div class="features-wrapper">
-        <div class="feature-card">
-            <div class="feature-number">01</div>
-            <div class="feature-content">
-                <h4>24時間いつでもスマホからお申込み</h4>
-                <p>店舗への来店や面倒な書類の郵送は不要。スキマ時間にスマホひとつで手続きが完結します。</p>
+    <!-- 返済額シミュレーション（少し下部に配置） -->
+    <div class="simulation-box" id="simulator">
+        <div class="simulation-title">📊 返済額シミュレーション</div>
+        <div class="simulation-desc">金額と期間を選んでボタンを押すと、毎月の目安返済額を試算できます。</div>
+
+        <div class="sim-grid-inputs">
+            <div class="sim-form-group">
+                <label for="simAmount">借入希望額（万円）</label>
+                <input type="number" id="simAmount" value="300" min="10" max="10000" step="10">
+            </div>
+
+            <div class="sim-form-group">
+                <label for="simYears">返済期間</label>
+                <select id="simYears">
+                    <option value="1">1年</option>
+                    <option value="3">3年</option>
+                    <option value="5" selected>5年</option>
+                    <option value="10">10年</option>
+                    <option value="15">15年</option>
+                    <option value="20">20年</option>
+                    <option value="25">25年</option>
+                    <option value="30">30年</option>
+                    <option value="35">35年</option>
+                </select>
             </div>
         </div>
-        <div class="feature-card">
-            <div class="feature-number">02</div>
-            <div class="feature-content">
-                <h4>スピーディーな審査対応</h4>
-                <p>お客さまのお急ぎのニーズにお応えするため、最短即日での審査回答を実現しています。</p>
+
+        <!-- シミュレーション実行ボタン -->
+        <button type="button" class="exec-btn" onclick="calculateLoan()">シミュレーションを実行する</button>
+
+        <!-- 結果カード（ボタンを押すまで非表示） -->
+        <div class="sim-result-card" id="resultCard">
+            <div class="sim-result-left">
+                <div class="sim-result-label">毎月の目安ご返済額</div>
+                <div class="sim-result-sub">※金利年2.5%で試算しています</div>
             </div>
-        </div>
-        <div class="feature-card">
-            <div class="feature-number">03</div>
-            <div class="feature-content">
-                <h4>安心のセキュリティ環境</h4>
-                <p>高度な暗号化技術により、お客さまの大切な個人情報を安全に保護・管理します。</p>
+            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <div class="sim-result-value" id="resultText">-- <span>円 / 月</span></div>
+                <a href="/bankLoan/form" class="sim-cta-btn">この内容で申し込む ➔</a>
             </div>
         </div>
     </div>
@@ -324,6 +431,33 @@
 <footer>
     <p>&copy; Nagareboshi Bank, Ltd. All Rights Reserved.</p>
 </footer>
+
+<!-- シミュレーション計算用JavaScript -->
+<script>
+    function calculateLoan() {
+        const amountMan = parseFloat(document.getElementById('simAmount').value) || 0;
+        const years = parseInt(document.getElementById('simYears').value) || 5;
+
+        const principalYen = amountMan * 10000;
+        const annualRate = 0.025;
+        const monthlyRate = annualRate / 12;
+        const totalMonths = years * 12;
+
+        let monthlyPayment = 0;
+        if (principalYen > 0 && totalMonths > 0) {
+            if (monthlyRate === 0) {
+                monthlyPayment = principalYen / totalMonths;
+            } else {
+                monthlyPayment = principalYen * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+            }
+        }
+
+        const formatted = Math.round(monthlyPayment).toLocaleString();
+        document.getElementById('resultText').innerHTML = formatted + " <span>円 / 月</span>";
+
+        document.getElementById('resultCard').style.display = 'flex';
+    }
+</script>
 
 </body>
 </html>
