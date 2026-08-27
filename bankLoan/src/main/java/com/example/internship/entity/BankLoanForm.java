@@ -23,4 +23,6 @@ public class BankLoanForm {
     private Integer annualIncome;    // 借入年収
     private Double interestRate;     // 金利
     private String loanYears;        // ローン年数（返済期間）
+
+    private String repaymentMethod;  // ★ 返済方法のフィールドを追加
 }
