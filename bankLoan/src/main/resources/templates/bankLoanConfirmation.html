@@ -52,7 +52,7 @@
             font-size: 23px;
         }
 
-        /* 修正ボタンを置く見出し */
+        /* 見出しと修正ボタン */
         .section-title-row {
             display: flex;
             align-items: center;
@@ -92,9 +92,10 @@
             overflow-wrap: anywhere;
         }
 
+        /* 下部ボタンを中央配置 */
         .button-area {
             display: flex;
-            justify-content: flex-end;
+            justify-content: center;
             gap: 15px;
             margin-top: 40px;
             padding-top: 25px;
@@ -103,6 +104,7 @@
 
         .button-group {
             display: flex;
+            justify-content: center;
             gap: 10px;
             flex-wrap: wrap;
         }
@@ -219,12 +221,8 @@
                 gap: 5px;
             }
 
-            .button-area {
-                display: block;
-            }
-
             .button-group {
-                margin-top: 10px;
+                width: 100%;
             }
 
             .form-button {
@@ -242,13 +240,22 @@
 <div class="content">
 
     <div class="step-progress">
-        <div class="progress-step completed">1. 口座確認</div>
-        <div class="progress-step completed">2. 借入内容</div>
+        <div class="progress-step completed">
+            1. 口座確認
+        </div>
+
+        <div class="progress-step completed">
+            2. 借入内容
+        </div>
+
         <div class="progress-step active"
              aria-current="step">
             3. 内容確認
         </div>
-        <div class="progress-step">4. 申込完了</div>
+
+        <div class="progress-step">
+            4. 申込完了
+        </div>
     </div>
 
     <h1>申込内容の確認</h1>
