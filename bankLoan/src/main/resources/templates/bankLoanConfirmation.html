@@ -172,7 +172,7 @@
     <h1>ローン申込内容の確認</h1>
     <p class="confirm-lead">入力内容をご確認のうえ、「申込」ボタンを押してください。</p>
 
-    <!-- 💡 ご入力条件に基づく予想金額を表示するエリア（シミュレーション結果とは独立） -->
+    <!-- 💡 ご入力条件に基づく予想金額を表示するエリア -->
     <div class="expected-amount-box">
         <div class="expected-amount-title">📋 ご入力条件に基づく予想ご返済額</div>
         <div class="expected-amount-grid">
@@ -279,10 +279,7 @@
         <input type="hidden" th:field="*{postalCode}"/>
         <input type="hidden" th:field="*{address}"/>
         <input type="hidden" th:field="*{accountType}"/>
-
-        <!-- ★ 返済プランの値を維持するためのhiddenフィールド -->
         <input type="hidden" th:field="*{repaymentMethod}"/>
-
         <input type="hidden" th:field="*{loanYears}"/>
         <input type="hidden" th:field="*{annualIncome}"/>
         <input type="hidden" th:field="*{loanAmount}"/>
@@ -292,15 +289,16 @@
         <div class="bottom-action-area">
             <button type="button" class="form-control-button form-clear-button" onclick="window.location.href='/bankLoan';">キャンセル</button>
             <button type="submit" class="form-control-button form-edit-button" th:formaction="@{/bankLoan/edit}">修正</button>
-            <button type="submit" class="form-control-button form-confirmation-button">申込</button>
+            <!-- 💡 申込ボタンに id="applyBtn" を追加 -->
+            <button type="submit" id="applyBtn" class="form-control-button form-confirmation-button">申込</button>
         </div>
     </form>
 </div>
 
-<!-- 💡 確認画面での予想金額自動計算スクリプト -->
+<!-- 💡 自動計算 ＆ 申込確認ダイアログのスクリプト -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Thymeleafから渡された値（テキスト）を数値に変換して取得
+        // --- 1. 金額の自動計算処理 ---
         const rawAmount = document.getElementById('viewLoanAmount').textContent.replace(/,/g, '');
         const rawYears = document.getElementById('viewLoanYears').textContent;
         const rawRate = document.getElementById('viewInterestRate').textContent;
@@ -325,6 +323,19 @@
             // 結果を反映
             document.getElementById('calcMonthlyPay').innerHTML = Math.round(monthlyPayment).toLocaleString() + " <span>円</span>";
             document.getElementById('calcTotalPay').innerHTML = Math.round(totalPayment).toLocaleString() + " <span>円</span>";
+        }
+
+        // --- 2. 「申込」ボタン押下時の確認ダイアログ処理 ---
+        const applyBtn = document.getElementById('applyBtn');
+        if (applyBtn) {
+            applyBtn.addEventListener('click', function(event) {
+                // 確認ダイアログを表示
+                const isConfirmed = window.confirm('本当にこの内容で申し込みますか？');
+                if (!isConfirmed) {
+                    // 「キャンセル」が選ばれた場合は送信をストップする
+                    event.preventDefault();
+                }
+            });
         }
     });
 </script>
