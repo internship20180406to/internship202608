@@ -22,8 +22,14 @@ public class BankLoanController {
     @Autowired
     private ApplyBankLoanService applyBankLoanService;
 
-    // 1. 入力画面の表示
+    // 0. 【ホームページ】 http://localhost:8081/bankLoan にアクセスしたときに最初に表示
     @GetMapping("/bankLoan")
+    public String index() {
+        return "index"; // src/main/resources/templates/index.html を表示
+    }
+
+    // 1. 【入力画面】 「お申込みへ進む」ボタンを押したときに表示するURL
+    @GetMapping("/bankLoan/form")
     public String bankTransfer(Model model) {
         model.addAttribute("bankLoanApplication", new BankLoanForm());
 
@@ -60,7 +66,6 @@ public class BankLoanController {
     // ★ 確認画面から「修正」ボタンで戻ってきたとき（POST）の処理
     @PostMapping("/bankLoan/edit")
     public String returnToInput(@ModelAttribute("bankLoanApplication") BankLoanForm bankLoanForm, Model model) {
-        // セッション等に保持された入力値を維持したまま、選択肢を再設定して入力画面へ戻る
         model.addAttribute("nameOptions", List.of("テスト銀行", "サンプル中央銀行", "デモ信用金庫"));
         model.addAttribute("accountTypeOptions", List.of("住宅ローン", "マイカーローン", "教育ローン", "フリーローン", "カードローン"));
         model.addAttribute("depositTypeOptions", List.of("普通預金", "当座預金", "貯蓄預金"));
@@ -75,7 +80,7 @@ public class BankLoanController {
                                BindingResult bindingResult,
                                Model model) {
 
-        // ★ 1. サーバー側：生年月日チェック（満20歳未満かどうかの判定）
+        // 生年月日チェック（満20歳未満かどうかの判定）
         boolean hasAgeError = false;
         if (bankLoanForm.getBirthDate() != null && !bankLoanForm.getBirthDate().isEmpty()) {
             try {
@@ -95,47 +100,44 @@ public class BankLoanController {
             }
         }
 
-        // ★ 2. サーバー側：ローン種類ごとの借入金額・上限下限チェック
+        // ローン種類ごとの借入金額・上限下限チェック
         boolean hasIncomeError = false;
         if (bankLoanForm.getLoanAmount() != null) {
             long loanAmountYen = bankLoanForm.getLoanAmount();
             String accountType = bankLoanForm.getAccountType();
 
-            long minLimit = 10_000L;          // デフォルト下限（1万円）
-            long maxLimit = 100_000_000L;     // デフォルト上限
+            long minLimit = 10_000L;
+            long maxLimit = 100_000_000L;
             String errorMessage = "借入金額の範囲が正しくありません。";
 
-            // ローン種類ごとの上限・下限を設定
             if ("住宅ローン".equals(accountType)) {
-                minLimit = 1_000_000L;       // 100万円
-                maxLimit = 100_000_000L;   // 1億円
+                minLimit = 1_000_000L;
+                maxLimit = 100_000_000L;
                 errorMessage = "住宅ローンの借入金額は100万円以上、1億円以下で入力してください。";
             } else if ("マイカーローン".equals(accountType)) {
-                minLimit = 100_000L;       // 10万円
-                maxLimit = 5_000_000L;     // 500万円
+                minLimit = 100_000L;
+                maxLimit = 5_000_000L;
                 errorMessage = "マイカーローンの借入金額は10万円以上、500万円以下で入力してください。";
             } else if ("教育ローン".equals(accountType)) {
-                minLimit = 100_000L;       // 10万円
-                maxLimit = 3_000_000L;     // 300万円
+                minLimit = 100_000L;
+                maxLimit = 3_000_000L;
                 errorMessage = "教育ローンの借入金額は10万円以上、300万円以下で入力してください。";
             } else if ("フリーローン".equals(accountType)) {
-                minLimit = 50_000L;        // 5万円
-                maxLimit = 2_000_000L;     // 200万円
+                minLimit = 50_000L;
+                maxLimit = 2_000_000L;
                 errorMessage = "フリーローンの借入金額は5万円以上、200万円以下で入力してください。";
             } else if ("カードローン".equals(accountType)) {
-                minLimit = 10_000L;        // 1万円
-                maxLimit = 1_000_000L;     // 100万円
+                minLimit = 10_000L;
+                maxLimit = 1_000_000L;
                 errorMessage = "カードローンの借入金額は1万円以上、100万円以下で入力してください。";
             }
 
-            // 範囲チェックの実行
             if (loanAmountYen < minLimit || loanAmountYen > maxLimit) {
                 bindingResult.rejectValue("loanAmount", "error.loanAmount", errorMessage);
                 hasIncomeError = true;
             }
         }
 
-        // バリデーションエラーがある場合は、選択肢を再設定して入力画面に戻す
         if (bindingResult.hasErrors() || hasAgeError || hasIncomeError) {
             model.addAttribute("nameOptions", List.of("テスト銀行", "サンプル中央銀行", "デモ信用金庫"));
             model.addAttribute("accountTypeOptions", List.of("住宅ローン", "マイカーローン", "教育ローン", "フリーローン", "カードローン"));
@@ -149,7 +151,6 @@ public class BankLoanController {
             bankLoanForm.setName("ながれぼし銀行");
         }
 
-        // 確認画面表示時の日時を自動生成してModelに登録
         String applicationDate = getNowDateTime();
         model.addAttribute("applicationDate", applicationDate);
 
@@ -160,11 +161,8 @@ public class BankLoanController {
     // 3. 申込完了処理
     @PostMapping("/bankLoanCompletion")
     public String completion(@ModelAttribute BankLoanForm bankLoanForm, Model model) {
-        // 申込確定時の日時を自動生成してModelに登録
         String applicationDate = getNowDateTime();
         model.addAttribute("applicationDate", applicationDate);
-
-        // 💡 完了画面で入力内容（名前や金額）を表示するため、モデルにフォームオブジェクトを登録
         model.addAttribute("bankLoanApplication", bankLoanForm);
 
         applyBankLoanService.applyBankLoan(bankLoanForm);

@@ -1,0 +1,329 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ながれぼし銀行 - ローン総合ポータル</title>
+    <style>
+        :root {
+            --primary: #4338ca;
+            --primary-light: #6366f1;
+            --bg-base: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* ヘッダー */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .header-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .header-links a:hover {
+            color: var(--primary);
+        }
+
+        .header-btn {
+            background-color: var(--primary);
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 9999px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(67, 56, 202, 0.2);
+            transition: background-color 0.2s, transform 0.1s !important;
+        }
+
+        .header-btn:hover {
+            background-color: var(--primary-light) !important;
+            transform: translateY(-1px);
+        }
+
+        /* ヒーローセクション */
+        .hero {
+            background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+            text-align: center;
+            padding: 70px 20px 80px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background-color: #e0e7ff;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 0 16px 0;
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            font-size: 17px;
+            color: var(--text-muted);
+            margin: 0 0 36px 0;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--primary);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 18px 48px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            box-shadow: 0 10px 20px -5px rgba(67, 56, 202, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .cta-button:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 24px -5px rgba(67, 56, 202, 0.5);
+        }
+
+        /* コンテナセクション */
+        .container {
+            max-width: 1000px;
+            margin: 60px auto 80px;
+            padding: 0 24px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 24px;
+            background-color: var(--primary);
+            border-radius: 3px;
+        }
+
+        /* ローン商品グリッド */
+        .loan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 70px;
+        }
+
+        .loan-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .loan-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            border-color: #cbd5e1;
+        }
+
+        .loan-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .loan-card p {
+            margin: 0;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* 選ばれる理由カード */
+        .features-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .feature-number {
+            font-size: 22px;
+            font-weight: 800;
+            color: #c7d2fe;
+            min-width: 40px;
+        }
+
+        .feature-content h4 {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .feature-content p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* フッター */
+        footer {
+            background-color: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 30px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header>
+    <a href="/bankLoan" class="logo">
+        <span>⭐</span> ながれぼし銀行
+    </a>
+    <div class="header-links">
+        <a href="#loans">ローン一覧</a>
+        <a href="#features">選ばれる理由</a>
+        <a href="/bankLoan/form" class="header-btn">今すぐ申し込む</a>
+    </div>
+</header>
+
+<!-- メインビジュアル -->
+<div class="hero">
+    <div class="hero-badge">スマート＆セキュアなローンポータル</div>
+    <h1>あなたの夢と暮らしを、<br>もっとスマートにサポート。</h1>
+    <p>スマホ完結・低金利で、あなたのライフステージに寄り添う最適なローンをご提案します。</p>
+    <a href="/bankLoan/form" class="cta-button">ネットでかんたんローン申込 ➔</a>
+</div>
+
+<!-- メインコンテンツ -->
+<div class="container">
+
+    <!-- ローン商品ラインナップ -->
+    <h2 id="loans" class="section-title">お取り扱いローン商品</h2>
+    <div class="loan-grid">
+        <div class="loan-card">
+            <h3>住宅ローン</h3>
+            <p>マイホームの新築・購入やリフォームに。安心のプランを。</p>
+        </div>
+        <div class="loan-card">
+            <h3>マイカーローン</h3>
+            <p>新車・中古車購入から車検・パーツ費用まで幅広くサポート。</p>
+        </div>
+        <div class="loan-card">
+            <h3>教育ローン</h3>
+            <p>入学金・授業料や一人暮らしの初期費用をトータルで応援。</p>
+        </div>
+        <div class="loan-card">
+            <h3>フリーローン</h3>
+            <p>旅行や医療費など使い道自由。急な出費にもスムーズに対応。</p>
+        </div>
+    </div>
+
+    <!-- 当行が選ばれる理由 -->
+    <h2 id="features" class="section-title">ながれぼし銀行が選ばれる理由</h2>
+    <div class="features-wrapper">
+        <div class="feature-card">
+            <div class="feature-number">01</div>
+            <div class="feature-content">
+                <h4>24時間いつでもスマホからお申込み</h4>
+                <p>店舗への来店や面倒な書類の郵送は不要。スキマ時間にスマホひとつで手続きが完結します。</p>
+            </div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-number">02</div>
+            <div class="feature-content">
+                <h4>スピーディーな審査対応</h4>
+                <p>お客さまのお急ぎのニーズにお応えするため、最短即日での審査回答を実現しています。</p>
+            </div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-number">03</div>
+            <div class="feature-content">
+                <h4>安心のセキュリティ環境</h4>
+                <p>高度な暗号化技術により、お客さまの大切な個人情報を安全に保護・管理します。</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- フッター -->
+<footer>
+    <p>&copy; Nagareboshi Bank, Ltd. All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>
