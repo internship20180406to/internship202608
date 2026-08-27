@@ -17,8 +17,15 @@ public class BankTransferForm {
     private String bankAccountType;
     @NonNull
     private String bankAccountNum;
+
+
     @NonNull
     private String name;
+
+    private String lastName;
+    private String firstName;
+
+
     @NonNull
     private Integer money;
     @NonNull
@@ -46,17 +53,15 @@ public class BankTransferForm {
         return bankAccountNum;
     }
 
-    public void setBankAccountNum(String bankAccountNum) {
-        this.bankAccountNum = bankAccountNum;
-    }
+    public void setBankAccountNum(String bankAccountNum) {this.bankAccountNum = bankAccountNum;}
 
-    public String getName() {
-        return name;
-    }
+    public String getLastName() {return lastName;}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public void setLastName(String lastName) {this.lastName = lastName;}
+
+    public String getFirstName() {return firstName;}
+
+    public void setFirstName(String firstName) {this.firstName = firstName;}
 
     public Integer getMoney() {
         return money;

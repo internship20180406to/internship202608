@@ -61,8 +61,19 @@ public class BankTransferController {
         form.setBankName(bankName);
         form.setBranchName(branchName);
         form.setBankAccountType(bankAccountType);
-        form.setBankAccountNum(Integer.valueOf(bankAccountNum));
+        if (bankAccountNum != null && bankAccountNum.length() == 6) {
+            bankAccountNum = "0" + bankAccountNum;
+        }
+        form.setBankAccountNum(bankAccountNum);
         form.setName(name);
+        String[] nameParts = name.split(" ", 2);
+        if (nameParts.length == 2) {
+            form.setLastName(nameParts[0]);
+            form.setFirstName(nameParts[1]);
+        } else {
+            form.setLastName(name);
+            form.setFirstName("");
+        }
 
         model.addAttribute("bankTransferApplication", form);
         model.addAttribute("nameOptions", Arrays.asList("山陰共同銀行", "さくら未来銀行", "ながれぼし銀行", "ひかり中央", "ほしぞら銀行"));
@@ -79,15 +90,28 @@ public class BankTransferController {
 
     @PostMapping("/bankTransferConfirmation")
     public String confirmation(@ModelAttribute BankTransferForm bankTransferForm, Model model) {
+        String fullName = bankTransferForm.getLastName()
+                + " "
+                + bankTransferForm.getFirstName();
 
+        bankTransferForm.setName(fullName);
         Integer money = bankTransferForm.getMoney();
-
         if (money == null || money < 1 || money > 1000000) {
             model.addAttribute("errorMessage", "振込金額は1円以上100万円以下で入力してください。");
             model.addAttribute("bankTransferApplication", bankTransferForm);
             return "bankTransferMain";
         }
-
+        Integer fee;
+        if (money < 30000) {
+            fee = 330;
+        } else {
+            fee = 550;
+        }
+        Integer totalAmount = money + fee;
+        String accountNum = bankTransferForm.getBankAccountNum();
+        if (accountNum != null && accountNum.length() == 6) {
+            bankTransferForm.setBankAccountNum("0" + accountNum);
+        }
         model.addAttribute("bankName", bankTransferForm.getBankName());
         model.addAttribute("branchName", bankTransferForm.getBranchName());
         model.addAttribute("bankAccountType", bankTransferForm.getBankAccountType());
@@ -96,21 +120,50 @@ public class BankTransferController {
         model.addAttribute("money", bankTransferForm.getMoney());
         model.addAttribute("transferDateTime", bankTransferForm.getTransferDateTime());
         model.addAttribute("bankTransferApplication", bankTransferForm);
+        model.addAttribute("fee", fee);
+        model.addAttribute("totalAmount", totalAmount);
         return "bankTransferConfirmation";
     }
 
     @PostMapping("/bankTransferCompletion")
     public String completion(@ModelAttribute BankTransferForm bankTransferForm, Model model) {
         applyBankTransferService.applyBankTransfer(bankTransferForm);
+        Integer money = bankTransferForm.getMoney();
+        Integer fee;
+        if (money < 30000) {
+            fee = 330;
+        } else {
+            fee = 550;
+        }
+        Integer totalAmount = money + fee;
         model.addAttribute("bankTransferApplication", bankTransferForm);
+        model.addAttribute("fee", fee);
+        model.addAttribute("totalAmount", totalAmount);
         return "bankTransferCompletion";
     }
+
     @PostMapping("/bankTransfer/favorite")
-    public String registerFavorite(@ModelAttribute BankTransferFavoriteForm form, RedirectAttributes redirectAttributes) {
+    public String registerFavorite(
+            @ModelAttribute BankTransferFavoriteForm form,
+            RedirectAttributes redirectAttributes) {
+
+        String accountNum = form.getBankAccountNum();
+        if (accountNum != null && accountNum.length() == 6) {
+            form.setBankAccountNum("0" + accountNum);
+        }
+        String fullName = form.getLastName()
+                + " "
+                + form.getFirstName();
+        form.setName(fullName);
         applyBankTransferFavoriteService.registerFavorite(form);
-        redirectAttributes.addFlashAttribute("successMessage", "✓ 振込先を登録しました");
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                "✓ 振込先を登録しました");
         return "redirect:/bankTransferFavorite";
     }
+
+
+
     @PostMapping("/bankTransferFavorite/delete")
     public String deleteFavorite(@RequestParam Integer id) {
         applyBankTransferFavoriteService.deleteFavorite(id);

@@ -61,8 +61,6 @@
             background-color: #0b6b57;
             box-shadow: 0 3px 6px rgba(11, 107, 87, 0.25);
         }
-
-
         .form-confirmation-button:hover {
             background-color: #095746;
             transform: translateY(-1px);
@@ -224,6 +222,60 @@
         .transfer-content-title {
             padding-top: 40px;
         }
+        .fee-summary {
+            width: 320px;
+            margin: -5px 0 28px auto;
+            padding: 12px 16px;
+            background-color: #f8faf9;
+            border: 1px solid #d7e5e1;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .fee-row strong {
+            color: #444;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .total-row strong {
+            color: #0b6b57;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .total-row strong {
+            color: #0b6b57;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .fee-note {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #edf2f0;
+            color: #999;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+        .name-inputs {
+            display: flex;
+            gap: 15px;
+        }
+        .name-field {
+            flex: 1;
+        }
+        .name-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #777;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
     </style>
 </head>
@@ -235,10 +287,10 @@
     </div>
     <h1 class="form-title">銀行振込情報入力</h1>
     <div class="form-container">
-    <form action="#" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post">
+        <form action="#" id="transferForm" th:action="@{/bankTransferConfirmation}" th:object="${bankTransferApplication}" method="post">
         <div class="section-title"><span></span>振込先情報</div>
         <p><label class="form-label">金融機関名 <span class="required">※</span></label>
-            <select th:field="*{bankName}" class="form-control" required>
+            <select id="bankName" th:field="*{bankName}" class="form-control" required>
                 <option value="">選択してください</option>
                 <option th:each="option : ${nameOptions}"
                         th:value="${option}"
@@ -248,7 +300,7 @@
             </select>
         </p>
         <p><label class="form-label">支店名 <span class="required">※</span></label>
-            <select th:field="*{branchName}" class="form-control" required>
+            <select id="branchName" th:field="*{branchName}" class="form-control" required>
                 <option value="">選択してください</option>
                 <option th:each="option : ${branchNameOptions}"
                         th:value="${option}"
@@ -270,36 +322,147 @@
         </p>
         <p><label class="form-label">口座番号 <span class="required">※</span></label>
             <input type="text"
-                   th:field="*{bankAccountNum}" class="form-control" placeholder="1234567" inputmode="numeric"
+                   th:field="*{bankAccountNum}" id="bankAccountNum" class="form-control" placeholder="1234567" inputmode="numeric"
                    pattern="[0-9]{6,7}" maxlength="7" required/>
             <small class="input-help">※6～7桁の半角数字で入力してください</small>
-
-
-
-
-
-
-
-
-
-
         <p><label class="form-label">口座名義 <span class="required">※</span></label>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="ｻﾄｳ ﾊﾅｺ" required>
-            <small class="input-help">
-                ※半角カタカナで入力してください
-            </small></p>
+        <div class="name-inputs">
+            <div class="name-field">
+                <span class="name-label">姓</span>
+                <input type="text" th:field="*{lastName}" class="form-control" placeholder="ｻﾄｳ" required>
+            </div>
+            <div class="name-field"><span class="name-label">名</span>
+                <input type="text" th:field="*{firstName}" class="form-control" placeholder="ﾊﾅｺ" required>
+            </div>
+        </div>
+        <small class="input-help">※半角カタカナで入力してください
+        </small>
+        </p>
         <div class="section-title transfer-content-title"><span></span>振込内容</div>
         <p><label class="form-label">金額 <span class="required">※</span></label>
-            <input type="number" th:field="*{money}" class="form-control" placeholder="10000" min="1" max="1,000,000" required/>
+            <input type="text" id="moneyDisplay" class="form-control" placeholder="10,000"
+                   inputmode="numeric" maxlength="9" required/>
+            <input type="hidden" id="money" th:field="*{money}"/>
+            <span id="moneyError" class="text-danger"></span>
             <span th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger"></span></p>
+        <div class="fee-summary">
+            <div class="fee-row"><span>振込手数料</span><strong><span id="fee">0</span>円</strong>
+            </div>
+            <div class="fee-row total-row"><span>引落予定額</span><strong><span id="totalAmount">0</span>円</strong>
+            </div>
+            <div class="fee-note">※手数料は振込金額に応じて自動計算されます
+            </div>
+        </div>
         <p><label class="form-label">振込指定日 <span class="required">※</span></label>
-            <input type="date" th:field="*{transferDateTime}" class="form-control"/></p>
+            <input type="date" id="transferDateTime" th:field="*{transferDateTime}" class="form-control"/></p>
         <p style="text-align: center;">
-            <input type="reset" value="クリア" class="form-control-button form-clear-button"/>
+            <input type="button" value="クリア" class="form-control-button form-clear-button" onclick="clearForm()"/>
             <input type="submit" value="確認" class="form-control-button form-confirmation-button"/></p>
     </form>
     </div>
     </div>
+<script>
+    const accountInput = document.getElementById("bankAccountNum");
+    function formatAccountNumber() {
+        if (accountInput.value.length === 6 &&
+            /^[0-9]{6}$/.test(accountInput.value)) {
+            accountInput.value = "0" + accountInput.value;
+        }
+    }
+    accountInput.addEventListener("blur", formatAccountNumber);
+    accountInput.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            formatAccountNumber();
+        }
+    });
+    const moneyDisplay = document.getElementById("moneyDisplay");
+    const moneyInput = document.getElementById("money");
+    const feeDisplay = document.getElementById("fee");
+    const totalDisplay = document.getElementById("totalAmount");
+    moneyDisplay.addEventListener("input", function () {
+        let rawValue = this.value.replace(/,/g, "").replace(/\D/g, "");
+        moneyInput.value = rawValue;
+        if (rawValue !== "") {
+            this.value = Number(rawValue).toLocaleString();
+        } else {
+            this.value = "";
+        }
+        const money = Number(rawValue);
+        const moneyError = document.getElementById("moneyError");
+        if (rawValue !== "" && money < 1) {
+            moneyError.textContent = "※振込金額は1円以上で入力してください。";
+        } else if (money > 1000000) {
+            moneyError.textContent = "※振込金額は100万円以下で入力してください。";
+        } else {
+            moneyError.textContent = "";
+        }
+        if (!money || money <= 0) {
+            feeDisplay.textContent = "0";
+            totalDisplay.textContent = "0";
+            return;
+        }
+        const fee = money < 30000 ? 330 : 550;
+        const total = money + fee;
+        feeDisplay.textContent = fee.toLocaleString();
+        totalDisplay.textContent = total.toLocaleString();
+    });
+
+
+    function clearForm() {
+        document.querySelector('[name="bankName"]').value = "";
+        document.querySelector('[name="branchName"]').value = "";
+        document.querySelectorAll('[name="bankAccountType"]').forEach(function(radio) {
+            radio.checked = false;
+        });
+        document.querySelector('[name="bankAccountNum"]').value = "";
+        document.querySelector('[name="lastName"]').value = "";
+        document.querySelector('[name="firstName"]').value = "";
+        document.getElementById("moneyDisplay").value = "";
+        document.getElementById("money").value = "";
+        document.querySelector('[name="transferDateTime"]').value = "";
+        document.getElementById("fee").textContent = "0";
+        document.getElementById("totalAmount").textContent = "0";
+        const moneyError = document.getElementById("moneyError");
+        if (moneyError) {
+            moneyError.textContent = "";
+        }
+    }
+
+    const transferForm = document.getElementById("transferForm");
+    transferForm.addEventListener("submit", function(event) {
+        const rawValue = moneyDisplay.value.replace(/,/g, "");
+        const money = Number(rawValue);
+        if (rawValue === "") {
+            event.preventDefault();
+            moneyError.textContent = "※振込金額を入力してください。";
+            moneyDisplay.focus();
+            return;
+        }
+        if (money < 1) {
+            event.preventDefault();
+            moneyError.textContent = "※振込金額は1円以上で入力してください。";
+            moneyDisplay.focus();
+            return;
+        }
+        if (money > 1000000) {
+            event.preventDefault();
+            moneyError.textContent = "※振込金額は100万円以下で入力してください。";
+            moneyDisplay.focus();
+            return;
+        }
+        moneyInput.value = rawValue;
+    });
+
+    const transferDateInput = document.getElementById("transferDateTime");
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    const todayString = `${year}-${month}-${day}`;
+    transferDateInput.min = todayString;
+
+</script>
 </body>
 
 </html>

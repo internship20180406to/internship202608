@@ -303,8 +303,6 @@
             color: white;
             box-shadow: 0 3px 8px rgba(11, 107, 87, 0.2);
         }
-
-
         .success-message {
             max-width: 800px;
             margin: 0 auto 25px;
@@ -342,6 +340,20 @@
         .success-text span {
             color: #777;
             font-size: 12px;
+        }
+        .name-inputs {
+            display: flex;
+            gap: 15px;
+        }
+        .name-field {
+            flex: 1;
+        }
+        .name-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #777;
+            font-size: 12px;
+            font-weight: 600;
         }
 
 
@@ -381,15 +393,26 @@
             <label class="radio-label">
                 <input type="radio" name="bankAccountType" value="貯蓄"><span>貯蓄</span></label>
             </div></p>
-
-
             <p><label class="form-label">口座番号<span class="required">※</span></label>
-                <input type="number" name="bankAccountNum" class="form-control" placeholder="1234567"/></p>
-            <p><label class="form-label">口座名義<span class="required">※</span></label>
-                <input type="text" name="name" class="form-control" placeholder="ｻﾄｳ ﾊﾅｺ" required>
-                <small class="input-help">
-                    ※半角カタカナで入力してください
-                </small></p>
+                <input type="text" id="favoriteBankAccountNum" name="bankAccountNum" class="form-control"
+                       placeholder="1234567" inputmode="numeric" pattern="[0-9]{6,7}" maxlength="7" required/>
+                <small class="input-help">※6～7桁の半角数字で入力してください</small></p>
+
+            <p><label class="form-label">口座名義 <span class="required">※</span></label>
+            <div class="name-inputs">
+                <div class="name-field"><span class="name-label">姓</span>
+                    <input type="text" name="lastName" class="form-control" placeholder="ｻﾄｳ" required>
+                </div>
+                <div class="name-field">
+                    <span class="name-label">名</span>
+                    <input type="text" name="firstName" class="form-control" placeholder="ﾊﾅｺ" required>
+                </div>
+            </div>
+            <small class="input-help">※半角カタカナで入力してください</small>
+            </p>
+
+
+
             <p style="text-align: center;">
                 <input type="reset" value="クリア" class="form-control-button form-clear-button"/>
                 <input type="submit" value="振込先を登録" class="form-control-button form-register-button"/></p>
@@ -409,9 +432,7 @@
                 <p><span>口座番号</span><strong th:text="${favorite.bankAccountNum}"></strong></p>
                 <p><span>口座名義</span><strong th:text="${favorite.name}"></strong></p>
             </div>
-
             <div class="favorite-actions">
-
             <a th:href="@{/bankTransfer/useFavorite(
                 bankName=${favorite.bankName},
                 branchName=${favorite.branchName},
@@ -424,7 +445,6 @@
             <form th:action="@{/bankTransferFavorite/delete}" method="post"
                   onsubmit="return confirm('この振込先を削除しますか？');">
                 <input type="hidden" name="id" th:value="${favorite.id}"/>
-
                 <button type="submit" class="delete-favorite-button">
                     🗑️ 削除
                 </button>
@@ -434,6 +454,30 @@
     </div>
 
 </div>
+<script>
+    const favoriteAccountInput =
+        document.getElementById("favoriteBankAccountNum");
+    function formatFavoriteAccountNumber() {
+        if (favoriteAccountInput.value.length === 6 &&
+            /^[0-9]{6}$/.test(favoriteAccountInput.value)) {
+            favoriteAccountInput.value =
+                "0" + favoriteAccountInput.value;
+        }
+    }
+    favoriteAccountInput.addEventListener(
+        "blur",
+        formatFavoriteAccountNumber
+    );
+    favoriteAccountInput.addEventListener(
+        "keydown",
+        function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                formatFavoriteAccountNumber();
+            }
+        }
+    );
+</script>
 
 </body>
 

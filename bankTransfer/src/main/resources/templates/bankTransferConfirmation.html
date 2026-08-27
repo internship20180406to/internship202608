@@ -89,11 +89,9 @@
 
             border-bottom: 1px solid #edf0f2;
         }
-
         .confirmation-row:last-child {
             border-bottom: none;
         }
-
         .label {
             width: 35%;
 
@@ -127,7 +125,6 @@
 
             margin-top: 30px;
         }
-
         .submit-button,
         .cancel-button {
             width: 200px;
@@ -180,22 +177,34 @@
     <div class="confirmation-container">
         <div class="page-header"><div class="bank-icon">￥</div> <h1>銀行振込確認</h1> <p>以下の内容をご確認のうえ、「振込」を押してください。</p></div>
 
-        <form action="#" th:action="@{/bankTransferCompletion}" th:object="${bankTransferApplication}" method="post">
+        <form action="#" th:action="@{/bankTransferCompletion}" th:object="${bankTransferApplication}" method="post"
+              onsubmit="return confirm('振込を実行しますか？');">
             <div class="confirmation-card">
-                <div class="section-title"> <span></span> 振込内容 </div><div class="confirmation-row"> <div class="label">金融機関名</div>
+                <div class="section-title"> <span></span> 振込内容 </div>
+                <div class="confirmation-row"> <div class="label">金融機関名</div>
                 <div class="value" th:text="${bankName}"></div></div>
                 <div class="confirmation-row"> <div class="label">支店名</div>
                 <div class="value" th:text="*{branchName}"></div> </div>
                 <div class="confirmation-row"> <div class="label">科目名</div> <div class="value" th:text="*{bankAccountType}"></div></div>
                 <div class="confirmation-row"> <div class="label">口座番号</div> <div class="value" th:text="*{bankAccountNum}"></div> </div>
                 <div class="confirmation-row"> <div class="label">口座名義</div> <div class="value" th:text="*{name}"></div> </div>
-                <div class="confirmation-row money-row"> <div class="label">振込金額</div> <div class="value money-value"> <span th:text="*{money}"></span> 円</div> </div>
+
+                <div class="confirmation-row"><div class="label">振込金額</div>
+                    <div class="value"><span th:text="${#numbers.formatInteger(money, 3, 'COMMA')}"></span> 円</div>
+                </div>
+                <div class="confirmation-row"><div class="label">振込手数料</div>
+                    <div class="value"><span th:text="${#numbers.formatInteger(fee, 3, 'COMMA')}"></span> 円</div>
+                </div>
+                <div class="confirmation-row money-row"><div class="label">引落金額</div>
+                    <div class="value money-value"><span th:text="${#numbers.formatInteger(totalAmount, 3, 'COMMA')}"></span> 円</div>
+                </div>
                 <div class="confirmation-row"> <div class="label">振込指定日</div> <div class="value" th:text="*{transferDateTime}"></div> </div> </div>
-            <!-- hidden --> <input type="hidden" name="transferDateTime" th:value="*{transferDateTime}"/>
+            <input type="hidden" name="transferDateTime" th:value="*{transferDateTime}"/>
             <input type="hidden" name="money" th:value="*{money}"/> <input type="hidden" name="name" th:value="*{name}"/>
             <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/> <input type="hidden" name="bankAccountType" th:value="*{bankAccountType}"/>
             <input type="hidden" name="branchName" th:value="*{branchName}"/> <input type="hidden" name="bankName" th:value="*{bankName}"/>
-            <div class="button-area"> <input type="button" class="cancel-button" value="キャンセル" onclick="window.location='/bankTransfer';"/>
+            <div class="button-area">
+                <input type="button" class="cancel-button" value="キャンセル" onclick="history.back();"/>
                 <input type="submit" id="submit" class="submit-button" value="振込"/> </div> </form> <div class="security-note"> 🔒 安全な通信で処理されています</div> </div>
             <script th:inline="javascript" src="/js/bankTransferConfirmation.js"></script>
 </body>
