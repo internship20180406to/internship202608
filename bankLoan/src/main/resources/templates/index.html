@@ -5,11 +5,12 @@
     <title>ながれぼし銀行 - ローン総合ポータル</title>
     <style>
         :root {
-            --bank-navy: #0a2540;       /* 重厚感と信頼感のあるダークネイビー */
-            --bank-blue: #0284c7;       /* メインの青 */
+            --bank-navy: #061e38;       /* より深く上質なダークネイビー */
+            --bank-blue: #0284c7;       /* 鮮やかでクリーンなバンクブルー */
             --bank-blue-hover: #0369a1;
-            --bank-accent: #38bdf8;     /* アクセントのライトブルー */
-            --bg-base: #f0f6ff;        /* 清潔感のある背景色 */
+            --bank-accent: #f59e0b;     /* 温かみのあるゴールドアクセント（星のイメージ） */
+            --bank-cyan: #0ea5e9;       /* 爽やかなシアン */
+            --bg-base: #f4f8ff;         /* わずかに明るく青みがかった清潔感のある背景 */
             --text-main: #1e293b;
             --text-muted: #64748b;
             --card-bg: #ffffff;
@@ -28,9 +29,9 @@
 
         /* ヘッダー */
         header {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(6px);
-            border-bottom: 2px solid var(--bank-blue);
+            border-bottom: 3px solid var(--bank-accent);
             padding: 14px 32px;
             display: flex;
             justify-content: space-between;
@@ -38,20 +39,22 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 2px 8px rgba(6, 30, 56, 0.05);
         }
 
         .logo {
-            font-size: 19px;
+            font-size: 20px;
             font-weight: bold;
             color: var(--bank-navy);
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .logo span {
-            color: var(--bank-blue);
+            color: var(--bank-accent);
+            filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.3));
         }
 
         .header-links {
@@ -73,61 +76,61 @@
         }
 
         .header-btn {
-            background-color: var(--bank-blue) !important;
+            background: linear-gradient(135deg, var(--bank-blue), var(--bank-cyan)) !important;
             color: white !important;
-            padding: 9px 18px;
+            padding: 10px 20px;
             border-radius: 9999px;
             font-weight: bold;
             font-size: 13.5px;
             text-decoration: none;
-            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
-            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+            transition: transform 0.1s, opacity 0.2s;
         }
 
         .header-btn:hover {
-            background-color: var(--bank-blue-hover) !important;
+            opacity: 0.9;
             transform: translateY(-1px);
         }
 
         /* メインビジュアル */
         .hero {
-            background: linear-gradient(rgba(10, 37, 64, 0.75), rgba(2, 132, 199, 0.65)),
+            background: linear-gradient(135deg, rgba(6, 30, 56, 0.85), rgba(2, 132, 199, 0.75)),
             url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
             color: white;
             text-align: center;
-            padding: 85px 20px 95px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            padding: 95px 20px 105px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.4);
         }
 
         .hero h1 {
-            font-size: 32px;
+            font-size: 34px;
             font-weight: bold;
-            margin: 0 0 12px 0;
+            margin: 0 0 14px 0;
             letter-spacing: -0.01em;
         }
 
         .hero p {
-            font-size: 15px;
+            font-size: 15.5px;
             color: #e0f2fe;
             margin: 0 0 35px 0;
         }
 
         .hero-cta-btn {
             display: inline-block;
-            background: #ffffff;
-            color: var(--bank-navy);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
             text-decoration: none;
-            padding: 15px 40px;
+            padding: 16px 42px;
             border-radius: 9999px;
             font-size: 16px;
             font-weight: bold;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .hero-cta-btn:hover {
-            background-color: #f0f9ff;
             transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(245, 158, 11, 0.5);
         }
 
         /* コンテナセクション */
@@ -138,43 +141,44 @@
         }
 
         .section-title {
-            font-size: 19px;
+            font-size: 20px;
             font-weight: bold;
             color: var(--bank-navy);
-            margin-bottom: 18px;
-            border-bottom: 2px solid var(--bank-blue);
-            padding-bottom: 6px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--bank-blue);
+            padding-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         /* ローン商品グリッド */
         .loan-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
+            gap: 18px;
             margin-bottom: 60px;
         }
 
         .loan-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 6px rgba(10, 37, 64, 0.03);
-            transition: transform 0.15s, box-shadow 0.15s;
+            border-top: 4px solid var(--bank-blue);
+            border-radius: 10px;
+            padding: 22px;
+            box-shadow: 0 4px 12px rgba(6, 30, 56, 0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .loan-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(2, 132, 199, 0.1);
-            border-color: var(--bank-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15);
+            border-color: var(--bank-cyan);
         }
 
         .loan-card h3 {
             margin: 0 0 8px 0;
-            font-size: 16px;
+            font-size: 16.5px;
             font-weight: bold;
             color: var(--bank-navy);
         }
@@ -189,70 +193,90 @@
         .simulation-box {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 35px;
-            box-shadow: 0 4px 12px rgba(10, 37, 64, 0.04);
+            border-radius: 14px;
+            padding: 40px;
+            box-shadow: 0 6px 20px rgba(6, 30, 56, 0.06);
         }
 
         .simulation-title {
-            font-size: 19px;
+            font-size: 21px;
             font-weight: bold;
             color: var(--bank-navy);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .simulation-desc {
             font-size: 13.5px;
             color: var(--text-muted);
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
-        /* シミュレーション選択カードのコンテナ（4つに対応するため2列×2行など） */
+        /* シミュレーション選択カードのコンテナ */
         .sim-menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
         }
 
         .sim-menu-card {
             background: #ffffff;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
+            border: 2px solid var(--border-light);
+            border-radius: 12px;
             padding: 24px;
             text-align: left;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sim-menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: var(--bank-blue);
+            transition: background-color 0.2s ease;
         }
 
         .sim-menu-card:hover {
             border-color: var(--bank-blue);
-            background-color: #f0f9ff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+            background: linear-gradient(to right, #f0f9ff, #ffffff);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(2, 132, 199, 0.15);
         }
 
         .sim-menu-card h3 {
-            margin: 0 0 8px 0;
+            margin: 0 0 10px 0;
             font-size: 16px;
             color: var(--bank-navy);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .sim-menu-card p {
-            margin: 0 0 16px 0;
+            margin: 0 0 20px 0;
             font-size: 12.5px;
             color: var(--text-muted);
+            line-height: 1.5;
         }
 
         .sim-menu-card .arrow-link {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: bold;
             color: var(--bank-blue);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         /* 個別シミュレーションフォーム */
@@ -264,14 +288,14 @@
             background: none;
             border: none;
             color: var(--bank-blue);
-            font-size: 13.5px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             padding: 0;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
 
         .back-menu-btn:hover {
@@ -285,7 +309,7 @@
         }
 
         .sim-table th, .sim-table td {
-            padding: 14px;
+            padding: 16px;
             border: 1px solid var(--border-light);
             text-align: left;
             font-size: 14px;
@@ -305,9 +329,9 @@
         .sim-table input, .sim-table select {
             width: 100%;
             max-width: 240px;
-            padding: 9px 12px;
+            padding: 10px 14px;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
             box-sizing: border-box;
             background-color: #fff;
@@ -316,44 +340,45 @@
         .sim-table input:focus, .sim-table select:focus {
             border-color: var(--bank-blue);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
         }
 
         /* シミュレーション実行ボタン */
         .exec-btn {
             display: block;
-            width: 240px;
-            margin: 0 auto 24px;
-            background-color: var(--bank-navy);
+            width: 260px;
+            margin: 0 auto 28px;
+            background: linear-gradient(135deg, var(--bank-navy), #0f3763);
             color: white;
             border: none;
-            padding: 13px;
-            border-radius: 4px;
-            font-size: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 15.5px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(10, 37, 64, 0.2);
-            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 6px 16px rgba(6, 30, 56, 0.25);
+            transition: transform 0.15s, opacity 0.2s;
         }
 
         .exec-btn:hover {
-            background-color: #1e3a8a;
+            opacity: 0.95;
             transform: translateY(-1px);
         }
 
         /* 結果エリア */
         .sim-result-card {
-            background: #e0f2fe;
-            border: 1px solid #bae6fd;
-            border-radius: 8px;
-            padding: 24px;
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+            border: 1px solid #7dd3fc;
+            border-radius: 12px;
+            padding: 28px;
             text-align: center;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
             display: none;
+            box-shadow: 0 4px 16px rgba(2, 132, 199, 0.15);
         }
 
         .sim-result-left {
@@ -361,10 +386,10 @@
         }
 
         .sim-result-label {
-            font-size: 13.5px;
+            font-size: 14px;
             font-weight: bold;
             color: var(--bank-navy);
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         .sim-result-sub {
@@ -373,30 +398,32 @@
         }
 
         .sim-result-value {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
             color: var(--bank-navy);
         }
 
         .sim-result-value span {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: normal;
         }
 
         .sim-cta-btn {
-            background-color: var(--bank-blue);
+            background: linear-gradient(135deg, var(--bank-blue), var(--bank-cyan));
             color: white;
             text-decoration: none;
-            padding: 11px 22px;
-            border-radius: 4px;
+            padding: 13px 26px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 13.5px;
+            font-size: 14px;
             white-space: nowrap;
-            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+            transition: opacity 0.2s, transform 0.1s;
         }
 
         .sim-cta-btn:hover {
-            background-color: var(--bank-blue-hover);
+            opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         /* フッター */
@@ -404,8 +431,9 @@
             background-color: var(--bank-navy);
             color: #94a3b8;
             text-align: center;
-            padding: 30px;
+            padding: 35px;
             font-size: 12.5px;
+            border-top: 4px solid var(--bank-blue);
         }
     </style>
 </head>
@@ -456,8 +484,10 @@
 
     <!-- 返済額シミュレーションセクション -->
     <div class="simulation-box" id="simulator">
-        <div class="simulation-title">ローンシミュレーション</div>
-        <div class="simulation-desc">目的に合わせてシミュレーションの角度（種類）をお選びください。</div>
+        <div class="simulation-title">
+            <span>📊</span> ローンシミュレーション
+        </div>
+        <div class="simulation-desc">目的に合わせてシミュレーションの切り口（種類）をお選びください。</div>
 
         <!-- 1. メニュー選択画面（4つに拡張） -->
         <div id="simMenu" class="sim-menu-grid">
@@ -608,7 +638,7 @@
             <button type="button" class="exec-btn" onclick="calculateLoan('rent')">マイホーム購入額を試算</button>
         </div>
 
-        <!-- パネル④：ボーナス併用で計算（NEW） -->
+        <!-- パネル④：ボーナス併用で計算 -->
         <div id="panel-bonus" class="sim-form-panel">
             <button type="button" class="back-menu-btn" onclick="backToMenu()">◀ シミュレーション選択画面に戻る</button>
             <table class="sim-table">
@@ -680,25 +710,15 @@
     function selectSimulation(mode) {
         activeMode = mode;
 
-        // メニューを非表示にする
         document.getElementById('simMenu').style.display = 'none';
-
-        // 全てのフォームパネルを非表示にして、選ばれたものだけ表示
         document.querySelectorAll('.sim-form-panel').forEach(panel => panel.style.display = 'none');
         document.getElementById('panel-' + mode).style.display = 'block';
-
-        // 結果カードは一度リセットして非表示にする
         document.getElementById('resultCard').style.display = 'none';
     }
 
     function backToMenu() {
-        // 全てのフォームパネルを非表示にする
         document.querySelectorAll('.sim-form-panel').forEach(panel => panel.style.display = 'none');
-
-        // 結果カードを非表示にする
         document.getElementById('resultCard').style.display = 'none';
-
-        // メニュー画面を再表示
         document.getElementById('simMenu').style.display = 'grid';
     }
 
@@ -761,11 +781,9 @@
             const annualRate = parseFloat(document.getElementById('simInterestType4').value) || 0.0125;
 
             const totalYen = amountMan * 10000;
-            const bonusYearYen = bonusMan * 10000;
             const totalMonths = years * 12;
             const monthlyRate = annualRate / 12;
 
-            // 簡易的にボーナス分（元本の半分）と毎月分（元本の半分）に分けて分割返済額を算出
             const bonusPrincipal = totalYen * 0.5;
             const monthlyPrincipal = totalYen * 0.5;
 
@@ -778,7 +796,7 @@
                 mPayment = monthlyPrincipal / totalMonths;
             }
 
-            const bonusTimes = years * 2; // 年2回
+            const bonusTimes = years * 2;
             const bonusRate = annualRate / 2;
             if (bonusPrincipal > 0 && bonusTimes > 0 && bonusRate > 0) {
                 bPaymentTotal = bonusPrincipal * (bonusRate * Math.pow(1 + bonusRate, bonusTimes)) / (Math.pow(1 + bonusRate, bonusTimes) - 1);
@@ -786,7 +804,7 @@
                 bPaymentTotal = bonusPrincipal / bonusTimes;
             }
 
-            const bPaymentOnce = bPaymentTotal / 2; // 1回あたりのボーナス返済額
+            const bPaymentOnce = bPaymentTotal / 2;
 
             document.getElementById('resultLabelTitle').innerText = "毎月／ボーナス月の目安ご返済額";
             document.getElementById('resultText').innerHTML = `毎月: ${Math.round(mPayment).toLocaleString()}円<br><span style="font-size:12px;">(ボーナス時加算: ${Math.round(bPaymentOnce).toLocaleString()}円 × 年2回)</span>`;
