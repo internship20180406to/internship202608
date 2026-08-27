@@ -107,7 +107,7 @@ const loanAmount = document.getElementById('loanAmount');
 // 無操作タイムアウト用
 // ==============================
 const WARNING_TIME =
-    9 * 60 * 1000;
+    2 * 60 * 1000;
 
 const sessionNormalMessage =
     document.getElementById(
@@ -123,6 +123,9 @@ const sessionTimer =
     document.getElementById(
         'sessionTimer'
     );
+
+const interestRateDisplay =
+    document.getElementById('interestRateDisplay');
 
 let expiresAt = 0;
 
@@ -186,39 +189,50 @@ function clearForm() {
 
 function updateInterestRateByLimit(limit) {
 
+    let interestRate;
+
     if (limit >= 10 && limit <= 100) {
-        interestRateInput.value = 14.5;
+        interestRate = 14.5;
 
     } else if (limit > 100 && limit <= 200) {
-        interestRateInput.value = 12.0;
+        interestRate = 12.0;
 
     } else if (limit > 200 && limit <= 300) {
-        interestRateInput.value = 10.0;
+        interestRate = 10.0;
 
     } else if (limit > 300 && limit <= 400) {
-        interestRateInput.value = 8.0;
+        interestRate = 8.0;
 
     } else if (limit > 400 && limit <= 500) {
-        interestRateInput.value = 7.0;
+        interestRate = 7.0;
 
     } else if (limit > 500 && limit <= 600) {
-        interestRateInput.value = 6.0;
+        interestRate = 6.0;
 
     } else if (limit > 600 && limit <= 700) {
-        interestRateInput.value = 5.0;
+        interestRate = 5.0;
 
     } else if (limit > 700 && limit <= 800) {
-        interestRateInput.value = 4.0;
+        interestRate = 4.0;
 
     } else if (limit > 800 && limit <= 1000) {
-        interestRateInput.value = 0.95;
+        interestRate = 0.95;
 
     } else {
         interestRateInput.value = '';
+
+        interestRateDisplay.textContent =
+            '年収を入力すると金利が表示されます';
+
         return;
     }
 
-    validateInterestRate();
+    // 確認画面へ送る値
+    interestRateInput.value = interestRate;
+
+    // 画面に表示する値
+    interestRateDisplay.textContent =
+        interestRate + '％';
 }
 
 function updateLoanLimit() {
@@ -476,27 +490,6 @@ function validateAnnualIncome() {
 }
 
 
-function validateInterestRate() {
-
-    clearServerError(interestRateInput);
-
-    const value = interestRateInput.value.trim();
-
-    if (value === '') {
-        interestRateError.textContent = '金利を入力してください';
-    } else if (Number.isNaN(Number(value))) {
-        interestRateError.textContent = '金利は数字で入力してください';
-    } else if (Number(value) < 0.95) {
-        interestRateError.textContent = '金利は0.95以上で入力してください';
-    } else if (Number(value) > 14.5) {
-        interestRateError.textContent = '金利は14.5以下で入力してください';
-    } else {
-        interestRateError.textContent = '';
-    }
-}
-
-interestRateInput.addEventListener('input', validateInterestRate);
-interestRateInput.addEventListener('blur', validateInterestRate);
 
 function validateLoanLimit() {
     loanLimitError.textContent = '';
@@ -703,14 +696,8 @@ async function loadSessionStatus() {
 
 function handleSessionTimeout() {
 
-    alert(
-        'セキュリティ保護のため、'
-        + '一定時間操作がなかったため'
-        + '申込内容を破棄しました。'
-    );
-
     window.location.href =
-        '/bankLoan';
+        '/bankLoanTimeout';
 }
 
 let lastActivitySend = 0;

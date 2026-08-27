@@ -264,3 +264,16 @@ select.form-control {
 #sessionTimer {
     font-size: 14px;
 }
+
+.interest-rate-box {
+    margin-top: 10px;
+    padding: 11px 14px;
+
+    background-color: #eef6fc;
+    border-left: 4px solid #2185d0;
+    border-radius: 5px;
+
+    color: #1565a8;
+    font-size: 14px;
+    font-weight: 600;
+}

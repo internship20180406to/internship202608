@@ -60,22 +60,41 @@ public class BankLoanController {
 
     @PostMapping("/bankLoan/sessionActivity")
     @ResponseBody
-    public Map<String, Long> sessionActivity(
+    public Map<String, Object> sessionActivity(
             HttpSession session) {
+
+        Long lastActivity =
+                (Long) session.getAttribute(LAST_ACTIVITY);
 
         long now = System.currentTimeMillis();
 
+        // セッション情報がない
+        if (lastActivity == null) {
+            return Map.of(
+                    "expired", true
+            );
+        }
+
+        // すでに10分経過している
+        if (now - lastActivity >= INACTIVITY_TIMEOUT) {
+
+            session.removeAttribute(LAST_ACTIVITY);
+
+            return Map.of(
+                    "expired", true
+            );
+        }
+
+        // 期限内なので操作時刻を更新
         session.setAttribute(
                 LAST_ACTIVITY,
                 now
         );
 
-        long expiresAt =
-                now + INACTIVITY_TIMEOUT;
-
         return Map.of(
+                "expired", false,
                 "expiresAt",
-                expiresAt
+                now + INACTIVITY_TIMEOUT
         );
     }
 
@@ -108,7 +127,7 @@ public class BankLoanController {
 
         // セッション情報がない
         if (lastActivity == null) {
-            return "redirect:/bankLoan?timeout";
+            return "redirect:/bankLoanTimeout";
         }
 
         long elapsed =
@@ -118,11 +137,9 @@ public class BankLoanController {
         // 10分以上無操作
         if (elapsed >= INACTIVITY_TIMEOUT) {
 
-            session.removeAttribute(
-                    LAST_ACTIVITY
-            );
+            session.removeAttribute(LAST_ACTIVITY);
 
-            return "redirect:/bankLoan?timeout";
+            return "redirect:/bankLoanTimeout";
         }
 
         // 時間内なのでDB登録
@@ -161,6 +178,14 @@ public class BankLoanController {
                 "remainingMillis",
                 Math.max(remaining, 0)
         );
+    }
+
+    @GetMapping("/bankLoanTimeout")
+    public String timeout(HttpSession session) {
+
+        session.removeAttribute(LAST_ACTIVITY);
+
+        return "bankLoanTimeout";
     }
 
 }
