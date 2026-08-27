@@ -198,3 +198,36 @@ h1 {
         width: 100%;
     }
 }
+.session-info {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 1000;
+
+    padding: 8px 12px;
+
+    background-color: #ffffff;
+    border: 1px solid #dfe5e8;
+    border-radius: 6px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    color: #78909c;
+    font-size: 12px;
+}
+.session-warning {
+    display: none;
+    color: #d97706;
+    font-size: 13px;
+    font-weight: 600;
+}
+@media (max-width: 600px) {
+    .session-info {
+        top: 8px;
+        right: 8px;
+        left: 8px;
+
+        text-align: center;
+        font-size: 11px;
+    }
+}
