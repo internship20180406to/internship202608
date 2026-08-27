@@ -16,7 +16,6 @@ public class BankListRepository {
     public List<BankListForm> get(InvestmentTrustForm investmentTrustForm) {
         String sql =
                 "SELECT * FROM bank_list WHERE bank_code = ? AND branch_code = ?";
-        //ここの変数（名前）は触らないこと！変更なしでOK！
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             BankListForm form = new BankListForm();

@@ -72,33 +72,6 @@
 <div class="container">
     <div class="icon">✓</div>
         <h1>注文完了</h1>
-    <form th:action="@{/investmentTrustCompletion}" th:object="${investmentTrustApplication}" method="post">
-
-        <input type="hidden" th:field="*{bankCode}" />
-        <input type="hidden" th:field="*{branchName}" />
-        <input type="hidden" th:field="*{accountType}" />
-        <input type="hidden" th:field="*{bankAccountNum}" />
-        <input type="hidden" th:field="*{lastName}" />
-        <input type="hidden" th:field="*{firstName}" />
-        <input type="hidden" th:field="*{fundCode}" />
-        <input type="hidden" th:field="*{amount}" />
-        <input type="hidden" th:field="*{purchaseAmount}" />
-
-        <p>金融機関名:<span th:text="${bankName}"></span> （コード: <span th:text="*{bankCode}"></span>）</p>
-
-        <p>支店名: <span th:text="*{branchName}"></span>（コード: <span th:text="*{branchName}"></span>）</p>
-        <p>科目名: <span th:text="*{accountType}"></span></p>
-        <p>口座番号: <span th:text="*{bankAccountNum}"></span></p>
-        <p>購入者名: <span th:text="*{lastName} + ' ' + *{firstName}"></span></p>
-        <p>銘柄選択: <span th:text="*{fundCode}"></span></p>
-
-        <div th:if="*{amount != null && amount != ''}">
-            <p>購入金額（自由入力）: <span th:text="*{amount}"></span> 円</p>
-        </div>
-        <div th:if="*{purchaseAmount != null && purchaseAmount != ''}">
-            <p>購入金額（選択肢）: <span th:text="*{purchaseAmount}"></span> 円</p>
-        </div>
-    </form>
     <p style="margin: 0;">
         <input type="button" class="btn-submit" value="申し込み入力画面に戻る" onclick="window.location='http://localhost:63342/internship202608/internship%20(3)%20(com.example)/templates/investmentTrustMain.html?_ijt=te73c6pl3upngaupovppsrqitt&_ij_reload=RELOAD_ON_SAVE';" />
     </p>

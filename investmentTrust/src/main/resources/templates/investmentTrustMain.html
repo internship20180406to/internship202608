@@ -158,11 +158,14 @@
                        th:field="*{amount}"
                        id="freeInput"
                        class="form-control"
-                       placeholder="9999999"
+                       placeholder="1000000"
+                       min="1"
+                       max="1000000"
                        maxlength="7"
                        pattern="[0-9]{1,7}"
                        inputmode="numeric"
                        title="最大7桁の半角数字で入力してください"/>
+
             </p>
 
             <p>（選択肢の中から選びたい方はこちら）<br>

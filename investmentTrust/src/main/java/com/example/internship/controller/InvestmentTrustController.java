@@ -1,5 +1,6 @@
 package com.example.internship.controller;
 
+import com.example.internship.entity.BankListForm;
 import com.example.internship.entity.InvestmentTrustForm;
 import com.example.internship.service.BankListService;
 import com.example.internship.service.OrderInvestmentTrustService;
@@ -9,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.util.List;
 
 @Controller
 public class InvestmentTrustController {
@@ -27,7 +30,18 @@ public class InvestmentTrustController {
 
     @PostMapping("/investmentTrustConfirmation")
     public String confirmation(@ModelAttribute("investmentTrustApplication") InvestmentTrustForm investmentTrustForm, Model model) {
-        model.addAttribute("bankList", bankListService.getName(investmentTrustForm));
+        //サービスからリストを取得
+        List<BankListForm> bankList = bankListService.getName(investmentTrustForm);
+
+        //データが存在する場合のみ、最初の１件から名前などを取得してモデルにセット
+        if(bankList != null && !bankList.isEmpty()) {
+            BankListForm bankInfo = bankList.get(0);
+            model.addAttribute("bankName", bankInfo.getBankName());
+            model.addAttribute("branchName", bankInfo.getBranchName());
+        } else {
+            model.addAttribute("bankName", "該当なし");
+            model.addAttribute("branchName", "該当なし");
+        }
         model.addAttribute("bankAccountNum", investmentTrustForm.getBankAccountNum());
         model.addAttribute("investmentTrustApplication", investmentTrustForm);
 
