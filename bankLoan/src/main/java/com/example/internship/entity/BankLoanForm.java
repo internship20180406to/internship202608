@@ -39,6 +39,8 @@ public class BankLoanForm {
     private String interestType;
     private BigDecimal interestRate;
 
+    private String submissionToken;
+
     public String getBankName() {
         return bankName;
     }

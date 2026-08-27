@@ -227,7 +227,7 @@
              th:if="${validationErrors != null}"
              role="alert">
 
-            <p>入力内容に問題があります。</p>
+            <p>申込を完了できませんでした。</p>
 
             <ul>
                 <li th:each="error : ${validationErrors}"
@@ -344,6 +344,7 @@
         <input type="hidden" th:field="*{interestType}"/>
         <input type="hidden" th:field="*{interestRate}"/>
         <input type="hidden" th:field="*{loanYears}"/>
+        <input type="hidden" th:field="*{submissionToken}"/>
 
         <div class="button-area">
             <div class="button-group">

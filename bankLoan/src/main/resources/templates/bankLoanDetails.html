@@ -213,14 +213,17 @@
                 <small class="text-danger">※</small>
             </label><br>
 
-            <input type="number"
+            <input type="text"
                    th:field="*{desiredLoanAmount}"
                    class="form-control"
-                   min="1"
-                   max="50000"
-                   step="1"
-                   placeholder="3000"
-                   title="借入希望額は1万円以上の5億円以下で入力してください"
+                   inputmode="numeric"
+                   data-comma-format
+                   data-min="1"
+                   data-max="50000"
+                   data-range-message="借入希望額は1万円以上5億円以下で入力してください"
+                   placeholder="3,000"
+                   title="借入希望額は1万円以上5億円以下で入力してください"
+                   autocomplete="off"
                    required/>
             <span>万円</span>
         </p>
@@ -309,6 +312,7 @@
     });
     interestType.dispatchEvent(new Event("change"));
 </script>
+<script th:src="@{/js/bankLoanAmountFormat.js}"></script>
 <script src="/js/bankLoanValidation.js"></script>
 </body>
 </html>

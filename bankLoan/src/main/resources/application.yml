@@ -5,3 +5,8 @@ spring:
     url: jdbc:mysql://localhost:3306/internship
     username: root
     password: root_password
+logging:
+  file:
+    name: logs/bank-loan.log
+  level:
+    com.example.internship: INFO

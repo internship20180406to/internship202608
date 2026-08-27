@@ -303,14 +303,17 @@
                 <small class="text-danger">※</small>
             </label><br>
 
-            <input type="number"
+            <input type="text"
                    th:field="*{annualIncome}"
                    class="form-control"
-                   min="200"
-                   max="100000"
+                   inputmode="numeric"
+                   data-comma-format
+                   data-min="200"
+                   data-max="100000"
+                   data-range-message="年収は200万円以上10億円以下で入力してください"
                    placeholder="500"
-                   step="1"
                    title="年収は200万円以上10億円以下で入力してください"
+                   autocomplete="off"
                    required/>
             <span>万円</span>
         </p>
@@ -393,6 +396,7 @@
 </div>
 
 <script th:src="@{/js/bankLoanBranch.js}"></script>
+<script th:src="@{/js/bankLoanAmountFormat.js}"></script>
 <script th:src="@{/js/bankLoanValidation.js}"></script>
 
 </body>

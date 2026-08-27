@@ -13,17 +13,19 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         fields.forEach((field) => {
-            // エラー表示後、正しく入力されたら表示を更新
+            // 入力中にリアルタイムで検証
             field.addEventListener("input", () => {
-                if (field.classList.contains("is-invalid")) {
-                    validateField(field);
-                }
+                validateField(field);
             });
 
+            // プルダウンや日付の変更にも対応
             field.addEventListener("change", () => {
-                if (field.classList.contains("is-invalid")) {
-                    validateField(field);
-                }
+                validateField(field);
+            });
+
+            // 空欄のまま入力欄から離れた場合にも表示
+            field.addEventListener("blur", () => {
+                validateField(field);
             });
         });
 
@@ -122,7 +124,12 @@ function clearFieldError(field) {
 }
 
 function getFieldErrorMessage(field) {
+    // 必須項目が空欄
     if (field.validity.valueMissing) {
+        if (field.dataset.requiredMessage) {
+            return field.dataset.requiredMessage;
+        }
+
         if (field.tagName === "SELECT") {
             return "選択してください。";
         }
@@ -130,11 +137,31 @@ function getFieldErrorMessage(field) {
         return "入力してください。";
     }
 
+    // JavaScript側で設定されたエラー
+    if (field.validity.customError) {
+        return field.validationMessage;
+    }
+
+    // pattern属性に一致しない
     if (field.validity.patternMismatch) {
-        return field.title
+        return field.dataset.patternMessage
+            || field.title
             || "指定された形式で入力してください。";
     }
 
+    // 最小文字数に届かない
+    if (field.validity.tooShort) {
+        return field.dataset.minlengthMessage
+            || "入力文字数が不足しています。";
+    }
+
+    // 最大文字数を超えた
+    if (field.validity.tooLong) {
+        return field.dataset.maxlengthMessage
+            || "入力文字数が上限を超えています。";
+    }
+
+    // 数値や日付の範囲外
     if (
         field.validity.rangeUnderflow
         || field.validity.rangeOverflow
