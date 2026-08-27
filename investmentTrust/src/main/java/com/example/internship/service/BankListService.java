@@ -10,7 +10,7 @@ public class BankListService {
     @Autowired
     private BankListRepository bankListRepository;
 
-    public void getName(BankListForm bankListForm) {
-        bankListRepository.get(bankListForm);
+    public void getName(InvestmentTrustForm investmentTrustForm) {
+        bankListRepository.get(investmentTrustForm);
     }
 }

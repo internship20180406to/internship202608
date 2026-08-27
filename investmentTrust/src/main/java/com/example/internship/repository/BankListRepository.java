@@ -6,21 +6,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class BankListRepository {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    public void get(BankListForm bankListForm) {
+    public List<BankListForm> get(InvestmentTrustForm investmentTrustForm) {
         String sql =
                 "SELECT * FROM bank_list WHERE bank_code = ? AND branch_code = ?";
         //ここの変数（名前）は触らないこと！変更なしでOK！
 
-        jdbcTemplate.queryForObject(
-                sql,
-                String.class,
-                bankListForm.getBankCode(),
-                bankListForm.getBranchCode()
-        );
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            BankListForm form = new BankListForm();
+            form.setBankCode(rs.getString("bank_code"));
+            form.setBankName(rs.getString("bank_name"));
+            form.setBranchCode(rs.getString("branch_code"));
+            form.setBranchName(rs.getString("branch_name"));
+            return form;
+        }, investmentTrustForm.getBankCode(), investmentTrustForm.getBranchName());
     }
 }

@@ -1,6 +1,7 @@
 package com.example.internship.controller;
 
 import com.example.internship.entity.InvestmentTrustForm;
+import com.example.internship.service.BankListService;
 import com.example.internship.service.OrderInvestmentTrustService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,6 +15,8 @@ public class InvestmentTrustController {
 
     @Autowired
     private OrderInvestmentTrustService orderInvestmentTrustService;
+    @Autowired
+    private BankListService bankListService;
 
     @GetMapping("/investmentTrust")
     public String bankTransfer(Model model) {
@@ -24,7 +27,7 @@ public class InvestmentTrustController {
 
     @PostMapping("/investmentTrustConfirmation")
     public String confirmation(@ModelAttribute("investmentTrustApplication") InvestmentTrustForm investmentTrustForm, Model model) {
-
+        bankListService.getName(investmentTrustForm);
         model.addAttribute("bankAccountNum", investmentTrustForm.getBankAccountNum());
         model.addAttribute("investmentTrustApplication", investmentTrustForm);
 
