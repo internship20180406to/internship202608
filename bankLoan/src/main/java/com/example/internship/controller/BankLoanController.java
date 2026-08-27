@@ -58,7 +58,7 @@ public class BankLoanController {
     }
 
     // ★ 確認画面から「修正」ボタンで戻ってきたとき（POST）の処理
-    @PostMapping("/bankLoan")
+    @PostMapping("/bankLoan/edit") // 💡 ここを "/bankLoan/edit" に修正しました！
     public String returnToInput(@ModelAttribute("bankLoanApplication") BankLoanForm bankLoanForm, Model model) {
         // セッション等に保持された入力値を維持したまま、選択肢を再設定して入力画面へ戻る
         model.addAttribute("nameOptions", List.of("テスト銀行", "サンプル中央銀行", "デモ信用金庫"));

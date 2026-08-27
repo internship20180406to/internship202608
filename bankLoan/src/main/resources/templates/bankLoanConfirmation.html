@@ -81,7 +81,7 @@
 
         /* 青色に統一した金額の強調用スタイル */
         .highlight-amount {
-            color: #2b6cb0; /* 落ち着いた青色 */
+            color: #2b6cb0;
             font-size: 16px;
             font-weight: bold;
         }
@@ -144,7 +144,7 @@
         <table class="confirm-table">
             <tr class="date-row">
                 <th>申込日時</th>
-                <td><span th:text="${applicationDate}">2026/08/25 10:00:00</span></td>
+                <td><span th:text="${applicationDate}">2026/08/27 11:19:00</span></td>
             </tr>
             <tr>
                 <th>金融機関名</th>
@@ -233,12 +233,11 @@
         <!-- 最下部の中央寄せボタンエリア（キャンセル・修正・申込） -->
         <div class="bottom-action-area">
             <button type="button" class="form-control-button form-clear-button" onclick="window.location.href='/bankLoan';">キャンセル</button>
-            <button type="button" class="form-control-button form-edit-button" onclick="window.location.href='/bankLoan';">修正</button>
+            <!-- 💡 修正ボタン：/bankLoan/edit へデータを保持したままPOST送信 -->
+            <button type="submit" class="form-control-button form-edit-button" th:formaction="@{/bankLoan/edit}">修正</button>
             <button type="submit" class="form-control-button form-confirmation-button">申込</button>
         </div>
     </form>
 </div>
-
-<script th:inline="javascript" src="/js/bankLoanConfirmation.js"></script>
 </body>
 </html>
