@@ -186,7 +186,7 @@
 <body>
 <div class="content">
     <div class="step-progress">
-        <div class="progress-step completed">1. 基本情報</div>
+        <div class="progress-step completed">1. 口座確認</div>
         <div class="progress-step active" aria-current="step">2. 借入内容</div>
         <div class="progress-step">3. 内容確認</div>
         <div class="progress-step">4. 申込完了</div>
@@ -205,7 +205,32 @@
         <input type="hidden" th:field="*{debtorFirstName}"/>
         <input type="hidden" th:field="*{birthDate}"/>
         <input type="hidden" th:field="*{subjectName}"/>
-        <input type="hidden" th:field="*{annualIncome}"/>
+
+        <p>
+            <label for="annualIncome">
+                ご本人様の前年度年収（税込）:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <input type="text"
+                   id="annualIncome"
+                   th:field="*{annualIncome}"
+                   class="form-control"
+                   inputmode="numeric"
+                   data-comma-format
+                   data-min="200"
+                   data-max="100000"
+                   data-required-message="前年度年収を入力してください。"
+                   data-min-message="年収は200万円以上で入力してください。"
+                   data-max-message="年収は10億円以下で入力してください。"
+                   data-range-message="年収は200万円以上10億円以下で入力してください。"
+                   placeholder="500"
+                   title="年収は200万円以上10億円以下で入力してください"
+                   autocomplete="off"
+                   required/>
+
+            <span>万円</span>
+        </p>
 
         <p>
             <label>

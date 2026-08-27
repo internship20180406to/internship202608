@@ -20,9 +20,18 @@ public class BankLoanForm {
 
     private String subjectName;
 
+    private Integer customerId;
+
+    private Integer accountId;
+
+    private String customerNumber;
+
     private String debtorName;
     private String debtorLastName;
     private String debtorFirstName;
+
+    private String debtorLastNameKana;
+    private String debtorFirstNameKana;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate birthDate;

@@ -14,6 +14,8 @@ public class BankLoanRepository {
 
         String sql =
                 "INSERT INTO bankLoan_table(" +
+                        "customerId, " +
+                        "accountId, " +
                         "bankName, " +
                         "branchName, " +
                         "bankAccountType, " +
@@ -25,10 +27,12 @@ public class BankLoanRepository {
                         "annualIncome, " +
                         "interestType, " +
                         "interestRate" +
-                        ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(
                 sql,
+                bankLoanForm.getCustomerId(),
+                bankLoanForm.getAccountId(),
                 bankLoanForm.getBankName(),
                 bankLoanForm.getBranchName(),
                 bankLoanForm.getSubjectName(),

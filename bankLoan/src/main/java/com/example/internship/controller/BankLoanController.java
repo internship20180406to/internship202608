@@ -1,6 +1,9 @@
 package com.example.internship.controller;
 
 
+import com.example.internship.entity.BankCustomerAccount;
+import com.example.internship.service.BankAccountVerificationService;
+
 import java.util.Collections;
 import java.util.UUID;
 
@@ -40,6 +43,9 @@ public class BankLoanController {
     private static final String CONFIRMATION_ERROR_KEY =
             "loanConfirmationError";
 
+    private static final String VERIFIED_ACCOUNT_KEY =
+            "verifiedBankCustomerAccount";
+
     private static final Map<String, BigDecimal> INTEREST_RATE_OPTIONS =
             new LinkedHashMap<>();
 
@@ -63,6 +69,10 @@ public class BankLoanController {
     @Autowired
     private ApplyBankLoanService applyBankLoanService;
 
+    @Autowired
+    private BankAccountVerificationService
+            bankAccountVerificationService;
+
     @GetMapping("/bankLoanSimulation")
     public String simulation(Model model) {
         model.addAttribute("rateOptions", INTEREST_RATE_OPTIONS);
@@ -74,73 +84,49 @@ public class BankLoanController {
             Model model,
             HttpSession session) {
 
-        // 新しい申込を開始するため、以前の申込状態を削除
+        // 新しい申込なので以前の状態を削除
         session.removeAttribute(SUBMISSION_TOKEN_KEY);
         session.removeAttribute(CONFIRMATION_FORM_KEY);
         session.removeAttribute(COMPLETED_FORM_KEY);
         session.removeAttribute(CONFIRMATION_ERROR_KEY);
+        session.removeAttribute(VERIFIED_ACCOUNT_KEY);
 
-        log.info("event=loan_application_started");
+        BankLoanForm bankLoanForm =
+                new BankLoanForm();
+
+        // 今回はカウカウ銀行の口座保有者限定
+        bankLoanForm.setBankName("カウカウ銀行");
 
         model.addAttribute(
                 "bankLoanApplication",
-                new BankLoanForm()
+                bankLoanForm
         );
 
-        model.addAttribute("today", LocalDate.now());
+        addAccountScreenOptions(model);
 
-        model.addAttribute(
-                "nameOptions",
-                new String[]{
-                        "山陰共同銀行",
-                        "カウカウ銀行",
-                        "流れ星銀行"
-                }
-        );
-
-        model.addAttribute(
-                "branchOptions",
-                new String[]{
-                        "本店営業部",
-                        "福岡支店",
-                        "博多支店"
-                }
-        );
-
-        model.addAttribute(
-                "subjectOptions",
-                new String[]{
-                        "普通預金",
-                        "当座預金",
-                        "貯蓄預金"
-                }
-        );
+        log.info("event=loan_application_started");
 
         return "bankLoanMain";
     }
+
     // 確認画面から送られてきた入力内容をbankloanMainへ戻す
     @PostMapping("/bankLoanEdit")
     public String editBasicInformation(
             @ModelAttribute BankLoanForm bankLoanForm,
-            Model model) {
+            Model model,
+            HttpSession session) {
 
-        model.addAttribute("bankLoanApplication", bankLoanForm);
-        model.addAttribute("today", LocalDate.now());
+        // 口座を修正するため、以前の照合結果を無効化
+        session.removeAttribute(VERIFIED_ACCOUNT_KEY);
 
-        model.addAttribute(
-                "nameOptions",
-                new String[]{"山陰共同銀行", "カウカウ銀行", "流れ星銀行"}
-        );
+        bankLoanForm.setBankName("カウカウ銀行");
 
         model.addAttribute(
-                "branchOptions",
-                new String[]{"本店営業部", "福岡支店", "博多支店"}
+                "bankLoanApplication",
+                bankLoanForm
         );
 
-        model.addAttribute(
-                "subjectOptions",
-                new String[]{"普通預金", "当座預金", "貯蓄預金"}
-        );
+        addAccountScreenOptions(model);
 
         return "bankLoanMain";
     }
@@ -148,10 +134,107 @@ public class BankLoanController {
     @PostMapping("/bankLoanDetails")
     public String details(
             @ModelAttribute BankLoanForm bankLoanForm,
-            Model model) {
+            Model model,
+            HttpSession session) {
 
-        model.addAttribute("bankLoanApplication", bankLoanForm);
-        model.addAttribute("rateOptions", INTEREST_RATE_OPTIONS);
+        bankLoanForm.setBankName("カウカウ銀行");
+
+        BankCustomerAccount verifiedAccount =
+                bankAccountVerificationService
+                        .verifyAccount(
+                                bankLoanForm.getBranchName(),
+                                bankLoanForm.getSubjectName(),
+                                bankLoanForm.getBankAccountNum(),
+                                bankLoanForm.getBirthDate()
+                        )
+                        .orElse(null);
+
+        // 口座情報がマスタに存在しない場合
+        if (verifiedAccount == null) {
+            session.removeAttribute(
+                    VERIFIED_ACCOUNT_KEY
+            );
+
+            log.warn(
+                    "event=bank_account_verification_failed"
+            );
+
+            model.addAttribute(
+                    "bankLoanApplication",
+                    bankLoanForm
+            );
+
+            model.addAttribute(
+                    "accountVerificationError",
+                    "入力された口座情報を確認できませんでした。"
+            );
+
+            addAccountScreenOptions(model);
+
+            return "bankLoanMain";
+        }
+
+        // DBから取得した情報をフォームへ設定
+        bankLoanForm.setCustomerId(
+                verifiedAccount.getCustomerId()
+        );
+
+        bankLoanForm.setAccountId(
+                verifiedAccount.getAccountId()
+        );
+
+        bankLoanForm.setCustomerNumber(
+                verifiedAccount.getCustomerNumber()
+        );
+
+        bankLoanForm.setDebtorLastName(
+                verifiedAccount.getLastName()
+        );
+
+        bankLoanForm.setDebtorFirstName(
+                verifiedAccount.getFirstName()
+        );
+
+        bankLoanForm.setDebtorLastNameKana(
+                verifiedAccount.getLastNameKana()
+        );
+
+        bankLoanForm.setDebtorFirstNameKana(
+                verifiedAccount.getFirstNameKana()
+        );
+
+        bankLoanForm.setBirthDate(
+                verifiedAccount.getBirthDate()
+        );
+
+        bankLoanForm.setDebtorName(
+                verifiedAccount.getLastName()
+                        + " "
+                        + verifiedAccount.getFirstName()
+        );
+
+        /*
+         * 後続画面ではブラウザから送られた氏名ではなく、
+         * この照合済み情報を使用する
+         */
+        session.setAttribute(
+                VERIFIED_ACCOUNT_KEY,
+                verifiedAccount
+        );
+
+        log.info(
+                "event=bank_account_verified"
+        );
+
+        model.addAttribute(
+                "bankLoanApplication",
+                bankLoanForm
+        );
+
+        model.addAttribute(
+                "rateOptions",
+                INTEREST_RATE_OPTIONS
+        );
 
         return "bankLoanDetails";
     }
@@ -161,22 +244,100 @@ public class BankLoanController {
             @ModelAttribute BankLoanForm bankLoanForm,
             HttpSession session) {
 
-        // 金利タイプに対応する金利を設定
+        // 口座確認時にサーバーへ保存した照合済み情報
+        BankCustomerAccount verifiedAccount =
+                (BankCustomerAccount) session.getAttribute(
+                        VERIFIED_ACCOUNT_KEY
+                );
+
+        // 口座照合を通っていない場合は申込を続けさせない
+        if (verifiedAccount == null) {
+            log.warn(
+                    "event=loan_application_unverified_account"
+            );
+
+            return "redirect:/bankLoan";
+        }
+
+        /*
+         * ブラウザから送信された本人・口座情報を使用せず、
+         * DBで照合済みの情報に戻す
+         */
+        bankLoanForm.setBankName(
+                "カウカウ銀行"
+        );
+
+        bankLoanForm.setCustomerId(
+                verifiedAccount.getCustomerId()
+        );
+
+        bankLoanForm.setAccountId(
+                verifiedAccount.getAccountId()
+        );
+
+        bankLoanForm.setCustomerNumber(
+                verifiedAccount.getCustomerNumber()
+        );
+
+        bankLoanForm.setBranchName(
+                verifiedAccount.getBranchName()
+        );
+
+        bankLoanForm.setSubjectName(
+                verifiedAccount.getAccountType()
+        );
+
+        bankLoanForm.setBankAccountNum(
+                verifiedAccount.getAccountNumber()
+        );
+
+        bankLoanForm.setDebtorLastName(
+                verifiedAccount.getLastName()
+        );
+
+        bankLoanForm.setDebtorFirstName(
+                verifiedAccount.getFirstName()
+        );
+
+        bankLoanForm.setDebtorLastNameKana(
+                verifiedAccount.getLastNameKana()
+        );
+
+        bankLoanForm.setDebtorFirstNameKana(
+                verifiedAccount.getFirstNameKana()
+        );
+
+        bankLoanForm.setBirthDate(
+                verifiedAccount.getBirthDate()
+        );
+
+        bankLoanForm.setDebtorName(
+                verifiedAccount.getLastName()
+                        + " "
+                        + verifiedAccount.getFirstName()
+        );
+
+        // 金利タイプに対応する正しい金利を取得
         BigDecimal interestRate =
                 INTEREST_RATE_OPTIONS.get(
                         bankLoanForm.getInterestType()
                 );
 
-        bankLoanForm.setInterestRate(interestRate);
+        // 存在しない金利タイプへ書き換えられた場合
+        if (interestRate == null) {
+            log.warn(
+                    "event=loan_application_integrity_error "
+                            + "field=interestType"
+            );
 
-        // 姓と名を結合
-        bankLoanForm.setDebtorName(
-                bankLoanForm.getDebtorLastName()
-                        + " "
-                        + bankLoanForm.getDebtorFirstName()
+            return "redirect:/bankLoan";
+        }
+
+        bankLoanForm.setInterestRate(
+                interestRate
         );
 
-        // 申込ごとのトークンを発行
+        // 二重送信を防止するトークンを発行
         String submissionToken =
                 UUID.randomUUID().toString();
 
@@ -189,6 +350,10 @@ public class BankLoanController {
                 submissionToken
         );
 
+        /*
+         * 本人情報と借入内容を確認済みデータとして
+         * サーバー側に保存
+         */
         session.setAttribute(
                 CONFIRMATION_FORM_KEY,
                 bankLoanForm
@@ -278,8 +443,25 @@ public class BankLoanController {
             }
 
             try {
+                BankLoanForm confirmedBankLoanForm =
+                        (BankLoanForm) session.getAttribute(
+                                CONFIRMATION_FORM_KEY
+                        );
+
+                if (confirmedBankLoanForm == null) {
+                    log.warn(
+                            "event=loan_application_invalid_state"
+                    );
+
+                    return "redirect:/bankLoan";
+                }
+
+                /*
+                 * 完了画面から送信された値ではなく、
+                 * サーバーに保存した確認済み情報をDBへ登録
+                 */
                 applyBankLoanService.applyBankLoan(
-                        bankLoanForm
+                        confirmedBankLoanForm
                 );
 
                 // 保存に成功したトークンは再利用できない
@@ -289,7 +471,7 @@ public class BankLoanController {
 
                 session.setAttribute(
                         COMPLETED_FORM_KEY,
-                        bankLoanForm
+                        confirmedBankLoanForm
                 );
 
                 log.info(
@@ -340,4 +522,30 @@ public class BankLoanController {
         return "bankLoanCompletion";
     }
 
+    private void addAccountScreenOptions(
+            Model model) {
+
+        model.addAttribute(
+                "today",
+                LocalDate.now()
+        );
+
+        model.addAttribute(
+                "branchOptions",
+                new String[]{
+                        "本店営業部",
+                        "福岡支店",
+                        "博多支店"
+                }
+        );
+
+        model.addAttribute(
+                "subjectOptions",
+                new String[]{
+                        "普通預金",
+                        "当座預金",
+                        "貯蓄預金"
+                }
+        );
+    }
 }

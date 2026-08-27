@@ -47,10 +47,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const min = Number(input.dataset.min);
         const max = Number(input.dataset.max);
 
-        if (amount < min || amount > max) {
+        if (amount < min) {
             input.setCustomValidity(
-                input.dataset.rangeMessage ||
-                "入力可能な範囲を確認してください"
+                input.dataset.minMessage
+                || input.dataset.rangeMessage
+                || "入力可能な最小値を確認してください。"
+            );
+        } else if (amount > max) {
+            input.setCustomValidity(
+                input.dataset.maxMessage
+                || input.dataset.rangeMessage
+                || "入力可能な最大値を確認してください。"
             );
         } else {
             input.setCustomValidity("");

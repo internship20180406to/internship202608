@@ -232,6 +232,37 @@
             box-shadow: 0 0 3px rgba(0, 0, 0, 0.25);
         }
 
+        .bank-information {
+            max-width: 600px;
+            margin: 20px 0 30px;
+            padding: 18px 20px;
+            background-color: #f5f5f5;
+            border-left: 6px solid #111111;
+        }
+
+        .bank-information-main {
+            margin: 0 0 8px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .bank-information-sub {
+            margin: 0;
+            color: #555555;
+            font-size: 14px;
+        }
+
+        .account-verification-error {
+            max-width: 600px;
+            margin: 20px 0;
+            padding: 15px 20px;
+            color: #a00000;
+            background-color: #fff5f5;
+            border: 2px solid #dc3545;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
@@ -244,123 +275,85 @@
         <div class="progress-step">4. 申込完了</div>
     </div>
 
-    <h1>基本情報</h1>
+    <h1>口座情報の確認</h1>
 
-    <form action="#" th:action="@{/bankLoanDetails}" th:object="${bankLoanApplication}" method="post"
+    <div class="bank-information">
+        <p class="bank-information-main">
+            カウカウ銀行の口座をお持ちのお客さま
+        </p>
+
+        <p class="bank-information-sub">
+            ご本人様確認のため、口座情報と生年月日を
+            入力してください。
+        </p>
+    </div>
+
+    <div class="account-verification-error"
+         th:if="${accountVerificationError != null}"
+         th:text="${accountVerificationError}"
+         role="alert">
+    </div>
+
+    <form th:action="@{/bankLoanDetails}"
+          th:object="${bankLoanApplication}"
+          method="post"
           class="needs-validation">
-        <!-- 確認画面から戻ったときに借入条件を保持する -->
-        <input type="hidden" th:field="*{desiredLoanAmount}"/>
-        <input type="hidden" th:field="*{loanYears}"/>
-        <input type="hidden" th:field="*{interestType}"/>
-        <input type="hidden" th:field="*{interestRate}"/>
-        <h2 class="section-title">ご本人様情報</h2>
-        <div class="form-group">
-            <label>
-                お名前:
-                <small class="text-danger">※</small>
-            </label>
 
-            <div class="name-inputs">
-                <input type="text"
-                       th:field="*{debtorLastName}"
-                       class="form-control"
-                       placeholder="姓"
-                       minlength="1"
-                       maxlength="20"
-                       pattern="[^0-9０-９]*[^0-9０-９\s][^0-9０-９]*"
-                       title="姓は数字や空白だけでは入力できません"
-                       autocomplete="family-name"
-                       required/>
+        <!-- 確認画面から戻った場合に借入内容を保持 -->
+        <input type="hidden"
+               th:field="*{desiredLoanAmount}"/>
 
-                <input type="text"
-                       th:field="*{debtorFirstName}"
-                       class="form-control"
-                       placeholder="名"
-                       minlength="1"
-                       maxlength="20"
-                       pattern="[^0-9０-９]*[^0-9０-９\s][^0-9０-９]*"
-                       title="名は数字や空白だけでは入力できません"
-                       autocomplete="given-name"
-                       required/>
-            </div>
-        </div>
+        <input type="hidden"
+               th:field="*{loanYears}"/>
+
+        <input type="hidden"
+               th:field="*{annualIncome}"/>
+
+        <input type="hidden"
+               th:field="*{interestType}"/>
+
+        <input type="hidden"
+               th:field="*{interestRate}"/>
+
+        <!-- 当行はカウカウ銀行で固定 -->
+        <input type="hidden"
+               th:field="*{bankName}"/>
+
+        <h2 class="section-title">ご返済用口座</h2>
+
         <p>
-            <label class="ml-1">
-                生年月日:
-                <small class="text-danger ml-1">※</small>
-            </label><br>
-
-            <input type="date"
-                   th:field="*{birthDate}"
-                   th:max="${today}"
-                   class="form-control"
-                   title="この日付は選択できません"
-                   required/>
-        </p>
-        <p>
-            <label>
-                ご本人様の前年度年収（税込）:
-                <small class="text-danger">※</small>
-            </label><br>
-
-            <input type="text"
-                   th:field="*{annualIncome}"
-                   class="form-control"
-                   inputmode="numeric"
-                   data-comma-format
-                   data-min="200"
-                   data-max="100000"
-                   data-range-message="年収は200万円以上10億円以下で入力してください"
-                   placeholder="500"
-                   title="年収は200万円以上10億円以下で入力してください"
-                   autocomplete="off"
-                   required/>
-            <span>万円</span>
-        </p>
-        <h2 class="section-title">口座情報</h2>
-        <div class="form-group">
-            <label for="bankName">
-                金融機関名:
-                <small class="text-danger">※</small>
-            </label><br>
-
-            <input type="text"
-                   id="bankName"
-                   th:field="*{bankName}"
-                   list="bankNameOptions"
-                   class="form-control"
-                   placeholder="金融機関名を検索または選択"
-                   autocomplete="off"
-                   required/>
-
-            <datalist id="bankNameOptions">
-                <option th:each="option : ${nameOptions}"
-                        th:value="${option}">
-                </option>
-            </datalist>
-        </div>
-
-        <div class="form-group">
             <label for="branchName">
                 支店名:
                 <small class="text-danger">※</small>
             </label><br>
 
-            <input type="text"
-                   id="branchName"
-                   th:field="*{branchName}"
-                   list="branchNameOptions"
-                   class="form-control"
-                   placeholder="支店名を検索または選択"
-                   autocomplete="off"
-                   required/>
-
-            <datalist id="branchNameOptions">
-            </datalist>
-        </div>
-        <p><label class="ml-1">科目名:<small class="text-danger ml-1">※</small></label><br>
-            <select th:field="*{subjectName}" class="form-control"
+            <select id="branchName"
+                    th:field="*{branchName}"
+                    class="form-control"
+                    data-required-message="支店名を選択してください。"
                     required>
+
+                <option value="">選択してください</option>
+
+                <option th:each="branch : ${branchOptions}"
+                        th:value="${branch}"
+                        th:text="${branch}">
+                </option>
+            </select>
+        </p>
+
+        <p>
+            <label for="subjectName">
+                科目名:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <select id="subjectName"
+                    th:field="*{subjectName}"
+                    class="form-control"
+                    data-required-message="科目名を選択してください。"
+                    required>
+
                 <option value="">選択してください</option>
 
                 <option th:each="subject : ${subjectOptions}"
@@ -370,18 +363,44 @@
             </select>
         </p>
 
+        <p>
+            <label for="bankAccountNum">
+                口座番号:
+                <small class="text-danger">※</small>
+            </label><br>
 
-        <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
             <input type="text"
+                   id="bankAccountNum"
                    th:field="*{bankAccountNum}"
                    class="form-control"
                    inputmode="numeric"
                    pattern="[0-9]{7}"
                    minlength="7"
                    maxlength="7"
-                   placeholder="1234567"
+                   data-required-message="口座番号を入力してください。"
+                   data-pattern-message="口座番号は半角数字7桁で入力してください。"
+                   placeholder="2200001"
                    title="口座番号は半角数字7桁で入力してください"
+                   autocomplete="off"
                    required/>
+        </p>
+
+        <p>
+            <label for="birthDate">
+                生年月日:
+                <small class="text-danger">※</small>
+            </label><br>
+
+            <input type="date"
+                   id="birthDate"
+                   th:field="*{birthDate}"
+                   th:max="${today}"
+                   class="form-control"
+                   data-required-message="生年月日を入力してください。"
+                   title="この日付は選択できません"
+                   autocomplete="bday"
+                   required/>
+        </p>
 
         <p class="button-area">
             <input type="reset"
@@ -389,14 +408,12 @@
                    class="form-control-button form-clear-button"/>
 
             <input type="submit"
-                   value="次へ"
+                   value="口座を確認して次へ"
                    class="form-control-button form-confirmation-button"/>
         </p>
     </form>
 </div>
 
-<script th:src="@{/js/bankLoanBranch.js}"></script>
-<script th:src="@{/js/bankLoanAmountFormat.js}"></script>
 <script th:src="@{/js/bankLoanValidation.js}"></script>
 
 </body>
