@@ -186,8 +186,20 @@ const showCandidates = (id) => {
         .catch(() => hideCandidates(id));
 };
 
-//  確定したときに画面側へ知らせるためのコールバック。setupBankBranchPickers で受け取る
-let onPickerUpdated = () => {
+/*
+ * 画面側へ知らせるためのコールバック。setupBankBranchPickers で受け取る。
+ *
+ * 2つに分けているのが要点。
+ *   onConfirmed … 「選択」ボタンで確定したとき。結果を必ず表示する
+ *   onEditing   … 入力中や候補をクリックしただけのとき。
+ *                 すでにエラーが出ている項目だけ掛け直す
+ *
+ * 1つにまとめて常に判定すると、コードを1文字打った時点で
+ * 「4桁で入力してください」と出てしまい、入力の邪魔になる。
+ */
+let onConfirmed = () => {
+};
+let onEditing = () => {
 };
 
 /** 候補をクリックしたとき:コード入力欄に入れて、選択中であることを示す */
@@ -197,7 +209,33 @@ const selectCandidate = (id, code) => {
     clearPickerName(id);
     document.getElementById(id + "_candidates").querySelectorAll(".candidate")
         .forEach((item) => item.classList.toggle("selected", item.dataset.code === code));
-    onPickerUpdated(id);
+    onEditing(id);
+};
+
+/**
+ * 金融機関が確定したあとに、支店の確定内容を見直す。
+ *
+ * 金融機関が変わると、同じ支店コードでも別の支店になったり、存在しなくなったりする。
+ * かといって支店を無条件に消してしまうと、
+ *   ・同じ金融機関を選び直しただけでも、確定済みの支店名が消える
+ *   ・支店をまだ入力していない段階で「支店コードを入力してください」と出てしまう
+ * ということが起きる。
+ * そこで「支店コードが入っているときだけ、新しい金融機関で引き直す」形にしている。
+ */
+const revalidateBranch = () => {
+    resetBranchCandidates();    //  候補は金融機関ごとに違うので捨てる
+
+    const code = document.getElementById("branchCode").value.trim();
+    if (!BRANCH_CODE_PATTERN.test(code)) {
+        //  まだ支店を入力していない。ここでエラーを出すのは早すぎるので、
+        //  表示を消すだけにして判定は掛けない
+        clearPickerName("branchCode");
+        onEditing("branchCode");
+        return;
+    }
+    //  支店コードは入っている。新しい金融機関でも同じ支店が存在するか確かめ直す。
+    //  引き直す前の名称はあえて消さない（結果が返るまでの一瞬だけ前の表示が残る）
+    confirmSelection("branchCode");
 };
 
 /** 「選択」ボタン:入力欄のコードを確定し、名称を表示する */
@@ -208,7 +246,7 @@ const confirmSelection = (id) => {
 
     if (!picker.pattern.test(code)) {
         clearPickerName(id);
-        onPickerUpdated(id);    //  未入力・桁数違いをその場で知らせる
+        onConfirmed(id);    //  未入力・桁数違いをその場で知らせる
         return;
     }
     picker.lookupName(code)
@@ -216,12 +254,9 @@ const confirmSelection = (id) => {
             input.dataset.found = (name === null) ? "0" : "1";
             document.getElementById(picker.nameViewId).textContent = (name === null) ? "" : name;
             hideCandidates(id);
-            onPickerUpdated(id);
+            onConfirmed(id);
             if (id === "bankCode") {
-                //  金融機関が変われば、同じ支店コードでも別の支店になる
-                resetBranchCandidates();
-                clearPickerName("branchCode");
-                onPickerUpdated("branchCode");
+                revalidateBranch();
             }
         })
         //  通信できないときは「分からない」状態に戻し、判定はサーバに任せる
@@ -230,10 +265,15 @@ const confirmSelection = (id) => {
 
 /**
  * 画面の読み込み後に1回呼ぶ。
- * @param updated 値が変わったときに呼ばれる関数。画面側の入力チェックを掛け直すために使う
+ *
+ * @param callbacks 画面側の入力チェックを掛け直すための関数を2つ渡す
+ *        confirmed … 「選択」で確定したとき（結果を必ず表示する）
+ *        editing   … 入力中・候補をクリックしただけのとき
+ *                    （すでにエラーが出ている項目だけ掛け直す）
  */
-const setupBankBranchPickers = (updated) => {
-    onPickerUpdated = updated;
+const setupBankBranchPickers = (callbacks) => {
+    onConfirmed = callbacks.confirmed;
+    onEditing = callbacks.editing;
 
     ["bankCode", "branchCode"].forEach((id) => {
         const input = document.getElementById(id);
@@ -242,7 +282,7 @@ const setupBankBranchPickers = (updated) => {
         input.addEventListener("input", () => {
             clearPickerName(id);
             showCandidates(id);
-            onPickerUpdated(id);
+            onEditing(id);
         });
         input.addEventListener("focus", () => showCandidates(id));
         input.addEventListener("blur", () => hideCandidates(id));

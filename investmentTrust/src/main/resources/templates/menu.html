@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>投資信託アプリ メニュー</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            justify-content: center;
+            align-items: center;
+            min-height: 85vh;
+        }
+        .content {
+            background-color: #ffffff;
+            width: 60%;
+            max-width: 640px;
+            padding: 32px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-top: 0;
+        }
+        .menu-item {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin: 16px 0;
+        }
+        .menu-item:hover {
+            border-color: #2185D0;
+            background-color: #f0f6ff;
+        }
+        .menu-title {
+            font-size: 1.15em;
+            font-weight: bold;
+        }
+        .menu-description {
+            color: #666666;
+            font-size: 0.9em;
+            margin-top: 6px;
+        }
+        .note {
+            color: #666666;
+            font-size: 0.9em;
+            border-top: 1px solid #eeeeee;
+            padding-top: 16px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    <h1>投資信託アプリ</h1>
+    <p>操作を選んでください。</p>
+
+    <a class="menu-item" href="/accountRegistration">
+        <span class="menu-title">口座を登録する</span>
+        <div class="menu-description">
+            金融機関・支店・科目・口座番号と初期残高を登録します。
+        </div>
+    </a>
+
+    <a class="menu-item" href="/investmentTrust">
+        <span class="menu-title">投資信託を申し込む</span>
+        <div class="menu-description">
+            登録済みの口座から購入代金を引き落として申し込みます。
+        </div>
+    </a>
+
+    <p class="note">
+        申込は登録済みの口座に対してのみ行えます。
+        初めて使うときは、先に「口座を登録する」から口座を作成してください。
+    </p>
+</div>
+</body>
+</html>

@@ -39,6 +39,17 @@
             margin-top: 2px;
         }
         .form_error { color: red; }
+        /* フォーム全体に対するエラーの表示枠。
+           「既に登録されている」のように、項目1つに原因を特定できないものをここに出す */
+        .form_error_summary {
+            border: 1px solid red;
+            background-color: #fff5f5;
+            color: red;
+            padding: 10px 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .form_error_summary p { margin: 0; }
         .input-error {
             border: 1px solid red;
             background-color: #fff5f5;
@@ -117,10 +128,14 @@
             background-color: #2185D0;
             color: #ffffff;
         }
+        /* 候補が1件も無いときに一覧の中へ出すメッセージ。
+           「先に金融機関コードを選択してください。」のように、
+           そのままでは先に進めないことを伝えるものなので、
+           他の入力エラー（.form_error）と同じ赤にそろえている */
         .candidate-empty {
             display: block;
             padding: 6px 10px;
-            color: #666666;
+            color: red;
         }
     </style>
 </head>
@@ -131,6 +146,13 @@
 
     <form id="accountRegistrationForm" action="#" th:action="@{/accountRegistrationCompletion}"
           th:object="${accountRegistration}" method="post" novalidate>
+
+        <!-- フォーム全体に対するエラー。
+             「既に登録されている」は金融機関・支店・科目・口座番号の“組み合わせ”に対する
+             判定なので、4項目には赤枠だけを付け、理由はここで1回だけ説明している。 -->
+        <div class="form_error_summary" th:if="${#fields.hasGlobalErrors()}">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}">エラー内容</p>
+        </div>
 
         <!-- 金融機関・支店の入力は申込画面とまったく同じ作り。
              動きは共通の bankBranchPicker.js が担当していて、
@@ -188,7 +210,7 @@
             <input type="submit" id="register" value="登録" class="form-control-button form-register-button"/>
             <input type="reset" id="clear" value="クリア" class="form-control-button form-clear-button"/></p>
     </form>
-    <p><a href="/investmentTrust">投資信託の申込画面へ</a></p>
+    <p><a href="/menu">メニューへ戻る</a> ｜ <a href="/investmentTrust">投資信託の申込画面へ</a></p>
 
     <!-- bankBranchPicker.js が先。accountRegistration.js はそこで定義された
          BANK_CODE_PATTERN / setupBankBranchPickers などを使うため -->

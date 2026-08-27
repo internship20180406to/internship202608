@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.validation.BindingResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -125,6 +126,32 @@ class InvestmentTrustCompletionTest {
                 .andExpect(model().attributeHasFieldErrorCode(FORM_NAME, "bankAccountNum", "accountNotFound"));
 
         assertThat(countOrders()).isEqualTo(ordersBefore);
+    }
+
+    @Test
+    @DisplayName("支店だけ間違っている場合も、口座を特定する4項目すべてがエラーになる")
+    void 口座が見つからないときは4項目すべてがエラーになる() throws Exception {
+        MultiValueMap<String, String> params = validParams();
+        //  支店コード101（博多支店）は実在するが、この支店に口座0031111は無い。
+        //  「支店が間違っている」のか「口座番号が間違っている」のかはサーバには分からない。
+        params.set("branchCode", "101");
+
+        mockMvc.perform(post("/investmentTrustCompletion").params(params))
+                .andExpect(view().name("investmentTrustMain"))
+                //  口座番号だけを赤くすると「口座番号が間違っている」と誤解されるので、
+                //  組み合わせを構成する4項目すべてに印を付ける
+                .andExpect(model().attributeHasFieldErrors(FORM_NAME,
+                        "bankCode", "branchCode", "bankAccountType", "bankAccountNum"))
+                .andExpect(result -> {
+                    BindingResult binding = (BindingResult) result.getModelAndView().getModel()
+                            .get(BindingResult.MODEL_KEY_PREFIX + FORM_NAME);
+                    //  理由はフォーム全体のエラーとして1回だけ出す
+                    assertThat(binding.getGlobalErrors()).hasSize(1);
+                    assertThat(binding.getGlobalErrors().get(0).getDefaultMessage())
+                            .contains("登録されていません");
+                    //  項目ごとのメッセージは空。同じ文言が4回並ばないようにしている
+                    assertThat(binding.getFieldError("bankAccountNum").getDefaultMessage()).isEmpty();
+                });
     }
 
     @Test

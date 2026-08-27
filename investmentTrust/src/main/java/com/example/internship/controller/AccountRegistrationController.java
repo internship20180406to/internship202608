@@ -42,6 +42,13 @@ public class AccountRegistrationController {
     /** 画面上のフォームの名前 */
     private static final String FORM_NAME = "accountRegistration";
 
+    /**
+     * 口座を特定する4項目。
+     * 「既に登録されている」のもこの4つの組み合わせに対する判定なので、まとめてエラーにする。
+     */
+    private static final List<String> ACCOUNT_KEY_FIELDS =
+            List.of("bankCode", "branchCode", "accountType", "accountNum");
+
     @Autowired
     private BankMasterService bankMasterService;
 
@@ -81,7 +88,7 @@ public class AccountRegistrationController {
         } catch (DuplicateKeyException e) {
             // 存在チェックから登録までの隙間に、同じ口座が登録された場合。
             // 最終的に重複を防いでいるのはDBの主キー。
-            bindingResult.rejectValue("accountNum", "duplicated", "この口座は既に登録されています。");
+            rejectDuplicatedAccount(bindingResult);
             return MAIN_VIEW;
         }
         redirectAttributes.addFlashAttribute("registeredAccount", form);
@@ -139,7 +146,24 @@ public class AccountRegistrationController {
             return;
         }
         if (registerAccountService.exists(form)) {
-            bindingResult.rejectValue("accountNum", "duplicated", "この口座は既に登録されています。");
+            rejectDuplicatedAccount(bindingResult);
         }
+    }
+
+    /**
+     * 口座を特定する4項目をまとめてエラーにする。
+     *
+     * 「既に登録されている」のは4つの値の“組み合わせ”に対する判定で、
+     * 口座番号だけが重複しているという意味ではない。
+     * 口座番号だけを赤くすると「口座番号を変えれば登録できる」と読み取られてしまうため、
+     *   ・理由はフォーム全体のエラーとして1回だけ表示する
+     *   ・4項目は色（赤枠）だけで示し、同じ文言を4回並べない
+     * という形にしている。
+     */
+    private void rejectDuplicatedAccount(BindingResult bindingResult) {
+        bindingResult.reject("duplicated",
+                "この口座は既に登録されています。金融機関・支店・科目・口座番号の組み合わせをご確認ください。");
+        // メッセージを空文字にすると、項目の下には何も出ず赤枠だけが付く
+        ACCOUNT_KEY_FIELDS.forEach(field -> bindingResult.rejectValue(field, "duplicated", ""));
     }
 }

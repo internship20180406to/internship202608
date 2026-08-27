@@ -43,6 +43,19 @@
         .form_error {
             color: red;
         }
+        /* フォーム全体に対するエラーの表示枠。
+           「口座が見つからない」のように、項目1つに原因を特定できないものをここに出す */
+        .form_error_summary {
+            border: 1px solid red;
+            background-color: #fff5f5;
+            color: red;
+            padding: 10px 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .form_error_summary p {
+            margin: 0;
+        }
         .input-error {
             border: 1px solid red;
             background-color: #fff5f5;
@@ -103,10 +116,14 @@
             background-color: #2185D0;
             color: #ffffff;
         }
+        /* 候補が1件も無いときに一覧の中へ出すメッセージ。
+           「先に金融機関コードを選択してください。」のように、
+           そのままでは先に進めないことを伝えるものなので、
+           他の入力エラー（.form_error）と同じ赤にそろえている */
         .candidate-empty {
             display: block;
             padding: 6px 10px;
-            color: #666666;
+            color: red;
         }
         /* コードから引いた名称の表示欄 */
         .master_name {
@@ -144,6 +161,7 @@
 <body>
 <div class="content">
     <h1>投資信託注文情報入力</h1>
+    <p><a href="/menu">メニューへ戻る</a> ｜ <a href="/accountRegistration">口座登録画面へ</a></p>
     <!-- novalidate: ブラウザ標準のエラー表示を止めて、JSで出すメッセージに統一する -->
     <!-- 各項目の <span class="form_error"> にはサーバサイドのエラーメッセージを表示する。
          th:errors はエラーが無いと span ごと消えてしまい JS 側が要素を取得できなくなるため、
@@ -155,6 +173,14 @@
              ・「選択」ボタンを押した時点で確定し、金融機関名が表示される
              ・表示された名称は画面に出すだけで、サーバへは送らない（サーバ側で引き直す）。
                hidden項目で名称を送り返すと、開発者ツールで書き換えられてしまうため -->
+        <!-- フォーム全体に対するエラー。
+             「口座が見つからない」は金融機関・支店・科目・口座番号の“組み合わせ”に対する
+             エラーで、どれか1つが間違っていると分かっているわけではない。
+             そのため4項目には赤枠だけを付け、理由はここで1回だけ説明している。 -->
+        <div class="form_error_summary" th:if="${#fields.hasGlobalErrors()}">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}">エラー内容</p>
+        </div>
+
         <p><label class="ml-1">金融機関コード: <small class="text-danger ml-1">※</small></label><br>
             <small class="form_hint">半角数字4桁（例: 0001）。入力すると候補が表示されます。
                 候補を選んで「選択」を押すと確定します。</small><br>

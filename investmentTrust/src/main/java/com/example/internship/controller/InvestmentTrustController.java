@@ -32,6 +32,14 @@ public class InvestmentTrustController {
     /** 入力画面のビュー名。入力エラー時の差し戻し先としても使う */
     private static final String MAIN_VIEW = "investmentTrustMain";
 
+    /**
+     * 口座を特定する4項目。
+     * この4つは「組み合わせ」で1つの口座を指すので、口座が見つからないときは
+     * まとめてエラーにする（下の rejectAccountCombination を参照）。
+     */
+    private static final List<String> ACCOUNT_KEY_FIELDS =
+            List.of("bankCode", "branchCode", "bankAccountType", "bankAccountNum");
+
     @Autowired
     private OrderInvestmentTrustService orderInvestmentTrustService;
 
@@ -170,8 +178,8 @@ public class InvestmentTrustController {
 
         Optional<AccountBalance> account = accountBalanceService.findByForm(form);
         if (account.isEmpty()) {
-            bindingResult.rejectValue("bankAccountNum", "accountNotFound",
-                    "該当する口座がありません。金融機関・支店・科目・口座番号をご確認ください。");
+            rejectAccountCombination(bindingResult,
+                    "入力された口座は登録されていません。金融機関・支店・科目・口座番号の組み合わせをご確認ください。");
             return null;
         }
 
@@ -215,6 +223,22 @@ public class InvestmentTrustController {
             }
         }
         form.setBranchName(branch.map(Branch::getBranchName).orElse(null));
+    }
+
+    /**
+     * 口座を特定する4項目をまとめてエラーにする。
+     *
+     * 「口座が見つからない」のは4つの値の“組み合わせ”に対するエラーで、
+     * どれか1つが間違っていると分かっているわけではない。
+     * 口座番号だけを赤くすると「口座番号が間違っている」と読み取られてしまうため、
+     *   ・理由はフォーム全体のエラーとして1回だけ表示する
+     *   ・4項目は色（赤枠）だけで示し、同じ文言を4回並べない
+     * という形にしている。
+     */
+    private void rejectAccountCombination(BindingResult bindingResult, String message) {
+        bindingResult.reject("accountNotFound", message);
+        // メッセージを空文字にすると、項目の下には何も出ず赤枠だけが付く
+        ACCOUNT_KEY_FIELDS.forEach(field -> bindingResult.rejectValue(field, "accountNotFound", ""));
     }
 
     private void rejectIfNotAllowed(BindingResult bindingResult, String field, String value,

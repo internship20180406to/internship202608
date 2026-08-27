@@ -28,6 +28,9 @@
 <p><strong>引き落とし後の残高:
     <span th:text="${#numbers.formatInteger(balanceAfter, 1, 'COMMA')}"></span>円</strong></p>
 
-<p><input type="button" value="注文に戻る" onclick="window.location='/investmentTrust';"/></p>
+<p>
+    <input type="button" value="注文に戻る" onclick="window.location='/investmentTrust';"/>
+    <input type="button" value="メニューへ" onclick="window.location='/menu';"/>
+</p>
 </body>
 </html>

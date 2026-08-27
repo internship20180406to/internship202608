@@ -170,7 +170,13 @@ const clearAllErrors = () => {
  * 共通部品の組み込み
  * ========================================================================== */
 
-setupBankBranchPickers(showResultById);
+setupBankBranchPickers({
+    //  「選択」で確定したときは結果をそのまま表示する
+    confirmed: showResultById,
+    //  入力中や候補をクリックしただけのときは、すでにエラーが出ている項目だけ掛け直す。
+    //  こうしないとコードを1文字打った時点で「4桁で入力してください」と出てしまう
+    editing: refreshIfShowing
+});
 
 //  戻り値は、送信直前など手動で整形・変換したいときに呼ぶための関数
 const formatBalance = setupCommaInput(balanceInput, () => refreshIfShowing("balance"));
