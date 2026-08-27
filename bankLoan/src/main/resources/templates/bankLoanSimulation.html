@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>住宅ローン返済シミュレーション</title>
@@ -56,34 +56,87 @@
             border-radius: 4px;
         }
 
-        .application-guide p {
-            margin-top: 0;
-            font-size: 19px;
+        .application-guide-title {
+            margin: 0 0 8px;
+            font-size: 21px;
             font-weight: bold;
         }
 
-        .main-application-button {
-            display: inline-block;
-            padding: 14px 35px;
+        .application-guide-description {
+            margin: 0 0 25px;
+            color: #eeeeee;
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        .application-choice-area {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .application-choice {
+            padding: 20px;
             color: #111111;
             background-color: #ffffff;
-            border: 2px solid #ffffff;
+            border-radius: 5px;
+        }
+
+        .choice-title {
+            margin: 0 0 8px;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .choice-description {
+            min-height: 42px;
+            margin: 0 0 18px;
+            color: #555555;
+            font-size: 13px;
+            font-weight: normal;
+        }
+
+        .main-application-button {
+            display: block;
+            padding: 13px 15px;
+            color: #ffffff;
+            background-color: #111111;
+            border: 2px solid #111111;
             border-radius: 4px;
             text-decoration: none;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: bold;
             transition: 0.2s;
         }
 
         .main-application-button:hover {
+            color: #111111;
+            background-color: #ffffff;
+        }
+
+        .main-application-button.disabled {
+            color: #777777;
+            background-color: #dddddd;
+            border-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .preparing-label {
+            display: inline-block;
+            margin-left: 7px;
+            padding: 2px 7px;
             color: #ffffff;
-            background-color: #333333;
+            background-color: #777777;
+            border-radius: 10px;
+            font-size: 11px;
+            vertical-align: middle;
         }
 
         form label {
             font-weight: 600;
         }
-
 
         .form-control {
             width: 100%;
@@ -169,6 +222,11 @@
             margin: 5px 0;
         }
 
+        .unit {
+            margin-left: 5px;
+            font-weight: 600;
+        }
+
         @media (max-width: 700px) {
             body {
                 padding: 20px 0;
@@ -183,17 +241,14 @@
                 font-size: 25px;
             }
 
-            .main-application-button {
-                width: 80%;
-                padding: 13px 10px;
+            .application-choice-area {
+                grid-template-columns: 1fr;
+            }
+
+            .choice-description {
+                min-height: auto;
             }
         }
-
-        .unit {
-            margin-left: 5px;
-            font-weight: 600;
-        }
-
     </style>
 </head>
 
@@ -203,12 +258,48 @@
     <h1>カウカウ銀行の住宅ローン</h1>
 
     <div class="application-guide">
-        <p>Webでかんたんお申込みはこちら</p>
+        <p class="application-guide-title">
+            Webでかんたんお申込み
+        </p>
 
-        <a th:href="@{/bankLoan}"
-           class="main-application-button">
-            住宅ローンを申し込む
-        </a>
+        <p class="application-guide-description">
+            カウカウ銀行の口座をお持ちかどうか選択してください。
+        </p>
+
+        <div class="application-choice-area">
+
+            <div class="application-choice">
+                <p class="choice-title">
+                    カウカウ銀行の口座をお持ちの方
+                </p>
+
+                <p class="choice-description">
+                    口座情報を確認して、住宅ローンのお申込みへ進みます。
+                </p>
+
+                <a th:href="@{/bankLoan}"
+                   class="main-application-button">
+                    口座をお持ちの方
+                </a>
+            </div>
+
+            <div class="application-choice">
+                <p class="choice-title">
+                    カウカウ銀行の口座をお持ちでない方
+                </p>
+
+                <p class="choice-description">
+                    口座開設を含む申込機能は、現在準備中です。
+                </p>
+
+                <span class="main-application-button disabled"
+                      aria-disabled="true">
+                    口座をお持ちでない方
+                    <span class="preparing-label">準備中</span>
+                </span>
+            </div>
+
+        </div>
     </div>
 
     <h2 class="simulation-title">
@@ -218,10 +309,11 @@
     <p>
         借入条件を入力すると、毎月の返済額などを試算できます。
     </p>
+
     <form id="simulationForm">
 
         <p>
-            <label>
+            <label for="loanAmount">
                 借入希望金額:
                 <small class="text-danger">※</small>
             </label><br>
@@ -234,11 +326,12 @@
                    placeholder="3000"
                    title="借入希望額は1万円以上で入力してください"
                    required>
+
             <span class="unit">万円</span>
         </p>
 
         <p>
-            <label>
+            <label for="loanYears">
                 借入年数:
                 <small class="text-danger">※</small>
             </label><br>
@@ -247,7 +340,9 @@
                     class="form-control"
                     required>
 
-                <option value="">選択してください</option>
+                <option value="">
+                    選択してください
+                </option>
 
                 <option th:each="year : ${#numbers.sequence(1, 40)}"
                         th:value="${year}"
@@ -257,7 +352,7 @@
         </p>
 
         <p>
-            <label>
+            <label for="interestType">
                 金利タイプ:
                 <small class="text-danger">※</small>
             </label><br>
@@ -266,7 +361,9 @@
                     class="form-control"
                     required>
 
-                <option value="">選択してください</option>
+                <option value="">
+                    選択してください
+                </option>
 
                 <option th:each="rateEntry : ${rateOptions}"
                         th:value="${rateEntry.key}"
@@ -277,7 +374,8 @@
         </p>
 
         <p>
-            <strong>返済方法：</strong>元利均等返済
+            <strong>返済方法：</strong>
+            元利均等返済
         </p>
 
         <div class="button-area">
@@ -297,19 +395,22 @@
         <p>
             毎月の返済額：
             <span id="monthlyPayment"
-                  class="result-value"></span>
+                  class="result-value">
+            </span>
         </p>
 
         <p>
             総返済額：
             <span id="totalPayment"
-                  class="result-value"></span>
+                  class="result-value">
+            </span>
         </p>
 
         <p>
             利息総額：
             <span id="totalInterest"
-                  class="result-value"></span>
+                  class="result-value">
+            </span>
         </p>
 
         <div id="stressResult"
@@ -322,13 +423,15 @@
             <p>
                 金利上昇後の毎月返済額：
                 <span id="stressMonthlyPayment"
-                      class="result-value"></span>
+                      class="result-value">
+                </span>
             </p>
 
             <p>
                 金利上昇ケースの総返済額：
                 <span id="stressTotalPayment"
-                      class="result-value"></span>
+                      class="result-value">
+                </span>
             </p>
         </div>
 
@@ -336,18 +439,20 @@
             <p>
                 ※選択した金利が借入期間中変わらないものとして計算した参考値です。
             </p>
+
             <p>
                 ※金利上昇ケースは将来の金利を予測するものではありません。
             </p>
+
             <p>
                 ※元利均等返済・ボーナス返済なしで計算しています。
             </p>
+
             <p>
                 ※手数料や金融機関ごとの返済額見直しルールは考慮していません。
             </p>
         </div>
     </section>
-
 
 </div>
 
@@ -376,7 +481,10 @@
         }
 
         const power =
-            Math.pow(1 + monthlyRate, numberOfMonths);
+            Math.pow(
+                1 + monthlyRate,
+                numberOfMonths
+            );
 
         return principal
             * monthlyRate
@@ -400,7 +508,10 @@
         }
 
         const power =
-            Math.pow(1 + monthlyRate, paidMonths);
+            Math.pow(
+                1 + monthlyRate,
+                paidMonths
+            );
 
         return principal * power
             - monthlyPayment
@@ -422,19 +533,25 @@
                 simulationForm.reportValidity();
                 return;
             }
-            //
+
             const loanAmount =
                 Number(
-                    document.getElementById("loanAmount").value
+                    document.getElementById(
+                        "loanAmount"
+                    ).value
                 ) * 10000;
 
             const loanYears =
                 Number(
-                    document.getElementById("loanYears").value
+                    document.getElementById(
+                        "loanYears"
+                    ).value
                 );
 
             const interestType =
-                document.getElementById("interestType");
+                document.getElementById(
+                    "interestType"
+                );
 
             const selectedOption =
                 interestType.options[
@@ -442,7 +559,9 @@
                     ];
 
             const annualRate =
-                Number(selectedOption.dataset.rate);
+                Number(
+                    selectedOption.dataset.rate
+                );
 
             const numberOfMonths =
                 loanYears * 12;
@@ -540,20 +659,20 @@
             document.getElementById(
                 "stressMonthlyPayment"
             ).textContent =
-                formatYen(increasedMonthlyPayment);
+                formatYen(
+                    increasedMonthlyPayment
+                );
 
             document.getElementById(
                 "stressTotalPayment"
             ).textContent =
-                formatYen(stressTotalPayment);
+                formatYen(
+                    stressTotalPayment
+                );
 
             stressResult.style.display = "block";
         }
     );
 </script>
-
-</head>
-<body>
-
 </body>
 </html>

@@ -162,6 +162,7 @@
 
             .return-button {
                 width: 80%;
+                box-sizing: border-box;
             }
         }
     </style>
@@ -171,10 +172,13 @@
 <div class="content">
 
     <div class="step-progress">
-        <div class="progress-step completed">1. 基本情報</div>
+        <div class="progress-step completed">1. 口座確認</div>
         <div class="progress-step completed">2. 借入内容</div>
         <div class="progress-step completed">3. 内容確認</div>
-        <div class="progress-step active" aria-current="step">4. 申込完了</div>
+        <div class="progress-step active"
+             aria-current="step">
+            4. 申込完了
+        </div>
     </div>
 
     <h1>申込完了</h1>
@@ -191,11 +195,15 @@
 
     <div th:object="${bankLoanApplication}">
 
-        <h2 class="section-title">ご本人様情報</h2>
+        <h2 class="section-title">
+            口座に登録されているご本人様情報
+        </h2>
 
         <div class="confirmation-group">
             <div class="confirmation-row">
-                <span class="confirmation-label">お名前</span>
+                <span class="confirmation-label">
+                    お名前
+                </span>
 
                 <span class="confirmation-value">
                     <span th:text="*{debtorLastName}"></span>
@@ -204,66 +212,116 @@
             </div>
 
             <div class="confirmation-row">
-                <span class="confirmation-label">生年月日</span>
-                <span class="confirmation-value"
-                      th:text="*{birthDate}"></span>
+                <span class="confirmation-label">
+                    お名前（カナ）
+                </span>
+
+                <span class="confirmation-value">
+                    <span th:text="*{debtorLastNameKana}"></span>
+                    <span th:text="*{debtorFirstNameKana}"></span>
+                </span>
             </div>
 
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    生年月日
+                </span>
+
+                <span class="confirmation-value"
+                      th:text="*{birthDate}">
+                </span>
+            </div>
+        </div>
+
+        <h2 class="section-title">
+            ご返済用口座の情報
+        </h2>
+
+        <div class="confirmation-group">
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    金融機関名
+                </span>
+
+                <span class="confirmation-value"
+                      th:text="*{bankName}">
+                </span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    支店名
+                </span>
+
+                <span class="confirmation-value"
+                      th:text="*{branchName}">
+                </span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    科目名
+                </span>
+
+                <span class="confirmation-value"
+                      th:text="*{subjectName}">
+                </span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    口座番号
+                </span>
+
+                <span class="confirmation-value"
+                      th:text="${'****' +
+                          #strings.substring(
+                              bankLoanApplication.bankAccountNum,
+                              4
+                          )}">
+                </span>
+            </div>
+        </div>
+
+        <h2 class="section-title">
+            お借入内容
+        </h2>
+
+        <div class="confirmation-group">
             <div class="confirmation-row">
                 <span class="confirmation-label">
                     ご本人様の前年度年収（税込）
                 </span>
 
                 <span class="confirmation-value">
-                    <span th:text="*{annualIncome}"></span>万円
+                    <span th:text="${#numbers.formatInteger(
+                        bankLoanApplication.annualIncome,
+                        1,
+                        'COMMA'
+                    )}">
+                    </span>万円
                 </span>
             </div>
-        </div>
-
-        <h2 class="section-title">ご返済用口座の情報</h2>
-
-        <div class="confirmation-group">
-            <div class="confirmation-row">
-                <span class="confirmation-label">金融機関名</span>
-                <span class="confirmation-value"
-                      th:text="*{bankName}"></span>
-            </div>
 
             <div class="confirmation-row">
-                <span class="confirmation-label">支店名</span>
-                <span class="confirmation-value"
-                      th:text="*{branchName}"></span>
-            </div>
-
-            <div class="confirmation-row">
-                <span class="confirmation-label">科目名</span>
-                <span class="confirmation-value"
-                      th:text="*{subjectName}"></span>
-            </div>
-
-            <div class="confirmation-row">
-                <span class="confirmation-label">口座番号</span>
-                <span class="confirmation-value"
-                      th:text="${'****' + #strings.substring(
-                          bankLoanApplication.bankAccountNum, 4
-                      )}">
+                <span class="confirmation-label">
+                    借入希望額
                 </span>
-            </div>
-        </div>
-
-        <h2 class="section-title">お借入内容</h2>
-
-        <div class="confirmation-group">
-            <div class="confirmation-row">
-                <span class="confirmation-label">借入希望額</span>
 
                 <span class="confirmation-value">
-                    <span th:text="*{desiredLoanAmount}"></span>万円
+                    <span th:text="${#numbers.formatInteger(
+                        bankLoanApplication.desiredLoanAmount,
+                        1,
+                        'COMMA'
+                    )}">
+                    </span>万円
                 </span>
             </div>
 
             <div class="confirmation-row">
-                <span class="confirmation-label">借入年数</span>
+                <span class="confirmation-label">
+                    借入年数
+                </span>
 
                 <span class="confirmation-value">
                     <span th:text="*{loanYears}"></span>年
@@ -271,13 +329,19 @@
             </div>
 
             <div class="confirmation-row">
-                <span class="confirmation-label">金利タイプ</span>
+                <span class="confirmation-label">
+                    金利タイプ
+                </span>
+
                 <span class="confirmation-value"
-                      th:text="*{interestType}"></span>
+                      th:text="*{interestType}">
+                </span>
             </div>
 
             <div class="confirmation-row">
-                <span class="confirmation-label">適用金利</span>
+                <span class="confirmation-label">
+                    適用金利
+                </span>
 
                 <span class="confirmation-value">
                     年<span th:text="*{interestRate}"></span>%

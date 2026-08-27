@@ -52,6 +52,22 @@
             font-size: 23px;
         }
 
+        /* 修正ボタンを置く見出し */
+        .section-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 35px;
+            border-bottom: 1px solid #cccccc;
+        }
+
+        .section-title-row .section-title {
+            flex: 1;
+            margin: 0;
+            border-bottom: none;
+        }
+
         .confirmation-group {
             max-width: 750px;
             margin-bottom: 30px;
@@ -78,7 +94,7 @@
 
         .button-area {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             gap: 15px;
             margin-top: 40px;
             padding-top: 25px;
@@ -99,6 +115,12 @@
             font-size: 14px;
             font-weight: bold;
             transition: 0.2s;
+        }
+
+        .section-edit-button {
+            min-width: auto;
+            padding: 8px 14px;
+            white-space: nowrap;
         }
 
         .primary-button {
@@ -181,6 +203,17 @@
                 font-size: 25px;
             }
 
+            .section-title-row {
+                align-items: stretch;
+                flex-direction: column;
+                gap: 8px;
+                padding-bottom: 10px;
+            }
+
+            .section-title-row .section-edit-button {
+                align-self: flex-end;
+            }
+
             .confirmation-row {
                 grid-template-columns: 1fr;
                 gap: 5px;
@@ -197,6 +230,10 @@
             .form-button {
                 width: 100%;
             }
+
+            .section-edit-button {
+                width: auto;
+            }
         }
     </style>
 </head>
@@ -205,16 +242,19 @@
 <div class="content">
 
     <div class="step-progress">
-        <div class="progress-step completed">1. 基本情報</div>
+        <div class="progress-step completed">1. 口座確認</div>
         <div class="progress-step completed">2. 借入内容</div>
-        <div class="progress-step active" aria-current="step">3. 内容確認</div>
+        <div class="progress-step active"
+             aria-current="step">
+            3. 内容確認
+        </div>
         <div class="progress-step">4. 申込完了</div>
     </div>
 
     <h1>申込内容の確認</h1>
 
     <p class="description">
-        入力内容をご確認のうえ、「申込」ボタンを押してください。
+        内容をご確認のうえ、「この内容で申し込む」ボタンを押してください。
     </p>
 
     <form action="#"
@@ -222,7 +262,6 @@
           th:object="${bankLoanApplication}"
           method="post">
 
-        <!-- サーバー側エラー表示用 -->
         <div class="error-summary"
              th:if="${validationErrors != null}"
              role="alert">
@@ -236,11 +275,15 @@
             </ul>
         </div>
 
-        <h2 class="section-title">ご本人様情報</h2>
+        <h2 class="section-title">
+            口座に登録されているご本人様情報
+        </h2>
 
         <div class="confirmation-group">
             <div class="confirmation-row">
-                <span class="confirmation-label">お名前</span>
+                <span class="confirmation-label">
+                    お名前
+                </span>
 
                 <span class="confirmation-value">
                     <span th:text="*{debtorLastName}"></span>
@@ -249,66 +292,132 @@
             </div>
 
             <div class="confirmation-row">
-                <span class="confirmation-label">生年月日</span>
-                <span class="confirmation-value"
-                      th:text="*{birthDate}"></span>
+                <span class="confirmation-label">
+                    お名前（カナ）
+                </span>
+
+                <span class="confirmation-value">
+                    <span th:text="*{debtorLastNameKana}"></span>
+                    <span th:text="*{debtorFirstNameKana}"></span>
+                </span>
             </div>
 
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    生年月日
+                </span>
+
+                <span class="confirmation-value"
+                      th:text="*{birthDate}">
+                </span>
+            </div>
+        </div>
+
+        <div class="section-title-row">
+            <h2 class="section-title">
+                口座情報
+            </h2>
+
+            <button type="submit"
+                    th:formaction="@{/bankLoanEdit}"
+                    class="form-button secondary-button section-edit-button">
+                口座情報を修正
+            </button>
+        </div>
+
+        <div class="confirmation-group">
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    金融機関名
+                </span>
+
+                <span class="confirmation-value"
+                      th:text="*{bankName}">
+                </span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    支店名
+                </span>
+
+                <span class="confirmation-value"
+                      th:text="*{branchName}">
+                </span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    科目名
+                </span>
+
+                <span class="confirmation-value"
+                      th:text="*{subjectName}">
+                </span>
+            </div>
+
+            <div class="confirmation-row">
+                <span class="confirmation-label">
+                    口座番号
+                </span>
+
+                <span class="confirmation-value"
+                      th:text="${'****' +
+                          #strings.substring(
+                              bankLoanApplication.bankAccountNum,
+                              4
+                          )}">
+                </span>
+            </div>
+        </div>
+
+        <div class="section-title-row">
+            <h2 class="section-title">
+                お借入内容
+            </h2>
+
+            <button type="submit"
+                    th:formaction="@{/bankLoanDetails}"
+                    class="form-button secondary-button section-edit-button">
+                借入内容を修正
+            </button>
+        </div>
+
+        <div class="confirmation-group">
             <div class="confirmation-row">
                 <span class="confirmation-label">
                     ご本人様の前年度年収（税込）
                 </span>
 
                 <span class="confirmation-value">
-                    <span th:text="*{annualIncome}"></span>万円
+                    <span th:text="${#numbers.formatInteger(
+                        bankLoanApplication.annualIncome,
+                        1,
+                        'COMMA'
+                    )}">
+                    </span>万円
                 </span>
             </div>
-        </div>
-
-        <h2 class="section-title">ご返済用口座の情報</h2>
-
-        <div class="confirmation-group">
-            <div class="confirmation-row">
-                <span class="confirmation-label">金融機関名</span>
-                <span class="confirmation-value"
-                      th:text="*{bankName}"></span>
-            </div>
 
             <div class="confirmation-row">
-                <span class="confirmation-label">支店名</span>
-                <span class="confirmation-value"
-                      th:text="*{branchName}"></span>
-            </div>
-
-            <div class="confirmation-row">
-                <span class="confirmation-label">科目名</span>
-                <span class="confirmation-value"
-                      th:text="*{subjectName}"></span>
-            </div>
-
-            <div class="confirmation-row">
-                <span class="confirmation-label">口座番号</span>
-                <span class="confirmation-value"
-                      th:text="${'****' + #strings.substring(
-                          bankLoanApplication.bankAccountNum, 4
-                      )}">
+                <span class="confirmation-label">
+                    借入希望額
                 </span>
-            </div>
-        </div>
-
-        <h2 class="section-title">お借入内容</h2>
-
-        <div class="confirmation-group">
-            <div class="confirmation-row">
-                <span class="confirmation-label">借入希望額</span>
 
                 <span class="confirmation-value">
-                    <span th:text="*{desiredLoanAmount}"></span>万円
+                    <span th:text="${#numbers.formatInteger(
+                        bankLoanApplication.desiredLoanAmount,
+                        1,
+                        'COMMA'
+                    )}">
+                    </span>万円
                 </span>
             </div>
 
             <div class="confirmation-row">
-                <span class="confirmation-label">借入年数</span>
+                <span class="confirmation-label">
+                    借入年数
+                </span>
 
                 <span class="confirmation-value">
                     <span th:text="*{loanYears}"></span>年
@@ -316,13 +425,19 @@
             </div>
 
             <div class="confirmation-row">
-                <span class="confirmation-label">金利タイプ</span>
+                <span class="confirmation-label">
+                    金利タイプ
+                </span>
+
                 <span class="confirmation-value"
-                      th:text="*{interestType}"></span>
+                      th:text="*{interestType}">
+                </span>
             </div>
 
             <div class="confirmation-row">
-                <span class="confirmation-label">適用金利</span>
+                <span class="confirmation-label">
+                    適用金利
+                </span>
 
                 <span class="confirmation-value">
                     年<span th:text="*{interestRate}"></span>%
@@ -330,35 +445,68 @@
             </div>
         </div>
 
-        <!-- DB保存用のhidden項目 -->
-        <input type="hidden" name="bankName" th:value="*{bankName}"/>
-        <input type="hidden" name="branchName" th:value="*{branchName}"/>
-        <input type="hidden" name="bankAccountNum" th:value="*{bankAccountNum}"/>
-        <input type="hidden" name="debtorLastName" th:value="*{debtorLastName}"/>
-        <input type="hidden" name="debtorFirstName" th:value="*{debtorFirstName}"/>
-        <input type="hidden" name="debtorName" th:value="*{debtorName}"/>
-        <input type="hidden" name="desiredLoanAmount" th:value="*{desiredLoanAmount}"/>
-        <input type="hidden" th:field="*{birthDate}"/>
-        <input type="hidden" name="annualIncome" th:value="*{annualIncome}"/>
-        <input type="hidden" th:field="*{subjectName}"/>
-        <input type="hidden" th:field="*{interestType}"/>
-        <input type="hidden" th:field="*{interestRate}"/>
-        <input type="hidden" th:field="*{loanYears}"/>
-        <input type="hidden" th:field="*{submissionToken}"/>
+        <!-- セッション照合済み情報 -->
+        <input type="hidden"
+               th:field="*{customerId}"/>
+
+        <input type="hidden"
+               th:field="*{accountId}"/>
+
+        <input type="hidden"
+               th:field="*{customerNumber}"/>
+
+        <!-- 口座情報 -->
+        <input type="hidden"
+               th:field="*{bankName}"/>
+
+        <input type="hidden"
+               th:field="*{branchName}"/>
+
+        <input type="hidden"
+               th:field="*{subjectName}"/>
+
+        <input type="hidden"
+               th:field="*{bankAccountNum}"/>
+
+        <!-- ご本人様情報 -->
+        <input type="hidden"
+               th:field="*{debtorLastName}"/>
+
+        <input type="hidden"
+               th:field="*{debtorFirstName}"/>
+
+        <input type="hidden"
+               th:field="*{debtorName}"/>
+
+        <input type="hidden"
+               th:field="*{debtorLastNameKana}"/>
+
+        <input type="hidden"
+               th:field="*{debtorFirstNameKana}"/>
+
+        <input type="hidden"
+               th:field="*{birthDate}"/>
+
+        <!-- お借入内容 -->
+        <input type="hidden"
+               th:field="*{annualIncome}"/>
+
+        <input type="hidden"
+               th:field="*{desiredLoanAmount}"/>
+
+        <input type="hidden"
+               th:field="*{loanYears}"/>
+
+        <input type="hidden"
+               th:field="*{interestType}"/>
+
+        <input type="hidden"
+               th:field="*{interestRate}"/>
+
+        <input type="hidden"
+               th:field="*{submissionToken}"/>
 
         <div class="button-area">
-            <div class="button-group">
-                <input type="submit"
-                       th:formaction="@{/bankLoanEdit}"
-                       value="基本情報を修正"
-                       class="form-button secondary-button"/>
-
-                <input type="submit"
-                       th:formaction="@{/bankLoanDetails}"
-                       value="借入内容を修正"
-                       class="form-button secondary-button"/>
-            </div>
-
             <div class="button-group">
                 <input type="button"
                        value="キャンセル"
@@ -367,13 +515,13 @@
 
                 <input type="submit"
                        id="submit"
-                       value="申込"
+                       value="この内容で申し込む"
                        class="form-button primary-button"/>
             </div>
         </div>
     </form>
 </div>
 
-<script src="/js/bankLoanConfirmation.js"></script>
+<script th:src="@{/js/bankLoanConfirmation.js}"></script>
 </body>
 </html>
