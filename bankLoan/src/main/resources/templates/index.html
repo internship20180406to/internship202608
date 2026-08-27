@@ -6,10 +6,10 @@
     <style>
         :root {
             --bank-navy: #0a2540;       /* 重厚感と信頼感のあるダークネイビー */
-            --bank-blue: #0284c7;       /* 鮮やかで美しいメインの青（スカイ/ロイヤルブルー系） */
+            --bank-blue: #0284c7;       /* メインの青 */
             --bank-blue-hover: #0369a1;
-            --bank-accent: #38bdf8;     /* 爽やかなアクセントのライトブルー */
-            --bg-base: #f0f6ff;        /* わずかに青みがかった清潔感のある背景色 */
+            --bank-accent: #38bdf8;     /* アクセントのライトブルー */
+            --bg-base: #f0f6ff;        /* 清潔感のある背景色 */
             --text-main: #1e293b;
             --text-muted: #64748b;
             --card-bg: #ffffff;
@@ -89,7 +89,7 @@
             transform: translateY(-1px);
         }
 
-        /* メインビジュアル（ディープブルーからスカイブルーの美しいグラデーションと風景） */
+        /* メインビジュアル */
         .hero {
             background: linear-gradient(rgba(10, 37, 64, 0.75), rgba(2, 132, 199, 0.65)),
             url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
@@ -207,6 +207,77 @@
             margin-bottom: 24px;
         }
 
+        /* シミュレーション選択カードのコンテナ（4つに対応するため2列×2行など） */
+        .sim-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .sim-menu-card {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sim-menu-card:hover {
+            border-color: var(--bank-blue);
+            background-color: #f0f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+        }
+
+        .sim-menu-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            color: var(--bank-navy);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sim-menu-card p {
+            margin: 0 0 16px 0;
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+
+        .sim-menu-card .arrow-link {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--bank-blue);
+        }
+
+        /* 個別シミュレーションフォーム */
+        .sim-form-panel {
+            display: none;
+        }
+
+        .back-menu-btn {
+            background: none;
+            border: none;
+            color: var(--bank-blue);
+            font-size: 13.5px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0;
+            margin-bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .back-menu-btn:hover {
+            text-decoration: underline;
+        }
+
         .sim-table {
             width: 100%;
             border-collapse: collapse;
@@ -270,7 +341,7 @@
             transform: translateY(-1px);
         }
 
-        /* 結果エリア（初期状態は非表示） */
+        /* 結果エリア */
         .sim-result-card {
             background: #e0f2fe;
             border: 1px solid #bae6fd;
@@ -302,13 +373,13 @@
         }
 
         .sim-result-value {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: bold;
             color: var(--bank-navy);
         }
 
         .sim-result-value span {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: normal;
         }
 
@@ -347,12 +418,12 @@
     </a>
     <div class="header-links">
         <a href="#loans">ローン商品一覧</a>
-        <a href="#simulator">返済シミュレーション</a>
+        <a href="#simulator">返済額シミュレーション</a>
         <a href="/bankLoan/form" class="header-btn">今すぐ申し込む</a>
     </div>
 </header>
 
-<!-- メインビジュアル（青色で統一した風景デザイン） -->
+<!-- メインビジュアル -->
 <div class="hero">
     <h1>あなたの夢と暮らしを、もっと身近に。</h1>
     <p>スマホ完結・最短即日審査。安心の低金利でサポートします。</p>
@@ -383,49 +454,213 @@
         </div>
     </div>
 
-    <!-- 返済額シミュレーション -->
+    <!-- 返済額シミュレーションセクション -->
     <div class="simulation-box" id="simulator">
-        <div class="simulation-title">返済額シミュレーション</div>
-        <div class="simulation-desc">ご希望の借入金額と返済期間を選択し、シミュレーションを実行してください。</div>
+        <div class="simulation-title">ローンシミュレーション</div>
+        <div class="simulation-desc">目的に合わせてシミュレーションの角度（種類）をお選びください。</div>
 
-        <table class="sim-table">
-            <tr>
-                <th><label for="simAmount">借入希望額</label></th>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <input type="number" id="simAmount" value="300" min="10" max="10000" step="10"> 万円
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <th><label for="simYears">ご返済期間</label></th>
-                <td>
-                    <select id="simYears">
-                        <option value="1">1年</option>
-                        <option value="3">3年</option>
-                        <option value="5" selected>5年</option>
-                        <option value="10">10年</option>
-                        <option value="15">15年</option>
-                        <option value="20">20年</option>
-                        <option value="25">25年</option>
-                        <option value="30">30年</option>
-                        <option value="35">35年</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
+        <!-- 1. メニュー選択画面（4つに拡張） -->
+        <div id="simMenu" class="sim-menu-grid">
+            <div class="sim-menu-card" onclick="selectSimulation('amount')">
+                <div>
+                    <h3>📌 お借入希望額から計算</h3>
+                    <p>ご希望の借入金額から、毎月の返済額を試算します。</p>
+                </div>
+                <div class="arrow-link">シミュレーションへ ➔</div>
+            </div>
+            <div class="sim-menu-card" onclick="selectSimulation('monthly')">
+                <div>
+                    <h3>💰 毎月の返済額から計算</h3>
+                    <p>「毎月〇万円ならいくら借りられる？」を逆算します。</p>
+                </div>
+                <div class="arrow-link">シミュレーションへ ➔</div>
+            </div>
+            <div class="sim-menu-card" onclick="selectSimulation('rent')">
+                <div>
+                    <h3>🏠 現在の家賃と比較</h3>
+                    <p>今の家賃の負担と同じ金額で、どのくらいのローンが組めるか試算します。</p>
+                </div>
+                <div class="arrow-link">シミュレーションへ ➔</div>
+            </div>
+            <div class="sim-menu-card" onclick="selectSimulation('bonus')">
+                <div>
+                    <h3>🎁 ボーナス併用で計算</h3>
+                    <p>ボーナス時の増額返済を組み合わせて、毎月の負担を軽減するプラン。</p>
+                </div>
+                <div class="arrow-link">シミュレーションへ ➔</div>
+            </div>
+        </div>
 
-        <!-- シミュレーション実行ボタン -->
-        <button type="button" class="exec-btn" onclick="calculateLoan()">シミュレーションを実行</button>
+        <!-- 2. 個別入力画面 -->
 
-        <!-- 結果カード（ボタンを押すまで非表示） -->
+        <!-- パネル①：お借入希望額から計算 -->
+        <div id="panel-amount" class="sim-form-panel">
+            <button type="button" class="back-menu-btn" onclick="backToMenu()">◀ シミュレーション選択画面に戻る</button>
+            <table class="sim-table">
+                <tr>
+                    <th><label for="simAmount">お借入希望額</label></th>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" id="simAmount" value="300" min="10" max="10000" step="10"> 万円
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="simYears1">ご返済期間</label></th>
+                    <td>
+                        <select id="simYears1">
+                            <option value="1">1年</option>
+                            <option value="3">3年</option>
+                            <option value="5" selected>5年</option>
+                            <option value="10">10年</option>
+                            <option value="15">15年</option>
+                            <option value="20">20年</option>
+                            <option value="25">25年</option>
+                            <option value="30">30年</option>
+                            <option value="35">35年</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="simInterestType1">金利タイプ</label></th>
+                    <td>
+                        <select id="simInterestType1">
+                            <option value="0.0125">変動金利 (年 1.25%)</option>
+                            <option value="0.0185">固定金利 (年 1.85%)</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="exec-btn" onclick="calculateLoan('amount')">シミュレーションを実行</button>
+        </div>
+
+        <!-- パネル②：毎月のご返済額から計算 -->
+        <div id="panel-monthly" class="sim-form-panel">
+            <button type="button" class="back-menu-btn" onclick="backToMenu()">◀ シミュレーション選択画面に戻る</button>
+            <table class="sim-table">
+                <tr>
+                    <th><label for="simTargetMonthly">ご希望の毎月返済額</label></th>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" id="simTargetMonthly" value="5" min="1" max="100" step="1"> 万円 / 月
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="simYears2">ご返済期間</label></th>
+                    <td>
+                        <select id="simYears2">
+                            <option value="5">5年</option>
+                            <option value="10">10年</option>
+                            <option value="15">15年</option>
+                            <option value="20">20年</option>
+                            <option value="25" selected>25年</option>
+                            <option value="30">30年</option>
+                            <option value="35">35年</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="simInterestType2">金利タイプ</label></th>
+                    <td>
+                        <select id="simInterestType2">
+                            <option value="0.0125">変動金利 (年 1.25%)</option>
+                            <option value="0.0185">固定金利 (年 1.85%)</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="exec-btn" onclick="calculateLoan('monthly')">借入可能額を計算する</button>
+        </div>
+
+        <!-- パネル③：現在の家賃と比較 -->
+        <div id="panel-rent" class="sim-form-panel">
+            <button type="button" class="back-menu-btn" onclick="backToMenu()">◀ シミュレーション選択画面に戻る</button>
+            <table class="sim-table">
+                <tr>
+                    <th><label for="simCurrentRent">現在の家賃（毎月）</label></th>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" id="simCurrentRent" value="8" min="1" max="50" step="1"> 万円 / 月
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="simYears3">ご返済期間</label></th>
+                    <td>
+                        <select id="simYears3">
+                            <option value="25">25年</option>
+                            <option value="30" selected>30年</option>
+                            <option value="35">35年</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="simInterestType3">金利タイプ</label></th>
+                    <td>
+                        <select id="simInterestType3">
+                            <option value="0.0125">変動金利 (年 1.25%)</option>
+                            <option value="0.0185">固定金利 (年 1.85%)</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="exec-btn" onclick="calculateLoan('rent')">マイホーム購入額を試算</button>
+        </div>
+
+        <!-- パネル④：ボーナス併用で計算（NEW） -->
+        <div id="panel-bonus" class="sim-form-panel">
+            <button type="button" class="back-menu-btn" onclick="backToMenu()">◀ シミュレーション選択画面に戻る</button>
+            <table class="sim-table">
+                <tr>
+                    <th><label for="simBonusAmount">お借入希望額</label></th>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" id="simBonusAmount" value="3000" min="100" max="10000" step="50"> 万円
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="simBonusPortion">ボーナス時加算（年2回合計）</label></th>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" id="simBonusPortion" value="20" min="0" max="200" step="10"> 万円 / 年
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="simYears4">ご返済期間</label></th>
+                    <td>
+                        <select id="simYears4">
+                            <option value="15">15年</option>
+                            <option value="20">20年</option>
+                            <option value="25">25年</option>
+                            <option value="30" selected>30年</option>
+                            <option value="35">35年</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="simInterestType4">金利タイプ</label></th>
+                    <td>
+                        <select id="simInterestType4">
+                            <option value="0.0125">変動金利 (年 1.25%)</option>
+                            <option value="0.0185">固定金利 (年 1.85%)</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="exec-btn" onclick="calculateLoan('bonus')">ボーナス併用で試算</button>
+        </div>
+
+        <!-- 共通の結果表示カード -->
         <div class="sim-result-card" id="resultCard">
             <div class="sim-result-left">
-                <div class="sim-result-label">毎月の目安ご返済額</div>
-                <div class="sim-result-sub">※金利年2.5%（元利均等返済）で試算しています</div>
+                <div class="sim-result-label" id="resultLabelTitle">毎月の目安ご返済額</div>
+                <div class="sim-result-sub" id="resultSubText">※条件に基づいて試算しています</div>
             </div>
             <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-                <div class="sim-result-value" id="resultText">-- <span>円 / 月</span></div>
+                <div class="sim-result-value" id="resultText">-- <span>円</span></div>
                 <a href="/bankLoan/form" class="sim-cta-btn">この内容で申し込む ➔</a>
             </div>
         </div>
@@ -438,29 +673,127 @@
     <p>&copy; Nagareboshi Bank, Ltd. All Rights Reserved.</p>
 </footer>
 
-<!-- シミュレーション計算用JavaScript -->
+<!-- 画面切り替え・計算用JavaScript -->
 <script>
-    function calculateLoan() {
-        const amountMan = parseFloat(document.getElementById('simAmount').value) || 0;
-        const years = parseInt(document.getElementById('simYears').value) || 5;
+    let activeMode = '';
 
-        const principalYen = amountMan * 10000;
-        const annualRate = 0.025;
-        const monthlyRate = annualRate / 12;
-        const totalMonths = years * 12;
+    function selectSimulation(mode) {
+        activeMode = mode;
 
-        let monthlyPayment = 0;
-        if (principalYen > 0 && totalMonths > 0) {
-            if (monthlyRate === 0) {
-                monthlyPayment = principalYen / totalMonths;
-            } else {
-                monthlyPayment = principalYen * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+        // メニューを非表示にする
+        document.getElementById('simMenu').style.display = 'none';
+
+        // 全てのフォームパネルを非表示にして、選ばれたものだけ表示
+        document.querySelectorAll('.sim-form-panel').forEach(panel => panel.style.display = 'none');
+        document.getElementById('panel-' + mode).style.display = 'block';
+
+        // 結果カードは一度リセットして非表示にする
+        document.getElementById('resultCard').style.display = 'none';
+    }
+
+    function backToMenu() {
+        // 全てのフォームパネルを非表示にする
+        document.querySelectorAll('.sim-form-panel').forEach(panel => panel.style.display = 'none');
+
+        // 結果カードを非表示にする
+        document.getElementById('resultCard').style.display = 'none';
+
+        // メニュー画面を再表示
+        document.getElementById('simMenu').style.display = 'grid';
+    }
+
+    function calculateLoan(mode) {
+        let subText = "";
+
+        if (mode === 'amount') {
+            const amountMan = parseFloat(document.getElementById('simAmount').value) || 0;
+            const years = parseInt(document.getElementById('simYears1').value) || 5;
+            const annualRate = parseFloat(document.getElementById('simInterestType1').value) || 0.0125;
+
+            const principalYen = amountMan * 10000;
+            const totalMonths = years * 12;
+            const monthlyRate = annualRate / 12;
+            let monthlyPayment = 0;
+
+            if (principalYen > 0 && totalMonths > 0) {
+                if (monthlyRate === 0) {
+                    monthlyPayment = principalYen / totalMonths;
+                } else {
+                    monthlyPayment = principalYen * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+                }
             }
+
+            document.getElementById('resultLabelTitle').innerText = "毎月の目安ご返済額";
+            document.getElementById('resultText').innerHTML = Math.round(monthlyPayment).toLocaleString() + " <span>円 / 月</span>";
+            subText = `※お借入 ${amountMan}万円・期間${years}年（金利 ${(annualRate*100).toFixed(2)}%）で試算`;
+
+        } else if (mode === 'monthly' || mode === 'rent') {
+            const isRent = mode === 'rent';
+            const targetMan = isRent ?
+                (parseFloat(document.getElementById('simCurrentRent').value) || 0) :
+                (parseFloat(document.getElementById('simTargetMonthly').value) || 0);
+
+            const years = parseInt(document.getElementById(isRent ? 'simYears3' : 'simYears2').value) || 30;
+            const annualRate = parseFloat(document.getElementById(isRent ? 'simInterestType3' : 'simInterestType2').value) || 0.0125;
+
+            const targetYen = targetMan * 10000;
+            const totalMonths = years * 12;
+            const monthlyRate = annualRate / 12;
+            let calculatedPrincipal = 0;
+
+            if (targetYen > 0 && totalMonths > 0) {
+                if (monthlyRate === 0) {
+                    calculatedPrincipal = targetYen * totalMonths;
+                } else {
+                    calculatedPrincipal = targetYen * (Math.pow(1 + monthlyRate, totalMonths) - 1) / (monthlyRate * Math.pow(1 + monthlyRate, totalMonths));
+                }
+            }
+
+            const calculatedMan = (calculatedPrincipal / 10000).toFixed(1);
+            document.getElementById('resultLabelTitle').innerText = isRent ? "同等の家賃で購入できる目安金額" : "お借入可能額（目安）";
+            document.getElementById('resultText').innerHTML = Math.round(calculatedPrincipal).toLocaleString() + " <span>円 （約 " + calculatedMan + " 万円）</span>";
+            subText = `※毎月 ${targetMan}万円のご返済・期間${years}年（金利 ${(annualRate*100).toFixed(2)}%）で試算`;
+
+        } else if (mode === 'bonus') {
+            const amountMan = parseFloat(document.getElementById('simBonusAmount').value) || 0;
+            const bonusMan = parseFloat(document.getElementById('simBonusPortion').value) || 0;
+            const years = parseInt(document.getElementById('simYears4').value) || 30;
+            const annualRate = parseFloat(document.getElementById('simInterestType4').value) || 0.0125;
+
+            const totalYen = amountMan * 10000;
+            const bonusYearYen = bonusMan * 10000;
+            const totalMonths = years * 12;
+            const monthlyRate = annualRate / 12;
+
+            // 簡易的にボーナス分（元本の半分）と毎月分（元本の半分）に分けて分割返済額を算出
+            const bonusPrincipal = totalYen * 0.5;
+            const monthlyPrincipal = totalYen * 0.5;
+
+            let mPayment = 0;
+            let bPaymentTotal = 0;
+
+            if (monthlyPrincipal > 0 && totalMonths > 0 && monthlyRate > 0) {
+                mPayment = monthlyPrincipal * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+            } else {
+                mPayment = monthlyPrincipal / totalMonths;
+            }
+
+            const bonusTimes = years * 2; // 年2回
+            const bonusRate = annualRate / 2;
+            if (bonusPrincipal > 0 && bonusTimes > 0 && bonusRate > 0) {
+                bPaymentTotal = bonusPrincipal * (bonusRate * Math.pow(1 + bonusRate, bonusTimes)) / (Math.pow(1 + bonusRate, bonusTimes) - 1);
+            } else {
+                bPaymentTotal = bonusPrincipal / bonusTimes;
+            }
+
+            const bPaymentOnce = bPaymentTotal / 2; // 1回あたりのボーナス返済額
+
+            document.getElementById('resultLabelTitle').innerText = "毎月／ボーナス月の目安ご返済額";
+            document.getElementById('resultText').innerHTML = `毎月: ${Math.round(mPayment).toLocaleString()}円<br><span style="font-size:12px;">(ボーナス時加算: ${Math.round(bPaymentOnce).toLocaleString()}円 × 年2回)</span>`;
+            subText = `※お借入 ${amountMan}万円（ボーナス加算年 ${bonusMan}万円）・期間${years}年で試算`;
         }
 
-        const formatted = Math.round(monthlyPayment).toLocaleString();
-        document.getElementById('resultText').innerHTML = formatted + " <span>円 / 月</span>";
-
+        document.getElementById('resultSubText').innerText = subText;
         document.getElementById('resultCard').style.display = 'flex';
     }
 </script>
