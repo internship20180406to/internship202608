@@ -8,6 +8,8 @@ import com.example.internship.repository.BankRepository;
 import com.example.internship.repository.BankTransferRepository;
 import com.example.internship.repository.BankTransferRepository.PendingTransfer;
 import com.example.internship.repository.FavoriteRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import java.util.Optional;
 @Service
 @Transactional
 public class ApplyBankTransferService {
+    private static final Logger log = LoggerFactory.getLogger(ApplyBankTransferService.class);
     private static final int RECONFIRMATION_AMOUNT_THRESHOLD = 100_000;
 
     @Autowired
@@ -80,13 +83,25 @@ public class ApplyBankTransferService {
     // 指定日を迎えた予約振込の残高を減算する（バッチ処理から呼ばれる）
     public void processDueReservedTransfers() {
         LocalDate today = LocalDate.now();
-        for (PendingTransfer pending : bankTransferRepository.findDueUnprocessedTransfers(today)) {
+        List<PendingTransfer> pendingTransfers = bankTransferRepository.findDueUnprocessedTransfers(today);
+        log.info("予約振込バッチ: 処理対象 {} 件（{} 時点）", pendingTransfers.size(), today);
+
+        int processedCount = 0;
+        int skippedCount = 0;
+        for (PendingTransfer pending : pendingTransfers) {
             int updatedRows = accountRepository.decreaseBalance(pending.money() + pending.fee());
             if (updatedRows > 0) {
                 bankTransferRepository.markCompleted(pending.id());
+                processedCount++;
+                log.info("予約振込バッチ: id={} を完了にしました", pending.id());
+            } else {
+                // 残高不足の場合は処理せずスキップし、翌日以降のバッチで再試行する
+                skippedCount++;
+                log.warn("予約振込バッチ: id={} は残高不足のためスキップしました", pending.id());
             }
-            // 残高不足の場合は処理せずスキップし、翌日以降のバッチで再試行する
         }
+
+        log.info("予約振込バッチ: 完了 {} 件 / スキップ {} 件", processedCount, skippedCount);
     }
 
     // 振込内容確認画面向けの一覧を取得する

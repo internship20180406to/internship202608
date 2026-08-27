@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### アプリのログファイル ###
+logs/
+
+### ローカル作業メモ（リポジトリに含めない） ###
+docs/reservedTransferBatchLogging.md
