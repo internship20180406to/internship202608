@@ -371,3 +371,14 @@ select.form-control {
 .account-toggle-button:hover {
     background-color: #dfe3e6;
 }
+
+.branch-search {
+    width: 60%;
+    max-width: 320px;
+    padding: 7px 10px;
+
+    font-size: 13px;
+
+    background-color: #f8fafb;
+    border: 1px solid #dfe5e8;
+}
