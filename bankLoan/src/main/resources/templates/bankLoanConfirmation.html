@@ -101,6 +101,14 @@
         .form-confirmation-button:hover {
             background-color: #2b6cb0;
         }
+        /* 修正ボタン用のスタイル */
+        .form-edit-button {
+            color: #2b6cb0;
+            background-color: #e2e8f0;
+        }
+        .form-edit-button:hover {
+            background-color: #cbd5e0;
+        }
         .form-clear-button {
             color: #4a5568;
             background-color: #edf2f7;
@@ -144,7 +152,6 @@
                 <th>債務者名</th>
                 <td><span th:text="*{name}"></span></td>
             </tr>
-            <!-- ★ 追加：確認画面にフリガナを表示 -->
             <tr>
                 <th>フリガナ</th>
                 <td><span th:text="*{nameKana}"></span></td>
@@ -173,7 +180,6 @@
         <input type="hidden" th:field="*{bankAccountType}"/>
         <input type="hidden" th:field="*{bankAccountNum}"/>
         <input type="hidden" th:field="*{name}"/>
-        <!-- ★ 追加：次の完了処理へフリガナの値を引き継ぐ -->
         <input type="hidden" th:field="*{nameKana}"/>
         <input type="hidden" th:field="*{accountType}"/>
         <input type="hidden" th:field="*{loanAmount}"/>
@@ -183,7 +189,9 @@
         <!-- ボタン配置 -->
         <p style="text-align: center;">
             <input type="submit" id="submit" value="申込" class="form-control-button form-confirmation-button"/>
-            <input type="button" value="キャンセル" class="form-control-button form-clear-button" onclick="window.location='/bankLoan';"/>
+            <!-- 修正ボタン（GETによる画面遷移） -->
+            <input type="button" value="修正" class="form-control-button form-edit-button" onclick="window.location.href='/bankLoan';"/>
+            <input type="button" value="キャンセル" class="form-control-button form-clear-button" onclick="window.location.href='/bankLoan';"/>
         </p>
     </form>
 </div>

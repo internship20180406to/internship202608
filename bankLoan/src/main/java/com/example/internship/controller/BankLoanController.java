@@ -57,6 +57,18 @@ public class BankLoanController {
         return "bankLoanMain";
     }
 
+    // ★ 追加：確認画面から「修正」ボタンで戻ってきたとき（POST）の処理
+    @PostMapping("/bankLoan")
+    public String returnToInput(@ModelAttribute("bankLoanApplication") BankLoanForm bankLoanForm, Model model) {
+        // セッション等に保持された入力値を維持したまま、選択肢を再設定して入力画面へ戻る
+        model.addAttribute("nameOptions", List.of("テスト銀行", "サンプル中央銀行", "デモ信用金庫"));
+        model.addAttribute("accountTypeOptions", List.of("住宅ローン", "マイカーローン", "教育ローン", "フリーローン", "カードローン"));
+        model.addAttribute("depositTypeOptions", List.of("普通預金", "当座預金", "貯蓄預金"));
+        model.addAttribute("loanYearsOptions", List.of("1年", "3年", "5年", "10年", "15年", "20年", "25年", "30年", "35年"));
+
+        return "bankLoanMain";
+    }
+
     // 2. 確認画面の表示
     @PostMapping("/bankLoanConfirmation")
     public String confirmation(@ModelAttribute("bankLoanApplication") BankLoanForm bankLoanForm,
@@ -116,7 +128,7 @@ public class BankLoanController {
                 errorMessage = "カードローンの借入金額は1万円以上、100万円以下で入力してください。";
             }
 
-            // 範囲チェックの実行（年収の3分の1の計算処理を除去）
+            // 範囲チェックの実行
             if (loanAmountYen < minLimit || loanAmountYen > maxLimit) {
                 bindingResult.rejectValue("loanAmount", "error.loanAmount", errorMessage);
                 hasIncomeError = true;
