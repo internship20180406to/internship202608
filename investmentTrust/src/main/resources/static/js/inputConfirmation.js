@@ -187,7 +187,11 @@ const clearAllErrors = () => {
 };
 
 /* ============================================================================
- * 金融機関コード・支店コード:入力されたコードでマスタを引き、名称を表示する
+ * 金融機関コード・支店コード:候補一覧から選んで「選択」ボタンで確定する
+ *
+ * 入力中のコードで候補を絞り込んで下に並べ、候補をクリックするとコード入力欄に入り、
+ * 「選択」ボタンを押した時点で確定して名称を表示する。
+ * クリックしただけでは確定にしないのは、押し間違いにその場で気づけるようにするため。
  *
  * ここで呼んでいるAPI（/api/banks/...）はあくまで入力支援。
  * 「APIが200を返したから正しい」とは考えないこと。JSは開発者ツールで無効化でき、
@@ -195,19 +199,6 @@ const clearAllErrors = () => {
  * 実在するコードかどうかの最終判定は、サーバ側の
  * InvestmentTrustController#validateAndResolveMaster が行っている。
  * ========================================================================== */
-
-/** 名称表示を消し、「まだ問い合わせていない」状態に戻す */
-const clearMasterName = (input, view) => {
-    delete input.dataset.found;
-    view.textContent = "";
-};
-
-/** 問い合わせ結果を画面に反映する。見つからなかった場合は name に null が渡る */
-const applyMasterResult = (input, view, id, name) => {
-    input.dataset.found = (name === null) ? "0" : "1";
-    view.textContent = (name === null) ? "" : name;
-    showResultById(id);     //  「該当なし」をその場で表示する。直っていればエラーが消える
-};
 
 /** 404は「見つからなかった」としてnullを返す。それ以外の異常は例外にする */
 const toJsonOrNull = (response) => {
@@ -220,48 +211,203 @@ const toJsonOrNull = (response) => {
     return response.json();
 };
 
-/** 金融機関コードからマスタを引く */
-const lookupBank = () => {
-    const code = bankCodeInput.value.trim();
-    if (!BANK_CODE_PATTERN.test(code)) {
-        clearMasterName(bankCodeInput, bankNameView);   //  4桁になっていない間は問い合わせない
+/** 名称表示を消し、「まだ確定していない」状態に戻す */
+const clearMasterName = (input, view) => {
+    delete input.dataset.found;
+    view.textContent = "";
+};
+
+/** 確定した結果を画面に反映する。見つからなかった場合は name に null が渡る */
+const applyMasterResult = (input, view, id, name) => {
+    input.dataset.found = (name === null) ? "0" : "1";
+    view.textContent = (name === null) ? "" : name;
+    showResultById(id);     //  「該当なし」をその場で表示する。直っていればエラーが消える
+};
+
+/*
+ * 取り寄せた候補を覚えておくための変数。
+ * キーを打つたびにサーバへ問い合わせずに済むよう、一度取得したら使い回す。
+ * 支店は金融機関ごとに変わるので、どの金融機関の分を持っているかも覚えておく。
+ */
+let bankCandidates = null;              //  null = まだ取り寄せていない
+let branchCandidates = null;
+let branchCandidatesBankCode = "";
+
+/** 候補一覧は「コードと表示名」だけあれば描けるので、この形に揃える */
+const toCandidate = (code, label) => ({code: code, label: label});
+
+/** 金融機関の候補を取り寄せる */
+const loadBankCandidates = () => {
+    if (bankCandidates !== null) {
+        return Promise.resolve(bankCandidates);
+    }
+    return fetch("/api/banks")
+        .then((response) => response.json())
+        .then((banks) => {
+            bankCandidates = banks.map((bank) => toCandidate(bank.bankCode, bank.bankName));
+            return bankCandidates;
+        });
+};
+
+/** 支店の候補を取り寄せる。金融機関コードが決まっていないと候補を出せない */
+const loadBranchCandidates = () => {
+    const bankCode = bankCodeInput.value.trim();
+    if (!BANK_CODE_PATTERN.test(bankCode)) {
+        return Promise.resolve([]);
+    }
+    if (branchCandidates !== null && branchCandidatesBankCode === bankCode) {
+        return Promise.resolve(branchCandidates);
+    }
+    return fetch("/api/banks/" + encodeURIComponent(bankCode) + "/branches")
+        .then((response) => response.json())
+        .then((branches) => {
+            branchCandidates = branches.map((branch) => toCandidate(branch.branchCode, branch.branchName));
+            branchCandidatesBankCode = bankCode;
+            return branchCandidates;
+        });
+};
+
+/** 金融機関が変わったら、覚えている支店の候補を捨てる */
+const resetBranchCandidates = () => {
+    branchCandidates = null;
+    branchCandidatesBankCode = "";
+};
+
+/*
+ * 金融機関と支店で違うのは「候補の取り寄せ方」と「1件を引く先のURL」だけなので、
+ * その差分だけをここにまとめ、一覧の描画や選択の処理は共通の関数で扱う。
+ */
+const PICKERS = {
+    bankCode: {
+        pattern: BANK_CODE_PATTERN,
+        nameViewId: "bankName_view",
+        loadCandidates: loadBankCandidates,
+        emptyMessage: () => "該当する金融機関がありません。",
+        lookupName: (code) => fetch("/api/banks/" + encodeURIComponent(code))
+            .then(toJsonOrNull)
+            .then((bank) => (bank === null) ? null : bank.bankName)
+    },
+    branchCode: {
+        pattern: BRANCH_CODE_PATTERN,
+        nameViewId: "branchName_view",
+        loadCandidates: loadBranchCandidates,
+        //  支店の候補が空になる理由は2つあるので、メッセージを出し分ける
+        emptyMessage: () => BANK_CODE_PATTERN.test(bankCodeInput.value.trim())
+            ? "該当する支店がありません。"
+            : "先に金融機関コードを選択してください。",
+        lookupName: (code) => fetch("/api/banks/" + encodeURIComponent(bankCodeInput.value.trim())
+            + "/branches/" + encodeURIComponent(code))
+            .then(toJsonOrNull)
+            .then((branch) => (branch === null) ? null : branch.branchName)
+    }
+};
+
+/** 候補一覧を閉じる */
+const hideCandidates = (id) => {
+    const area = document.getElementById(id + "_candidates");
+    area.classList.add("hidden");
+    area.textContent = "";
+};
+
+/** 候補をクリックしたとき:コード入力欄に入れて、選択中であることを示す */
+const selectCandidate = (id, code) => {
+    const input = document.getElementById(id);
+    input.value = code;
+    //  クリックしただけではまだ確定ではない。名称は「選択」を押すまで出さない
+    clearMasterName(input, document.getElementById(PICKERS[id].nameViewId));
+    document.getElementById(id + "_candidates").querySelectorAll(".candidate")
+        .forEach((item) => item.classList.toggle("selected", item.dataset.code === code));
+    refreshIfShowing(id);
+};
+
+/** 候補一覧を描き直して表示する */
+const renderCandidates = (id, candidates) => {
+    const area = document.getElementById(id + "_candidates");
+    area.textContent = "";      //  いったん空にしてから作り直す
+
+    if (candidates.length === 0) {
+        const empty = document.createElement("span");
+        empty.className = "candidate-empty";
+        empty.textContent = PICKERS[id].emptyMessage();
+        area.appendChild(empty);
+    } else {
+        const selectedCode = document.getElementById(id).value.trim();
+        candidates.forEach((candidate) => {
+            const item = document.createElement("span");
+            item.className = (candidate.code === selectedCode) ? "candidate selected" : "candidate";
+            item.dataset.code = candidate.code;
+            item.textContent = candidate.code + " " + candidate.label;
+            //  click ではなく mousedown で拾う。
+            //  click だと先に入力欄のblurが起きて一覧が閉じ、クリックが届かなくなるため。
+            //  preventDefault でフォーカスが外れるのも防いでいる。
+            item.addEventListener("mousedown", (event) => {
+                event.preventDefault();
+                selectCandidate(id, candidate.code);
+            });
+            area.appendChild(item);
+        });
+    }
+    area.classList.remove("hidden");
+};
+
+/**
+ * 入力中のコードを先頭一致で絞り込んで候補を表示する。
+ *
+ * 候補は一度まとめて取り寄せ、絞り込みはブラウザ側で行っている。
+ * 今のマスタは十数件なのでこれで十分だが、件数が増えたら
+ * サーバ側で絞り込む（/api/banks?prefix=00 のような形にする）ことになる。
+ */
+const showCandidates = (id) => {
+    PICKERS[id].loadCandidates()
+        .then((candidates) => {
+            const prefix = document.getElementById(id).value.trim();
+            renderCandidates(id, candidates.filter((candidate) => candidate.code.startsWith(prefix)));
+        })
+        .catch(() => hideCandidates(id));
+};
+
+/** 「選択」ボタン:入力欄のコードを確定し、名称を表示する */
+const confirmSelection = (id) => {
+    const picker = PICKERS[id];
+    const input = document.getElementById(id);
+    const view = document.getElementById(picker.nameViewId);
+    const code = input.value.trim();
+
+    if (!picker.pattern.test(code)) {
+        clearMasterName(input, view);
+        showResultById(id);     //  未入力・桁数違いをその場で知らせる
         return;
     }
-    fetch("/api/banks/" + encodeURIComponent(code))
-        .then(toJsonOrNull)
-        .then((bank) => {
-            applyMasterResult(bankCodeInput, bankNameView, "bankCode",
-                (bank === null) ? null : bank.bankName);
-            lookupBranch();     //  金融機関が変われば、同じ支店コードでも別の支店になる
+    picker.lookupName(code)
+        .then((name) => {
+            applyMasterResult(input, view, id, name);
+            hideCandidates(id);
+            if (id === "bankCode") {
+                //  金融機関が変われば、同じ支店コードでも別の支店になる
+                resetBranchCandidates();
+                clearMasterName(branchCodeInput, branchNameView);
+                refreshIfShowing("branchCode");
+            }
         })
         //  通信できないときは「分からない」状態に戻し、判定はサーバに任せる
-        .catch(() => clearMasterName(bankCodeInput, bankNameView));
+        .catch(() => clearMasterName(input, view));
 };
 
-/** 支店コードからマスタを引く。支店は金融機関とセットでないと特定できないので両方渡す */
-const lookupBranch = () => {
-    const bankCode = bankCodeInput.value.trim();
-    const code = branchCodeInput.value.trim();
-    if (!BANK_CODE_PATTERN.test(bankCode) || !BRANCH_CODE_PATTERN.test(code)) {
-        clearMasterName(branchCodeInput, branchNameView);
-        return;
-    }
-    fetch("/api/banks/" + encodeURIComponent(bankCode) + "/branches/" + encodeURIComponent(code))
-        .then(toJsonOrNull)
-        .then((branch) => applyMasterResult(branchCodeInput, branchNameView, "branchCode",
-            (branch === null) ? null : branch.branchName))
-        .catch(() => clearMasterName(branchCodeInput, branchNameView));
-};
+["bankCode", "branchCode"].forEach((id) => {
+    const input = document.getElementById(id);
 
-//  入力の途中で前に引いた名称が残っていると誤解を招くので、値が変わった時点で消す
-bankCodeInput.addEventListener("input", () => clearMasterName(bankCodeInput, bankNameView));
-branchCodeInput.addEventListener("input", () => clearMasterName(branchCodeInput, branchNameView));
+    //  入力の途中で前に確定した名称が残っていると誤解を招くので、値が変わった時点で消す
+    input.addEventListener("input", () => {
+        clearMasterName(input, document.getElementById(PICKERS[id].nameViewId));
+        showCandidates(id);
+    });
+    input.addEventListener("focus", () => showCandidates(id));
+    input.addEventListener("blur", () => hideCandidates(id));
 
-//  入力を終えて別の項目へ移ったとき（change）と、「検索」ボタンを押したときに問い合わせる
-bankCodeInput.addEventListener("change", lookupBank);
-branchCodeInput.addEventListener("change", lookupBranch);
-document.getElementById("bankCodeSearch").addEventListener("click", lookupBank);
-document.getElementById("branchCodeSearch").addEventListener("click", lookupBranch);
+    //  確定するのは「選択」ボタンを押したときだけ。
+    //  入力欄を離れただけで確定させると、候補をクリックした瞬間に確定してしまう。
+    document.getElementById(id + "Select").addEventListener("click", () => confirmSelection(id));
+});
 
 /* ============================================================================
  * 金額欄:3桁ごとにカンマを入れて見やすくする
