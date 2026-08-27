@@ -102,12 +102,17 @@ public class BankLoanController {
     public String confirmation(
             @Valid @ModelAttribute("bankLoanApplication") BankLoanForm bankLoanForm,
             BindingResult bindingResult,
-            Model model) {
+            Model model,
+            HttpSession session) {
+
+        // 確認画面に進んだ時点で10分にリセット
+        session.setAttribute(
+                LAST_ACTIVITY,
+                System.currentTimeMillis()
+        );
 
         if (bindingResult.hasErrors()) {
-
             return "bankLoanMain";
-
         }
 
         return "bankLoanConfirmation";

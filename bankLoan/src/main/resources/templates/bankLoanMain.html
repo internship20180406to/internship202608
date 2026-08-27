@@ -228,7 +228,7 @@
             <span id="annualIncomeClientError"
                   class="text-danger client-error"></span>
             <div class="loan-limit-box">
-                <span id="loanLimit"></span>
+                <span id="loanLimit">年収を入力してください</span>
             </div>
         </p>
 
@@ -258,12 +258,15 @@
             </span>
         </p>
             <p>
-                <label>金利（％）</label>
+                <label>
+                    金利（％）
+                    <small class="interest-note">
+                        ※借入限度額に応じて決まります
+                    </small>
+                </label>
 
-                 <div class="interest-rate-box">
-                    <span id="interestRateDisplay">
-                        年収を入力すると金利が表示されます
-                    </span>
+                <div class="interest-rate-box">
+                    <span id="interestRateDisplay">％</span>
                 </div>
 
                 <input type="hidden"

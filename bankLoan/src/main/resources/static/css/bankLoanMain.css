@@ -277,3 +277,23 @@ select.form-control {
     font-size: 14px;
     font-weight: 600;
 }
+
+.interest-note {
+    margin-left: 8px;
+    color: #78909c;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.interest-rate-box {
+    margin-top: 10px;
+    padding: 11px 14px;
+
+    background-color: #eef6fc;
+    border-left: 4px solid #2185d0;
+    border-radius: 5px;
+
+    color: #1565a8;
+    font-size: 14px;
+    font-weight: 600;
+}

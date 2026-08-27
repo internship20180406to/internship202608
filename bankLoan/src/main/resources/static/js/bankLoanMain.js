@@ -133,7 +133,7 @@ function calculateLoanLimit() {
     const income = Number(annualIncomeInput.value);
 
     if (annualIncomeInput.value === '' || Number.isNaN(income)) {
-        return 10;
+        return null;
     }
 
     // 年収の50％を10万円単位で切り捨て
@@ -173,7 +173,15 @@ function clearForm() {
 
     const loanLimit = document.getElementById('loanLimit');
     if (loanLimit) {
-        loanLimit.textContent = '借入限度額：10万円';
+        loanLimit.textContent = '年収を入力してください';
+    }
+
+    if (interestRateDisplay) {
+        interestRateDisplay.textContent = '％';
+    }
+
+    if (interestRateInput) {
+        interestRateInput.value = '';
     }
 
     const selectedBranch = document.getElementById('selectedBranch');
@@ -238,6 +246,20 @@ function updateInterestRateByLimit(limit) {
 function updateLoanLimit() {
 
     const limit = calculateLoanLimit();
+
+    // 年収未入力
+    if (limit === null) {
+
+        loanLimit.textContent =
+            '年収を入力してください';
+
+        interestRateDisplay.textContent =
+            '％';
+
+        interestRateInput.value = '';
+
+        return;
+    }
 
     loanLimit.textContent =
         '借入限度額：' + limit + '万円';
