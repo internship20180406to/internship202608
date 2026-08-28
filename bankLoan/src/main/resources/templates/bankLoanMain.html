@@ -541,7 +541,6 @@
         const selectedType = accountTypeSelect.value;
         const selectedInterestType = interestTypeSelect.value;
 
-        // 金利タイプが未選択の場合は自動計算しない
         if (!selectedInterestType) {
             interestRateInput.value = '';
             calculateLiveSimulation();
@@ -714,6 +713,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Thymeleafから渡された支店名を取得
         const initialBranchValue = /*[[${bankLoanApplication.branchName}]]*/ "";
 
         if (bankNameSelect && bankNameSelect.value) {
@@ -727,7 +727,9 @@
             }
         }
 
-        updateBranchOptions(initialBranchType);
+        // 💡 正しく initialBranchValue を渡すように修正
+        updateBranchOptions(initialBranchValue);
+
         initBirthDateSettings();
         checkAgeWarning();
         updateLoanLimitGuide();
