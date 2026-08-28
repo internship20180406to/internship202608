@@ -244,11 +244,25 @@
                 <th>ローン種類</th>
                 <td><span th:text="*{accountType}"></span></td>
             </tr>
+            <!-- 追加：金利タイプ -->
+            <tr>
+                <th>金利タイプ</th>
+                <td><span th:text="*{interestType}"></span></td>
+            </tr>
             <tr>
                 <th>返済プラン（返済方式）</th>
                 <td><span th:text="*{repaymentMethod}"></span></td>
             </tr>
+            <!-- 追加：ボーナス併用払い -->
             <tr>
+                <th>ボーナス併用払い</th>
+                <td>
+                    <span th:text="*{bonusOption}"></span>
+                    <span th:if="*{bonusOption == '利用する'}">
+                        （ボーナス月追加返済額: <span class="highlight-amount" th:text="*{#numbers.formatInteger(bonusAmount, 1, 'COMMA')}">0</span> 円）
+                    </span>
+                </td>
+            </tr>
             <tr>
                 <th>返済期間（ローン年数）</th>
                 <td><span id="viewLoanYears" th:text="*{loanYears}"></span></td>
@@ -280,7 +294,10 @@
         <input type="hidden" th:field="*{postalCode}"/>
         <input type="hidden" th:field="*{address}"/>
         <input type="hidden" th:field="*{accountType}"/>
+        <input type="hidden" th:field="*{interestType}"/>
         <input type="hidden" th:field="*{repaymentMethod}"/>
+        <input type="hidden" th:field="*{bonusOption}"/>
+        <input type="hidden" th:field="*{bonusAmount}"/>
         <input type="hidden" th:field="*{loanYears}"/>
         <input type="hidden" th:field="*{annualIncome}"/>
         <input type="hidden" th:field="*{loanAmount}"/>
@@ -290,7 +307,6 @@
         <div class="bottom-action-area">
             <button type="button" class="form-control-button form-clear-button" onclick="window.location.href='/bankLoan';">キャンセル</button>
             <button type="submit" class="form-control-button form-edit-button" th:formaction="@{/bankLoan/edit}">修正</button>
-            <!-- 💡 申込ボタンに id="applyBtn" を追加 -->
             <button type="submit" id="applyBtn" class="form-control-button form-confirmation-button">申込</button>
         </div>
     </form>

@@ -24,7 +24,11 @@ public class BankLoanForm {
     private Double interestRate;     // 金利
     private String loanYears;        // ローン年数（返済期間）
 
-    private String repaymentMethod;  // ★ 返済方法のフィールドを追加
+    private String repaymentMethod;  // 返済方法
 
+    // 💡 以下の3つのフィールドを追加してください
+    private String interestType;     // 金利タイプ
+    private String bonusOption;      // ボーナス併用払い（利用する/利用しない）
+    private Integer bonusAmount;     // ボーナス月追加返済額
 
 }
