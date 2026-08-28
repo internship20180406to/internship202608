@@ -25,4 +25,6 @@ public class BankLoanForm {
     private String loanYears;        // ローン年数（返済期間）
 
     private String repaymentMethod;  // ★ 返済方法のフィールドを追加
+
+
 }
