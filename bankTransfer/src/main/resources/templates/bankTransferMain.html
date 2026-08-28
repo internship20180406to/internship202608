@@ -52,7 +52,8 @@
                 <p class="account-select-subtitle">この口座から振込金額が引き落とされます</p>
             </div>
 
-            <div class="account-card account-select-card">
+            <div class="account-card account-select-card selected" id="accountSelectCard"
+                 role="button" tabindex="0" aria-pressed="true">
                 <div class="account-select-identity">
                     <span class="account-select-bank" th:text="${myAccount.bankName}">A銀行</span>
                     <span class="account-select-meta">
@@ -60,6 +61,7 @@
                         <span class="account-select-num" th:text="${myAccount.accountNum}">0000001</span>
                     </span>
                 </div>
+                <span class="account-select-check" aria-hidden="true">✓ 選択中</span>
                 <div class="account-card-divider"></div>
                 <div class="account-card-balance">
                     <span class="account-card-balance-label">残高</span>
@@ -161,7 +163,7 @@
 
         <!-- {3}-1 金融機関・支店名 -->
         <div class="wizard-step" data-step="2">
-            <p><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
+            <div class="field-group"><label class="ml-1">金融機関名: <small class="text-danger ml-1">※</small></label><br>
                 <div class="combo" id="bankNameCombo">
                     <div class="combo-input-wrapper">
                         <input type="text" id="bankNameInput" class="form-control" placeholder="銀行名を検索" aria-autocomplete="list" aria-haspopup="listbox" autocomplete="off" required/>
@@ -176,9 +178,9 @@
                 </div>
                 <small class="text-muted">候補から選ぶか、銀行名を入力して検索できます。</small>
                 <span class="field-error-message" data-error-for="bankNameInput" aria-live="polite"></span>
-            </p>
+            </div>
 
-            <p><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
+            <div class="field-group"><label class="ml-1">支店名: <small class="text-danger ml-1">※</small></label><br>
                 <div class="combo" id="branchNameCombo">
                     <div class="combo-input-wrapper">
                         <input type="text" id="branchNameInput" class="form-control" placeholder="支店名を検索" aria-autocomplete="list" aria-haspopup="listbox" autocomplete="off" required/>
@@ -195,7 +197,7 @@
                 </div>
                 <small class="text-muted">支店名を検索して候補から選択できます。</small>
                 <span class="field-error-message" data-error-for="branchNameInput" aria-live="polite"></span>
-            </p>
+            </div>
 
             <div class="wizard-actions">
                 <button type="button" class="form-control-button form-clear-button" data-prev-step>戻る</button>
@@ -245,14 +247,14 @@
         <div class="wizard-step" data-step="4">
             <div class="entered-info-preview" id="infoPreviewStep4"></div>
 
-           <p class="money-field"><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
+           <div class="field-group money-field"><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
                <div class="amount-input-group">
                    <input type="text" id="moneyDisplay" inputmode="numeric" autocomplete="off" class="form-control" placeholder="10,000" required/>
                    <span class="amount-input-suffix">円</span>
                </div>
                <input type="hidden" th:field="*{money}" th:attr="max=${balance},data-my-bank-name=${myBankName}"/>
                <span class="field-error-message" data-error-for="money" aria-live="polite"></span>
-           </p>
+           </div>
 
             <div class="fee-breakdown fee-breakdown-divider" id="feeBreakdown">
                 <p hidden>振込金額　　　　<span id="feeBreakdownMoney">0</span>円</p>

@@ -282,6 +282,7 @@ h1 {
 }
 
 .account-select-card {
+    position: relative;
     padding: 26px 28px;
     border: 1px solid var(--as-border);
     border-radius: 20px;
@@ -289,6 +290,68 @@ h1 {
     box-shadow:
         0 1px 2px rgba(0, 0, 0, 0.04),
         0 16px 36px rgba(89, 168, 235, 0.16);
+    cursor: pointer;
+    transition: border-color 150ms ease, box-shadow 150ms ease, transform 100ms ease;
+}
+
+.account-select-card:hover {
+    border-color: var(--as-blue);
+}
+
+.account-select-card:focus-visible {
+    outline: 3px solid rgba(89, 168, 235, 0.35);
+    outline-offset: 2px;
+}
+
+.account-select-card:active {
+    transform: scale(0.99);
+}
+
+.account-select-card.selected {
+    border-color: var(--as-blue);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 16px 36px rgba(89, 168, 235, 0.16),
+        inset 0 0 0 1.5px var(--as-blue);
+}
+
+.account-select-check {
+    position: absolute;
+    top: 26px;
+    right: 28px;
+    padding: 3px 10px;
+    border-radius: 980px;
+    color: var(--as-blue-dark);
+    background: var(--as-blue-tint);
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.account-select-card.selected .account-select-check {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes accountSelectPulse {
+    0%, 100% {
+        box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.04),
+            0 16px 36px rgba(89, 168, 235, 0.16),
+            inset 0 0 0 1.5px var(--as-blue);
+    }
+    50% {
+        box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.04),
+            0 16px 36px rgba(89, 168, 235, 0.28),
+            inset 0 0 0 3px var(--as-blue);
+    }
+}
+
+.account-select-card.pulse {
+    animation: accountSelectPulse 320ms ease;
 }
 
 .account-select-card .account-card-divider {
@@ -623,14 +686,16 @@ form {
     font-size: 20px;
 }
 
-.wizard-step p {
+.wizard-step p,
+.wizard-step .field-group {
     margin: 0;
     padding: 18px 2px 20px;
     border-bottom: 1px solid var(--gray-200);
 }
 
 /* 金額〜振込指定日の間は区切り線を1本だけにする */
-.wizard-step p.money-field {
+.wizard-step p.money-field,
+.wizard-step .field-group.money-field {
     border-bottom: none;
     padding-bottom: 4px;
 }
@@ -650,7 +715,8 @@ form {
     border-bottom: 1px solid var(--gray-200);
 }
 
-.wizard-step p > .ml-1 {
+.wizard-step p > .ml-1,
+.wizard-step .field-group > .ml-1 {
     display: inline-flex;
     align-items: center;
     margin: 0 0 8px;
@@ -849,7 +915,6 @@ input[type="radio"] {
     width: 17px;
     height: 17px;
     margin: 0;
-    accent-color: var(--accent);
     cursor: pointer;
 }
 

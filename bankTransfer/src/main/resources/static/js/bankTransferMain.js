@@ -91,6 +91,24 @@ document.addEventListener("DOMContentLoaded", () => {
         recentCandidateList.hidden = !willOpen;
     });
 
+    // 引き落とし口座カード（クリック/Enter/Spaceで選択を示す見た目のみ。口座は現状1つのため常に選択済み扱い）
+    const accountSelectCard = document.getElementById("accountSelectCard");
+    if (accountSelectCard) {
+        const pulseAccountSelectCard = () => {
+            accountSelectCard.classList.add("selected");
+            accountSelectCard.classList.remove("pulse");
+            void accountSelectCard.offsetWidth;
+            accountSelectCard.classList.add("pulse");
+        };
+        accountSelectCard.addEventListener("click", pulseAccountSelectCard);
+        accountSelectCard.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                pulseAccountSelectCard();
+            }
+        });
+    }
+
     // 「登録済み振込先」「過去の振込先」の候補カード
     const recipientCandidateCards = document.querySelectorAll(".recipient-candidate-list .recent-transfer-card");
 
