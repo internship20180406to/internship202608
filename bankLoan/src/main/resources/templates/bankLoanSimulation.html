@@ -160,6 +160,69 @@
             color: #c00000;
         }
 
+        .unit {
+            margin-left: 5px;
+            font-weight: 600;
+        }
+
+        .scenario-panel {
+            max-width: 700px;
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+            border: 1px solid #aaaaaa;
+            border-left: 5px solid #111111;
+            border-radius: 4px;
+        }
+
+        .scenario-panel h3 {
+            margin: 0 0 10px;
+            font-size: 19px;
+        }
+
+        .scenario-description {
+            margin: 0 0 20px;
+            color: #555555;
+            font-size: 14px;
+        }
+
+        .scenario-subpanel {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #ffffff;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 25px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .radio-group label {
+            cursor: pointer;
+        }
+
+        .field-help {
+            margin: 4px 0 15px;
+            color: #555555;
+            font-size: 13px;
+        }
+
+        .short-term-message {
+            margin: 10px 0 0;
+            padding: 12px;
+            color: #555555;
+            background-color: #eeeeee;
+            border-left: 4px solid #777777;
+        }
+
+        .hidden {
+            display: none;
+        }
+
         .button-area {
             margin-top: 25px;
             text-align: center;
@@ -197,16 +260,75 @@
             border-bottom: 1px solid #aaaaaa;
         }
 
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .result-item {
+            padding: 18px;
+            background-color: #ffffff;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+        }
+
+        .result-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555555;
+            font-size: 14px;
+        }
+
         .result-value {
             font-size: 21px;
             font-weight: bold;
             color: #111111;
         }
 
-        .stress-result {
+        .scenario-result {
             margin-top: 25px;
             padding-top: 20px;
             border-top: 2px solid #111111;
+        }
+
+        .scenario-result h3 {
+            margin-bottom: 10px;
+        }
+
+        .schedule-table-wrapper {
+            max-height: 420px;
+            overflow-x: auto;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 1px solid #cccccc;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #ffffff;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dddddd;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .schedule-table th {
+            position: sticky;
+            top: 0;
+            color: #ffffff;
+            background-color: #333333;
+        }
+
+        .schedule-table th:first-child,
+        .schedule-table td:first-child {
+            text-align: left;
         }
 
         .notice {
@@ -220,11 +342,6 @@
 
         .notice p {
             margin: 5px 0;
-        }
-
-        .unit {
-            margin-left: 5px;
-            font-weight: 600;
         }
 
         @media (max-width: 700px) {
@@ -241,12 +358,18 @@
                 font-size: 25px;
             }
 
-            .application-choice-area {
+            .application-choice-area,
+            .result-summary {
                 grid-template-columns: 1fr;
             }
 
             .choice-description {
                 min-height: auto;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
             }
         }
     </style>
@@ -295,7 +418,9 @@
                 <span class="main-application-button disabled"
                       aria-disabled="true">
                     口座をお持ちでない方
-                    <span class="preparing-label">準備中</span>
+                    <span class="preparing-label">
+                        準備中
+                    </span>
                 </span>
             </div>
 
@@ -307,7 +432,8 @@
     </h2>
 
     <p>
-        借入条件を入力すると、毎月の返済額などを試算できます。
+        借入条件と将来の金利シナリオを入力すると、
+        返済額の変化を試算できます。
     </p>
 
     <form id="simulationForm">
@@ -373,6 +499,191 @@
             </select>
         </p>
 
+        <!-- 変動金利の設定 -->
+        <section id="variableScenarioPanel"
+                 class="scenario-panel hidden">
+
+            <h3>将来の金利上昇シナリオ</h3>
+
+            <p class="scenario-description">
+                5年経過後から、毎年どの程度金利が上昇するかを設定します。
+            </p>
+
+            <div id="variableScenarioInputs">
+                <p>
+                    <label for="variableAnnualIncrease">
+                        5年後からの年間上昇幅:
+                        <small class="text-danger">※</small>
+                    </label><br>
+
+                    <input type="number"
+                           id="variableAnnualIncrease"
+                           class="form-control scenario-input"
+                           min="0"
+                           max="5"
+                           step="0.01"
+                           value="0.25">
+
+                    <span class="unit">ポイント</span>
+                </p>
+
+                <p class="field-help">
+                    例：年0.80%から0.25ポイント上昇すると、年1.05%になります。
+                </p>
+
+                <p>
+                    <label for="variableMaxRate">
+                        上限金利:
+                        <small class="text-danger">※</small>
+                    </label><br>
+
+                    <input type="number"
+                           id="variableMaxRate"
+                           class="form-control scenario-input"
+                           min="0"
+                           max="20"
+                           step="0.01"
+                           value="3.00">
+
+                    <span class="unit">%</span>
+                </p>
+            </div>
+
+            <p id="variableShortTermMessage"
+               class="short-term-message hidden">
+                借入期間が5年以内のため、金利上昇前に完済する計算になります。
+            </p>
+        </section>
+
+        <!-- 固定金利10年の設定 -->
+        <section id="fixedScenarioPanel"
+                 class="scenario-panel hidden">
+
+            <h3>10年後の金利タイプ</h3>
+
+            <p class="scenario-description">
+                固定期間終了後の金利タイプを選択してください。
+            </p>
+
+            <div id="fixedChoiceArea">
+                <div class="radio-group">
+                    <label>
+                        <input type="radio"
+                               name="fixedAfterType"
+                               value="fixed"
+                               class="scenario-input">
+                        残り期間を固定金利にする
+                    </label>
+
+                    <label>
+                        <input type="radio"
+                               name="fixedAfterType"
+                               value="variable"
+                               class="scenario-input">
+                        変動金利へ切り替える
+                    </label>
+                </div>
+
+                <!-- 10年後も固定 -->
+                <div id="fixedContinuePanel"
+                     class="scenario-subpanel hidden">
+
+                    <p>
+                        <label for="fixedAfterRate">
+                            11年目以降の固定金利:
+                            <small class="text-danger">※</small>
+                        </label><br>
+
+                        <input type="number"
+                               id="fixedAfterRate"
+                               class="form-control scenario-input"
+                               min="0"
+                               max="20"
+                               step="0.01"
+                               value="2.50">
+
+                        <span class="unit">%</span>
+                    </p>
+
+                    <p class="field-help">
+                        入力した固定金利が、11年目から完済まで続くものとして計算します。
+                    </p>
+                </div>
+
+                <!-- 10年後に変動へ切替 -->
+                <div id="fixedVariablePanel"
+                     class="scenario-subpanel hidden">
+
+                    <p>
+                        <label for="fixedVariableStartRate">
+                            11年目の変動金利:
+                            <small class="text-danger">※</small>
+                        </label><br>
+
+                        <input type="number"
+                               id="fixedVariableStartRate"
+                               class="form-control scenario-input"
+                               min="0"
+                               max="20"
+                               step="0.01"
+                               value="1.80">
+
+                        <span class="unit">%</span>
+                    </p>
+
+                    <p>
+                        <label for="fixedVariableAnnualIncrease">
+                            12年目からの年間上昇幅:
+                            <small class="text-danger">※</small>
+                        </label><br>
+
+                        <input type="number"
+                               id="fixedVariableAnnualIncrease"
+                               class="form-control scenario-input"
+                               min="0"
+                               max="5"
+                               step="0.01"
+                               value="0.25">
+
+                        <span class="unit">ポイント</span>
+                    </p>
+
+                    <p>
+                        <label for="fixedVariableMaxRate">
+                            上限金利:
+                            <small class="text-danger">※</small>
+                        </label><br>
+
+                        <input type="number"
+                               id="fixedVariableMaxRate"
+                               class="form-control scenario-input"
+                               min="0"
+                               max="20"
+                               step="0.01"
+                               value="3.00">
+
+                        <span class="unit">%</span>
+                    </p>
+                </div>
+            </div>
+
+            <p id="fixedShortTermMessage"
+               class="short-term-message hidden">
+                借入期間が10年以内のため、固定期間中に完済する計算になります。
+            </p>
+        </section>
+
+        <!-- 全期間固定の説明 -->
+        <section id="fullFixedMessage"
+                 class="scenario-panel hidden">
+
+            <h3>全期間固定金利</h3>
+
+            <p class="scenario-description">
+                借入期間中、選択した金利が変わらないものとして計算します。
+            </p>
+        </section>
+
         <p>
             <strong>返済方法：</strong>
             元利均等返済
@@ -392,56 +703,93 @@
 
         <h2>シミュレーション結果</h2>
 
-        <p>
-            毎月の返済額：
-            <span id="monthlyPayment"
-                  class="result-value">
-            </span>
-        </p>
+        <p id="scenarioSummary"></p>
 
-        <p>
-            総返済額：
-            <span id="totalPayment"
-                  class="result-value">
-            </span>
-        </p>
+        <div class="result-summary">
+            <div class="result-item">
+                <span class="result-label">
+                    当初の毎月返済額
+                </span>
 
-        <p>
-            利息総額：
-            <span id="totalInterest"
-                  class="result-value">
-            </span>
-        </p>
-
-        <div id="stressResult"
-             class="stress-result">
-
-            <h2>金利上昇ケース</h2>
-
-            <p id="stressDescription"></p>
-
-            <p>
-                金利上昇後の毎月返済額：
-                <span id="stressMonthlyPayment"
+                <span id="initialMonthlyPayment"
                       class="result-value">
                 </span>
-            </p>
+            </div>
 
-            <p>
-                金利上昇ケースの総返済額：
-                <span id="stressTotalPayment"
+            <div class="result-item">
+                <span class="result-label">
+                    最大の毎月返済額
+                </span>
+
+                <span id="maximumMonthlyPayment"
                       class="result-value">
                 </span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">
+                    総返済額
+                </span>
+
+                <span id="scenarioTotalPayment"
+                      class="result-value">
+                </span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">
+                    利息総額
+                </span>
+
+                <span id="scenarioTotalInterest"
+                      class="result-value">
+                </span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">
+                    金利が変わらない場合との差額
+                </span>
+
+                <span id="baselineDifference"
+                      class="result-value">
+                </span>
+            </div>
+        </div>
+
+        <div class="scenario-result">
+            <h3>金利・返済額の変更時点</h3>
+
+            <p>
+                金利が変わる年ごとの返済額を表示しています。
             </p>
+
+            <div class="schedule-table-wrapper">
+                <table class="schedule-table">
+                    <thead>
+                    <tr>
+                        <th>適用開始</th>
+                        <th>適用金利</th>
+                        <th>毎月返済額</th>
+                        <th>変更時点の残高</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="rateScheduleBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="notice">
             <p>
-                ※選択した金利が借入期間中変わらないものとして計算した参考値です。
+                ※利用者が入力した金利シナリオに基づく参考値です。
+                将来の金利を予測するものではありません。
             </p>
 
             <p>
-                ※金利上昇ケースは将来の金利を予測するものではありません。
+                ※金利が変更された時点で、残高と残り期間から
+                毎月返済額を再計算する簡易方式です。
             </p>
 
             <p>
@@ -449,7 +797,8 @@
             </p>
 
             <p>
-                ※手数料や金融機関ごとの返済額見直しルールは考慮していません。
+                ※手数料や金融機関ごとの返済額見直しルールは
+                考慮していません。
             </p>
         </div>
     </section>
@@ -460,30 +809,198 @@
     const simulationForm =
         document.getElementById("simulationForm");
 
+    const loanYearsInput =
+        document.getElementById("loanYears");
+
+    const interestTypeInput =
+        document.getElementById("interestType");
+
     const resultArea =
         document.getElementById("resultArea");
 
-    const stressResult =
-        document.getElementById("stressResult");
+    const variableScenarioPanel =
+        document.getElementById("variableScenarioPanel");
 
-    // 元利均等返済の毎月返済額を計算
+    const variableScenarioInputs =
+        document.getElementById("variableScenarioInputs");
+
+    const variableShortTermMessage =
+        document.getElementById("variableShortTermMessage");
+
+    const fixedScenarioPanel =
+        document.getElementById("fixedScenarioPanel");
+
+    const fixedChoiceArea =
+        document.getElementById("fixedChoiceArea");
+
+    const fixedContinuePanel =
+        document.getElementById("fixedContinuePanel");
+
+    const fixedVariablePanel =
+        document.getElementById("fixedVariablePanel");
+
+    const fixedShortTermMessage =
+        document.getElementById("fixedShortTermMessage");
+
+    const fullFixedMessage =
+        document.getElementById("fullFixedMessage");
+
+    const variableAnnualIncrease =
+        document.getElementById("variableAnnualIncrease");
+
+    const variableMaxRate =
+        document.getElementById("variableMaxRate");
+
+    const fixedAfterRate =
+        document.getElementById("fixedAfterRate");
+
+    const fixedVariableStartRate =
+        document.getElementById("fixedVariableStartRate");
+
+    const fixedVariableAnnualIncrease =
+        document.getElementById("fixedVariableAnnualIncrease");
+
+    const fixedVariableMaxRate =
+        document.getElementById("fixedVariableMaxRate");
+
+    const fixedAfterTypeInputs =
+        document.querySelectorAll(
+            'input[name="fixedAfterType"]'
+        );
+
+    function hide(element) {
+        element.classList.add("hidden");
+    }
+
+    function show(element) {
+        element.classList.remove("hidden");
+    }
+
+    function disableControl(control) {
+        control.disabled = true;
+        control.required = false;
+        control.setCustomValidity("");
+    }
+
+    function enableControl(control) {
+        control.disabled = false;
+        control.required = true;
+    }
+
+    function disableAllScenarioControls() {
+        document.querySelectorAll(".scenario-input")
+            .forEach((control) => {
+                disableControl(control);
+            });
+    }
+
+    function updateFixedAfterChoice() {
+        hide(fixedContinuePanel);
+        hide(fixedVariablePanel);
+
+        disableControl(fixedAfterRate);
+        disableControl(fixedVariableStartRate);
+        disableControl(fixedVariableAnnualIncrease);
+        disableControl(fixedVariableMaxRate);
+
+        const selectedAfterType =
+            document.querySelector(
+                'input[name="fixedAfterType"]:checked'
+            );
+
+        if (!selectedAfterType) {
+            return;
+        }
+
+        if (selectedAfterType.value === "fixed") {
+            show(fixedContinuePanel);
+            enableControl(fixedAfterRate);
+        } else {
+            show(fixedVariablePanel);
+            enableControl(fixedVariableStartRate);
+            enableControl(fixedVariableAnnualIncrease);
+            enableControl(fixedVariableMaxRate);
+        }
+    }
+
+    function updateScenarioFields() {
+        const selectedType =
+            interestTypeInput.value;
+
+        const loanYears =
+            Number(loanYearsInput.value);
+
+        hide(variableScenarioPanel);
+        hide(fixedScenarioPanel);
+        hide(fullFixedMessage);
+
+        hide(variableScenarioInputs);
+        hide(variableShortTermMessage);
+
+        hide(fixedChoiceArea);
+        hide(fixedShortTermMessage);
+        hide(fixedContinuePanel);
+        hide(fixedVariablePanel);
+
+        disableAllScenarioControls();
+
+        if (selectedType === "変動金利") {
+            show(variableScenarioPanel);
+
+            if (loanYears > 0 && loanYears <= 5) {
+                show(variableShortTermMessage);
+                return;
+            }
+
+            show(variableScenarioInputs);
+            enableControl(variableAnnualIncrease);
+            enableControl(variableMaxRate);
+            return;
+        }
+
+        if (selectedType === "固定金利10年") {
+            show(fixedScenarioPanel);
+
+            if (loanYears > 0 && loanYears <= 10) {
+                show(fixedShortTermMessage);
+                return;
+            }
+
+            show(fixedChoiceArea);
+
+            fixedAfterTypeInputs.forEach((radio) => {
+                enableControl(radio);
+            });
+
+            updateFixedAfterChoice();
+            return;
+        }
+
+        if (selectedType !== "") {
+            show(fullFixedMessage);
+        }
+    }
+
     function calculateMonthlyPayment(
         principal,
         annualRate,
-        numberOfMonths
+        remainingMonths
     ) {
+        if (remainingMonths <= 0) {
+            return 0;
+        }
+
         const monthlyRate =
             annualRate / 100 / 12;
 
-        // 金利が0%の場合
         if (monthlyRate === 0) {
-            return principal / numberOfMonths;
+            return principal / remainingMonths;
         }
 
         const power =
             Math.pow(
                 1 + monthlyRate,
-                numberOfMonths
+                remainingMonths
             );
 
         return principal
@@ -492,31 +1009,295 @@
             / (power - 1);
     }
 
-    // 指定回数返済した後のローン残高を計算
-    function calculateRemainingBalance(
-        principal,
-        annualRate,
-        monthlyPayment,
-        paidMonths
+    function buildAnnualRates(
+        selectedType,
+        initialRate,
+        loanYears
     ) {
-        const monthlyRate =
-            annualRate / 100 / 12;
+        const annualRates = [];
 
-        if (monthlyRate === 0) {
-            return principal
-                - monthlyPayment * paidMonths;
+        for (let year = 1; year <= loanYears; year++) {
+            let rate = initialRate;
+
+            if (selectedType === "変動金利") {
+                if (year > 5) {
+                    const annualIncrease =
+                        Number(variableAnnualIncrease.value);
+
+                    const maximumRate =
+                        Number(variableMaxRate.value);
+
+                    rate = Math.min(
+                        initialRate
+                        + annualIncrease * (year - 5),
+                        maximumRate
+                    );
+                }
+            } else if (
+                selectedType === "固定金利10年"
+            ) {
+                if (year > 10) {
+                    const selectedAfterType =
+                        document.querySelector(
+                            'input[name="fixedAfterType"]:checked'
+                        );
+
+                    if (
+                        selectedAfterType
+                        && selectedAfterType.value === "fixed"
+                    ) {
+                        rate = Number(fixedAfterRate.value);
+                    } else if (selectedAfterType) {
+                        const startRate =
+                            Number(
+                                fixedVariableStartRate.value
+                            );
+
+                        const annualIncrease =
+                            Number(
+                                fixedVariableAnnualIncrease.value
+                            );
+
+                        const maximumRate =
+                            Number(
+                                fixedVariableMaxRate.value
+                            );
+
+                        rate = Math.min(
+                            startRate
+                            + annualIncrease * (year - 11),
+                            maximumRate
+                        );
+                    }
+                }
+            }
+
+            annualRates.push(rate);
         }
 
-        const power =
-            Math.pow(
-                1 + monthlyRate,
-                paidMonths
+        return annualRates;
+    }
+
+    function simulateLoan(
+        principal,
+        loanYears,
+        annualRates
+    ) {
+        const numberOfMonths =
+            loanYears * 12;
+
+        let remainingBalance =
+            principal;
+
+        let totalPayment = 0;
+        let totalInterest = 0;
+        let maximumMonthlyPayment = 0;
+        let monthlyPayment = 0;
+        let currentRate = null;
+
+        const changeRecords = [];
+
+        for (
+            let month = 0;
+            month < numberOfMonths;
+            month++
+        ) {
+            const yearIndex =
+                Math.floor(month / 12);
+
+            const annualRate =
+                annualRates[yearIndex];
+
+            const remainingMonths =
+                numberOfMonths - month;
+
+            if (
+                currentRate === null
+                || Math.abs(
+                    annualRate - currentRate
+                ) > 0.0000001
+            ) {
+                currentRate = annualRate;
+
+                monthlyPayment =
+                    calculateMonthlyPayment(
+                        remainingBalance,
+                        annualRate,
+                        remainingMonths
+                    );
+
+                changeRecords.push({
+                    year: yearIndex + 1,
+                    annualRate: annualRate,
+                    monthlyPayment: monthlyPayment,
+                    remainingBalance: remainingBalance
+                });
+            }
+
+            maximumMonthlyPayment =
+                Math.max(
+                    maximumMonthlyPayment,
+                    monthlyPayment
+                );
+
+            const monthlyRate =
+                annualRate / 100 / 12;
+
+            const monthlyInterest =
+                remainingBalance * monthlyRate;
+
+            let actualPayment =
+                monthlyPayment;
+
+            let principalPayment =
+                actualPayment - monthlyInterest;
+
+            if (
+                month === numberOfMonths - 1
+                || principalPayment > remainingBalance
+            ) {
+                principalPayment =
+                    remainingBalance;
+
+                actualPayment =
+                    principalPayment
+                    + monthlyInterest;
+            }
+
+            remainingBalance -=
+                principalPayment;
+
+            if (remainingBalance < 0.01) {
+                remainingBalance = 0;
+            }
+
+            totalPayment += actualPayment;
+            totalInterest += monthlyInterest;
+        }
+
+        return {
+            initialMonthlyPayment:
+            changeRecords[0].monthlyPayment,
+
+            maximumMonthlyPayment:
+            maximumMonthlyPayment,
+
+            totalPayment:
+            totalPayment,
+
+            totalInterest:
+            totalInterest,
+
+            changeRecords:
+            changeRecords
+        };
+    }
+
+    function validateScenario(
+        selectedType,
+        initialRate,
+        loanYears
+    ) {
+        variableMaxRate.setCustomValidity("");
+        fixedVariableMaxRate.setCustomValidity("");
+
+        if (
+            selectedType === "変動金利"
+            && loanYears > 5
+            && Number(variableMaxRate.value) < initialRate
+        ) {
+            variableMaxRate.setCustomValidity(
+                "上限金利は現在の金利以上で入力してください"
+            );
+        }
+
+        const selectedAfterType =
+            document.querySelector(
+                'input[name="fixedAfterType"]:checked'
             );
 
-        return principal * power
-            - monthlyPayment
-            * (power - 1)
-            / monthlyRate;
+        if (
+            selectedType === "固定金利10年"
+            && loanYears > 10
+            && selectedAfterType
+            && selectedAfterType.value === "variable"
+            && Number(fixedVariableMaxRate.value)
+            < Number(fixedVariableStartRate.value)
+        ) {
+            fixedVariableMaxRate.setCustomValidity(
+                "上限金利は11年目の変動金利以上で入力してください"
+            );
+        }
+    }
+
+    function createScenarioSummary(
+        selectedType,
+        initialRate,
+        loanYears
+    ) {
+        if (selectedType === "変動金利") {
+            if (loanYears <= 5) {
+                return "借入期間中は年"
+                    + initialRate.toFixed(2)
+                    + "%で計算しています。";
+            }
+
+            return "6年目から毎年"
+                + Number(
+                    variableAnnualIncrease.value
+                ).toFixed(2)
+                + "ポイントずつ上昇し、上限年"
+                + Number(
+                    variableMaxRate.value
+                ).toFixed(2)
+                + "%として計算しています。";
+        }
+
+        if (selectedType === "固定金利10年") {
+            if (loanYears <= 10) {
+                return "借入期間中は年"
+                    + initialRate.toFixed(2)
+                    + "%で計算しています。";
+            }
+
+            const selectedAfterType =
+                document.querySelector(
+                    'input[name="fixedAfterType"]:checked'
+                );
+
+            if (
+                selectedAfterType
+                && selectedAfterType.value === "fixed"
+            ) {
+                return "10年目までは年"
+                    + initialRate.toFixed(2)
+                    + "%、11年目以降は年"
+                    + Number(
+                        fixedAfterRate.value
+                    ).toFixed(2)
+                    + "%の固定金利として計算しています。";
+            }
+
+            return "10年目までは年"
+                + initialRate.toFixed(2)
+                + "%、11年目は変動金利年"
+                + Number(
+                    fixedVariableStartRate.value
+                ).toFixed(2)
+                + "%、12年目から毎年"
+                + Number(
+                    fixedVariableAnnualIncrease.value
+                ).toFixed(2)
+                + "ポイントずつ上昇し、上限年"
+                + Number(
+                    fixedVariableMaxRate.value
+                ).toFixed(2)
+                + "%として計算しています。";
+        }
+
+        return "借入期間中は年"
+            + initialRate.toFixed(2)
+            + "%の固定金利として計算しています。";
     }
 
     function formatYen(value) {
@@ -524,155 +1305,226 @@
             .toLocaleString("ja-JP") + "円";
     }
 
+    function formatDifference(value) {
+        const roundedValue =
+            Math.round(value);
+
+        const sign =
+            roundedValue > 0 ? "+" : "";
+
+        return sign
+            + roundedValue.toLocaleString("ja-JP")
+            + "円";
+    }
+
+    function displaySchedule(changeRecords) {
+        const tableBody =
+            document.getElementById(
+                "rateScheduleBody"
+            );
+
+        tableBody.innerHTML = "";
+
+        changeRecords.forEach((record) => {
+            const row =
+                document.createElement("tr");
+
+            const yearCell =
+                document.createElement("td");
+
+            yearCell.textContent =
+                record.year + "年目";
+
+            const rateCell =
+                document.createElement("td");
+
+            rateCell.textContent =
+                record.annualRate.toFixed(2)
+                + "%";
+
+            const paymentCell =
+                document.createElement("td");
+
+            paymentCell.textContent =
+                formatYen(
+                    record.monthlyPayment
+                );
+
+            const balanceCell =
+                document.createElement("td");
+
+            balanceCell.textContent =
+                formatYen(
+                    record.remainingBalance
+                );
+
+            row.appendChild(yearCell);
+            row.appendChild(rateCell);
+            row.appendChild(paymentCell);
+            row.appendChild(balanceCell);
+
+            tableBody.appendChild(row);
+        });
+    }
+
+    interestTypeInput.addEventListener(
+        "change",
+        () => {
+            resultArea.style.display = "none";
+            updateScenarioFields();
+        }
+    );
+
+    loanYearsInput.addEventListener(
+        "change",
+        () => {
+            resultArea.style.display = "none";
+            updateScenarioFields();
+        }
+    );
+
+    fixedAfterTypeInputs.forEach((radio) => {
+        radio.addEventListener(
+            "change",
+            () => {
+                resultArea.style.display = "none";
+                updateFixedAfterChoice();
+            }
+        );
+    });
+
+    simulationForm.addEventListener(
+        "input",
+        () => {
+            resultArea.style.display = "none";
+        }
+    );
+
     simulationForm.addEventListener(
         "submit",
         (event) => {
             event.preventDefault();
+
+            const selectedOption =
+                interestTypeInput.options[
+                    interestTypeInput.selectedIndex
+                    ];
+
+            const initialRate =
+                selectedOption
+                && selectedOption.dataset.rate
+                    ? Number(
+                        selectedOption.dataset.rate
+                    )
+                    : 0;
+
+            const loanYears =
+                Number(loanYearsInput.value);
+
+            validateScenario(
+                interestTypeInput.value,
+                initialRate,
+                loanYears
+            );
 
             if (!simulationForm.checkValidity()) {
                 simulationForm.reportValidity();
                 return;
             }
 
-            const loanAmount =
+            const principal =
                 Number(
                     document.getElementById(
                         "loanAmount"
                     ).value
                 ) * 10000;
 
-            const loanYears =
-                Number(
-                    document.getElementById(
-                        "loanYears"
-                    ).value
+            const annualRates =
+                buildAnnualRates(
+                    interestTypeInput.value,
+                    initialRate,
+                    loanYears
                 );
 
-            const interestType =
-                document.getElementById(
-                    "interestType"
+            const scenarioResult =
+                simulateLoan(
+                    principal,
+                    loanYears,
+                    annualRates
                 );
 
-            const selectedOption =
-                interestType.options[
-                    interestType.selectedIndex
-                    ];
+            const baselineRates =
+                Array(loanYears)
+                    .fill(initialRate);
 
-            const annualRate =
-                Number(
-                    selectedOption.dataset.rate
+            const baselineResult =
+                simulateLoan(
+                    principal,
+                    loanYears,
+                    baselineRates
                 );
-
-            const numberOfMonths =
-                loanYears * 12;
-
-            const monthlyPayment =
-                calculateMonthlyPayment(
-                    loanAmount,
-                    annualRate,
-                    numberOfMonths
-                );
-
-            const totalPayment =
-                monthlyPayment * numberOfMonths;
-
-            const totalInterest =
-                totalPayment - loanAmount;
 
             document.getElementById(
-                "monthlyPayment"
+                "scenarioSummary"
             ).textContent =
-                formatYen(monthlyPayment);
+                createScenarioSummary(
+                    interestTypeInput.value,
+                    initialRate,
+                    loanYears
+                );
 
             document.getElementById(
-                "totalPayment"
+                "initialMonthlyPayment"
             ).textContent =
-                formatYen(totalPayment);
+                formatYen(
+                    scenarioResult
+                        .initialMonthlyPayment
+                );
 
             document.getElementById(
-                "totalInterest"
+                "maximumMonthlyPayment"
             ).textContent =
-                formatYen(totalInterest);
+                formatYen(
+                    scenarioResult
+                        .maximumMonthlyPayment
+                );
+
+            document.getElementById(
+                "scenarioTotalPayment"
+            ).textContent =
+                formatYen(
+                    scenarioResult.totalPayment
+                );
+
+            document.getElementById(
+                "scenarioTotalInterest"
+            ).textContent =
+                formatYen(
+                    scenarioResult.totalInterest
+                );
+
+            document.getElementById(
+                "baselineDifference"
+            ).textContent =
+                formatDifference(
+                    scenarioResult.totalPayment
+                    - baselineResult.totalPayment
+                );
+
+            displaySchedule(
+                scenarioResult.changeRecords
+            );
 
             resultArea.style.display = "block";
 
-            const selectedType =
-                interestType.value;
-
-            let changeYear = null;
-
-            if (selectedType === "変動金利") {
-                changeYear = 5;
-            } else if (
-                selectedType === "固定金利10年"
-            ) {
-                changeYear = 10;
-            }
-
-            // 全期間固定、または金利変更前に完済する場合
-            if (
-                changeYear === null
-                || loanYears <= changeYear
-            ) {
-                stressResult.style.display = "none";
-                return;
-            }
-
-            const paidMonths =
-                changeYear * 12;
-
-            const remainingMonths =
-                numberOfMonths - paidMonths;
-
-            const remainingBalance =
-                calculateRemainingBalance(
-                    loanAmount,
-                    annualRate,
-                    monthlyPayment,
-                    paidMonths
-                );
-
-            // 金利が1.00ポイント上昇したと仮定
-            const increasedRate =
-                annualRate + 1.00;
-
-            const increasedMonthlyPayment =
-                calculateMonthlyPayment(
-                    remainingBalance,
-                    increasedRate,
-                    remainingMonths
-                );
-
-            const stressTotalPayment =
-                monthlyPayment * paidMonths
-                + increasedMonthlyPayment
-                * remainingMonths;
-
-            document.getElementById(
-                "stressDescription"
-            ).textContent =
-                changeYear
-                + "年後から金利が年"
-                + increasedRate.toFixed(2)
-                + "%に上昇した場合";
-
-            document.getElementById(
-                "stressMonthlyPayment"
-            ).textContent =
-                formatYen(
-                    increasedMonthlyPayment
-                );
-
-            document.getElementById(
-                "stressTotalPayment"
-            ).textContent =
-                formatYen(
-                    stressTotalPayment
-                );
-
-            stressResult.style.display = "block";
+            resultArea.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
         }
     );
+
+    updateScenarioFields();
 </script>
 </body>
 </html>
