@@ -489,7 +489,7 @@
         </div>
         <div class="simulation-desc">目的に合わせてシミュレーションの切り口（種類）をお選びください。</div>
 
-        <!-- 1. メニュー選択画面（4つに拡張） -->
+        <!-- 1. メニュー選択画面（4つ） -->
         <div id="simMenu" class="sim-menu-grid">
             <div class="sim-menu-card" onclick="selectSimulation('amount')">
                 <div>
@@ -527,6 +527,17 @@
         <div id="panel-amount" class="sim-form-panel">
             <button type="button" class="back-menu-btn" onclick="backToMenu()">◀ シミュレーション選択画面に戻る</button>
             <table class="sim-table">
+                <tr>
+                    <th><label for="simLoanType1">ローン種類</label></th>
+                    <td>
+                        <select id="simLoanType1">
+                            <option value="住宅ローン">住宅ローン</option>
+                            <option value="マイカーローン">マイカーローン</option>
+                            <option value="教育ローン">教育ローン</option>
+                            <option value="フリーローン">フリーローン</option>
+                        </select>
+                    </td>
+                </tr>
                 <tr>
                     <th><label for="simAmount">お借入希望額</label></th>
                     <td>
@@ -569,6 +580,17 @@
             <button type="button" class="back-menu-btn" onclick="backToMenu()">◀ シミュレーション選択画面に戻る</button>
             <table class="sim-table">
                 <tr>
+                    <th><label for="simLoanType2">ローン種類</label></th>
+                    <td>
+                        <select id="simLoanType2">
+                            <option value="住宅ローン">住宅ローン</option>
+                            <option value="マイカーローン">マイカーローン</option>
+                            <option value="教育ローン">教育ローン</option>
+                            <option value="フリーローン">フリーローン</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
                     <th><label for="simTargetMonthly">ご希望の毎月返済額</label></th>
                     <td>
                         <div style="display: flex; align-items: center; gap: 8px;">
@@ -608,6 +630,14 @@
             <button type="button" class="back-menu-btn" onclick="backToMenu()">◀ シミュレーション選択画面に戻る</button>
             <table class="sim-table">
                 <tr>
+                    <th><label for="simLoanType3">ローン種類</label></th>
+                    <td>
+                        <select id="simLoanType3">
+                            <option value="住宅ローン" selected>住宅ローン</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
                     <th><label for="simCurrentRent">現在の家賃（毎月）</label></th>
                     <td>
                         <div style="display: flex; align-items: center; gap: 8px;">
@@ -642,6 +672,14 @@
         <div id="panel-bonus" class="sim-form-panel">
             <button type="button" class="back-menu-btn" onclick="backToMenu()">◀ シミュレーション選択画面に戻る</button>
             <table class="sim-table">
+                <tr>
+                    <th><label for="simLoanType4">ローン種類</label></th>
+                    <td>
+                        <select id="simLoanType4">
+                            <option value="住宅ローン" selected>住宅ローン</option>
+                        </select>
+                    </td>
+                </tr>
                 <tr>
                     <th><label for="simBonusAmount">お借入希望額</label></th>
                     <td>
@@ -691,7 +729,6 @@
             </div>
             <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
                 <div class="sim-result-value" id="resultText">-- <span>円</span></div>
-                <!-- 💡 ボタンの文字を「実際に申し込む」に変更 -->
                 <a href="/bankLoan/form" class="sim-cta-btn">実際に申し込む ➔</a>
             </div>
         </div>
@@ -725,8 +762,10 @@
 
     function calculateLoan(mode) {
         let subText = "";
+        let selectedLoanType = "";
 
         if (mode === 'amount') {
+            selectedLoanType = document.getElementById('simLoanType1').value;
             const amountMan = parseFloat(document.getElementById('simAmount').value) || 0;
             const years = parseInt(document.getElementById('simYears1').value) || 5;
             const annualRate = parseFloat(document.getElementById('simInterestType1').value) || 0.0125;
@@ -746,10 +785,11 @@
 
             document.getElementById('resultLabelTitle').innerText = "毎月の目安ご返済額";
             document.getElementById('resultText').innerHTML = Math.round(monthlyPayment).toLocaleString() + " <span>円 / 月</span>";
-            subText = `※お借入 ${amountMan}万円・期間${years}年（金利 ${(annualRate*100).toFixed(2)}%）で試算`;
+            subText = `※[${selectedLoanType}] お借入 ${amountMan}万円・期間${years}年（金利 ${(annualRate*100).toFixed(2)}%）で試算`;
 
         } else if (mode === 'monthly' || mode === 'rent') {
             const isRent = mode === 'rent';
+            selectedLoanType = document.getElementById(isRent ? 'simLoanType3' : 'simLoanType2').value;
             const targetMan = isRent ?
                 (parseFloat(document.getElementById('simCurrentRent').value) || 0) :
                 (parseFloat(document.getElementById('simTargetMonthly').value) || 0);
@@ -773,9 +813,10 @@
             const calculatedMan = (calculatedPrincipal / 10000).toFixed(1);
             document.getElementById('resultLabelTitle').innerText = isRent ? "同等の家賃で購入できる目安金額" : "お借入可能額（目安）";
             document.getElementById('resultText').innerHTML = Math.round(calculatedPrincipal).toLocaleString() + " <span>円 （約 " + calculatedMan + " 万円）</span>";
-            subText = `※毎月 ${targetMan}万円のご返済・期間${years}年（金利 ${(annualRate*100).toFixed(2)}%）で試算`;
+            subText = `※[${selectedLoanType}] 毎月 ${targetMan}万円のご返済・期間${years}年（金利 ${(annualRate*100).toFixed(2)}%）で試算`;
 
         } else if (mode === 'bonus') {
+            selectedLoanType = document.getElementById('simLoanType4').value;
             const amountMan = parseFloat(document.getElementById('simBonusAmount').value) || 0;
             const bonusMan = parseFloat(document.getElementById('simBonusPortion').value) || 0;
             const years = parseInt(document.getElementById('simYears4').value) || 30;
@@ -809,7 +850,7 @@
 
             document.getElementById('resultLabelTitle').innerText = "毎月／ボーナス月の目安ご返済額";
             document.getElementById('resultText').innerHTML = `毎月: ${Math.round(mPayment).toLocaleString()}円<br><span style="font-size:12px;">(ボーナス時加算: ${Math.round(bPaymentOnce).toLocaleString()}円 × 年2回)</span>`;
-            subText = `※お借入 ${amountMan}万円（ボーナス加算年 ${bonusMan}万円）・期間${years}年で試算`;
+            subText = `※[${selectedLoanType}] お借入 ${amountMan}万円（ボーナス加算年 ${bonusMan}万円）・期間${years}年で試算`;
         }
 
         document.getElementById('resultSubText').innerText = subText;
