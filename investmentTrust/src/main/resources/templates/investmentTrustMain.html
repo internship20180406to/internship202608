@@ -183,12 +183,12 @@
                         const selectValue = selectInput.value;
 
                         if (freeInputValue === "" && selectValue === "") {
-                            alert("「購入金額の入力」または「選択肢からの選択」の、どちらか片方は必ず行ってください。");
+                            alert("「購入金額の入力」または「選択肢からの選択」の、どちらか片方は必ず記入してください。");
                             return false;
                         }
 
                         if (freeInputValue !== "" && selectValue !== "") {
-                            alert("購入金額は「自由入力」か「選択肢」のどちらか一方のみにしてください。");
+                            alert("購入金額は「自由入力」か「選択肢」のどちらか一方のみ記入してください。");
                             return false;
                         }
 
