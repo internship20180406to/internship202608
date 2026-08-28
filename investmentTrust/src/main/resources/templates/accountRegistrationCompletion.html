@@ -1,28 +1,68 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
+    <!-- スマートフォンでPC用の幅に縮小表示されないようにする -->
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>口座登録完了画面</title>
+    <!-- 見た目はチャット画面以外の全画面で共通。/css/style.css にまとめてある -->
+    <link rel="stylesheet" href="/css/style.css"/>
 </head>
 <body>
-<h1>口座登録完了</h1>
-<p>下記の口座を登録しました。この口座で投資信託の申込ができます。</p>
+<main class="content">
+    <header class="page_head">
+        <h1>口座登録完了</h1>
+    </header>
 
-<!-- 表示している値はリダイレクト元から flash attribute で渡されたもの。
-     この画面はリダイレクト後のGETなので、再読み込みしても口座が二重に登録されることはない。 -->
-<p>金融機関: <span th:text="${registeredAccount.bankCode}"></span>
-    <span th:text="${registeredBankName}"></span></p>
-<p>支店: <span th:text="${registeredAccount.branchCode}"></span>
-    <span th:text="${registeredBranchName}"></span></p>
-<p>科目名: <span th:text="${registeredAccount.accountType}"></span></p>
-<p>口座番号: <span th:text="${registeredAccount.accountNum}"></span></p>
-<p>口座名義: <span th:text="${registeredAccount.accountName}"></span></p>
-<p>残高: <span th:text="${#numbers.formatInteger(registeredAccount.balance, 1, 'COMMA')}"></span>円</p>
+    <div class="notice_success">
+        <p>下記の口座を登録しました。この口座で投資信託の申込ができます。</p>
+    </div>
 
-<p>
-    <input type="button" value="続けて登録" onclick="window.location='/accountRegistration';"/>
-    <input type="button" value="投資信託の申込へ" onclick="window.location='/investmentTrust';"/>
-    <input type="button" value="メニューへ" onclick="window.location='/menu';"/>
-</p>
+    <!-- 表示している値はリダイレクト元から flash attribute で渡されたもの。
+         この画面はリダイレクト後のGETなので、再読み込みしても口座が二重に登録されることはない。 -->
+    <dl class="summary">
+        <div class="summary_row">
+            <dt class="summary_label">金融機関</dt>
+            <dd class="summary_value">
+                <span th:text="${registeredAccount.bankCode}"></span>
+                <span th:text="${registeredBankName}"></span>
+            </dd>
+        </div>
+        <div class="summary_row">
+            <dt class="summary_label">支店</dt>
+            <dd class="summary_value">
+                <span th:text="${registeredAccount.branchCode}"></span>
+                <span th:text="${registeredBranchName}"></span>
+            </dd>
+        </div>
+        <div class="summary_row">
+            <dt class="summary_label">科目名</dt>
+            <dd class="summary_value" th:text="${registeredAccount.accountType}"></dd>
+        </div>
+        <div class="summary_row">
+            <dt class="summary_label">口座番号</dt>
+            <dd class="summary_value" th:text="${registeredAccount.accountNum}"></dd>
+        </div>
+        <div class="summary_row">
+            <dt class="summary_label">口座名義</dt>
+            <dd class="summary_value" th:text="${registeredAccount.accountName}"></dd>
+        </div>
+        <div class="summary_row summary_row_highlight">
+            <dt class="summary_label">残高</dt>
+            <dd class="summary_value">
+                <span th:text="${#numbers.formatInteger(registeredAccount.balance, 1, 'COMMA')}"></span>円
+            </dd>
+        </div>
+    </dl>
+
+    <div class="form_actions">
+        <input type="button" value="投資信託の申込へ" class="btn btn_primary"
+               onclick="window.location='/investmentTrust';"/>
+        <input type="button" value="続けて登録" class="btn btn_secondary"
+               onclick="window.location='/accountRegistration';"/>
+        <input type="button" value="メニューへ" class="btn btn_secondary"
+               onclick="window.location='/menu';"/>
+    </div>
+</main>
 </body>
 </html>

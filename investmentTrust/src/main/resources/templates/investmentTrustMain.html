@@ -1,178 +1,33 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
+    <!-- スマートフォンでPC用の幅に縮小表示されないようにする -->
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>投資信託注文情報入力画面</title>
-    <style>
-        body {
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        padding-top: 40px;
-        padding-bottom: 40px;
-        justify-content: center;
-        align-items: center;
-        min-height: 85vh;
-        overflow: auto;
-        }
-        .content {
-         background-color: #ffffff;
-         width: 80%;
-         padding: 20px;
-         border-radius: 10px;
-         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-         min-height: 50vh;
-         overflow: auto;
-        }
-        .form-control {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            box-sizing: border-box;
-        }
-        .text-danger {
-        color: red;
-        }
-        .form_hint {
-            color: #666666;
-            font-size: 0.85em;
-            display: inline-block;
-            margin-top: 2px;
-        }
-        .form_error {
-            color: red;
-        }
-        /* フォーム全体に対するエラーの表示枠。
-           「口座が見つからない」のように、項目1つに原因を特定できないものをここに出す */
-        .form_error_summary {
-            border: 1px solid red;
-            background-color: #fff5f5;
-            color: red;
-            padding: 10px 12px;
-            margin: 10px 0;
-            border-radius: 4px;
-        }
-        .form_error_summary p {
-            margin: 0;
-        }
-        .input-error {
-            border: 1px solid red;
-            background-color: #fff5f5;
-        }
-        /* ラジオボタンは選択肢全体をこの枠で囲み、エラー時はこの枠に .input-error を付ける。
-           あらかじめ透明の枠を確保しておくことで、赤枠が出たときに位置がずれないようにしている */
-        .radio-group {
-            display: inline-block;
-            padding: 6px 8px;
-            margin: 5px 0;
-            border: 1px solid transparent;
-            box-sizing: border-box;
-        }
-        .radio-label {
-            margin-right: 16px;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-        /* コード入力欄は桁数が決まっているので、全幅ではなく桁数に合わせた幅にする */
-        .form-control-code {
-            width: 8em;
-            padding: 8px;
-            margin: 5px 0;
-            box-sizing: border-box;
-        }
-        .form-select-button {
-            width: auto;
-            padding: 8px 16px;
-            margin-top: 0;
-            color: black;
-            background-color: #E0E1E2;
-            vertical-align: middle;
-        }
-        .form-select-button:hover {
-            background-color: #CCCCCC;
-        }
-        /* コード入力中に下へ出す候補一覧。
-           <p> の中に置くので <ul>/<li> ではなく span を並べている（<p>の中に<ul>は書けない） */
-        .candidate-list {
-            display: block;
-            max-width: 320px;
-            max-height: 168px;
-            overflow-y: auto;
-            margin-top: 4px;
-            border: 1px solid #cccccc;
-            border-radius: 4px;
-            background-color: #ffffff;
-        }
-        .candidate {
-            display: block;
-            padding: 6px 10px;
-            cursor: pointer;
-        }
-        .candidate:hover {
-            background-color: #f0f6ff;
-        }
-        .candidate.selected {
-            background-color: #2185D0;
-            color: #ffffff;
-        }
-        /* 候補が1件も無いときに一覧の中へ出すメッセージ。
-           「先に金融機関コードを選択してください。」のように、
-           そのままでは先に進めないことを伝えるものなので、
-           他の入力エラー（.form_error）と同じ赤にそろえている */
-        .candidate-empty {
-            display: block;
-            padding: 6px 10px;
-            color: red;
-        }
-        /* コードから引いた名称の表示欄 */
-        .master_name {
-            margin-left: 12px;
-            font-weight: bold;
-        }
-        .form-control-button {
-        width: 80px;
-        padding: 10px 20px;
-        margin-top: 10px;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-        }
-        .form-confirmation-button{
-        color: white;
-        background-color: #2185D0;
-        }
-        .form-confirmation-button:hover {
-        background-color: #1678c2;
-        }
-        .form-clear-button{
-        color: black;
-        background-color: #E0E1E2;
-        }
-        .form-clear-button:hover {
-        background-color: #CCCCCC;
-        }
-        .hidden{
-            display: none;
-        }
-
-    </style>
+    <!-- 見た目はチャット画面以外の全画面で共通。/css/style.css にまとめてある -->
+    <link rel="stylesheet" href="/css/style.css"/>
 </head>
 <body>
-<div class="content">
-    <h1>投資信託注文情報入力</h1>
-    <p><a href="/menu">メニューへ戻る</a> ｜ <a href="/accountRegistration">口座登録画面へ</a></p>
+<main class="content">
+    <header class="page_head">
+        <div>
+            <a class="back_link" href="/menu">← メニュー</a>
+            <h1>投資信託注文情報入力</h1>
+        </div>
+        <a class="btn btn_secondary btn_head" href="/accountRegistration">口座登録はこちら</a>
+    </header>
+    <p class="page_lead">
+        <small class="text-danger">※</small> は入力必須の項目です。
+    </p>
+
     <!-- novalidate: ブラウザ標準のエラー表示を止めて、JSで出すメッセージに統一する -->
     <!-- 各項目の <span class="form_error"> にはサーバサイドのエラーメッセージを表示する。
          th:errors はエラーが無いと span ごと消えてしまい JS 側が要素を取得できなくなるため、
          代わりに #fields.errors(...) を文字列化して th:text で埋めている（エラーが無ければ空文字）。 -->
     <form id="investmentTrustForm" action="#" th:action="@{/investmentTrustConfirmation}"
           th:object="${investmentTrustApplication}" method="post" novalidate>
-        <!-- 金融機関はコードで指定する。名称は入力させず、コードからマスタを引いて表示する。
-             ・コードを打つと下に候補が並び、候補をクリックするとコード欄に入る
-             ・「選択」ボタンを押した時点で確定し、金融機関名が表示される
-             ・表示された名称は画面に出すだけで、サーバへは送らない（サーバ側で引き直す）。
-               hidden項目で名称を送り返すと、開発者ツールで書き換えられてしまうため -->
+
         <!-- フォーム全体に対するエラー。
              「口座が見つからない」は金融機関・支店・科目・口座番号の“組み合わせ”に対する
              エラーで、どれか1つが間違っていると分かっているわけではない。
@@ -181,61 +36,87 @@
             <p th:each="err : ${#fields.globalErrors()}" th:text="${err}">エラー内容</p>
         </div>
 
-        <p><label class="ml-1">金融機関コード: <small class="text-danger ml-1">※</small></label><br>
+        <!-- 金融機関はコードで指定する。名称は入力させず、コードからマスタを引いて表示する。
+             ・コードを打つと下に候補が並び、候補をクリックするとコード欄に入る
+             ・「選択」ボタンを押した時点で確定し、金融機関名が表示される
+             ・表示された名称は画面に出すだけで、サーバへは送らない（サーバ側で引き直す）。
+               hidden項目で名称を送り返すと、開発者ツールで書き換えられてしまうため -->
+        <div class="field">
+            <label class="field_label" for="bankCode">金融機関コード <small class="text-danger">※</small></label>
             <small class="form_hint">半角数字4桁（例: 0001）。入力すると候補が表示されます。
-                候補を選んで「選択」を押すと確定します。</small><br>
-            <input type="text" id="bankCode" th:field="*{bankCode}" class="form-control-code"
-                   placeholder="0001" maxlength="4" inputmode="numeric" autocomplete="off"
-                   th:errorclass="input-error"/>
-            <input type="button" id="bankCodeSelect" value="選択" class="form-control-button form-select-button"/>
-            <span class="master_name" id="bankName_view" th:text="*{bankName}"></span>
-            <span class="candidate-list hidden" id="bankCode_candidates"></span>
-            <span class="form_error" id="bankCode_error" th:text="${#strings.listJoin(#fields.errors('bankCode'), ' ')}"></span></p>
+                候補を選んで「選択」を押すと確定します。</small>
+            <div class="field_control">
+                <input type="text" id="bankCode" th:field="*{bankCode}" class="form-control-code"
+                       placeholder="0001" maxlength="4" inputmode="numeric" autocomplete="off"
+                       th:errorclass="input-error"/>
+                <input type="button" id="bankCodeSelect" value="選択" class="btn btn_secondary btn_inline"/>
+                <span class="master_name" id="bankName_view" th:text="*{bankName}"></span>
+            </div>
+            <div class="candidate-list hidden" id="bankCode_candidates"></div>
+            <span class="form_error" id="bankCode_error"
+                  th:text="${#strings.listJoin(#fields.errors('bankCode'), ' ')}"></span>
+        </div>
 
-        <p><label class="ml-1">口座番号: <small class="text-danger ml-1">※</small></label><br>
+        <div class="field">
+            <label class="field_label" for="bankAccountNum">口座番号 <small class="text-danger">※</small></label>
             <input type="text" id="bankAccountNum" th:field="*{bankAccountNum}" class="form-control"
                    placeholder="1234567" maxlength="7" inputmode="numeric"
                    th:errorclass="input-error"/>
-            <span class="form_error" id="bankAccountNum_error" th:text="${#strings.listJoin(#fields.errors('bankAccountNum'), ' ')}"></span></p>
+            <span class="form_error" id="bankAccountNum_error"
+                  th:text="${#strings.listJoin(#fields.errors('bankAccountNum'), ' ')}"></span>
+        </div>
 
         <!-- 支店コードは金融機関コードとセットで初めて支店を特定できるので、
              候補も1件検索も /api/banks/{bankCode}/branches... の形で両方を渡す。
              金融機関が確定していない間は候補を出さず、その旨を表示する。 -->
-        <p><label class="ml-1">支店コード: <small class="text-danger ml-1">※</small></label><br>
-            <small class="form_hint">半角数字3桁（例: 002）。金融機関コードを先に選択してください。</small><br>
-            <input type="text" id="branchCode" th:field="*{branchCode}" class="form-control-code"
-                   placeholder="002" maxlength="3" inputmode="numeric" autocomplete="off"
-                   th:errorclass="input-error"/>
-            <input type="button" id="branchCodeSelect" value="選択" class="form-control-button form-select-button"/>
-            <span class="master_name" id="branchName_view" th:text="*{branchName}"></span>
-            <span class="candidate-list hidden" id="branchCode_candidates"></span>
-            <span class="form_error" id="branchCode_error" th:text="${#strings.listJoin(#fields.errors('branchCode'), ' ')}"></span></p>
+        <div class="field">
+            <label class="field_label" for="branchCode">支店コード <small class="text-danger">※</small></label>
+            <small class="form_hint">半角数字3桁（例: 002）。金融機関コードを先に選択してください。</small>
+            <div class="field_control">
+                <input type="text" id="branchCode" th:field="*{branchCode}" class="form-control-code"
+                       placeholder="002" maxlength="3" inputmode="numeric" autocomplete="off"
+                       th:errorclass="input-error"/>
+                <input type="button" id="branchCodeSelect" value="選択" class="btn btn_secondary btn_inline"/>
+                <span class="master_name" id="branchName_view" th:text="*{branchName}"></span>
+            </div>
+            <div class="candidate-list hidden" id="branchCode_candidates"></div>
+            <span class="form_error" id="branchCode_error"
+                  th:text="${#strings.listJoin(#fields.errors('branchCode'), ' ')}"></span>
+        </div>
 
         <!-- 科目名はラジオボタン。1つの項目が選択肢の数だけ <input> に分かれる点がプルダウンと異なる。
              ・th:field を付けると id は bankAccountType1, bankAccountType2 … と連番になるため、
                JS側は id ではなく name（bankAccountType）でまとめて取得している。
+               見出しも特定の <input> を指せないので <label> ではなく <span> にしている。
              ・選択肢ごとに赤枠を付けても見づらいので、エラー時は全体を囲む span に .input-error を付ける。
                th:errorclass は入力欄そのものに付けるものなので、代わりに th:classappend で判定している。
              ・未選択のまま送信するとブラウザは値を送らない（bankAccountTypeはnullになる）ので、
                サーバ側の @NotBlank でそのまま未選択エラーになる。 -->
-        <p><label class="ml-1">科目名: <small class="text-danger ml-1">※</small></label><br>
+        <div class="field">
+            <span class="field_label">科目名 <small class="text-danger">※</small></span>
             <span class="radio-group" id="bankAccountType_group"
                   th:classappend="${#fields.hasErrors('bankAccountType')} ? 'input-error' : ''">
                 <label class="radio-label" th:each="type : ${typeOptions}">
                     <input type="radio" th:field="*{bankAccountType}" th:value="${type}"/>
                     <span th:text="${type}">選択肢</span>
                 </label>
-            </span><br>
-            <span class="form_error" id="bankAccountType_error" th:text="${#strings.listJoin(#fields.errors('bankAccountType'), ' ')}"></span></p>
+            </span>
+            <span class="form_error" id="bankAccountType_error"
+                  th:text="${#strings.listJoin(#fields.errors('bankAccountType'), ' ')}"></span>
+        </div>
 
-        <p><label class="ml-1">購入者名: <small class="text-danger ml-1">※</small></label><br>
+        <div class="field">
+            <label class="field_label" for="name">購入者名 <small class="text-danger">※</small></label>
             <small class="form_hint">半角カナと半角スペースで入力してください（例: ﾔﾏﾀﾞ ﾀﾛｳ）。<br>
-                全角カナ「ヤマダ」・漢字「山田」・英数字は使用できません。</small><br>
+                全角カナ「ヤマダ」・漢字「山田」・英数字は使用できません。</small>
             <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="ﾔﾏﾀﾞ ﾀﾛｳ"
                    maxlength="20" th:errorclass="input-error"/>
-            <span class="form_error" id="name_error" th:text="${#strings.listJoin(#fields.errors('name'), ' ')}"></span></p>
+            <span class="form_error" id="name_error"
+                  th:text="${#strings.listJoin(#fields.errors('name'), ' ')}"></span>
+        </div>
 
-        <p><label class="ml-1">銘柄選択: <small class="text-danger ml-1">※</small></label><br>
+        <div class="field">
+            <label class="field_label" for="fundName">銘柄選択 <small class="text-danger">※</small></label>
             <select id="fundName" th:field="*{fundName}" class="form-control" th:errorclass="input-error">
                 <option value="">選択してください</option>
                 <option th:each="fund : ${fundOptions}"
@@ -243,18 +124,30 @@
                         th:text="${fund}">選択肢
                 </option>
             </select>
-            <span class="form_error" id="fundName_error" th:text="${#strings.listJoin(#fields.errors('fundName'), ' ')}"></span></p>
+            <span class="form_error" id="fundName_error"
+                  th:text="${#strings.listJoin(#fields.errors('fundName'), ' ')}"></span>
+        </div>
 
-        <p><label class="ml-1">金額: <small class="text-danger ml-1">※</small></label><br>
+        <div class="field">
+            <label class="field_label" for="money">金額 <small class="text-danger">※</small></label>
             <input type="text" id="money" th:field="*{money}" class="form-control"
                    placeholder="10,000" maxlength="12" inputmode="numeric"
                    th:errorclass="input-error"/>
-            <span class="form_error" id="money_error" th:text="${#strings.listJoin(#fields.errors('money'), ' ')}"></span></p>
+            <span class="form_error" id="money_error"
+                  th:text="${#strings.listJoin(#fields.errors('money'), ' ')}"></span>
+        </div>
 
-        <p style="text-align: center;"><input type="submit" id="confirm" value="確認"
-                                              class="form-control-button form-confirmation-button"/>
-            <input type="reset" id="clear" value="クリア" class="form-control-button form-clear-button"/></p>
+        <div class="form_actions">
+            <input type="submit" id="confirm" value="確認" class="btn btn_primary"/>
+            <input type="reset" id="clear" value="クリア" class="btn btn_secondary"/>
+        </div>
     </form>
+
+    <nav class="page_nav">
+        <a href="/menu">メニューへ戻る</a>
+        <a href="/investmentTrustChat">チャット形式で入力する</a>
+    </nav>
+
     <!-- 共通の部品を先に読み込む。inputConfirmation.js はここで定義された
          BANK_CODE_PATTERN / setupBankBranchPickers / setupCommaInput / setupHankakuInput
          などを使うため、順番を入れ替えないこと。
@@ -263,7 +156,6 @@
     <script src="/js/numberFormat.js"></script>
     <script src="/js/hankakuKana.js"></script>
     <script th:inline="javascript" src="/js/inputConfirmation.js"></script>
-
-</div>
+</main>
 </body>
 </html>

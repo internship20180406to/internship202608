@@ -1,0 +1,592 @@
+@charset "UTF-8";
+
+/*
+ * 投資信託アプリ 共通スタイル
+ *
+ * チャット画面（investmentTrustChat.html）以外の全画面がこの1枚を読み込む。
+ * 以前は画面ごとに <style> を書いていたため、同じ .form-control や .candidate-list が
+ * 3か所に重複し、片方だけ直すと見た目がずれる状態だった。ここに集約している。
+ *
+ * ★色・角丸・影はチャット画面と同じ値にそろえてある。
+ *   メニューからチャット版とフォーム版を行き来しても、見た目が切り替わらないようにするため。
+ *
+ * ★JSが付け外しするクラスは名前を変えないこと。
+ *   bankBranchPicker.js    … .hidden / .candidate / .candidate.selected / .candidate-empty
+ *   inputConfirmation.js   … .input-error
+ *   accountRegistration.js … .input-error
+ */
+
+
+/* ============================================================
+   1. 色と寸法の定義
+   ============================================================ */
+:root {
+    --color-bg: #f0f0f0;
+    --color-surface: #ffffff;
+    --color-text: #1a1a1a;
+    --color-text-muted: #666666;
+    --color-border: #cccccc;
+    --color-border-light: #eeeeee;
+
+    --color-primary: #2185d0;
+    --color-primary-hover: #1678c2;
+    --color-primary-soft: #f0f6ff;
+
+    --color-success: #21ba45;
+    --color-success-hover: #1ea83c;
+    --color-success-bg: #f2f9f4;
+    --color-success-border: #b7e0c1;
+    --color-success-text: #14632a;
+
+    --color-secondary: #e0e1e2;
+    --color-secondary-hover: #cccccc;
+
+    /* エラーの赤はチャット画面の吹き出し（.bubble_error）と同じ。変えるならあちらも合わせること */
+    --color-danger: red;
+    --color-danger-bg: #fff5f5;
+
+    /* カード幅もチャット画面と同じ。画面を行き来しても端の位置が動かない */
+    --card-max-width: 640px;
+    --radius: 10px;
+    --radius-sm: 4px;
+
+    /* 指で押せる最小の大きさ。スマートフォンでボタンや入力欄が小さくなりすぎないように */
+    --tap-size: 44px;
+}
+
+
+/* ============================================================
+   2. 土台
+   ============================================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    /* 以前は body を flex にして上下中央へ寄せていたが、
+       内容が画面より高くなると上側がはみ出して見えなくなる。
+       余白は padding で取り、カード側の margin: auto で左右中央に寄せている。 */
+    padding: 32px 16px;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    /* 端末を横向きにしたときに文字だけ勝手に拡大されるのを防ぐ */
+    -webkit-text-size-adjust: 100%;
+}
+
+.content {
+    width: 100%;
+    max-width: var(--card-max-width);
+    margin: 0 auto;
+    padding: 28px;
+    background-color: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+a {
+    color: var(--color-primary);
+}
+
+/* キーボード操作で今どこにいるか分かるようにする。マウスで押したときには出ない */
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+
+/* ============================================================
+   3. 見出し・画面上部
+   ============================================================ */
+.page_head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.page_head h1 {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+/* 見出しの上に置く「← メニュー」 */
+.back_link {
+    display: inline-block;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+/* 見出しの下の説明文 */
+.page_lead {
+    margin: 4px 0 24px;
+    color: var(--color-text-muted);
+    font-size: 0.9em;
+}
+
+/* 画面下部のリンク列。区切りは「｜」の文字ではなく余白で表している
+   （文字で入れると、折り返したときに行頭に「｜」だけが残る） */
+.page_nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin: 28px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border-light);
+    font-size: 0.9em;
+}
+
+
+/* ============================================================
+   4. 入力欄
+   ============================================================ */
+.field {
+    margin: 0 0 20px;
+}
+
+.field_label {
+    display: block;
+    font-weight: bold;
+    font-size: 0.95em;
+}
+
+/* コード入力欄・「選択」ボタン・引いてきた名称を横に並べる。
+   幅が足りなければ折り返るので、狭い画面でもボタンが押し出されない。
+
+   align-items: stretch にしているのは、「選択」ボタンの高さを入力欄に合わせるため。
+   入力欄とボタンでは文字の大きさも枠線の有無も違うので、
+   padding をそろえても数pxずれる。行の高さに合わせて伸ばす方が確実。 */
+.field_control {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.form_hint {
+    display: block;
+    margin-top: 2px;
+    color: var(--color-text-muted);
+    font-size: 0.85em;
+    line-height: 1.6;
+}
+
+.form-control,
+.form-control-code {
+    padding: 10px;
+    /* 16px未満にすると、iOSでフォーカスしたときに画面が勝手に拡大される */
+    font-size: 16px;
+    font-family: inherit;
+    color: inherit;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    min-height: var(--tap-size);
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+}
+
+/* コード入力欄は桁数が決まっているので、全幅ではなく桁数に合わせた幅にする */
+.form-control-code {
+    width: 8em;
+    margin: 0;
+}
+
+.form-control:focus,
+.form-control-code:focus {
+    border-color: var(--color-primary);
+}
+
+/* ラジオボタンは選択肢全体をこの枠で囲み、エラー時はこの枠に .input-error を付ける。
+   あらかじめ透明の枠を確保しておくことで、赤枠が出たときに位置がずれない。
+   選択肢が横に収まらないときは折り返す */
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 20px;
+    margin-top: 6px;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+}
+
+.radio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    /* 指で押せる高さを確保する */
+    min-height: var(--tap-size);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.radio-label input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--color-primary);
+}
+
+/* コードから引いた名称の表示欄。確定するまでは空なので、その間は場所を取らせない。
+   .field_control が stretch なので、ここだけ縦中央に戻している */
+.master_name {
+    align-self: center;
+    font-weight: bold;
+}
+
+.master_name:empty {
+    display: none;
+}
+
+
+/* ============================================================
+   5. エラー表示
+   ============================================================ */
+.text-danger {
+    color: var(--color-danger);
+}
+
+/* 項目ごとのエラー。JSが textContent を書き換えるので、
+   エラーが無いときは中身が空の要素が残る。その間は余白を作らない */
+.form_error {
+    display: block;
+    margin-top: 6px;
+    color: var(--color-danger);
+    font-size: 0.9em;
+}
+
+.form_error:empty {
+    display: none;
+}
+
+/* フォーム全体に対するエラーの表示枠。
+   「口座が見つからない」「既に登録されている」のように、
+   項目1つに原因を特定できないものをここに出す */
+.form_error_summary {
+    margin: 0 0 20px;
+    padding: 12px 14px;
+    color: var(--color-danger);
+    background-color: var(--color-danger-bg);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-sm);
+}
+
+.form_error_summary p {
+    margin: 0;
+}
+
+/* .form-control と詳細度が同じなので、必ずこの位置（後ろ）に置くこと。
+   前に置くと赤枠が普通の枠に上書きされる */
+.input-error {
+    background-color: var(--color-danger-bg);
+    border: 1px solid var(--color-danger);
+}
+
+.input-error:focus {
+    border-color: var(--color-danger);
+    outline-color: var(--color-danger);
+}
+
+
+/* ============================================================
+   6. コード候補の一覧（中身は bankBranchPicker.js が作る）
+   ============================================================ */
+.candidate-list {
+    display: block;
+    /* 狭い画面では画面幅いっぱいまで、広い画面では320pxで頭打ちにする */
+    width: 100%;
+    max-width: 320px;
+    max-height: 168px;
+    overflow-y: auto;
+    margin-top: 6px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+
+.candidate {
+    display: block;
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+.candidate:hover {
+    background-color: var(--color-primary-soft);
+}
+
+.candidate.selected {
+    color: var(--color-surface);
+    background-color: var(--color-primary);
+}
+
+/* 候補が1件も無いときに一覧の中へ出すメッセージ。
+   「先に金融機関コードを選択してください。」のように、
+   そのままでは先に進めないことを伝えるので、他の入力エラーと同じ赤にそろえている */
+.candidate-empty {
+    display: block;
+    padding: 10px 12px;
+    color: var(--color-danger);
+}
+
+
+/* ============================================================
+   7. ボタン
+   ============================================================ */
+/* <input type="submit"> と <a> の両方に付ける。
+   inline-flex にすると <input> の中身が flex item にならないので inline-block を使う */
+.btn {
+    display: inline-block;
+    min-height: var(--tap-size);
+    padding: 11px 24px;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.12s ease;
+}
+
+.btn_primary {
+    color: var(--color-surface);
+    background-color: var(--color-primary);
+}
+
+.btn_primary:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.btn_success {
+    color: var(--color-surface);
+    background-color: var(--color-success);
+}
+
+.btn_success:hover {
+    background-color: var(--color-success-hover);
+}
+
+.btn_secondary {
+    color: #000000;
+    background-color: var(--color-secondary);
+}
+
+.btn_secondary:hover {
+    background-color: var(--color-secondary-hover);
+}
+
+/* 見出しの横に置く小さいボタン */
+.btn_head {
+    min-height: 0;
+    padding: 7px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* コード入力欄の隣の「選択」ボタン。入力欄と高さをそろえる */
+.btn_inline {
+    padding: 11px 18px;
+}
+
+/* 送信・クリアなどのボタンを並べる行 */
+.form_actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+
+/* ============================================================
+   8. 内容の一覧表示（確認画面・完了画面）
+   ============================================================ */
+.summary {
+    margin: 0 0 24px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.summary_row {
+    display: flex;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.summary_row:last-child {
+    border-bottom: none;
+}
+
+.summary_label {
+    /* 項目名の幅をそろえて、値の開始位置を縦一直線にする。
+       132px は一番長い「引き落とし後の残高」が1行に収まる幅 */
+    flex: 0 0 132px;
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 13px;
+}
+
+.summary_value {
+    flex: 1 1 auto;
+    margin: 0;
+    font-size: 15px;
+    /* 名義などが長くても枠から溢れないようにする */
+    overflow-wrap: anywhere;
+}
+
+/* 「引き落とし後の残高」のように、その画面で一番見せたい行 */
+.summary_row_highlight {
+    background-color: var(--color-primary-soft);
+}
+
+.summary_row_highlight .summary_value {
+    font-weight: bold;
+}
+
+/* 完了画面の「受け付けました」の帯 */
+.notice_success {
+    margin: 0 0 24px;
+    padding: 14px 16px;
+    color: var(--color-success-text);
+    background-color: var(--color-success-bg);
+    border: 1px solid var(--color-success-border);
+    border-radius: var(--radius-sm);
+}
+
+.notice_success p {
+    margin: 0;
+}
+
+
+/* ============================================================
+   9. メニュー画面
+   ============================================================ */
+.menu_list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0 0;
+}
+
+.menu-item {
+    display: block;
+    padding: 18px 20px;
+    color: inherit;
+    text-decoration: none;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.menu-item:hover {
+    background-color: var(--color-primary-soft);
+    border-color: var(--color-primary);
+}
+
+.menu-title {
+    display: block;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.menu-description {
+    margin: 6px 0 0;
+    color: var(--color-text-muted);
+    font-size: 0.9em;
+}
+
+.note {
+    margin-top: 28px;
+    padding-top: 16px;
+    color: var(--color-text-muted);
+    font-size: 0.9em;
+    border-top: 1px solid var(--color-border-light);
+}
+
+
+/* ============================================================
+   10. 画面幅への対応
+   ============================================================ */
+/* タブレット・スマートフォン。カードの余白を詰めて本文の幅を稼ぐ */
+@media (max-width: 640px) {
+    body {
+        padding: 16px 12px;
+    }
+
+    .content {
+        padding: 20px 16px;
+    }
+
+    /* 見出しの横のボタンは幅が足りないので、見出しの下へ回す */
+    .page_head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* 候補一覧は画面幅いっぱいまで使う */
+    .candidate-list {
+        max-width: none;
+    }
+}
+
+/* 小さいスマートフォン */
+@media (max-width: 480px) {
+    .page_head h1 {
+        font-size: 18px;
+    }
+
+    /* 項目名と値を上下に並べる。横並びのままだと値の幅が足りなくなる */
+    .summary_row {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .summary_label {
+        flex: none;
+    }
+
+    /* ボタンは1行に1つ。指で押し分けられるようにする */
+    .form_actions {
+        flex-direction: column;
+    }
+
+    .form_actions .btn {
+        width: 100%;
+    }
+}
+
+/* 動きを減らす設定にしている利用者には、色の変化も瞬時に切り替える */
+@media (prefers-reduced-motion: reduce) {
+    .btn,
+    .menu-item {
+        transition: none;
+    }
+}
+
+
+/* ============================================================
+   11. ユーティリティ
+   ============================================================ */
+/* bankBranchPicker.js が候補一覧の開閉に使う。
+   .candidate-list の display: block に確実に勝たせるため !important を付けている */
+.hidden {
+    display: none !important;
+}

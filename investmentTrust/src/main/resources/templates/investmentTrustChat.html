@@ -1,7 +1,10 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
+    <!-- スマートフォンでPC用の幅に縮小表示されないようにする。
+         これが無いと、どれだけCSSを書いても文字が極端に小さいまま表示される -->
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>投資信託注文情報入力（チャット）</title>
     <style>
         body {
@@ -121,7 +124,45 @@
         .summary_row:last-child { border-bottom: none; }
         .summary_label { width: 92px; flex-shrink: 0; color: #666666; font-size: 13px; }
         .summary_value { flex-grow: 1; font-size: 15px; }
-        .actions { display: flex; gap: 8px; justify-content: flex-end; }
+        /* 「この内容で申し込む」は文字数が多く、狭い画面では「最初から」と並ばない。
+           折り返せるようにしておく（収まる幅では今までどおり1行に並ぶ） */
+        .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+        /* ---------------- 画面幅への対応 ---------------- */
+        /* 狭い端末ではカードを画面いっぱいに広げる。
+           履歴の高さ制限（max-height）は外さないこと。外すと履歴が伸びた分だけ
+           カードごと縦に伸びて、入力欄が画面の下へ押し出されていく。 */
+        @media (max-width: 640px) {
+            body {
+                box-sizing: border-box;
+                padding: 16px 12px;
+            }
+            .content { width: 100%; padding: 16px; }
+            /* 見出し・進捗・「口座登録はこちら」が1行に収まらないので折り返す */
+            .chat_head { flex-wrap: wrap; }
+            .chat_head h1 { font-size: 18px; }
+            /* 端末の高さが低いぶん、履歴の最低の高さを下げる。
+               dvh はアドレスバーの伸び縮みで値が変わらない単位。
+               未対応の環境では1つ前の vh がそのまま使われる */
+            .transcript { min-height: 180px; max-height: 46vh; max-height: 46dvh; }
+            /* 候補一覧は画面幅いっぱいまで使う */
+            .candidate-list { max-width: none; }
+            /* 16px未満だと、iOSで入力欄にふれたときに画面が勝手に拡大される */
+            .chat_input { font-size: 16px; }
+        }
+
+        /* 小さいスマートフォン */
+        @media (max-width: 480px) {
+            /* 確認内容は「項目名 …… 修正」「値」の2行に分ける。
+               1行のままだと値の幅が数文字ぶんしか残らない。
+               値だけ order を後ろにして、次の行へ送っている */
+            .summary_row { flex-wrap: wrap; row-gap: 2px; }
+            .summary_label { width: auto; flex-grow: 1; }
+            .summary_value { order: 3; flex-basis: 100%; }
+            /* ボタンは幅いっぱいに広げて押し分けやすくする */
+            .actions { flex-direction: column-reverse; }
+            .actions .btn { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -130,7 +171,7 @@
         <h1>投資信託のお申込み</h1>
         <div class="chat_head_right">
             <span class="progress_label" id="progressLabel"></span>
-            <a class="btn btn_secondary btn_head" href="/accountRegistration">口座登録</a>
+            <a class="btn btn_secondary btn_head" href="/accountRegistration">口座登録はこちら</a>
         </div>
     </div>
     <div class="progress_track"><div class="progress_bar" id="progressBar"></div></div>
